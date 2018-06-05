@@ -1,0 +1,1137 @@
+{
+  "type": "Program",
+  "body": [
+    {
+      "type": "VariableDeclaration",
+      "declarations": [
+        {
+          "type": "VariableDeclarator",
+          "id": {
+            "type": "Identifier",
+            "name": "Server"
+          },
+          "init": {
+            "type": "CallExpression",
+            "callee": {
+              "type": "Identifier",
+              "name": "require"
+            },
+            "arguments": [
+              {
+                "type": "Literal",
+                "value": "../../backend"
+              }
+            ]
+          }
+        }
+      ],
+      "kind": "var"
+    },
+    {
+      "type": "VariableDeclaration",
+      "declarations": [
+        {
+          "type": "VariableDeclarator",
+          "id": {
+            "type": "Identifier",
+            "name": "MemoryPersistence"
+          },
+          "init": {
+            "type": "CallExpression",
+            "callee": {
+              "type": "Identifier",
+              "name": "require"
+            },
+            "arguments": [
+              {
+                "type": "Literal",
+                "value": "../../persistence/memory"
+              }
+            ]
+          }
+        }
+      ],
+      "kind": "var"
+    },
+    {
+      "type": "ExpressionStatement",
+      "expression": {
+        "type": "CallExpression",
+        "callee": {
+          "type": "MemberExpression",
+          "computed": false,
+          "object": {
+            "type": "CallExpression",
+            "callee": {
+              "type": "MemberExpression",
+              "computed": false,
+              "object": {
+                "type": "Identifier",
+                "name": "MemoryPersistence"
+              },
+              "property": {
+                "type": "Identifier",
+                "name": "create"
+              }
+            },
+            "arguments": []
+          },
+          "property": {
+            "type": "Identifier",
+            "name": "then"
+          }
+        },
+        "arguments": [
+          {
+            "type": "FunctionExpression",
+            "id": null,
+            "params": [
+              {
+                "type": "Identifier",
+                "name": "p"
+              }
+            ],
+            "defaults": [],
+            "body": {
+              "type": "BlockStatement",
+              "body": [
+                {
+                  "type": "VariableDeclaration",
+                  "declarations": [
+                    {
+                      "type": "VariableDeclarator",
+                      "id": {
+                        "type": "Identifier",
+                        "name": "server"
+                      },
+                      "init": {
+                        "type": "NewExpression",
+                        "callee": {
+                          "type": "Identifier",
+                          "name": "Server"
+                        },
+                        "arguments": [
+                          {
+                            "type": "ObjectExpression",
+                            "properties": [
+                              {
+                                "type": "Property",
+                                "key": {
+                                  "type": "Identifier",
+                                  "name": "port"
+                                },
+                                "value": {
+                                  "type": "Literal",
+                                  "value": 8080
+                                },
+                                "kind": "init"
+                              },
+                              {
+                                "type": "Property",
+                                "key": {
+                                  "type": "Identifier",
+                                  "name": "store"
+                                },
+                                "value": {
+                                  "type": "Identifier",
+                                  "name": "p"
+                                },
+                                "kind": "init"
+                              }
+                            ]
+                          }
+                        ]
+                      }
+                    }
+                  ],
+                  "kind": "var"
+                },
+                {
+                  "type": "ExpressionStatement",
+                  "expression": {
+                    "type": "AssignmentExpression",
+                    "operator": "=",
+                    "left": {
+                      "type": "MemberExpression",
+                      "computed": false,
+                      "object": {
+                        "type": "MemberExpression",
+                        "computed": false,
+                        "object": {
+                          "type": "Identifier",
+                          "name": "server"
+                        },
+                        "property": {
+                          "type": "Identifier",
+                          "name": "handlers"
+                        }
+                      },
+                      "property": {
+                        "type": "Identifier",
+                        "name": "connect"
+                      }
+                    },
+                    "right": {
+                      "type": "FunctionExpression",
+                      "id": null,
+                      "params": [
+                        {
+                          "type": "Identifier",
+                          "name": "clientData"
+                        },
+                        {
+                          "type": "Identifier",
+                          "name": "store"
+                        },
+                        {
+                          "type": "Identifier",
+                          "name": "msg"
+                        },
+                        {
+                          "type": "Identifier",
+                          "name": "send"
+                        },
+                        {
+                          "type": "Identifier",
+                          "name": "broadcast"
+                        }
+                      ],
+                      "defaults": [],
+                      "body": {
+                        "type": "BlockStatement",
+                        "body": [
+                          {
+                            "type": "ExpressionStatement",
+                            "expression": {
+                              "type": "CallExpression",
+                              "callee": {
+                                "type": "MemberExpression",
+                                "computed": false,
+                                "object": {
+                                  "type": "Identifier",
+                                  "name": "console"
+                                },
+                                "property": {
+                                  "type": "Identifier",
+                                  "name": "log"
+                                }
+                              },
+                              "arguments": [
+                                {
+                                  "type": "Literal",
+                                  "value": "Connection established"
+                                }
+                              ]
+                            }
+                          },
+                          {
+                            "type": "ExpressionStatement",
+                            "expression": {
+                              "type": "CallExpression",
+                              "callee": {
+                                "type": "Identifier",
+                                "name": "setTimeout"
+                              },
+                              "arguments": [
+                                {
+                                  "type": "FunctionExpression",
+                                  "id": null,
+                                  "params": [],
+                                  "defaults": [],
+                                  "body": {
+                                    "type": "BlockStatement",
+                                    "body": [
+                                      {
+                                        "type": "IfStatement",
+                                        "test": {
+                                          "type": "UnaryExpression",
+                                          "operator": "!",
+                                          "argument": {
+                                            "type": "MemberExpression",
+                                            "computed": false,
+                                            "object": {
+                                              "type": "Identifier",
+                                              "name": "clientData"
+                                            },
+                                            "property": {
+                                              "type": "Identifier",
+                                              "name": "authenticated"
+                                            }
+                                          },
+                                          "prefix": true
+                                        },
+                                        "consequent": {
+                                          "type": "BlockStatement",
+                                          "body": [
+                                            {
+                                              "type": "ExpressionStatement",
+                                              "expression": {
+                                                "type": "CallExpression",
+                                                "callee": {
+                                                  "type": "MemberExpression",
+                                                  "computed": false,
+                                                  "object": {
+                                                    "type": "Identifier",
+                                                    "name": "console"
+                                                  },
+                                                  "property": {
+                                                    "type": "Identifier",
+                                                    "name": "log"
+                                                  }
+                                                },
+                                                "arguments": [
+                                                  {
+                                                    "type": "Literal",
+                                                    "value": "Client didn't authenticate in 5 seconds :("
+                                                  }
+                                                ]
+                                              }
+                                            }
+                                          ]
+                                        },
+                                        "alternate": {
+                                          "type": "BlockStatement",
+                                          "body": [
+                                            {
+                                              "type": "ExpressionStatement",
+                                              "expression": {
+                                                "type": "CallExpression",
+                                                "callee": {
+                                                  "type": "MemberExpression",
+                                                  "computed": false,
+                                                  "object": {
+                                                    "type": "Identifier",
+                                                    "name": "console"
+                                                  },
+                                                  "property": {
+                                                    "type": "Identifier",
+                                                    "name": "log"
+                                                  }
+                                                },
+                                                "arguments": [
+                                                  {
+                                                    "type": "Literal",
+                                                    "value": "Client was authenticated within 5 seconds :)"
+                                                  }
+                                                ]
+                                              }
+                                            }
+                                          ]
+                                        }
+                                      }
+                                    ]
+                                  },
+                                  "rest": null,
+                                  "generator": false,
+                                  "expression": false
+                                },
+                                {
+                                  "type": "Literal",
+                                  "value": 5000
+                                }
+                              ]
+                            }
+                          }
+                        ]
+                      },
+                      "rest": null,
+                      "generator": false,
+                      "expression": false
+                    }
+                  }
+                },
+                {
+                  "type": "ExpressionStatement",
+                  "expression": {
+                    "type": "AssignmentExpression",
+                    "operator": "=",
+                    "left": {
+                      "type": "MemberExpression",
+                      "computed": false,
+                      "object": {
+                        "type": "MemberExpression",
+                        "computed": false,
+                        "object": {
+                          "type": "Identifier",
+                          "name": "server"
+                        },
+                        "property": {
+                          "type": "Identifier",
+                          "name": "handlers"
+                        }
+                      },
+                      "property": {
+                        "type": "Identifier",
+                        "name": "create"
+                      }
+                    },
+                    "right": {
+                      "type": "FunctionExpression",
+                      "id": null,
+                      "params": [
+                        {
+                          "type": "Identifier",
+                          "name": "clientData"
+                        },
+                        {
+                          "type": "Identifier",
+                          "name": "store"
+                        },
+                        {
+                          "type": "Identifier",
+                          "name": "msg"
+                        },
+                        {
+                          "type": "Identifier",
+                          "name": "send"
+                        },
+                        {
+                          "type": "Identifier",
+                          "name": "broadcast"
+                        }
+                      ],
+                      "defaults": [],
+                      "body": {
+                        "type": "BlockStatement",
+                        "body": [
+                          {
+                            "type": "IfStatement",
+                            "test": {
+                              "type": "BinaryExpression",
+                              "operator": "!==",
+                              "left": {
+                                "type": "MemberExpression",
+                                "computed": false,
+                                "object": {
+                                  "type": "Identifier",
+                                  "name": "clientData"
+                                },
+                                "property": {
+                                  "type": "Identifier",
+                                  "name": "privileges"
+                                }
+                              },
+                              "right": {
+                                "type": "Literal",
+                                "value": "readwrite"
+                              }
+                            },
+                            "consequent": {
+                              "type": "BlockStatement",
+                              "body": [
+                                {
+                                  "type": "ExpressionStatement",
+                                  "expression": {
+                                    "type": "CallExpression",
+                                    "callee": {
+                                      "type": "Identifier",
+                                      "name": "send"
+                                    },
+                                    "arguments": [
+                                      {
+                                        "type": "ObjectExpression",
+                                        "properties": [
+                                          {
+                                            "type": "Property",
+                                            "key": {
+                                              "type": "Identifier",
+                                              "name": "type"
+                                            },
+                                            "value": {
+                                              "type": "Literal",
+                                              "value": "reject"
+                                            },
+                                            "kind": "init"
+                                          },
+                                          {
+                                            "type": "Property",
+                                            "key": {
+                                              "type": "Identifier",
+                                              "name": "storeName"
+                                            },
+                                            "value": {
+                                              "type": "MemberExpression",
+                                              "computed": false,
+                                              "object": {
+                                                "type": "Identifier",
+                                                "name": "msg"
+                                              },
+                                              "property": {
+                                                "type": "Identifier",
+                                                "name": "storeName"
+                                              }
+                                            },
+                                            "kind": "init"
+                                          },
+                                          {
+                                            "type": "Property",
+                                            "key": {
+                                              "type": "Identifier",
+                                              "name": "key"
+                                            },
+                                            "value": {
+                                              "type": "MemberExpression",
+                                              "computed": false,
+                                              "object": {
+                                                "type": "Identifier",
+                                                "name": "msg"
+                                              },
+                                              "property": {
+                                                "type": "Identifier",
+                                                "name": "key"
+                                              }
+                                            },
+                                            "kind": "init"
+                                          },
+                                          {
+                                            "type": "Property",
+                                            "key": {
+                                              "type": "Identifier",
+                                              "name": "description"
+                                            },
+                                            "value": {
+                                              "type": "Literal",
+                                              "value": "You do not have privileges to create records"
+                                            },
+                                            "kind": "init"
+                                          }
+                                        ]
+                                      }
+                                    ]
+                                  }
+                                }
+                              ]
+                            },
+                            "alternate": {
+                              "type": "BlockStatement",
+                              "body": [
+                                {
+                                  "type": "ExpressionStatement",
+                                  "expression": {
+                                    "type": "CallExpression",
+                                    "callee": {
+                                      "type": "MemberExpression",
+                                      "computed": false,
+                                      "object": {
+                                        "type": "MemberExpression",
+                                        "computed": false,
+                                        "object": {
+                                          "type": "MemberExpression",
+                                          "computed": false,
+                                          "object": {
+                                            "type": "Identifier",
+                                            "name": "Server"
+                                          },
+                                          "property": {
+                                            "type": "Identifier",
+                                            "name": "defaultHandlers"
+                                          }
+                                        },
+                                        "property": {
+                                          "type": "Identifier",
+                                          "name": "create"
+                                        }
+                                      },
+                                      "property": {
+                                        "type": "Identifier",
+                                        "name": "apply"
+                                      }
+                                    },
+                                    "arguments": [
+                                      {
+                                        "type": "Identifier",
+                                        "name": "undefined"
+                                      },
+                                      {
+                                        "type": "Identifier",
+                                        "name": "arguments"
+                                      }
+                                    ]
+                                  }
+                                }
+                              ]
+                            }
+                          }
+                        ]
+                      },
+                      "rest": null,
+                      "generator": false,
+                      "expression": false
+                    }
+                  }
+                },
+                {
+                  "type": "ExpressionStatement",
+                  "expression": {
+                    "type": "AssignmentExpression",
+                    "operator": "=",
+                    "left": {
+                      "type": "MemberExpression",
+                      "computed": true,
+                      "object": {
+                        "type": "MemberExpression",
+                        "computed": false,
+                        "object": {
+                          "type": "Identifier",
+                          "name": "server"
+                        },
+                        "property": {
+                          "type": "Identifier",
+                          "name": "handlers"
+                        }
+                      },
+                      "property": {
+                        "type": "Literal",
+                        "value": "get-changes"
+                      }
+                    },
+                    "right": {
+                      "type": "FunctionExpression",
+                      "id": null,
+                      "params": [
+                        {
+                          "type": "Identifier",
+                          "name": "clientData"
+                        },
+                        {
+                          "type": "Identifier",
+                          "name": "store"
+                        },
+                        {
+                          "type": "Identifier",
+                          "name": "msg"
+                        },
+                        {
+                          "type": "Identifier",
+                          "name": "send"
+                        },
+                        {
+                          "type": "Identifier",
+                          "name": "broadcast"
+                        }
+                      ],
+                      "defaults": [],
+                      "body": {
+                        "type": "BlockStatement",
+                        "body": [
+                          {
+                            "type": "IfStatement",
+                            "test": {
+                              "type": "LogicalExpression",
+                              "operator": "||",
+                              "left": {
+                                "type": "BinaryExpression",
+                                "operator": "===",
+                                "left": {
+                                  "type": "MemberExpression",
+                                  "computed": false,
+                                  "object": {
+                                    "type": "Identifier",
+                                    "name": "clientData"
+                                  },
+                                  "property": {
+                                    "type": "Identifier",
+                                    "name": "privileges"
+                                  }
+                                },
+                                "right": {
+                                  "type": "Literal",
+                                  "value": "readwrite"
+                                }
+                              },
+                              "right": {
+                                "type": "BinaryExpression",
+                                "operator": "===",
+                                "left": {
+                                  "type": "MemberExpression",
+                                  "computed": false,
+                                  "object": {
+                                    "type": "Identifier",
+                                    "name": "clientData"
+                                  },
+                                  "property": {
+                                    "type": "Identifier",
+                                    "name": "privileges"
+                                  }
+                                },
+                                "right": {
+                                  "type": "Literal",
+                                  "value": "readonly"
+                                }
+                              }
+                            },
+                            "consequent": {
+                              "type": "BlockStatement",
+                              "body": [
+                                {
+                                  "type": "ExpressionStatement",
+                                  "expression": {
+                                    "type": "CallExpression",
+                                    "callee": {
+                                      "type": "MemberExpression",
+                                      "computed": false,
+                                      "object": {
+                                        "type": "MemberExpression",
+                                        "computed": true,
+                                        "object": {
+                                          "type": "MemberExpression",
+                                          "computed": false,
+                                          "object": {
+                                            "type": "Identifier",
+                                            "name": "Server"
+                                          },
+                                          "property": {
+                                            "type": "Identifier",
+                                            "name": "defaultHandlers"
+                                          }
+                                        },
+                                        "property": {
+                                          "type": "Literal",
+                                          "value": "get-changes"
+                                        }
+                                      },
+                                      "property": {
+                                        "type": "Identifier",
+                                        "name": "apply"
+                                      }
+                                    },
+                                    "arguments": [
+                                      {
+                                        "type": "Identifier",
+                                        "name": "undefined"
+                                      },
+                                      {
+                                        "type": "Identifier",
+                                        "name": "arguments"
+                                      }
+                                    ]
+                                  }
+                                }
+                              ]
+                            },
+                            "alternate": {
+                              "type": "BlockStatement",
+                              "body": [
+                                {
+                                  "type": "ExpressionStatement",
+                                  "expression": {
+                                    "type": "CallExpression",
+                                    "callee": {
+                                      "type": "Identifier",
+                                      "name": "send"
+                                    },
+                                    "arguments": [
+                                      {
+                                        "type": "ObjectExpression",
+                                        "properties": [
+                                          {
+                                            "type": "Property",
+                                            "key": {
+                                              "type": "Identifier",
+                                              "name": "type"
+                                            },
+                                            "value": {
+                                              "type": "Literal",
+                                              "value": "unauthorized"
+                                            },
+                                            "kind": "init"
+                                          },
+                                          {
+                                            "type": "Property",
+                                            "key": {
+                                              "type": "Identifier",
+                                              "name": "requestedStore"
+                                            },
+                                            "value": {
+                                              "type": "MemberExpression",
+                                              "computed": false,
+                                              "object": {
+                                                "type": "Identifier",
+                                                "name": "msg"
+                                              },
+                                              "property": {
+                                                "type": "Identifier",
+                                                "name": "storeName"
+                                              }
+                                            },
+                                            "kind": "init"
+                                          },
+                                          {
+                                            "type": "Property",
+                                            "key": {
+                                              "type": "Identifier",
+                                              "name": "description"
+                                            },
+                                            "value": {
+                                              "type": "Literal",
+                                              "value": "You do not have privileges to read records"
+                                            },
+                                            "kind": "init"
+                                          }
+                                        ]
+                                      }
+                                    ]
+                                  }
+                                }
+                              ]
+                            }
+                          }
+                        ]
+                      },
+                      "rest": null,
+                      "generator": false,
+                      "expression": false
+                    }
+                  }
+                },
+                {
+                  "type": "ExpressionStatement",
+                  "expression": {
+                    "type": "AssignmentExpression",
+                    "operator": "=",
+                    "left": {
+                      "type": "MemberExpression",
+                      "computed": false,
+                      "object": {
+                        "type": "MemberExpression",
+                        "computed": false,
+                        "object": {
+                          "type": "Identifier",
+                          "name": "server"
+                        },
+                        "property": {
+                          "type": "Identifier",
+                          "name": "handlers"
+                        }
+                      },
+                      "property": {
+                        "type": "Identifier",
+                        "name": "authenticate"
+                      }
+                    },
+                    "right": {
+                      "type": "FunctionExpression",
+                      "id": null,
+                      "params": [
+                        {
+                          "type": "Identifier",
+                          "name": "clientData"
+                        },
+                        {
+                          "type": "Identifier",
+                          "name": "store"
+                        },
+                        {
+                          "type": "Identifier",
+                          "name": "msg"
+                        },
+                        {
+                          "type": "Identifier",
+                          "name": "send"
+                        },
+                        {
+                          "type": "Identifier",
+                          "name": "broadcast"
+                        }
+                      ],
+                      "defaults": [],
+                      "body": {
+                        "type": "BlockStatement",
+                        "body": [
+                          {
+                            "type": "ExpressionStatement",
+                            "expression": {
+                              "type": "CallExpression",
+                              "callee": {
+                                "type": "MemberExpression",
+                                "computed": false,
+                                "object": {
+                                  "type": "Identifier",
+                                  "name": "console"
+                                },
+                                "property": {
+                                  "type": "Identifier",
+                                  "name": "log"
+                                }
+                              },
+                              "arguments": [
+                                {
+                                  "type": "Literal",
+                                  "value": "Authentication message recieved"
+                                }
+                              ]
+                            }
+                          },
+                          {
+                            "type": "VariableDeclaration",
+                            "declarations": [
+                              {
+                                "type": "VariableDeclarator",
+                                "id": {
+                                  "type": "Identifier",
+                                  "name": "res"
+                                },
+                                "init": {
+                                  "type": "ObjectExpression",
+                                  "properties": [
+                                    {
+                                      "type": "Property",
+                                      "key": {
+                                        "type": "Identifier",
+                                        "name": "type"
+                                      },
+                                      "value": {
+                                        "type": "Literal",
+                                        "value": "auth-response"
+                                      },
+                                      "kind": "init"
+                                    }
+                                  ]
+                                }
+                              }
+                            ],
+                            "kind": "var"
+                          },
+                          {
+                            "type": "IfStatement",
+                            "test": {
+                              "type": "BinaryExpression",
+                              "operator": "===",
+                              "left": {
+                                "type": "MemberExpression",
+                                "computed": false,
+                                "object": {
+                                  "type": "Identifier",
+                                  "name": "msg"
+                                },
+                                "property": {
+                                  "type": "Identifier",
+                                  "name": "token"
+                                }
+                              },
+                              "right": {
+                                "type": "Literal",
+                                "value": "token1"
+                              }
+                            },
+                            "consequent": {
+                              "type": "BlockStatement",
+                              "body": [
+                                {
+                                  "type": "ExpressionStatement",
+                                  "expression": {
+                                    "type": "AssignmentExpression",
+                                    "operator": "=",
+                                    "left": {
+                                      "type": "MemberExpression",
+                                      "computed": false,
+                                      "object": {
+                                        "type": "Identifier",
+                                        "name": "clientData"
+                                      },
+                                      "property": {
+                                        "type": "Identifier",
+                                        "name": "authenticated"
+                                      }
+                                    },
+                                    "right": {
+                                      "type": "AssignmentExpression",
+                                      "operator": "=",
+                                      "left": {
+                                        "type": "MemberExpression",
+                                        "computed": false,
+                                        "object": {
+                                          "type": "Identifier",
+                                          "name": "res"
+                                        },
+                                        "property": {
+                                          "type": "Identifier",
+                                          "name": "success"
+                                        }
+                                      },
+                                      "right": {
+                                        "type": "Literal",
+                                        "value": true
+                                      }
+                                    }
+                                  }
+                                },
+                                {
+                                  "type": "ExpressionStatement",
+                                  "expression": {
+                                    "type": "AssignmentExpression",
+                                    "operator": "=",
+                                    "left": {
+                                      "type": "MemberExpression",
+                                      "computed": false,
+                                      "object": {
+                                        "type": "Identifier",
+                                        "name": "clientData"
+                                      },
+                                      "property": {
+                                        "type": "Identifier",
+                                        "name": "privileges"
+                                      }
+                                    },
+                                    "right": {
+                                      "type": "Literal",
+                                      "value": "readonly"
+                                    }
+                                  }
+                                }
+                              ]
+                            },
+                            "alternate": {
+                              "type": "IfStatement",
+                              "test": {
+                                "type": "BinaryExpression",
+                                "operator": "===",
+                                "left": {
+                                  "type": "MemberExpression",
+                                  "computed": false,
+                                  "object": {
+                                    "type": "Identifier",
+                                    "name": "msg"
+                                  },
+                                  "property": {
+                                    "type": "Identifier",
+                                    "name": "token"
+                                  }
+                                },
+                                "right": {
+                                  "type": "Literal",
+                                  "value": "token2"
+                                }
+                              },
+                              "consequent": {
+                                "type": "BlockStatement",
+                                "body": [
+                                  {
+                                    "type": "ExpressionStatement",
+                                    "expression": {
+                                      "type": "AssignmentExpression",
+                                      "operator": "=",
+                                      "left": {
+                                        "type": "MemberExpression",
+                                        "computed": false,
+                                        "object": {
+                                          "type": "Identifier",
+                                          "name": "clientData"
+                                        },
+                                        "property": {
+                                          "type": "Identifier",
+                                          "name": "authenticated"
+                                        }
+                                      },
+                                      "right": {
+                                        "type": "AssignmentExpression",
+                                        "operator": "=",
+                                        "left": {
+                                          "type": "MemberExpression",
+                                          "computed": false,
+                                          "object": {
+                                            "type": "Identifier",
+                                            "name": "res"
+                                          },
+                                          "property": {
+                                            "type": "Identifier",
+                                            "name": "success"
+                                          }
+                                        },
+                                        "right": {
+                                          "type": "Literal",
+                                          "value": true
+                                        }
+                                      }
+                                    }
+                                  },
+                                  {
+                                    "type": "ExpressionStatement",
+                                    "expression": {
+                                      "type": "AssignmentExpression",
+                                      "operator": "=",
+                                      "left": {
+                                        "type": "MemberExpression",
+                                        "computed": false,
+                                        "object": {
+                                          "type": "Identifier",
+                                          "name": "clientData"
+                                        },
+                                        "property": {
+                                          "type": "Identifier",
+                                          "name": "privileges"
+                                        }
+                                      },
+                                      "right": {
+                                        "type": "Literal",
+                                        "value": "readwrite"
+                                      }
+                                    }
+                                  }
+                                ]
+                              },
+                              "alternate": {
+                                "type": "BlockStatement",
+                                "body": [
+                                  {
+                                    "type": "ExpressionStatement",
+                                    "expression": {
+                                      "type": "AssignmentExpression",
+                                      "operator": "=",
+                                      "left": {
+                                        "type": "MemberExpression",
+                                        "computed": false,
+                                        "object": {
+                                          "type": "Identifier",
+                                          "name": "res"
+                                        },
+                                        "property": {
+                                          "type": "Identifier",
+                                          "name": "success"
+                                        }
+                                      },
+                                      "right": {
+                                        "type": "Literal",
+                                        "value": false
+                                      }
+                                    }
+                                  }
+                                ]
+                              }
+                            }
+                          },
+                          {
+                            "type": "ExpressionStatement",
+                            "expression": {
+                              "type": "CallExpression",
+                              "callee": {
+                                "type": "Identifier",
+                                "name": "send"
+                              },
+                              "arguments": [
+                                {
+                                  "type": "Identifier",
+                                  "name": "res"
+                                }
+                              ]
+                            }
+                          }
+                        ]
+                      },
+                      "rest": null,
+                      "generator": false,
+                      "expression": false
+                    }
+                  }
+                }
+              ]
+            },
+            "rest": null,
+            "generator": false,
+            "expression": false
+          }
+        ]
+      }
+    }
+  ]
+}

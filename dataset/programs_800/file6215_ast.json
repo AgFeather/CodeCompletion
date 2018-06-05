@@ -1,0 +1,864 @@
+{
+  "type": "Program",
+  "body": [
+    {
+      "type": "ExpressionStatement",
+      "expression": {
+        "type": "CallExpression",
+        "callee": {
+          "type": "MemberExpression",
+          "computed": false,
+          "object": {
+            "type": "Identifier",
+            "name": "YUI"
+          },
+          "property": {
+            "type": "Identifier",
+            "name": "add"
+          }
+        },
+        "arguments": [
+          {
+            "type": "Literal",
+            "value": "datatype-xml-parse"
+          },
+          {
+            "type": "FunctionExpression",
+            "id": null,
+            "params": [
+              {
+                "type": "Identifier",
+                "name": "Y"
+              },
+              {
+                "type": "Identifier",
+                "name": "NAME"
+              }
+            ],
+            "defaults": [],
+            "body": {
+              "type": "BlockStatement",
+              "body": [
+                {
+                  "type": "VariableDeclaration",
+                  "declarations": [
+                    {
+                      "type": "VariableDeclarator",
+                      "id": {
+                        "type": "Identifier",
+                        "name": "LANG"
+                      },
+                      "init": {
+                        "type": "MemberExpression",
+                        "computed": false,
+                        "object": {
+                          "type": "Identifier",
+                          "name": "Y"
+                        },
+                        "property": {
+                          "type": "Identifier",
+                          "name": "Lang"
+                        }
+                      }
+                    }
+                  ],
+                  "kind": "var"
+                },
+                {
+                  "type": "ExpressionStatement",
+                  "expression": {
+                    "type": "CallExpression",
+                    "callee": {
+                      "type": "MemberExpression",
+                      "computed": false,
+                      "object": {
+                        "type": "Identifier",
+                        "name": "Y"
+                      },
+                      "property": {
+                        "type": "Identifier",
+                        "name": "mix"
+                      }
+                    },
+                    "arguments": [
+                      {
+                        "type": "CallExpression",
+                        "callee": {
+                          "type": "MemberExpression",
+                          "computed": false,
+                          "object": {
+                            "type": "Identifier",
+                            "name": "Y"
+                          },
+                          "property": {
+                            "type": "Identifier",
+                            "name": "namespace"
+                          }
+                        },
+                        "arguments": [
+                          {
+                            "type": "Literal",
+                            "value": "XML"
+                          }
+                        ]
+                      },
+                      {
+                        "type": "ObjectExpression",
+                        "properties": [
+                          {
+                            "type": "Property",
+                            "key": {
+                              "type": "Identifier",
+                              "name": "parse"
+                            },
+                            "value": {
+                              "type": "FunctionExpression",
+                              "id": null,
+                              "params": [
+                                {
+                                  "type": "Identifier",
+                                  "name": "data"
+                                }
+                              ],
+                              "defaults": [],
+                              "body": {
+                                "type": "BlockStatement",
+                                "body": [
+                                  {
+                                    "type": "VariableDeclaration",
+                                    "declarations": [
+                                      {
+                                        "type": "VariableDeclarator",
+                                        "id": {
+                                          "type": "Identifier",
+                                          "name": "xmlDoc"
+                                        },
+                                        "init": {
+                                          "type": "Literal",
+                                          "value": null
+                                        }
+                                      }
+                                    ],
+                                    "kind": "var"
+                                  },
+                                  {
+                                    "type": "IfStatement",
+                                    "test": {
+                                      "type": "CallExpression",
+                                      "callee": {
+                                        "type": "MemberExpression",
+                                        "computed": false,
+                                        "object": {
+                                          "type": "Identifier",
+                                          "name": "LANG"
+                                        },
+                                        "property": {
+                                          "type": "Identifier",
+                                          "name": "isString"
+                                        }
+                                      },
+                                      "arguments": [
+                                        {
+                                          "type": "Identifier",
+                                          "name": "data"
+                                        }
+                                      ]
+                                    },
+                                    "consequent": {
+                                      "type": "BlockStatement",
+                                      "body": [
+                                        {
+                                          "type": "TryStatement",
+                                          "block": {
+                                            "type": "BlockStatement",
+                                            "body": [
+                                              {
+                                                "type": "IfStatement",
+                                                "test": {
+                                                  "type": "UnaryExpression",
+                                                  "operator": "!",
+                                                  "argument": {
+                                                    "type": "CallExpression",
+                                                    "callee": {
+                                                      "type": "MemberExpression",
+                                                      "computed": false,
+                                                      "object": {
+                                                        "type": "Identifier",
+                                                        "name": "LANG"
+                                                      },
+                                                      "property": {
+                                                        "type": "Identifier",
+                                                        "name": "isUndefined"
+                                                      }
+                                                    },
+                                                    "arguments": [
+                                                      {
+                                                        "type": "Identifier",
+                                                        "name": "ActiveXObject"
+                                                      }
+                                                    ]
+                                                  },
+                                                  "prefix": true
+                                                },
+                                                "consequent": {
+                                                  "type": "BlockStatement",
+                                                  "body": [
+                                                    {
+                                                      "type": "ExpressionStatement",
+                                                      "expression": {
+                                                        "type": "AssignmentExpression",
+                                                        "operator": "=",
+                                                        "left": {
+                                                          "type": "Identifier",
+                                                          "name": "xmlDoc"
+                                                        },
+                                                        "right": {
+                                                          "type": "NewExpression",
+                                                          "callee": {
+                                                            "type": "Identifier",
+                                                            "name": "ActiveXObject"
+                                                          },
+                                                          "arguments": [
+                                                            {
+                                                              "type": "Literal",
+                                                              "value": "Microsoft.XMLDOM"
+                                                            }
+                                                          ]
+                                                        }
+                                                      }
+                                                    },
+                                                    {
+                                                      "type": "ExpressionStatement",
+                                                      "expression": {
+                                                        "type": "AssignmentExpression",
+                                                        "operator": "=",
+                                                        "left": {
+                                                          "type": "MemberExpression",
+                                                          "computed": false,
+                                                          "object": {
+                                                            "type": "Identifier",
+                                                            "name": "xmlDoc"
+                                                          },
+                                                          "property": {
+                                                            "type": "Identifier",
+                                                            "name": "async"
+                                                          }
+                                                        },
+                                                        "right": {
+                                                          "type": "Literal",
+                                                          "value": false
+                                                        }
+                                                      }
+                                                    },
+                                                    {
+                                                      "type": "ExpressionStatement",
+                                                      "expression": {
+                                                        "type": "CallExpression",
+                                                        "callee": {
+                                                          "type": "MemberExpression",
+                                                          "computed": false,
+                                                          "object": {
+                                                            "type": "Identifier",
+                                                            "name": "xmlDoc"
+                                                          },
+                                                          "property": {
+                                                            "type": "Identifier",
+                                                            "name": "loadXML"
+                                                          }
+                                                        },
+                                                        "arguments": [
+                                                          {
+                                                            "type": "Identifier",
+                                                            "name": "data"
+                                                          }
+                                                        ]
+                                                      }
+                                                    }
+                                                  ]
+                                                },
+                                                "alternate": null
+                                              }
+                                            ]
+                                          },
+                                          "guardedHandlers": [],
+                                          "handlers": [
+                                            {
+                                              "type": "CatchClause",
+                                              "param": {
+                                                "type": "Identifier",
+                                                "name": "ee"
+                                              },
+                                              "body": {
+                                                "type": "BlockStatement",
+                                                "body": [
+                                                  {
+                                                    "type": "TryStatement",
+                                                    "block": {
+                                                      "type": "BlockStatement",
+                                                      "body": [
+                                                        {
+                                                          "type": "IfStatement",
+                                                          "test": {
+                                                            "type": "UnaryExpression",
+                                                            "operator": "!",
+                                                            "argument": {
+                                                              "type": "CallExpression",
+                                                              "callee": {
+                                                                "type": "MemberExpression",
+                                                                "computed": false,
+                                                                "object": {
+                                                                  "type": "Identifier",
+                                                                  "name": "LANG"
+                                                                },
+                                                                "property": {
+                                                                  "type": "Identifier",
+                                                                  "name": "isUndefined"
+                                                                }
+                                                              },
+                                                              "arguments": [
+                                                                {
+                                                                  "type": "Identifier",
+                                                                  "name": "DOMParser"
+                                                                }
+                                                              ]
+                                                            },
+                                                            "prefix": true
+                                                          },
+                                                          "consequent": {
+                                                            "type": "BlockStatement",
+                                                            "body": [
+                                                              {
+                                                                "type": "ExpressionStatement",
+                                                                "expression": {
+                                                                  "type": "AssignmentExpression",
+                                                                  "operator": "=",
+                                                                  "left": {
+                                                                    "type": "Identifier",
+                                                                    "name": "xmlDoc"
+                                                                  },
+                                                                  "right": {
+                                                                    "type": "CallExpression",
+                                                                    "callee": {
+                                                                      "type": "MemberExpression",
+                                                                      "computed": false,
+                                                                      "object": {
+                                                                        "type": "NewExpression",
+                                                                        "callee": {
+                                                                          "type": "Identifier",
+                                                                          "name": "DOMParser"
+                                                                        },
+                                                                        "arguments": []
+                                                                      },
+                                                                      "property": {
+                                                                        "type": "Identifier",
+                                                                        "name": "parseFromString"
+                                                                      }
+                                                                    },
+                                                                    "arguments": [
+                                                                      {
+                                                                        "type": "Identifier",
+                                                                        "name": "data"
+                                                                      },
+                                                                      {
+                                                                        "type": "Literal",
+                                                                        "value": "text/xml"
+                                                                      }
+                                                                    ]
+                                                                  }
+                                                                }
+                                                              }
+                                                            ]
+                                                          },
+                                                          "alternate": null
+                                                        },
+                                                        {
+                                                          "type": "IfStatement",
+                                                          "test": {
+                                                            "type": "UnaryExpression",
+                                                            "operator": "!",
+                                                            "argument": {
+                                                              "type": "CallExpression",
+                                                              "callee": {
+                                                                "type": "MemberExpression",
+                                                                "computed": false,
+                                                                "object": {
+                                                                  "type": "Identifier",
+                                                                  "name": "LANG"
+                                                                },
+                                                                "property": {
+                                                                  "type": "Identifier",
+                                                                  "name": "isUndefined"
+                                                                }
+                                                              },
+                                                              "arguments": [
+                                                                {
+                                                                  "type": "MemberExpression",
+                                                                  "computed": false,
+                                                                  "object": {
+                                                                    "type": "MemberExpression",
+                                                                    "computed": false,
+                                                                    "object": {
+                                                                      "type": "MemberExpression",
+                                                                      "computed": false,
+                                                                      "object": {
+                                                                        "type": "Identifier",
+                                                                        "name": "Windows"
+                                                                      },
+                                                                      "property": {
+                                                                        "type": "Identifier",
+                                                                        "name": "Data"
+                                                                      }
+                                                                    },
+                                                                    "property": {
+                                                                      "type": "Identifier",
+                                                                      "name": "Xml"
+                                                                    }
+                                                                  },
+                                                                  "property": {
+                                                                    "type": "Identifier",
+                                                                    "name": "Dom"
+                                                                  }
+                                                                }
+                                                              ]
+                                                            },
+                                                            "prefix": true
+                                                          },
+                                                          "consequent": {
+                                                            "type": "BlockStatement",
+                                                            "body": [
+                                                              {
+                                                                "type": "ExpressionStatement",
+                                                                "expression": {
+                                                                  "type": "AssignmentExpression",
+                                                                  "operator": "=",
+                                                                  "left": {
+                                                                    "type": "Identifier",
+                                                                    "name": "xmlDoc"
+                                                                  },
+                                                                  "right": {
+                                                                    "type": "NewExpression",
+                                                                    "callee": {
+                                                                      "type": "MemberExpression",
+                                                                      "computed": false,
+                                                                      "object": {
+                                                                        "type": "MemberExpression",
+                                                                        "computed": false,
+                                                                        "object": {
+                                                                          "type": "MemberExpression",
+                                                                          "computed": false,
+                                                                          "object": {
+                                                                            "type": "MemberExpression",
+                                                                            "computed": false,
+                                                                            "object": {
+                                                                              "type": "Identifier",
+                                                                              "name": "Windows"
+                                                                            },
+                                                                            "property": {
+                                                                              "type": "Identifier",
+                                                                              "name": "Data"
+                                                                            }
+                                                                          },
+                                                                          "property": {
+                                                                            "type": "Identifier",
+                                                                            "name": "Xml"
+                                                                          }
+                                                                        },
+                                                                        "property": {
+                                                                          "type": "Identifier",
+                                                                          "name": "Dom"
+                                                                        }
+                                                                      },
+                                                                      "property": {
+                                                                        "type": "Identifier",
+                                                                        "name": "XmlDocument"
+                                                                      }
+                                                                    },
+                                                                    "arguments": []
+                                                                  }
+                                                                }
+                                                              },
+                                                              {
+                                                                "type": "ExpressionStatement",
+                                                                "expression": {
+                                                                  "type": "CallExpression",
+                                                                  "callee": {
+                                                                    "type": "MemberExpression",
+                                                                    "computed": false,
+                                                                    "object": {
+                                                                      "type": "Identifier",
+                                                                      "name": "xmlDoc"
+                                                                    },
+                                                                    "property": {
+                                                                      "type": "Identifier",
+                                                                      "name": "loadXml"
+                                                                    }
+                                                                  },
+                                                                  "arguments": [
+                                                                    {
+                                                                      "type": "Identifier",
+                                                                      "name": "data"
+                                                                    }
+                                                                  ]
+                                                                }
+                                                              }
+                                                            ]
+                                                          },
+                                                          "alternate": null
+                                                        }
+                                                      ]
+                                                    },
+                                                    "guardedHandlers": [],
+                                                    "handlers": [
+                                                      {
+                                                        "type": "CatchClause",
+                                                        "param": {
+                                                          "type": "Identifier",
+                                                          "name": "e"
+                                                        },
+                                                        "body": {
+                                                          "type": "BlockStatement",
+                                                          "body": []
+                                                        }
+                                                      }
+                                                    ],
+                                                    "finalizer": null
+                                                  },
+                                                  {
+                                                    "type": "ExpressionStatement",
+                                                    "expression": {
+                                                      "type": "CallExpression",
+                                                      "callee": {
+                                                        "type": "MemberExpression",
+                                                        "computed": false,
+                                                        "object": {
+                                                          "type": "Identifier",
+                                                          "name": "Y"
+                                                        },
+                                                        "property": {
+                                                          "type": "Identifier",
+                                                          "name": "log"
+                                                        }
+                                                      },
+                                                      "arguments": [
+                                                        {
+                                                          "type": "BinaryExpression",
+                                                          "operator": "+",
+                                                          "left": {
+                                                            "type": "MemberExpression",
+                                                            "computed": false,
+                                                            "object": {
+                                                              "type": "Identifier",
+                                                              "name": "ee"
+                                                            },
+                                                            "property": {
+                                                              "type": "Identifier",
+                                                              "name": "message"
+                                                            }
+                                                          },
+                                                          "right": {
+                                                            "type": "Literal",
+                                                            "value": " (Could not initialize the ActiveX control for XML parsing)"
+                                                          }
+                                                        },
+                                                        {
+                                                          "type": "Literal",
+                                                          "value": "warn"
+                                                        },
+                                                        {
+                                                          "type": "Literal",
+                                                          "value": "xml"
+                                                        }
+                                                      ]
+                                                    }
+                                                  }
+                                                ]
+                                              }
+                                            }
+                                          ],
+                                          "finalizer": null
+                                        }
+                                      ]
+                                    },
+                                    "alternate": null
+                                  },
+                                  {
+                                    "type": "IfStatement",
+                                    "test": {
+                                      "type": "LogicalExpression",
+                                      "operator": "||",
+                                      "left": {
+                                        "type": "LogicalExpression",
+                                        "operator": "||",
+                                        "left": {
+                                          "type": "CallExpression",
+                                          "callee": {
+                                            "type": "MemberExpression",
+                                            "computed": false,
+                                            "object": {
+                                              "type": "Identifier",
+                                              "name": "LANG"
+                                            },
+                                            "property": {
+                                              "type": "Identifier",
+                                              "name": "isNull"
+                                            }
+                                          },
+                                          "arguments": [
+                                            {
+                                              "type": "Identifier",
+                                              "name": "xmlDoc"
+                                            }
+                                          ]
+                                        },
+                                        "right": {
+                                          "type": "CallExpression",
+                                          "callee": {
+                                            "type": "MemberExpression",
+                                            "computed": false,
+                                            "object": {
+                                              "type": "Identifier",
+                                              "name": "LANG"
+                                            },
+                                            "property": {
+                                              "type": "Identifier",
+                                              "name": "isNull"
+                                            }
+                                          },
+                                          "arguments": [
+                                            {
+                                              "type": "MemberExpression",
+                                              "computed": false,
+                                              "object": {
+                                                "type": "Identifier",
+                                                "name": "xmlDoc"
+                                              },
+                                              "property": {
+                                                "type": "Identifier",
+                                                "name": "documentElement"
+                                              }
+                                            }
+                                          ]
+                                        }
+                                      },
+                                      "right": {
+                                        "type": "BinaryExpression",
+                                        "operator": "===",
+                                        "left": {
+                                          "type": "MemberExpression",
+                                          "computed": false,
+                                          "object": {
+                                            "type": "MemberExpression",
+                                            "computed": false,
+                                            "object": {
+                                              "type": "Identifier",
+                                              "name": "xmlDoc"
+                                            },
+                                            "property": {
+                                              "type": "Identifier",
+                                              "name": "documentElement"
+                                            }
+                                          },
+                                          "property": {
+                                            "type": "Identifier",
+                                            "name": "nodeName"
+                                          }
+                                        },
+                                        "right": {
+                                          "type": "Literal",
+                                          "value": "parsererror"
+                                        }
+                                      }
+                                    },
+                                    "consequent": {
+                                      "type": "BlockStatement",
+                                      "body": [
+                                        {
+                                          "type": "ExpressionStatement",
+                                          "expression": {
+                                            "type": "CallExpression",
+                                            "callee": {
+                                              "type": "MemberExpression",
+                                              "computed": false,
+                                              "object": {
+                                                "type": "Identifier",
+                                                "name": "Y"
+                                              },
+                                              "property": {
+                                                "type": "Identifier",
+                                                "name": "log"
+                                              }
+                                            },
+                                            "arguments": [
+                                              {
+                                                "type": "Literal",
+                                                "value": "Could not parse data to type XML Document"
+                                              },
+                                              {
+                                                "type": "Literal",
+                                                "value": "warn"
+                                              },
+                                              {
+                                                "type": "Literal",
+                                                "value": "xml"
+                                              }
+                                            ]
+                                          }
+                                        }
+                                      ]
+                                    },
+                                    "alternate": null
+                                  },
+                                  {
+                                    "type": "ReturnStatement",
+                                    "argument": {
+                                      "type": "Identifier",
+                                      "name": "xmlDoc"
+                                    }
+                                  }
+                                ]
+                              },
+                              "rest": null,
+                              "generator": false,
+                              "expression": false
+                            },
+                            "kind": "init"
+                          }
+                        ]
+                      }
+                    ]
+                  }
+                },
+                {
+                  "type": "ExpressionStatement",
+                  "expression": {
+                    "type": "AssignmentExpression",
+                    "operator": "=",
+                    "left": {
+                      "type": "MemberExpression",
+                      "computed": false,
+                      "object": {
+                        "type": "CallExpression",
+                        "callee": {
+                          "type": "MemberExpression",
+                          "computed": false,
+                          "object": {
+                            "type": "Identifier",
+                            "name": "Y"
+                          },
+                          "property": {
+                            "type": "Identifier",
+                            "name": "namespace"
+                          }
+                        },
+                        "arguments": [
+                          {
+                            "type": "Literal",
+                            "value": "Parsers"
+                          }
+                        ]
+                      },
+                      "property": {
+                        "type": "Identifier",
+                        "name": "xml"
+                      }
+                    },
+                    "right": {
+                      "type": "MemberExpression",
+                      "computed": false,
+                      "object": {
+                        "type": "MemberExpression",
+                        "computed": false,
+                        "object": {
+                          "type": "Identifier",
+                          "name": "Y"
+                        },
+                        "property": {
+                          "type": "Identifier",
+                          "name": "XML"
+                        }
+                      },
+                      "property": {
+                        "type": "Identifier",
+                        "name": "parse"
+                      }
+                    }
+                  }
+                },
+                {
+                  "type": "ExpressionStatement",
+                  "expression": {
+                    "type": "CallExpression",
+                    "callee": {
+                      "type": "MemberExpression",
+                      "computed": false,
+                      "object": {
+                        "type": "Identifier",
+                        "name": "Y"
+                      },
+                      "property": {
+                        "type": "Identifier",
+                        "name": "namespace"
+                      }
+                    },
+                    "arguments": [
+                      {
+                        "type": "Literal",
+                        "value": "DataType"
+                      }
+                    ]
+                  }
+                },
+                {
+                  "type": "ExpressionStatement",
+                  "expression": {
+                    "type": "AssignmentExpression",
+                    "operator": "=",
+                    "left": {
+                      "type": "MemberExpression",
+                      "computed": false,
+                      "object": {
+                        "type": "MemberExpression",
+                        "computed": false,
+                        "object": {
+                          "type": "Identifier",
+                          "name": "Y"
+                        },
+                        "property": {
+                          "type": "Identifier",
+                          "name": "DataType"
+                        }
+                      },
+                      "property": {
+                        "type": "Identifier",
+                        "name": "XML"
+                      }
+                    },
+                    "right": {
+                      "type": "MemberExpression",
+                      "computed": false,
+                      "object": {
+                        "type": "Identifier",
+                        "name": "Y"
+                      },
+                      "property": {
+                        "type": "Identifier",
+                        "name": "XML"
+                      }
+                    }
+                  }
+                }
+              ]
+            },
+            "rest": null,
+            "generator": false,
+            "expression": false
+          },
+          {
+            "type": "Literal",
+            "value": "@VERSION@"
+          }
+        ]
+      }
+    }
+  ]
+}

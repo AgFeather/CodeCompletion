@@ -1,0 +1,1418 @@
+{
+  "type": "Program",
+  "body": [
+    {
+      "type": "ExpressionStatement",
+      "expression": {
+        "type": "CallExpression",
+        "callee": {
+          "type": "Identifier",
+          "name": "define"
+        },
+        "arguments": [
+          {
+            "type": "FunctionExpression",
+            "id": null,
+            "params": [
+              {
+                "type": "Identifier",
+                "name": "require"
+              }
+            ],
+            "defaults": [],
+            "body": {
+              "type": "BlockStatement",
+              "body": [
+                {
+                  "type": "ExpressionStatement",
+                  "expression": {
+                    "type": "Literal",
+                    "value": "use strict"
+                  }
+                },
+                {
+                  "type": "VariableDeclaration",
+                  "declarations": [
+                    {
+                      "type": "VariableDeclarator",
+                      "id": {
+                        "type": "Identifier",
+                        "name": "SettingsService"
+                      },
+                      "init": {
+                        "type": "CallExpression",
+                        "callee": {
+                          "type": "Identifier",
+                          "name": "require"
+                        },
+                        "arguments": [
+                          {
+                            "type": "Literal",
+                            "value": "modules/settings_service"
+                          }
+                        ]
+                      }
+                    }
+                  ],
+                  "kind": "var"
+                },
+                {
+                  "type": "VariableDeclaration",
+                  "declarations": [
+                    {
+                      "type": "VariableDeclarator",
+                      "id": {
+                        "type": "Identifier",
+                        "name": "SettingsPanel"
+                      },
+                      "init": {
+                        "type": "CallExpression",
+                        "callee": {
+                          "type": "Identifier",
+                          "name": "require"
+                        },
+                        "arguments": [
+                          {
+                            "type": "Literal",
+                            "value": "modules/settings_panel"
+                          }
+                        ]
+                      }
+                    }
+                  ],
+                  "kind": "var"
+                },
+                {
+                  "type": "VariableDeclaration",
+                  "declarations": [
+                    {
+                      "type": "VariableDeclarator",
+                      "id": {
+                        "type": "Identifier",
+                        "name": "ApnSettingsManager"
+                      },
+                      "init": {
+                        "type": "CallExpression",
+                        "callee": {
+                          "type": "Identifier",
+                          "name": "require"
+                        },
+                        "arguments": [
+                          {
+                            "type": "Literal",
+                            "value": "modules/apn/apn_settings_manager"
+                          }
+                        ]
+                      }
+                    }
+                  ],
+                  "kind": "var"
+                },
+                {
+                  "type": "VariableDeclaration",
+                  "declarations": [
+                    {
+                      "type": "VariableDeclarator",
+                      "id": {
+                        "type": "Identifier",
+                        "name": "Toaster"
+                      },
+                      "init": {
+                        "type": "CallExpression",
+                        "callee": {
+                          "type": "Identifier",
+                          "name": "require"
+                        },
+                        "arguments": [
+                          {
+                            "type": "Literal",
+                            "value": "shared/toaster"
+                          }
+                        ]
+                      }
+                    }
+                  ],
+                  "kind": "var"
+                },
+                {
+                  "type": "ReturnStatement",
+                  "argument": {
+                    "type": "FunctionExpression",
+                    "id": {
+                      "type": "Identifier",
+                      "name": "ctor_apn_settings_panel"
+                    },
+                    "params": [],
+                    "defaults": [],
+                    "body": {
+                      "type": "BlockStatement",
+                      "body": [
+                        {
+                          "type": "VariableDeclaration",
+                          "declarations": [
+                            {
+                              "type": "VariableDeclarator",
+                              "id": {
+                                "type": "Identifier",
+                                "name": "_serviceId"
+                              },
+                              "init": {
+                                "type": "Literal",
+                                "value": 0
+                              }
+                            }
+                          ],
+                          "kind": "var"
+                        },
+                        {
+                          "type": "VariableDeclaration",
+                          "declarations": [
+                            {
+                              "type": "VariableDeclarator",
+                              "id": {
+                                "type": "Identifier",
+                                "name": "_rootElement"
+                              },
+                              "init": null
+                            }
+                          ],
+                          "kind": "var"
+                        },
+                        {
+                          "type": "VariableDeclaration",
+                          "declarations": [
+                            {
+                              "type": "VariableDeclarator",
+                              "id": {
+                                "type": "Identifier",
+                                "name": "_warningDialog"
+                              },
+                              "init": null
+                            }
+                          ],
+                          "kind": "var"
+                        },
+                        {
+                          "type": "VariableDeclaration",
+                          "declarations": [
+                            {
+                              "type": "VariableDeclarator",
+                              "id": {
+                                "type": "Identifier",
+                                "name": "_warningDialogOkBtn"
+                              },
+                              "init": null
+                            }
+                          ],
+                          "kind": "var"
+                        },
+                        {
+                          "type": "VariableDeclaration",
+                          "declarations": [
+                            {
+                              "type": "VariableDeclarator",
+                              "id": {
+                                "type": "Identifier",
+                                "name": "_warningDialogCancelBtn"
+                              },
+                              "init": null
+                            }
+                          ],
+                          "kind": "var"
+                        },
+                        {
+                          "type": "VariableDeclaration",
+                          "declarations": [
+                            {
+                              "type": "VariableDeclarator",
+                              "id": {
+                                "type": "Identifier",
+                                "name": "_showResetApnWarningDialog"
+                              },
+                              "init": {
+                                "type": "FunctionExpression",
+                                "id": null,
+                                "params": [
+                                  {
+                                    "type": "Identifier",
+                                    "name": "callback"
+                                  }
+                                ],
+                                "defaults": [],
+                                "body": {
+                                  "type": "BlockStatement",
+                                  "body": [
+                                    {
+                                      "type": "IfStatement",
+                                      "test": {
+                                        "type": "BinaryExpression",
+                                        "operator": "!==",
+                                        "left": {
+                                          "type": "UnaryExpression",
+                                          "operator": "typeof",
+                                          "argument": {
+                                            "type": "Identifier",
+                                            "name": "callback"
+                                          },
+                                          "prefix": true
+                                        },
+                                        "right": {
+                                          "type": "Literal",
+                                          "value": "function"
+                                        }
+                                      },
+                                      "consequent": {
+                                        "type": "BlockStatement",
+                                        "body": [
+                                          {
+                                            "type": "ReturnStatement",
+                                            "argument": null
+                                          }
+                                        ]
+                                      },
+                                      "alternate": null
+                                    },
+                                    {
+                                      "type": "IfStatement",
+                                      "test": {
+                                        "type": "UnaryExpression",
+                                        "operator": "!",
+                                        "argument": {
+                                          "type": "Identifier",
+                                          "name": "_warningDialog"
+                                        },
+                                        "prefix": true
+                                      },
+                                      "consequent": {
+                                        "type": "BlockStatement",
+                                        "body": [
+                                          {
+                                            "type": "ExpressionStatement",
+                                            "expression": {
+                                              "type": "AssignmentExpression",
+                                              "operator": "=",
+                                              "left": {
+                                                "type": "Identifier",
+                                                "name": "_warningDialog"
+                                              },
+                                              "right": {
+                                                "type": "CallExpression",
+                                                "callee": {
+                                                  "type": "MemberExpression",
+                                                  "computed": false,
+                                                  "object": {
+                                                    "type": "Identifier",
+                                                    "name": "_rootElement"
+                                                  },
+                                                  "property": {
+                                                    "type": "Identifier",
+                                                    "name": "querySelector"
+                                                  }
+                                                },
+                                                "arguments": [
+                                                  {
+                                                    "type": "Literal",
+                                                    "value": ".reset-apn-warning"
+                                                  }
+                                                ]
+                                              }
+                                            }
+                                          },
+                                          {
+                                            "type": "ExpressionStatement",
+                                            "expression": {
+                                              "type": "AssignmentExpression",
+                                              "operator": "=",
+                                              "left": {
+                                                "type": "Identifier",
+                                                "name": "_warningDialogOkBtn"
+                                              },
+                                              "right": {
+                                                "type": "CallExpression",
+                                                "callee": {
+                                                  "type": "MemberExpression",
+                                                  "computed": false,
+                                                  "object": {
+                                                    "type": "Identifier",
+                                                    "name": "_warningDialog"
+                                                  },
+                                                  "property": {
+                                                    "type": "Identifier",
+                                                    "name": "querySelector"
+                                                  }
+                                                },
+                                                "arguments": [
+                                                  {
+                                                    "type": "Literal",
+                                                    "value": ".ok-btn"
+                                                  }
+                                                ]
+                                              }
+                                            }
+                                          },
+                                          {
+                                            "type": "ExpressionStatement",
+                                            "expression": {
+                                              "type": "AssignmentExpression",
+                                              "operator": "=",
+                                              "left": {
+                                                "type": "Identifier",
+                                                "name": "_warningDialogCancelBtn"
+                                              },
+                                              "right": {
+                                                "type": "CallExpression",
+                                                "callee": {
+                                                  "type": "MemberExpression",
+                                                  "computed": false,
+                                                  "object": {
+                                                    "type": "Identifier",
+                                                    "name": "_warningDialog"
+                                                  },
+                                                  "property": {
+                                                    "type": "Identifier",
+                                                    "name": "querySelector"
+                                                  }
+                                                },
+                                                "arguments": [
+                                                  {
+                                                    "type": "Literal",
+                                                    "value": ".cancel-btn"
+                                                  }
+                                                ]
+                                              }
+                                            }
+                                          }
+                                        ]
+                                      },
+                                      "alternate": null
+                                    },
+                                    {
+                                      "type": "ExpressionStatement",
+                                      "expression": {
+                                        "type": "CallExpression",
+                                        "callee": {
+                                          "type": "MemberExpression",
+                                          "computed": false,
+                                          "object": {
+                                            "type": "Identifier",
+                                            "name": "_warningDialog"
+                                          },
+                                          "property": {
+                                            "type": "Identifier",
+                                            "name": "addEventListener"
+                                          }
+                                        },
+                                        "arguments": [
+                                          {
+                                            "type": "Literal",
+                                            "value": "click"
+                                          },
+                                          {
+                                            "type": "FunctionExpression",
+                                            "id": {
+                                              "type": "Identifier",
+                                              "name": "onclick"
+                                            },
+                                            "params": [
+                                              {
+                                                "type": "Identifier",
+                                                "name": "event"
+                                              }
+                                            ],
+                                            "defaults": [],
+                                            "body": {
+                                              "type": "BlockStatement",
+                                              "body": [
+                                                {
+                                                  "type": "IfStatement",
+                                                  "test": {
+                                                    "type": "BinaryExpression",
+                                                    "operator": "==",
+                                                    "left": {
+                                                      "type": "MemberExpression",
+                                                      "computed": false,
+                                                      "object": {
+                                                        "type": "Identifier",
+                                                        "name": "event"
+                                                      },
+                                                      "property": {
+                                                        "type": "Identifier",
+                                                        "name": "target"
+                                                      }
+                                                    },
+                                                    "right": {
+                                                      "type": "Identifier",
+                                                      "name": "_warningDialogOkBtn"
+                                                    }
+                                                  },
+                                                  "consequent": {
+                                                    "type": "BlockStatement",
+                                                    "body": [
+                                                      {
+                                                        "type": "ExpressionStatement",
+                                                        "expression": {
+                                                          "type": "CallExpression",
+                                                          "callee": {
+                                                            "type": "MemberExpression",
+                                                            "computed": false,
+                                                            "object": {
+                                                              "type": "Identifier",
+                                                              "name": "_warningDialog"
+                                                            },
+                                                            "property": {
+                                                              "type": "Identifier",
+                                                              "name": "removeEventListener"
+                                                            }
+                                                          },
+                                                          "arguments": [
+                                                            {
+                                                              "type": "Literal",
+                                                              "value": "click"
+                                                            },
+                                                            {
+                                                              "type": "Identifier",
+                                                              "name": "onclick"
+                                                            }
+                                                          ]
+                                                        }
+                                                      },
+                                                      {
+                                                        "type": "ExpressionStatement",
+                                                        "expression": {
+                                                          "type": "AssignmentExpression",
+                                                          "operator": "=",
+                                                          "left": {
+                                                            "type": "MemberExpression",
+                                                            "computed": false,
+                                                            "object": {
+                                                              "type": "Identifier",
+                                                              "name": "_warningDialog"
+                                                            },
+                                                            "property": {
+                                                              "type": "Identifier",
+                                                              "name": "hidden"
+                                                            }
+                                                          },
+                                                          "right": {
+                                                            "type": "Literal",
+                                                            "value": true
+                                                          }
+                                                        }
+                                                      },
+                                                      {
+                                                        "type": "ExpressionStatement",
+                                                        "expression": {
+                                                          "type": "CallExpression",
+                                                          "callee": {
+                                                            "type": "Identifier",
+                                                            "name": "callback"
+                                                          },
+                                                          "arguments": [
+                                                            {
+                                                              "type": "Literal",
+                                                              "value": true
+                                                            }
+                                                          ]
+                                                        }
+                                                      }
+                                                    ]
+                                                  },
+                                                  "alternate": {
+                                                    "type": "IfStatement",
+                                                    "test": {
+                                                      "type": "BinaryExpression",
+                                                      "operator": "==",
+                                                      "left": {
+                                                        "type": "MemberExpression",
+                                                        "computed": false,
+                                                        "object": {
+                                                          "type": "Identifier",
+                                                          "name": "event"
+                                                        },
+                                                        "property": {
+                                                          "type": "Identifier",
+                                                          "name": "target"
+                                                        }
+                                                      },
+                                                      "right": {
+                                                        "type": "Identifier",
+                                                        "name": "_warningDialogCancelBtn"
+                                                      }
+                                                    },
+                                                    "consequent": {
+                                                      "type": "BlockStatement",
+                                                      "body": [
+                                                        {
+                                                          "type": "ExpressionStatement",
+                                                          "expression": {
+                                                            "type": "CallExpression",
+                                                            "callee": {
+                                                              "type": "MemberExpression",
+                                                              "computed": false,
+                                                              "object": {
+                                                                "type": "Identifier",
+                                                                "name": "_warningDialog"
+                                                              },
+                                                              "property": {
+                                                                "type": "Identifier",
+                                                                "name": "removeEventListener"
+                                                              }
+                                                            },
+                                                            "arguments": [
+                                                              {
+                                                                "type": "Literal",
+                                                                "value": "click"
+                                                              },
+                                                              {
+                                                                "type": "Identifier",
+                                                                "name": "onclick"
+                                                              }
+                                                            ]
+                                                          }
+                                                        },
+                                                        {
+                                                          "type": "ExpressionStatement",
+                                                          "expression": {
+                                                            "type": "AssignmentExpression",
+                                                            "operator": "=",
+                                                            "left": {
+                                                              "type": "MemberExpression",
+                                                              "computed": false,
+                                                              "object": {
+                                                                "type": "Identifier",
+                                                                "name": "_warningDialog"
+                                                              },
+                                                              "property": {
+                                                                "type": "Identifier",
+                                                                "name": "hidden"
+                                                              }
+                                                            },
+                                                            "right": {
+                                                              "type": "Literal",
+                                                              "value": true
+                                                            }
+                                                          }
+                                                        },
+                                                        {
+                                                          "type": "ExpressionStatement",
+                                                          "expression": {
+                                                            "type": "CallExpression",
+                                                            "callee": {
+                                                              "type": "Identifier",
+                                                              "name": "callback"
+                                                            },
+                                                            "arguments": [
+                                                              {
+                                                                "type": "Literal",
+                                                                "value": false
+                                                              }
+                                                            ]
+                                                          }
+                                                        }
+                                                      ]
+                                                    },
+                                                    "alternate": null
+                                                  }
+                                                }
+                                              ]
+                                            },
+                                            "rest": null,
+                                            "generator": false,
+                                            "expression": false
+                                          }
+                                        ]
+                                      }
+                                    },
+                                    {
+                                      "type": "ExpressionStatement",
+                                      "expression": {
+                                        "type": "AssignmentExpression",
+                                        "operator": "=",
+                                        "left": {
+                                          "type": "MemberExpression",
+                                          "computed": false,
+                                          "object": {
+                                            "type": "Identifier",
+                                            "name": "_warningDialog"
+                                          },
+                                          "property": {
+                                            "type": "Identifier",
+                                            "name": "hidden"
+                                          }
+                                        },
+                                        "right": {
+                                          "type": "Literal",
+                                          "value": false
+                                        }
+                                      }
+                                    }
+                                  ]
+                                },
+                                "rest": null,
+                                "generator": false,
+                                "expression": false
+                              }
+                            }
+                          ],
+                          "kind": "var"
+                        },
+                        {
+                          "type": "VariableDeclaration",
+                          "declarations": [
+                            {
+                              "type": "VariableDeclarator",
+                              "id": {
+                                "type": "Identifier",
+                                "name": "_browseApnItems"
+                              },
+                              "init": {
+                                "type": "FunctionExpression",
+                                "id": null,
+                                "params": [
+                                  {
+                                    "type": "Identifier",
+                                    "name": "apnType"
+                                  }
+                                ],
+                                "defaults": [],
+                                "body": {
+                                  "type": "BlockStatement",
+                                  "body": [
+                                    {
+                                      "type": "ExpressionStatement",
+                                      "expression": {
+                                        "type": "CallExpression",
+                                        "callee": {
+                                          "type": "MemberExpression",
+                                          "computed": false,
+                                          "object": {
+                                            "type": "Identifier",
+                                            "name": "SettingsService"
+                                          },
+                                          "property": {
+                                            "type": "Identifier",
+                                            "name": "navigate"
+                                          }
+                                        },
+                                        "arguments": [
+                                          {
+                                            "type": "Literal",
+                                            "value": "apn-list"
+                                          },
+                                          {
+                                            "type": "ObjectExpression",
+                                            "properties": [
+                                              {
+                                                "type": "Property",
+                                                "key": {
+                                                  "type": "Identifier",
+                                                  "name": "type"
+                                                },
+                                                "value": {
+                                                  "type": "Identifier",
+                                                  "name": "apnType"
+                                                },
+                                                "kind": "init"
+                                              },
+                                              {
+                                                "type": "Property",
+                                                "key": {
+                                                  "type": "Identifier",
+                                                  "name": "serviceId"
+                                                },
+                                                "value": {
+                                                  "type": "Identifier",
+                                                  "name": "_serviceId"
+                                                },
+                                                "kind": "init"
+                                              }
+                                            ]
+                                          }
+                                        ]
+                                      }
+                                    }
+                                  ]
+                                },
+                                "rest": null,
+                                "generator": false,
+                                "expression": false
+                              }
+                            }
+                          ],
+                          "kind": "var"
+                        },
+                        {
+                          "type": "VariableDeclaration",
+                          "declarations": [
+                            {
+                              "type": "VariableDeclarator",
+                              "id": {
+                                "type": "Identifier",
+                                "name": "_resetApn"
+                              },
+                              "init": {
+                                "type": "FunctionExpression",
+                                "id": null,
+                                "params": [],
+                                "defaults": [],
+                                "body": {
+                                  "type": "BlockStatement",
+                                  "body": [
+                                    {
+                                      "type": "ExpressionStatement",
+                                      "expression": {
+                                        "type": "CallExpression",
+                                        "callee": {
+                                          "type": "Identifier",
+                                          "name": "_showResetApnWarningDialog"
+                                        },
+                                        "arguments": [
+                                          {
+                                            "type": "FunctionExpression",
+                                            "id": null,
+                                            "params": [
+                                              {
+                                                "type": "Identifier",
+                                                "name": "value"
+                                              }
+                                            ],
+                                            "defaults": [],
+                                            "body": {
+                                              "type": "BlockStatement",
+                                              "body": [
+                                                {
+                                                  "type": "IfStatement",
+                                                  "test": {
+                                                    "type": "Identifier",
+                                                    "name": "value"
+                                                  },
+                                                  "consequent": {
+                                                    "type": "BlockStatement",
+                                                    "body": [
+                                                      {
+                                                        "type": "ExpressionStatement",
+                                                        "expression": {
+                                                          "type": "CallExpression",
+                                                          "callee": {
+                                                            "type": "MemberExpression",
+                                                            "computed": false,
+                                                            "object": {
+                                                              "type": "CallExpression",
+                                                              "callee": {
+                                                                "type": "MemberExpression",
+                                                                "computed": false,
+                                                                "object": {
+                                                                  "type": "Identifier",
+                                                                  "name": "ApnSettingsManager"
+                                                                },
+                                                                "property": {
+                                                                  "type": "Identifier",
+                                                                  "name": "restore"
+                                                                }
+                                                              },
+                                                              "arguments": [
+                                                                {
+                                                                  "type": "Identifier",
+                                                                  "name": "_serviceId"
+                                                                }
+                                                              ]
+                                                            },
+                                                            "property": {
+                                                              "type": "Identifier",
+                                                              "name": "then"
+                                                            }
+                                                          },
+                                                          "arguments": [
+                                                            {
+                                                              "type": "FunctionExpression",
+                                                              "id": null,
+                                                              "params": [],
+                                                              "defaults": [],
+                                                              "body": {
+                                                                "type": "BlockStatement",
+                                                                "body": [
+                                                                  {
+                                                                    "type": "VariableDeclaration",
+                                                                    "declarations": [
+                                                                      {
+                                                                        "type": "VariableDeclarator",
+                                                                        "id": {
+                                                                          "type": "Identifier",
+                                                                          "name": "toast"
+                                                                        },
+                                                                        "init": {
+                                                                          "type": "ObjectExpression",
+                                                                          "properties": [
+                                                                            {
+                                                                              "type": "Property",
+                                                                              "key": {
+                                                                                "type": "Identifier",
+                                                                                "name": "messageL10nId"
+                                                                              },
+                                                                              "value": {
+                                                                                "type": "Literal",
+                                                                                "value": "apnSettings-reset"
+                                                                              },
+                                                                              "kind": "init"
+                                                                            },
+                                                                            {
+                                                                              "type": "Property",
+                                                                              "key": {
+                                                                                "type": "Identifier",
+                                                                                "name": "latency"
+                                                                              },
+                                                                              "value": {
+                                                                                "type": "Literal",
+                                                                                "value": 3000
+                                                                              },
+                                                                              "kind": "init"
+                                                                            },
+                                                                            {
+                                                                              "type": "Property",
+                                                                              "key": {
+                                                                                "type": "Identifier",
+                                                                                "name": "useTransition"
+                                                                              },
+                                                                              "value": {
+                                                                                "type": "Literal",
+                                                                                "value": true
+                                                                              },
+                                                                              "kind": "init"
+                                                                            }
+                                                                          ]
+                                                                        }
+                                                                      }
+                                                                    ],
+                                                                    "kind": "var"
+                                                                  },
+                                                                  {
+                                                                    "type": "ExpressionStatement",
+                                                                    "expression": {
+                                                                      "type": "CallExpression",
+                                                                      "callee": {
+                                                                        "type": "MemberExpression",
+                                                                        "computed": false,
+                                                                        "object": {
+                                                                          "type": "Identifier",
+                                                                          "name": "Toaster"
+                                                                        },
+                                                                        "property": {
+                                                                          "type": "Identifier",
+                                                                          "name": "showToast"
+                                                                        }
+                                                                      },
+                                                                      "arguments": [
+                                                                        {
+                                                                          "type": "Identifier",
+                                                                          "name": "toast"
+                                                                        }
+                                                                      ]
+                                                                    }
+                                                                  }
+                                                                ]
+                                                              },
+                                                              "rest": null,
+                                                              "generator": false,
+                                                              "expression": false
+                                                            }
+                                                          ]
+                                                        }
+                                                      }
+                                                    ]
+                                                  },
+                                                  "alternate": null
+                                                }
+                                              ]
+                                            },
+                                            "rest": null,
+                                            "generator": false,
+                                            "expression": false
+                                          }
+                                        ]
+                                      }
+                                    }
+                                  ]
+                                },
+                                "rest": null,
+                                "generator": false,
+                                "expression": false
+                              }
+                            }
+                          ],
+                          "kind": "var"
+                        },
+                        {
+                          "type": "ReturnStatement",
+                          "argument": {
+                            "type": "CallExpression",
+                            "callee": {
+                              "type": "Identifier",
+                              "name": "SettingsPanel"
+                            },
+                            "arguments": [
+                              {
+                                "type": "ObjectExpression",
+                                "properties": [
+                                  {
+                                    "type": "Property",
+                                    "key": {
+                                      "type": "Identifier",
+                                      "name": "onInit"
+                                    },
+                                    "value": {
+                                      "type": "FunctionExpression",
+                                      "id": {
+                                        "type": "Identifier",
+                                        "name": "asp_onInit"
+                                      },
+                                      "params": [
+                                        {
+                                          "type": "Identifier",
+                                          "name": "rootElement"
+                                        }
+                                      ],
+                                      "defaults": [],
+                                      "body": {
+                                        "type": "BlockStatement",
+                                        "body": [
+                                          {
+                                            "type": "ExpressionStatement",
+                                            "expression": {
+                                              "type": "AssignmentExpression",
+                                              "operator": "=",
+                                              "left": {
+                                                "type": "Identifier",
+                                                "name": "_rootElement"
+                                              },
+                                              "right": {
+                                                "type": "Identifier",
+                                                "name": "rootElement"
+                                              }
+                                            }
+                                          },
+                                          {
+                                            "type": "VariableDeclaration",
+                                            "declarations": [
+                                              {
+                                                "type": "VariableDeclarator",
+                                                "id": {
+                                                  "type": "Identifier",
+                                                  "name": "apnBtns"
+                                                },
+                                                "init": {
+                                                  "type": "CallExpression",
+                                                  "callee": {
+                                                    "type": "MemberExpression",
+                                                    "computed": false,
+                                                    "object": {
+                                                      "type": "Identifier",
+                                                      "name": "rootElement"
+                                                    },
+                                                    "property": {
+                                                      "type": "Identifier",
+                                                      "name": "querySelectorAll"
+                                                    }
+                                                  },
+                                                  "arguments": [
+                                                    {
+                                                      "type": "Literal",
+                                                      "value": "a[data-apn-type]"
+                                                    }
+                                                  ]
+                                                }
+                                              }
+                                            ],
+                                            "kind": "var"
+                                          },
+                                          {
+                                            "type": "VariableDeclaration",
+                                            "declarations": [
+                                              {
+                                                "type": "VariableDeclarator",
+                                                "id": {
+                                                  "type": "Identifier",
+                                                  "name": "resetBtn"
+                                                },
+                                                "init": {
+                                                  "type": "CallExpression",
+                                                  "callee": {
+                                                    "type": "MemberExpression",
+                                                    "computed": false,
+                                                    "object": {
+                                                      "type": "Identifier",
+                                                      "name": "rootElement"
+                                                    },
+                                                    "property": {
+                                                      "type": "Identifier",
+                                                      "name": "querySelector"
+                                                    }
+                                                  },
+                                                  "arguments": [
+                                                    {
+                                                      "type": "Literal",
+                                                      "value": "button.reset-apn"
+                                                    }
+                                                  ]
+                                                }
+                                              }
+                                            ],
+                                            "kind": "var"
+                                          },
+                                          {
+                                            "type": "VariableDeclaration",
+                                            "declarations": [
+                                              {
+                                                "type": "VariableDeclarator",
+                                                "id": {
+                                                  "type": "Identifier",
+                                                  "name": "header"
+                                                },
+                                                "init": {
+                                                  "type": "CallExpression",
+                                                  "callee": {
+                                                    "type": "MemberExpression",
+                                                    "computed": false,
+                                                    "object": {
+                                                      "type": "Identifier",
+                                                      "name": "rootElement"
+                                                    },
+                                                    "property": {
+                                                      "type": "Identifier",
+                                                      "name": "querySelector"
+                                                    }
+                                                  },
+                                                  "arguments": [
+                                                    {
+                                                      "type": "Literal",
+                                                      "value": "gaia-header"
+                                                    }
+                                                  ]
+                                                }
+                                              }
+                                            ],
+                                            "kind": "var"
+                                          },
+                                          {
+                                            "type": "IfStatement",
+                                            "test": {
+                                              "type": "BinaryExpression",
+                                              "operator": ">",
+                                              "left": {
+                                                "type": "CallExpression",
+                                                "callee": {
+                                                  "type": "MemberExpression",
+                                                  "computed": false,
+                                                  "object": {
+                                                    "type": "Identifier",
+                                                    "name": "DsdsSettings"
+                                                  },
+                                                  "property": {
+                                                    "type": "Identifier",
+                                                    "name": "getNumberOfIccSlots"
+                                                  }
+                                                },
+                                                "arguments": []
+                                              },
+                                              "right": {
+                                                "type": "Literal",
+                                                "value": 1
+                                              }
+                                            },
+                                            "consequent": {
+                                              "type": "BlockStatement",
+                                              "body": [
+                                                {
+                                                  "type": "ExpressionStatement",
+                                                  "expression": {
+                                                    "type": "AssignmentExpression",
+                                                    "operator": "=",
+                                                    "left": {
+                                                      "type": "MemberExpression",
+                                                      "computed": false,
+                                                      "object": {
+                                                        "type": "MemberExpression",
+                                                        "computed": false,
+                                                        "object": {
+                                                          "type": "Identifier",
+                                                          "name": "header"
+                                                        },
+                                                        "property": {
+                                                          "type": "Identifier",
+                                                          "name": "dataset"
+                                                        }
+                                                      },
+                                                      "property": {
+                                                        "type": "Identifier",
+                                                        "name": "href"
+                                                      }
+                                                    },
+                                                    "right": {
+                                                      "type": "Literal",
+                                                      "value": "#carrier-detail"
+                                                    }
+                                                  }
+                                                }
+                                              ]
+                                            },
+                                            "alternate": {
+                                              "type": "BlockStatement",
+                                              "body": [
+                                                {
+                                                  "type": "ExpressionStatement",
+                                                  "expression": {
+                                                    "type": "AssignmentExpression",
+                                                    "operator": "=",
+                                                    "left": {
+                                                      "type": "MemberExpression",
+                                                      "computed": false,
+                                                      "object": {
+                                                        "type": "MemberExpression",
+                                                        "computed": false,
+                                                        "object": {
+                                                          "type": "Identifier",
+                                                          "name": "header"
+                                                        },
+                                                        "property": {
+                                                          "type": "Identifier",
+                                                          "name": "dataset"
+                                                        }
+                                                      },
+                                                      "property": {
+                                                        "type": "Identifier",
+                                                        "name": "href"
+                                                      }
+                                                    },
+                                                    "right": {
+                                                      "type": "Literal",
+                                                      "value": "#carrier"
+                                                    }
+                                                  }
+                                                }
+                                              ]
+                                            }
+                                          },
+                                          {
+                                            "type": "ExpressionStatement",
+                                            "expression": {
+                                              "type": "CallExpression",
+                                              "callee": {
+                                                "type": "MemberExpression",
+                                                "computed": false,
+                                                "object": {
+                                                  "type": "MemberExpression",
+                                                  "computed": false,
+                                                  "object": {
+                                                    "type": "MemberExpression",
+                                                    "computed": false,
+                                                    "object": {
+                                                      "type": "Identifier",
+                                                      "name": "Array"
+                                                    },
+                                                    "property": {
+                                                      "type": "Identifier",
+                                                      "name": "prototype"
+                                                    }
+                                                  },
+                                                  "property": {
+                                                    "type": "Identifier",
+                                                    "name": "forEach"
+                                                  }
+                                                },
+                                                "property": {
+                                                  "type": "Identifier",
+                                                  "name": "call"
+                                                }
+                                              },
+                                              "arguments": [
+                                                {
+                                                  "type": "Identifier",
+                                                  "name": "apnBtns"
+                                                },
+                                                {
+                                                  "type": "FunctionExpression",
+                                                  "id": null,
+                                                  "params": [
+                                                    {
+                                                      "type": "Identifier",
+                                                      "name": "btn"
+                                                    }
+                                                  ],
+                                                  "defaults": [],
+                                                  "body": {
+                                                    "type": "BlockStatement",
+                                                    "body": [
+                                                      {
+                                                        "type": "ExpressionStatement",
+                                                        "expression": {
+                                                          "type": "AssignmentExpression",
+                                                          "operator": "=",
+                                                          "left": {
+                                                            "type": "MemberExpression",
+                                                            "computed": false,
+                                                            "object": {
+                                                              "type": "Identifier",
+                                                              "name": "btn"
+                                                            },
+                                                            "property": {
+                                                              "type": "Identifier",
+                                                              "name": "onclick"
+                                                            }
+                                                          },
+                                                          "right": {
+                                                            "type": "CallExpression",
+                                                            "callee": {
+                                                              "type": "MemberExpression",
+                                                              "computed": false,
+                                                              "object": {
+                                                                "type": "Identifier",
+                                                                "name": "_browseApnItems"
+                                                              },
+                                                              "property": {
+                                                                "type": "Identifier",
+                                                                "name": "bind"
+                                                              }
+                                                            },
+                                                            "arguments": [
+                                                              {
+                                                                "type": "Literal",
+                                                                "value": null
+                                                              },
+                                                              {
+                                                                "type": "MemberExpression",
+                                                                "computed": false,
+                                                                "object": {
+                                                                  "type": "MemberExpression",
+                                                                  "computed": false,
+                                                                  "object": {
+                                                                    "type": "Identifier",
+                                                                    "name": "btn"
+                                                                  },
+                                                                  "property": {
+                                                                    "type": "Identifier",
+                                                                    "name": "dataset"
+                                                                  }
+                                                                },
+                                                                "property": {
+                                                                  "type": "Identifier",
+                                                                  "name": "apnType"
+                                                                }
+                                                              }
+                                                            ]
+                                                          }
+                                                        }
+                                                      }
+                                                    ]
+                                                  },
+                                                  "rest": null,
+                                                  "generator": false,
+                                                  "expression": false
+                                                }
+                                              ]
+                                            }
+                                          },
+                                          {
+                                            "type": "ExpressionStatement",
+                                            "expression": {
+                                              "type": "AssignmentExpression",
+                                              "operator": "=",
+                                              "left": {
+                                                "type": "MemberExpression",
+                                                "computed": false,
+                                                "object": {
+                                                  "type": "Identifier",
+                                                  "name": "resetBtn"
+                                                },
+                                                "property": {
+                                                  "type": "Identifier",
+                                                  "name": "onclick"
+                                                }
+                                              },
+                                              "right": {
+                                                "type": "Identifier",
+                                                "name": "_resetApn"
+                                              }
+                                            }
+                                          }
+                                        ]
+                                      },
+                                      "rest": null,
+                                      "generator": false,
+                                      "expression": false
+                                    },
+                                    "kind": "init"
+                                  },
+                                  {
+                                    "type": "Property",
+                                    "key": {
+                                      "type": "Identifier",
+                                      "name": "onBeforeShow"
+                                    },
+                                    "value": {
+                                      "type": "FunctionExpression",
+                                      "id": {
+                                        "type": "Identifier",
+                                        "name": "asp_onBeforeShow"
+                                      },
+                                      "params": [],
+                                      "defaults": [],
+                                      "body": {
+                                        "type": "BlockStatement",
+                                        "body": [
+                                          {
+                                            "type": "ExpressionStatement",
+                                            "expression": {
+                                              "type": "AssignmentExpression",
+                                              "operator": "=",
+                                              "left": {
+                                                "type": "Identifier",
+                                                "name": "_serviceId"
+                                              },
+                                              "right": {
+                                                "type": "CallExpression",
+                                                "callee": {
+                                                  "type": "MemberExpression",
+                                                  "computed": false,
+                                                  "object": {
+                                                    "type": "Identifier",
+                                                    "name": "DsdsSettings"
+                                                  },
+                                                  "property": {
+                                                    "type": "Identifier",
+                                                    "name": "getIccCardIndexForCellAndDataSettings"
+                                                  }
+                                                },
+                                                "arguments": []
+                                              }
+                                            }
+                                          }
+                                        ]
+                                      },
+                                      "rest": null,
+                                      "generator": false,
+                                      "expression": false
+                                    },
+                                    "kind": "init"
+                                  }
+                                ]
+                              }
+                            ]
+                          }
+                        }
+                      ]
+                    },
+                    "rest": null,
+                    "generator": false,
+                    "expression": false
+                  }
+                }
+              ]
+            },
+            "rest": null,
+            "generator": false,
+            "expression": false
+          }
+        ]
+      }
+    }
+  ]
+}

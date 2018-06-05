@@ -1,0 +1,632 @@
+{
+  "type": "Program",
+  "body": [
+    {
+      "type": "ExpressionStatement",
+      "expression": {
+        "type": "CallExpression",
+        "callee": {
+          "type": "FunctionExpression",
+          "id": null,
+          "params": [
+            {
+              "type": "Identifier",
+              "name": "$"
+            }
+          ],
+          "defaults": [],
+          "body": {
+            "type": "BlockStatement",
+            "body": [
+              {
+                "type": "ExpressionStatement",
+                "expression": {
+                  "type": "CallExpression",
+                  "callee": {
+                    "type": "MemberExpression",
+                    "computed": false,
+                    "object": {
+                      "type": "Identifier",
+                      "name": "$"
+                    },
+                    "property": {
+                      "type": "Identifier",
+                      "name": "extend"
+                    }
+                  },
+                  "arguments": [
+                    {
+                      "type": "Literal",
+                      "value": true
+                    },
+                    {
+                      "type": "Identifier",
+                      "name": "window"
+                    },
+                    {
+                      "type": "ObjectExpression",
+                      "properties": [
+                        {
+                          "type": "Property",
+                          "key": {
+                            "type": "Literal",
+                            "value": "Slick"
+                          },
+                          "value": {
+                            "type": "ObjectExpression",
+                            "properties": [
+                              {
+                                "type": "Property",
+                                "key": {
+                                  "type": "Literal",
+                                  "value": "Formatters"
+                                },
+                                "value": {
+                                  "type": "ObjectExpression",
+                                  "properties": [
+                                    {
+                                      "type": "Property",
+                                      "key": {
+                                        "type": "Literal",
+                                        "value": "PercentComplete"
+                                      },
+                                      "value": {
+                                        "type": "Identifier",
+                                        "name": "PercentCompleteFormatter"
+                                      },
+                                      "kind": "init"
+                                    },
+                                    {
+                                      "type": "Property",
+                                      "key": {
+                                        "type": "Literal",
+                                        "value": "PercentCompleteBar"
+                                      },
+                                      "value": {
+                                        "type": "Identifier",
+                                        "name": "PercentCompleteBarFormatter"
+                                      },
+                                      "kind": "init"
+                                    },
+                                    {
+                                      "type": "Property",
+                                      "key": {
+                                        "type": "Literal",
+                                        "value": "YesNo"
+                                      },
+                                      "value": {
+                                        "type": "Identifier",
+                                        "name": "YesNoFormatter"
+                                      },
+                                      "kind": "init"
+                                    },
+                                    {
+                                      "type": "Property",
+                                      "key": {
+                                        "type": "Literal",
+                                        "value": "Checkmark"
+                                      },
+                                      "value": {
+                                        "type": "Identifier",
+                                        "name": "CheckmarkFormatter"
+                                      },
+                                      "kind": "init"
+                                    }
+                                  ]
+                                },
+                                "kind": "init"
+                              }
+                            ]
+                          },
+                          "kind": "init"
+                        }
+                      ]
+                    }
+                  ]
+                }
+              },
+              {
+                "type": "FunctionDeclaration",
+                "id": {
+                  "type": "Identifier",
+                  "name": "PercentCompleteFormatter"
+                },
+                "params": [
+                  {
+                    "type": "Identifier",
+                    "name": "row"
+                  },
+                  {
+                    "type": "Identifier",
+                    "name": "cell"
+                  },
+                  {
+                    "type": "Identifier",
+                    "name": "value"
+                  },
+                  {
+                    "type": "Identifier",
+                    "name": "columnDef"
+                  },
+                  {
+                    "type": "Identifier",
+                    "name": "dataContext"
+                  }
+                ],
+                "defaults": [],
+                "body": {
+                  "type": "BlockStatement",
+                  "body": [
+                    {
+                      "type": "IfStatement",
+                      "test": {
+                        "type": "LogicalExpression",
+                        "operator": "||",
+                        "left": {
+                          "type": "BinaryExpression",
+                          "operator": "==",
+                          "left": {
+                            "type": "Identifier",
+                            "name": "value"
+                          },
+                          "right": {
+                            "type": "Literal",
+                            "value": null
+                          }
+                        },
+                        "right": {
+                          "type": "BinaryExpression",
+                          "operator": "===",
+                          "left": {
+                            "type": "Identifier",
+                            "name": "value"
+                          },
+                          "right": {
+                            "type": "Literal",
+                            "value": ""
+                          }
+                        }
+                      },
+                      "consequent": {
+                        "type": "BlockStatement",
+                        "body": [
+                          {
+                            "type": "ReturnStatement",
+                            "argument": {
+                              "type": "Literal",
+                              "value": "-"
+                            }
+                          }
+                        ]
+                      },
+                      "alternate": {
+                        "type": "IfStatement",
+                        "test": {
+                          "type": "BinaryExpression",
+                          "operator": "<",
+                          "left": {
+                            "type": "Identifier",
+                            "name": "value"
+                          },
+                          "right": {
+                            "type": "Literal",
+                            "value": 50
+                          }
+                        },
+                        "consequent": {
+                          "type": "BlockStatement",
+                          "body": [
+                            {
+                              "type": "ReturnStatement",
+                              "argument": {
+                                "type": "BinaryExpression",
+                                "operator": "+",
+                                "left": {
+                                  "type": "BinaryExpression",
+                                  "operator": "+",
+                                  "left": {
+                                    "type": "Literal",
+                                    "value": "<span style='color:red;font-weight:bold;'>"
+                                  },
+                                  "right": {
+                                    "type": "Identifier",
+                                    "name": "value"
+                                  }
+                                },
+                                "right": {
+                                  "type": "Literal",
+                                  "value": "%</span>"
+                                }
+                              }
+                            }
+                          ]
+                        },
+                        "alternate": {
+                          "type": "BlockStatement",
+                          "body": [
+                            {
+                              "type": "ReturnStatement",
+                              "argument": {
+                                "type": "BinaryExpression",
+                                "operator": "+",
+                                "left": {
+                                  "type": "BinaryExpression",
+                                  "operator": "+",
+                                  "left": {
+                                    "type": "Literal",
+                                    "value": "<span style='color:green'>"
+                                  },
+                                  "right": {
+                                    "type": "Identifier",
+                                    "name": "value"
+                                  }
+                                },
+                                "right": {
+                                  "type": "Literal",
+                                  "value": "%</span>"
+                                }
+                              }
+                            }
+                          ]
+                        }
+                      }
+                    }
+                  ]
+                },
+                "rest": null,
+                "generator": false,
+                "expression": false
+              },
+              {
+                "type": "FunctionDeclaration",
+                "id": {
+                  "type": "Identifier",
+                  "name": "PercentCompleteBarFormatter"
+                },
+                "params": [
+                  {
+                    "type": "Identifier",
+                    "name": "row"
+                  },
+                  {
+                    "type": "Identifier",
+                    "name": "cell"
+                  },
+                  {
+                    "type": "Identifier",
+                    "name": "value"
+                  },
+                  {
+                    "type": "Identifier",
+                    "name": "columnDef"
+                  },
+                  {
+                    "type": "Identifier",
+                    "name": "dataContext"
+                  }
+                ],
+                "defaults": [],
+                "body": {
+                  "type": "BlockStatement",
+                  "body": [
+                    {
+                      "type": "IfStatement",
+                      "test": {
+                        "type": "LogicalExpression",
+                        "operator": "||",
+                        "left": {
+                          "type": "BinaryExpression",
+                          "operator": "==",
+                          "left": {
+                            "type": "Identifier",
+                            "name": "value"
+                          },
+                          "right": {
+                            "type": "Literal",
+                            "value": null
+                          }
+                        },
+                        "right": {
+                          "type": "BinaryExpression",
+                          "operator": "===",
+                          "left": {
+                            "type": "Identifier",
+                            "name": "value"
+                          },
+                          "right": {
+                            "type": "Literal",
+                            "value": ""
+                          }
+                        }
+                      },
+                      "consequent": {
+                        "type": "BlockStatement",
+                        "body": [
+                          {
+                            "type": "ReturnStatement",
+                            "argument": {
+                              "type": "Literal",
+                              "value": ""
+                            }
+                          }
+                        ]
+                      },
+                      "alternate": null
+                    },
+                    {
+                      "type": "VariableDeclaration",
+                      "declarations": [
+                        {
+                          "type": "VariableDeclarator",
+                          "id": {
+                            "type": "Identifier",
+                            "name": "color"
+                          },
+                          "init": null
+                        }
+                      ],
+                      "kind": "var"
+                    },
+                    {
+                      "type": "IfStatement",
+                      "test": {
+                        "type": "BinaryExpression",
+                        "operator": "<",
+                        "left": {
+                          "type": "Identifier",
+                          "name": "value"
+                        },
+                        "right": {
+                          "type": "Literal",
+                          "value": 30
+                        }
+                      },
+                      "consequent": {
+                        "type": "BlockStatement",
+                        "body": [
+                          {
+                            "type": "ExpressionStatement",
+                            "expression": {
+                              "type": "AssignmentExpression",
+                              "operator": "=",
+                              "left": {
+                                "type": "Identifier",
+                                "name": "color"
+                              },
+                              "right": {
+                                "type": "Literal",
+                                "value": "red"
+                              }
+                            }
+                          }
+                        ]
+                      },
+                      "alternate": {
+                        "type": "IfStatement",
+                        "test": {
+                          "type": "BinaryExpression",
+                          "operator": "<",
+                          "left": {
+                            "type": "Identifier",
+                            "name": "value"
+                          },
+                          "right": {
+                            "type": "Literal",
+                            "value": 70
+                          }
+                        },
+                        "consequent": {
+                          "type": "BlockStatement",
+                          "body": [
+                            {
+                              "type": "ExpressionStatement",
+                              "expression": {
+                                "type": "AssignmentExpression",
+                                "operator": "=",
+                                "left": {
+                                  "type": "Identifier",
+                                  "name": "color"
+                                },
+                                "right": {
+                                  "type": "Literal",
+                                  "value": "silver"
+                                }
+                              }
+                            }
+                          ]
+                        },
+                        "alternate": {
+                          "type": "BlockStatement",
+                          "body": [
+                            {
+                              "type": "ExpressionStatement",
+                              "expression": {
+                                "type": "AssignmentExpression",
+                                "operator": "=",
+                                "left": {
+                                  "type": "Identifier",
+                                  "name": "color"
+                                },
+                                "right": {
+                                  "type": "Literal",
+                                  "value": "green"
+                                }
+                              }
+                            }
+                          ]
+                        }
+                      }
+                    },
+                    {
+                      "type": "ReturnStatement",
+                      "argument": {
+                        "type": "BinaryExpression",
+                        "operator": "+",
+                        "left": {
+                          "type": "BinaryExpression",
+                          "operator": "+",
+                          "left": {
+                            "type": "BinaryExpression",
+                            "operator": "+",
+                            "left": {
+                              "type": "BinaryExpression",
+                              "operator": "+",
+                              "left": {
+                                "type": "Literal",
+                                "value": "<span class='percent-complete-bar' style='background:"
+                              },
+                              "right": {
+                                "type": "Identifier",
+                                "name": "color"
+                              }
+                            },
+                            "right": {
+                              "type": "Literal",
+                              "value": ";width:"
+                            }
+                          },
+                          "right": {
+                            "type": "Identifier",
+                            "name": "value"
+                          }
+                        },
+                        "right": {
+                          "type": "Literal",
+                          "value": "%'></span>"
+                        }
+                      }
+                    }
+                  ]
+                },
+                "rest": null,
+                "generator": false,
+                "expression": false
+              },
+              {
+                "type": "FunctionDeclaration",
+                "id": {
+                  "type": "Identifier",
+                  "name": "YesNoFormatter"
+                },
+                "params": [
+                  {
+                    "type": "Identifier",
+                    "name": "row"
+                  },
+                  {
+                    "type": "Identifier",
+                    "name": "cell"
+                  },
+                  {
+                    "type": "Identifier",
+                    "name": "value"
+                  },
+                  {
+                    "type": "Identifier",
+                    "name": "columnDef"
+                  },
+                  {
+                    "type": "Identifier",
+                    "name": "dataContext"
+                  }
+                ],
+                "defaults": [],
+                "body": {
+                  "type": "BlockStatement",
+                  "body": [
+                    {
+                      "type": "ReturnStatement",
+                      "argument": {
+                        "type": "ConditionalExpression",
+                        "test": {
+                          "type": "Identifier",
+                          "name": "value"
+                        },
+                        "consequent": {
+                          "type": "Literal",
+                          "value": "Yes"
+                        },
+                        "alternate": {
+                          "type": "Literal",
+                          "value": "No"
+                        }
+                      }
+                    }
+                  ]
+                },
+                "rest": null,
+                "generator": false,
+                "expression": false
+              },
+              {
+                "type": "FunctionDeclaration",
+                "id": {
+                  "type": "Identifier",
+                  "name": "CheckmarkFormatter"
+                },
+                "params": [
+                  {
+                    "type": "Identifier",
+                    "name": "row"
+                  },
+                  {
+                    "type": "Identifier",
+                    "name": "cell"
+                  },
+                  {
+                    "type": "Identifier",
+                    "name": "value"
+                  },
+                  {
+                    "type": "Identifier",
+                    "name": "columnDef"
+                  },
+                  {
+                    "type": "Identifier",
+                    "name": "dataContext"
+                  }
+                ],
+                "defaults": [],
+                "body": {
+                  "type": "BlockStatement",
+                  "body": [
+                    {
+                      "type": "ReturnStatement",
+                      "argument": {
+                        "type": "ConditionalExpression",
+                        "test": {
+                          "type": "Identifier",
+                          "name": "value"
+                        },
+                        "consequent": {
+                          "type": "Literal",
+                          "value": "<img src='../images/tick.png'>"
+                        },
+                        "alternate": {
+                          "type": "Literal",
+                          "value": ""
+                        }
+                      }
+                    }
+                  ]
+                },
+                "rest": null,
+                "generator": false,
+                "expression": false
+              }
+            ]
+          },
+          "rest": null,
+          "generator": false,
+          "expression": false
+        },
+        "arguments": [
+          {
+            "type": "Identifier",
+            "name": "jQuery"
+          }
+        ]
+      }
+    }
+  ]
+}

@@ -1,0 +1,688 @@
+{
+  "type": "Program",
+  "body": [
+    {
+      "type": "VariableDeclaration",
+      "declarations": [
+        {
+          "type": "VariableDeclarator",
+          "id": {
+            "type": "Identifier",
+            "name": "http"
+          },
+          "init": {
+            "type": "CallExpression",
+            "callee": {
+              "type": "Identifier",
+              "name": "require"
+            },
+            "arguments": [
+              {
+                "type": "Literal",
+                "value": "http"
+              }
+            ]
+          }
+        }
+      ],
+      "kind": "var"
+    },
+    {
+      "type": "VariableDeclaration",
+      "declarations": [
+        {
+          "type": "VariableDeclarator",
+          "id": {
+            "type": "Identifier",
+            "name": "createIPServer"
+          },
+          "init": {
+            "type": "FunctionExpression",
+            "id": null,
+            "params": [
+              {
+                "type": "Identifier",
+                "name": "port"
+              }
+            ],
+            "defaults": [],
+            "body": {
+              "type": "BlockStatement",
+              "body": [
+                {
+                  "type": "VariableDeclaration",
+                  "declarations": [
+                    {
+                      "type": "VariableDeclarator",
+                      "id": {
+                        "type": "Identifier",
+                        "name": "ipserver"
+                      },
+                      "init": {
+                        "type": "CallExpression",
+                        "callee": {
+                          "type": "MemberExpression",
+                          "computed": false,
+                          "object": {
+                            "type": "CallExpression",
+                            "callee": {
+                              "type": "MemberExpression",
+                              "computed": false,
+                              "object": {
+                                "type": "Identifier",
+                                "name": "http"
+                              },
+                              "property": {
+                                "type": "Identifier",
+                                "name": "createServer"
+                              }
+                            },
+                            "arguments": [
+                              {
+                                "type": "FunctionExpression",
+                                "id": null,
+                                "params": [
+                                  {
+                                    "type": "Identifier",
+                                    "name": "request"
+                                  },
+                                  {
+                                    "type": "Identifier",
+                                    "name": "response"
+                                  }
+                                ],
+                                "defaults": [],
+                                "body": {
+                                  "type": "BlockStatement",
+                                  "body": [
+                                    {
+                                      "type": "IfStatement",
+                                      "test": {
+                                        "type": "BinaryExpression",
+                                        "operator": "===",
+                                        "left": {
+                                          "type": "MemberExpression",
+                                          "computed": false,
+                                          "object": {
+                                            "type": "Identifier",
+                                            "name": "request"
+                                          },
+                                          "property": {
+                                            "type": "Identifier",
+                                            "name": "url"
+                                          }
+                                        },
+                                        "right": {
+                                          "type": "BinaryExpression",
+                                          "operator": "+",
+                                          "left": {
+                                            "type": "Literal",
+                                            "value": "/json/"
+                                          },
+                                          "right": {
+                                            "type": "CallExpression",
+                                            "callee": {
+                                              "type": "Identifier",
+                                              "name": "encodeURIComponent"
+                                            },
+                                            "arguments": [
+                                              {
+                                                "type": "Literal",
+                                                "value": "204.215.129.226"
+                                              }
+                                            ]
+                                          }
+                                        }
+                                      },
+                                      "consequent": {
+                                        "type": "BlockStatement",
+                                        "body": [
+                                          {
+                                            "type": "ExpressionStatement",
+                                            "expression": {
+                                              "type": "CallExpression",
+                                              "callee": {
+                                                "type": "MemberExpression",
+                                                "computed": false,
+                                                "object": {
+                                                  "type": "Identifier",
+                                                  "name": "response"
+                                                },
+                                                "property": {
+                                                  "type": "Identifier",
+                                                  "name": "writeHead"
+                                                }
+                                              },
+                                              "arguments": [
+                                                {
+                                                  "type": "Literal",
+                                                  "value": 200
+                                                },
+                                                {
+                                                  "type": "ObjectExpression",
+                                                  "properties": [
+                                                    {
+                                                      "type": "Property",
+                                                      "key": {
+                                                        "type": "Literal",
+                                                        "value": "Content-Type"
+                                                      },
+                                                      "value": {
+                                                        "type": "Literal",
+                                                        "value": "application/json"
+                                                      },
+                                                      "kind": "init"
+                                                    }
+                                                  ]
+                                                }
+                                              ]
+                                            }
+                                          },
+                                          {
+                                            "type": "ExpressionStatement",
+                                            "expression": {
+                                              "type": "CallExpression",
+                                              "callee": {
+                                                "type": "MemberExpression",
+                                                "computed": false,
+                                                "object": {
+                                                  "type": "Identifier",
+                                                  "name": "response"
+                                                },
+                                                "property": {
+                                                  "type": "Identifier",
+                                                  "name": "write"
+                                                }
+                                              },
+                                              "arguments": [
+                                                {
+                                                  "type": "Literal",
+                                                  "value": "{\"ip\":\"0.0.0.0\",\"country_code\":\"US\",\"country_name\":\"United States\",\"region_code\":\"MA\",\"region_name\":\"Massachusetts\",\"city\":\"Waltham\",\"zipcode\":\"\",\"latitude\":42.3765,\"longitude\":-71.2356,\"metro_code\":\"506\",\"areacode\":\"781\"}"
+                                                }
+                                              ]
+                                            }
+                                          },
+                                          {
+                                            "type": "ExpressionStatement",
+                                            "expression": {
+                                              "type": "CallExpression",
+                                              "callee": {
+                                                "type": "MemberExpression",
+                                                "computed": false,
+                                                "object": {
+                                                  "type": "Identifier",
+                                                  "name": "response"
+                                                },
+                                                "property": {
+                                                  "type": "Identifier",
+                                                  "name": "end"
+                                                }
+                                              },
+                                              "arguments": []
+                                            }
+                                          }
+                                        ]
+                                      },
+                                      "alternate": {
+                                        "type": "IfStatement",
+                                        "test": {
+                                          "type": "BinaryExpression",
+                                          "operator": "===",
+                                          "left": {
+                                            "type": "MemberExpression",
+                                            "computed": false,
+                                            "object": {
+                                              "type": "Identifier",
+                                              "name": "request"
+                                            },
+                                            "property": {
+                                              "type": "Identifier",
+                                              "name": "url"
+                                            }
+                                          },
+                                          "right": {
+                                            "type": "BinaryExpression",
+                                            "operator": "+",
+                                            "left": {
+                                              "type": "Literal",
+                                              "value": "/json/"
+                                            },
+                                            "right": {
+                                              "type": "CallExpression",
+                                              "callee": {
+                                                "type": "Identifier",
+                                                "name": "encodeURIComponent"
+                                              },
+                                              "arguments": [
+                                                {
+                                                  "type": "Literal",
+                                                  "value": "5.5.5.5"
+                                                }
+                                              ]
+                                            }
+                                          }
+                                        },
+                                        "consequent": {
+                                          "type": "BlockStatement",
+                                          "body": [
+                                            {
+                                              "type": "ExpressionStatement",
+                                              "expression": {
+                                                "type": "CallExpression",
+                                                "callee": {
+                                                  "type": "MemberExpression",
+                                                  "computed": false,
+                                                  "object": {
+                                                    "type": "Identifier",
+                                                    "name": "response"
+                                                  },
+                                                  "property": {
+                                                    "type": "Identifier",
+                                                    "name": "writeHead"
+                                                  }
+                                                },
+                                                "arguments": [
+                                                  {
+                                                    "type": "Literal",
+                                                    "value": 200
+                                                  },
+                                                  {
+                                                    "type": "ObjectExpression",
+                                                    "properties": [
+                                                      {
+                                                        "type": "Property",
+                                                        "key": {
+                                                          "type": "Literal",
+                                                          "value": "Content-Type"
+                                                        },
+                                                        "value": {
+                                                          "type": "Literal",
+                                                          "value": "application/json"
+                                                        },
+                                                        "kind": "init"
+                                                      }
+                                                    ]
+                                                  }
+                                                ]
+                                              }
+                                            },
+                                            {
+                                              "type": "ExpressionStatement",
+                                              "expression": {
+                                                "type": "CallExpression",
+                                                "callee": {
+                                                  "type": "MemberExpression",
+                                                  "computed": false,
+                                                  "object": {
+                                                    "type": "Identifier",
+                                                    "name": "response"
+                                                  },
+                                                  "property": {
+                                                    "type": "Identifier",
+                                                    "name": "write"
+                                                  }
+                                                },
+                                                "arguments": [
+                                                  {
+                                                    "type": "Literal",
+                                                    "value": "{\"ip\":\"5.5.5.5\",\"country_code\":\"US\",\"country_name\":\"United States\",\"region_code\":\"\",\"region_name\":\"\",\"city\":\"\",\"zipcode\":\"\",\"latitude\":38,\"longitude\":-97,\"metro_code\":\"\",\"areacode\":\"\"}"
+                                                  }
+                                                ]
+                                              }
+                                            },
+                                            {
+                                              "type": "ExpressionStatement",
+                                              "expression": {
+                                                "type": "CallExpression",
+                                                "callee": {
+                                                  "type": "MemberExpression",
+                                                  "computed": false,
+                                                  "object": {
+                                                    "type": "Identifier",
+                                                    "name": "response"
+                                                  },
+                                                  "property": {
+                                                    "type": "Identifier",
+                                                    "name": "end"
+                                                  }
+                                                },
+                                                "arguments": []
+                                              }
+                                            }
+                                          ]
+                                        },
+                                        "alternate": {
+                                          "type": "IfStatement",
+                                          "test": {
+                                            "type": "BinaryExpression",
+                                            "operator": "===",
+                                            "left": {
+                                              "type": "MemberExpression",
+                                              "computed": false,
+                                              "object": {
+                                                "type": "Identifier",
+                                                "name": "request"
+                                              },
+                                              "property": {
+                                                "type": "Identifier",
+                                                "name": "url"
+                                              }
+                                            },
+                                            "right": {
+                                              "type": "BinaryExpression",
+                                              "operator": "+",
+                                              "left": {
+                                                "type": "Literal",
+                                                "value": "/json/"
+                                              },
+                                              "right": {
+                                                "type": "CallExpression",
+                                                "callee": {
+                                                  "type": "Identifier",
+                                                  "name": "encodeURIComponent"
+                                                },
+                                                "arguments": [
+                                                  {
+                                                    "type": "Literal",
+                                                    "value": "500.0.0.0"
+                                                  }
+                                                ]
+                                              }
+                                            }
+                                          },
+                                          "consequent": {
+                                            "type": "BlockStatement",
+                                            "body": [
+                                              {
+                                                "type": "ExpressionStatement",
+                                                "expression": {
+                                                  "type": "CallExpression",
+                                                  "callee": {
+                                                    "type": "MemberExpression",
+                                                    "computed": false,
+                                                    "object": {
+                                                      "type": "Identifier",
+                                                      "name": "response"
+                                                    },
+                                                    "property": {
+                                                      "type": "Identifier",
+                                                      "name": "writeHead"
+                                                    }
+                                                  },
+                                                  "arguments": [
+                                                    {
+                                                      "type": "Literal",
+                                                      "value": 200
+                                                    },
+                                                    {
+                                                      "type": "ObjectExpression",
+                                                      "properties": [
+                                                        {
+                                                          "type": "Property",
+                                                          "key": {
+                                                            "type": "Literal",
+                                                            "value": "Content-Type"
+                                                          },
+                                                          "value": {
+                                                            "type": "Literal",
+                                                            "value": "text/plain"
+                                                          },
+                                                          "kind": "init"
+                                                        }
+                                                      ]
+                                                    }
+                                                  ]
+                                                }
+                                              },
+                                              {
+                                                "type": "ExpressionStatement",
+                                                "expression": {
+                                                  "type": "CallExpression",
+                                                  "callee": {
+                                                    "type": "MemberExpression",
+                                                    "computed": false,
+                                                    "object": {
+                                                      "type": "Identifier",
+                                                      "name": "response"
+                                                    },
+                                                    "property": {
+                                                      "type": "Identifier",
+                                                      "name": "write"
+                                                    }
+                                                  },
+                                                  "arguments": [
+                                                    {
+                                                      "type": "Literal",
+                                                      "value": "Not Found"
+                                                    }
+                                                  ]
+                                                }
+                                              },
+                                              {
+                                                "type": "ExpressionStatement",
+                                                "expression": {
+                                                  "type": "CallExpression",
+                                                  "callee": {
+                                                    "type": "MemberExpression",
+                                                    "computed": false,
+                                                    "object": {
+                                                      "type": "Identifier",
+                                                      "name": "response"
+                                                    },
+                                                    "property": {
+                                                      "type": "Identifier",
+                                                      "name": "end"
+                                                    }
+                                                  },
+                                                  "arguments": []
+                                                }
+                                              }
+                                            ]
+                                          },
+                                          "alternate": {
+                                            "type": "IfStatement",
+                                            "test": {
+                                              "type": "BinaryExpression",
+                                              "operator": "===",
+                                              "left": {
+                                                "type": "MemberExpression",
+                                                "computed": false,
+                                                "object": {
+                                                  "type": "Identifier",
+                                                  "name": "request"
+                                                },
+                                                "property": {
+                                                  "type": "Identifier",
+                                                  "name": "url"
+                                                }
+                                              },
+                                              "right": {
+                                                "type": "BinaryExpression",
+                                                "operator": "+",
+                                                "left": {
+                                                  "type": "Literal",
+                                                  "value": "/json/"
+                                                },
+                                                "right": {
+                                                  "type": "CallExpression",
+                                                  "callee": {
+                                                    "type": "Identifier",
+                                                    "name": "encodeURIComponent"
+                                                  },
+                                                  "arguments": [
+                                                    {
+                                                      "type": "Literal",
+                                                      "value": "0.0.0.0"
+                                                    }
+                                                  ]
+                                                }
+                                              }
+                                            },
+                                            "consequent": {
+                                              "type": "BlockStatement",
+                                              "body": [
+                                                {
+                                                  "type": "ExpressionStatement",
+                                                  "expression": {
+                                                    "type": "CallExpression",
+                                                    "callee": {
+                                                      "type": "MemberExpression",
+                                                      "computed": false,
+                                                      "object": {
+                                                        "type": "Identifier",
+                                                        "name": "response"
+                                                      },
+                                                      "property": {
+                                                        "type": "Identifier",
+                                                        "name": "writeHead"
+                                                      }
+                                                    },
+                                                    "arguments": [
+                                                      {
+                                                        "type": "Literal",
+                                                        "value": 500
+                                                      },
+                                                      {
+                                                        "type": "ObjectExpression",
+                                                        "properties": [
+                                                          {
+                                                            "type": "Property",
+                                                            "key": {
+                                                              "type": "Literal",
+                                                              "value": "Content-Type"
+                                                            },
+                                                            "value": {
+                                                              "type": "Literal",
+                                                              "value": "text/plain"
+                                                            },
+                                                            "kind": "init"
+                                                          }
+                                                        ]
+                                                      }
+                                                    ]
+                                                  }
+                                                },
+                                                {
+                                                  "type": "ExpressionStatement",
+                                                  "expression": {
+                                                    "type": "CallExpression",
+                                                    "callee": {
+                                                      "type": "MemberExpression",
+                                                      "computed": false,
+                                                      "object": {
+                                                        "type": "Identifier",
+                                                        "name": "response"
+                                                      },
+                                                      "property": {
+                                                        "type": "Identifier",
+                                                        "name": "write"
+                                                      }
+                                                    },
+                                                    "arguments": [
+                                                      {
+                                                        "type": "Literal",
+                                                        "value": "Error"
+                                                      }
+                                                    ]
+                                                  }
+                                                },
+                                                {
+                                                  "type": "ExpressionStatement",
+                                                  "expression": {
+                                                    "type": "CallExpression",
+                                                    "callee": {
+                                                      "type": "MemberExpression",
+                                                      "computed": false,
+                                                      "object": {
+                                                        "type": "Identifier",
+                                                        "name": "response"
+                                                      },
+                                                      "property": {
+                                                        "type": "Identifier",
+                                                        "name": "end"
+                                                      }
+                                                    },
+                                                    "arguments": []
+                                                  }
+                                                }
+                                              ]
+                                            },
+                                            "alternate": null
+                                          }
+                                        }
+                                      }
+                                    }
+                                  ]
+                                },
+                                "rest": null,
+                                "generator": false,
+                                "expression": false
+                              }
+                            ]
+                          },
+                          "property": {
+                            "type": "Identifier",
+                            "name": "listen"
+                          }
+                        },
+                        "arguments": [
+                          {
+                            "type": "Identifier",
+                            "name": "port"
+                          }
+                        ]
+                      }
+                    }
+                  ],
+                  "kind": "var"
+                },
+                {
+                  "type": "ReturnStatement",
+                  "argument": {
+                    "type": "Identifier",
+                    "name": "ipserver"
+                  }
+                }
+              ]
+            },
+            "rest": null,
+            "generator": false,
+            "expression": false
+          }
+        }
+      ],
+      "kind": "var"
+    },
+    {
+      "type": "ExpressionStatement",
+      "expression": {
+        "type": "AssignmentExpression",
+        "operator": "=",
+        "left": {
+          "type": "MemberExpression",
+          "computed": false,
+          "object": {
+            "type": "MemberExpression",
+            "computed": false,
+            "object": {
+              "type": "Identifier",
+              "name": "module"
+            },
+            "property": {
+              "type": "Identifier",
+              "name": "exports"
+            }
+          },
+          "property": {
+            "type": "Identifier",
+            "name": "createIPServer"
+          }
+        },
+        "right": {
+          "type": "Identifier",
+          "name": "createIPServer"
+        }
+      }
+    }
+  ]
+}

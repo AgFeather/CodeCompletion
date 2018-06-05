@@ -1,0 +1,167 @@
+{
+  "type": "Program",
+  "body": [
+    {
+      "type": "FunctionDeclaration",
+      "id": {
+        "type": "Identifier",
+        "name": "asyncLoop"
+      },
+      "params": [
+        {
+          "type": "Identifier",
+          "name": "action"
+        },
+        {
+          "type": "Identifier",
+          "name": "count"
+        },
+        {
+          "type": "Identifier",
+          "name": "onComplete"
+        }
+      ],
+      "defaults": [],
+      "body": {
+        "type": "BlockStatement",
+        "body": [
+          {
+            "type": "ExpressionStatement",
+            "expression": {
+              "type": "CallExpression",
+              "callee": {
+                "type": "FunctionExpression",
+                "id": {
+                  "type": "Identifier",
+                  "name": "loop"
+                },
+                "params": [
+                  {
+                    "type": "Identifier",
+                    "name": "index"
+                  }
+                ],
+                "defaults": [],
+                "body": {
+                  "type": "BlockStatement",
+                  "body": [
+                    {
+                      "type": "IfStatement",
+                      "test": {
+                        "type": "BinaryExpression",
+                        "operator": "<",
+                        "left": {
+                          "type": "Identifier",
+                          "name": "index"
+                        },
+                        "right": {
+                          "type": "Identifier",
+                          "name": "count"
+                        }
+                      },
+                      "consequent": {
+                        "type": "BlockStatement",
+                        "body": [
+                          {
+                            "type": "ExpressionStatement",
+                            "expression": {
+                              "type": "CallExpression",
+                              "callee": {
+                                "type": "Identifier",
+                                "name": "action"
+                              },
+                              "arguments": [
+                                {
+                                  "type": "FunctionExpression",
+                                  "id": null,
+                                  "params": [],
+                                  "defaults": [],
+                                  "body": {
+                                    "type": "BlockStatement",
+                                    "body": [
+                                      {
+                                        "type": "ExpressionStatement",
+                                        "expression": {
+                                          "type": "CallExpression",
+                                          "callee": {
+                                            "type": "Identifier",
+                                            "name": "loop"
+                                          },
+                                          "arguments": [
+                                            {
+                                              "type": "BinaryExpression",
+                                              "operator": "+",
+                                              "left": {
+                                                "type": "Identifier",
+                                                "name": "index"
+                                              },
+                                              "right": {
+                                                "type": "Literal",
+                                                "value": 1
+                                              }
+                                            }
+                                          ]
+                                        }
+                                      }
+                                    ]
+                                  },
+                                  "rest": null,
+                                  "generator": false,
+                                  "expression": false
+                                },
+                                {
+                                  "type": "Identifier",
+                                  "name": "index"
+                                }
+                              ]
+                            }
+                          }
+                        ]
+                      },
+                      "alternate": {
+                        "type": "IfStatement",
+                        "test": {
+                          "type": "Identifier",
+                          "name": "onComplete"
+                        },
+                        "consequent": {
+                          "type": "BlockStatement",
+                          "body": [
+                            {
+                              "type": "ExpressionStatement",
+                              "expression": {
+                                "type": "CallExpression",
+                                "callee": {
+                                  "type": "Identifier",
+                                  "name": "onComplete"
+                                },
+                                "arguments": []
+                              }
+                            }
+                          ]
+                        },
+                        "alternate": null
+                      }
+                    }
+                  ]
+                },
+                "rest": null,
+                "generator": false,
+                "expression": false
+              },
+              "arguments": [
+                {
+                  "type": "Literal",
+                  "value": 0
+                }
+              ]
+            }
+          }
+        ]
+      },
+      "rest": null,
+      "generator": false,
+      "expression": false
+    }
+  ]
+}

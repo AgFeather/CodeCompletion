@@ -1,0 +1,120 @@
+{
+  "type": "Program",
+  "body": [
+    {
+      "type": "FunctionDeclaration",
+      "id": {
+        "type": "Identifier",
+        "name": "testcase"
+      },
+      "params": [],
+      "defaults": [],
+      "body": {
+        "type": "BlockStatement",
+        "body": [
+          {
+            "type": "ExpressionStatement",
+            "expression": {
+              "type": "AssignmentExpression",
+              "operator": "=",
+              "left": {
+                "type": "Identifier",
+                "name": "foo"
+              },
+              "right": {
+                "type": "Literal",
+                "value": "prior to throw"
+              }
+            }
+          },
+          {
+            "type": "TryStatement",
+            "block": {
+              "type": "BlockStatement",
+              "body": [
+                {
+                  "type": "ThrowStatement",
+                  "argument": {
+                    "type": "NewExpression",
+                    "callee": {
+                      "type": "Identifier",
+                      "name": "Error"
+                    },
+                    "arguments": []
+                  }
+                }
+              ]
+            },
+            "guardedHandlers": [],
+            "handlers": [
+              {
+                "type": "CatchClause",
+                "param": {
+                  "type": "Identifier",
+                  "name": "foo"
+                },
+                "body": {
+                  "type": "BlockStatement",
+                  "body": [
+                    {
+                      "type": "VariableDeclaration",
+                      "declarations": [
+                        {
+                          "type": "VariableDeclarator",
+                          "id": {
+                            "type": "Identifier",
+                            "name": "foo"
+                          },
+                          "init": {
+                            "type": "Literal",
+                            "value": "initializer in catch"
+                          }
+                        }
+                      ],
+                      "kind": "var"
+                    }
+                  ]
+                }
+              }
+            ],
+            "finalizer": null
+          },
+          {
+            "type": "ReturnStatement",
+            "argument": {
+              "type": "BinaryExpression",
+              "operator": "===",
+              "left": {
+                "type": "Identifier",
+                "name": "foo"
+              },
+              "right": {
+                "type": "Literal",
+                "value": "prior to throw"
+              }
+            }
+          }
+        ]
+      },
+      "rest": null,
+      "generator": false,
+      "expression": false
+    },
+    {
+      "type": "ExpressionStatement",
+      "expression": {
+        "type": "CallExpression",
+        "callee": {
+          "type": "Identifier",
+          "name": "runTestCase"
+        },
+        "arguments": [
+          {
+            "type": "Identifier",
+            "name": "testcase"
+          }
+        ]
+      }
+    }
+  ]
+}

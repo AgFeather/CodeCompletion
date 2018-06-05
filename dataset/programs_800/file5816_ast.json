@@ -1,0 +1,1649 @@
+{
+  "type": "Program",
+  "body": [
+    {
+      "type": "ExpressionStatement",
+      "expression": {
+        "type": "CallExpression",
+        "callee": {
+          "type": "Identifier",
+          "name": "define"
+        },
+        "arguments": [
+          {
+            "type": "ArrayExpression",
+            "elements": [
+              {
+                "type": "Literal",
+                "value": "../Core/defined"
+              },
+              {
+                "type": "Literal",
+                "value": "../Core/destroyObject"
+              },
+              {
+                "type": "Literal",
+                "value": "./ShaderProgram"
+              },
+              {
+                "type": "Literal",
+                "value": "./ShaderSource"
+              }
+            ]
+          },
+          {
+            "type": "FunctionExpression",
+            "id": null,
+            "params": [
+              {
+                "type": "Identifier",
+                "name": "defined"
+              },
+              {
+                "type": "Identifier",
+                "name": "destroyObject"
+              },
+              {
+                "type": "Identifier",
+                "name": "ShaderProgram"
+              },
+              {
+                "type": "Identifier",
+                "name": "ShaderSource"
+              }
+            ],
+            "defaults": [],
+            "body": {
+              "type": "BlockStatement",
+              "body": [
+                {
+                  "type": "ExpressionStatement",
+                  "expression": {
+                    "type": "Literal",
+                    "value": "use strict"
+                  }
+                },
+                {
+                  "type": "VariableDeclaration",
+                  "declarations": [
+                    {
+                      "type": "VariableDeclarator",
+                      "id": {
+                        "type": "Identifier",
+                        "name": "ShaderCache"
+                      },
+                      "init": {
+                        "type": "FunctionExpression",
+                        "id": null,
+                        "params": [
+                          {
+                            "type": "Identifier",
+                            "name": "context"
+                          }
+                        ],
+                        "defaults": [],
+                        "body": {
+                          "type": "BlockStatement",
+                          "body": [
+                            {
+                              "type": "ExpressionStatement",
+                              "expression": {
+                                "type": "AssignmentExpression",
+                                "operator": "=",
+                                "left": {
+                                  "type": "MemberExpression",
+                                  "computed": false,
+                                  "object": {
+                                    "type": "ThisExpression"
+                                  },
+                                  "property": {
+                                    "type": "Identifier",
+                                    "name": "_context"
+                                  }
+                                },
+                                "right": {
+                                  "type": "Identifier",
+                                  "name": "context"
+                                }
+                              }
+                            },
+                            {
+                              "type": "ExpressionStatement",
+                              "expression": {
+                                "type": "AssignmentExpression",
+                                "operator": "=",
+                                "left": {
+                                  "type": "MemberExpression",
+                                  "computed": false,
+                                  "object": {
+                                    "type": "ThisExpression"
+                                  },
+                                  "property": {
+                                    "type": "Identifier",
+                                    "name": "_shaders"
+                                  }
+                                },
+                                "right": {
+                                  "type": "ObjectExpression",
+                                  "properties": []
+                                }
+                              }
+                            },
+                            {
+                              "type": "ExpressionStatement",
+                              "expression": {
+                                "type": "AssignmentExpression",
+                                "operator": "=",
+                                "left": {
+                                  "type": "MemberExpression",
+                                  "computed": false,
+                                  "object": {
+                                    "type": "ThisExpression"
+                                  },
+                                  "property": {
+                                    "type": "Identifier",
+                                    "name": "_shadersToRelease"
+                                  }
+                                },
+                                "right": {
+                                  "type": "ObjectExpression",
+                                  "properties": []
+                                }
+                              }
+                            }
+                          ]
+                        },
+                        "rest": null,
+                        "generator": false,
+                        "expression": false
+                      }
+                    }
+                  ],
+                  "kind": "var"
+                },
+                {
+                  "type": "ExpressionStatement",
+                  "expression": {
+                    "type": "AssignmentExpression",
+                    "operator": "=",
+                    "left": {
+                      "type": "MemberExpression",
+                      "computed": false,
+                      "object": {
+                        "type": "MemberExpression",
+                        "computed": false,
+                        "object": {
+                          "type": "Identifier",
+                          "name": "ShaderCache"
+                        },
+                        "property": {
+                          "type": "Identifier",
+                          "name": "prototype"
+                        }
+                      },
+                      "property": {
+                        "type": "Identifier",
+                        "name": "replaceShaderProgram"
+                      }
+                    },
+                    "right": {
+                      "type": "FunctionExpression",
+                      "id": null,
+                      "params": [
+                        {
+                          "type": "Identifier",
+                          "name": "shaderProgram"
+                        },
+                        {
+                          "type": "Identifier",
+                          "name": "vertexShaderSource"
+                        },
+                        {
+                          "type": "Identifier",
+                          "name": "fragmentShaderSource"
+                        },
+                        {
+                          "type": "Identifier",
+                          "name": "attributeLocations"
+                        }
+                      ],
+                      "defaults": [],
+                      "body": {
+                        "type": "BlockStatement",
+                        "body": [
+                          {
+                            "type": "IfStatement",
+                            "test": {
+                              "type": "CallExpression",
+                              "callee": {
+                                "type": "Identifier",
+                                "name": "defined"
+                              },
+                              "arguments": [
+                                {
+                                  "type": "Identifier",
+                                  "name": "shaderProgram"
+                                }
+                              ]
+                            },
+                            "consequent": {
+                              "type": "BlockStatement",
+                              "body": [
+                                {
+                                  "type": "ExpressionStatement",
+                                  "expression": {
+                                    "type": "CallExpression",
+                                    "callee": {
+                                      "type": "MemberExpression",
+                                      "computed": false,
+                                      "object": {
+                                        "type": "Identifier",
+                                        "name": "shaderProgram"
+                                      },
+                                      "property": {
+                                        "type": "Identifier",
+                                        "name": "destroy"
+                                      }
+                                    },
+                                    "arguments": []
+                                  }
+                                }
+                              ]
+                            },
+                            "alternate": null
+                          },
+                          {
+                            "type": "ReturnStatement",
+                            "argument": {
+                              "type": "CallExpression",
+                              "callee": {
+                                "type": "MemberExpression",
+                                "computed": false,
+                                "object": {
+                                  "type": "ThisExpression"
+                                },
+                                "property": {
+                                  "type": "Identifier",
+                                  "name": "getShaderProgram"
+                                }
+                              },
+                              "arguments": [
+                                {
+                                  "type": "Identifier",
+                                  "name": "vertexShaderSource"
+                                },
+                                {
+                                  "type": "Identifier",
+                                  "name": "fragmentShaderSource"
+                                },
+                                {
+                                  "type": "Identifier",
+                                  "name": "attributeLocations"
+                                }
+                              ]
+                            }
+                          }
+                        ]
+                      },
+                      "rest": null,
+                      "generator": false,
+                      "expression": false
+                    }
+                  }
+                },
+                {
+                  "type": "ExpressionStatement",
+                  "expression": {
+                    "type": "AssignmentExpression",
+                    "operator": "=",
+                    "left": {
+                      "type": "MemberExpression",
+                      "computed": false,
+                      "object": {
+                        "type": "MemberExpression",
+                        "computed": false,
+                        "object": {
+                          "type": "Identifier",
+                          "name": "ShaderCache"
+                        },
+                        "property": {
+                          "type": "Identifier",
+                          "name": "prototype"
+                        }
+                      },
+                      "property": {
+                        "type": "Identifier",
+                        "name": "getShaderProgram"
+                      }
+                    },
+                    "right": {
+                      "type": "FunctionExpression",
+                      "id": null,
+                      "params": [
+                        {
+                          "type": "Identifier",
+                          "name": "vertexShaderSource"
+                        },
+                        {
+                          "type": "Identifier",
+                          "name": "fragmentShaderSource"
+                        },
+                        {
+                          "type": "Identifier",
+                          "name": "attributeLocations"
+                        }
+                      ],
+                      "defaults": [],
+                      "body": {
+                        "type": "BlockStatement",
+                        "body": [
+                          {
+                            "type": "IfStatement",
+                            "test": {
+                              "type": "BinaryExpression",
+                              "operator": "===",
+                              "left": {
+                                "type": "UnaryExpression",
+                                "operator": "typeof",
+                                "argument": {
+                                  "type": "Identifier",
+                                  "name": "vertexShaderSource"
+                                },
+                                "prefix": true
+                              },
+                              "right": {
+                                "type": "Literal",
+                                "value": "string"
+                              }
+                            },
+                            "consequent": {
+                              "type": "BlockStatement",
+                              "body": [
+                                {
+                                  "type": "ExpressionStatement",
+                                  "expression": {
+                                    "type": "AssignmentExpression",
+                                    "operator": "=",
+                                    "left": {
+                                      "type": "Identifier",
+                                      "name": "vertexShaderSource"
+                                    },
+                                    "right": {
+                                      "type": "NewExpression",
+                                      "callee": {
+                                        "type": "Identifier",
+                                        "name": "ShaderSource"
+                                      },
+                                      "arguments": [
+                                        {
+                                          "type": "ObjectExpression",
+                                          "properties": [
+                                            {
+                                              "type": "Property",
+                                              "key": {
+                                                "type": "Identifier",
+                                                "name": "sources"
+                                              },
+                                              "value": {
+                                                "type": "ArrayExpression",
+                                                "elements": [
+                                                  {
+                                                    "type": "Identifier",
+                                                    "name": "vertexShaderSource"
+                                                  }
+                                                ]
+                                              },
+                                              "kind": "init"
+                                            }
+                                          ]
+                                        }
+                                      ]
+                                    }
+                                  }
+                                }
+                              ]
+                            },
+                            "alternate": null
+                          },
+                          {
+                            "type": "IfStatement",
+                            "test": {
+                              "type": "BinaryExpression",
+                              "operator": "===",
+                              "left": {
+                                "type": "UnaryExpression",
+                                "operator": "typeof",
+                                "argument": {
+                                  "type": "Identifier",
+                                  "name": "fragmentShaderSource"
+                                },
+                                "prefix": true
+                              },
+                              "right": {
+                                "type": "Literal",
+                                "value": "string"
+                              }
+                            },
+                            "consequent": {
+                              "type": "BlockStatement",
+                              "body": [
+                                {
+                                  "type": "ExpressionStatement",
+                                  "expression": {
+                                    "type": "AssignmentExpression",
+                                    "operator": "=",
+                                    "left": {
+                                      "type": "Identifier",
+                                      "name": "fragmentShaderSource"
+                                    },
+                                    "right": {
+                                      "type": "NewExpression",
+                                      "callee": {
+                                        "type": "Identifier",
+                                        "name": "ShaderSource"
+                                      },
+                                      "arguments": [
+                                        {
+                                          "type": "ObjectExpression",
+                                          "properties": [
+                                            {
+                                              "type": "Property",
+                                              "key": {
+                                                "type": "Identifier",
+                                                "name": "sources"
+                                              },
+                                              "value": {
+                                                "type": "ArrayExpression",
+                                                "elements": [
+                                                  {
+                                                    "type": "Identifier",
+                                                    "name": "fragmentShaderSource"
+                                                  }
+                                                ]
+                                              },
+                                              "kind": "init"
+                                            }
+                                          ]
+                                        }
+                                      ]
+                                    }
+                                  }
+                                }
+                              ]
+                            },
+                            "alternate": null
+                          },
+                          {
+                            "type": "VariableDeclaration",
+                            "declarations": [
+                              {
+                                "type": "VariableDeclarator",
+                                "id": {
+                                  "type": "Identifier",
+                                  "name": "vertexShaderText"
+                                },
+                                "init": {
+                                  "type": "CallExpression",
+                                  "callee": {
+                                    "type": "MemberExpression",
+                                    "computed": false,
+                                    "object": {
+                                      "type": "Identifier",
+                                      "name": "vertexShaderSource"
+                                    },
+                                    "property": {
+                                      "type": "Identifier",
+                                      "name": "createCombinedVertexShader"
+                                    }
+                                  },
+                                  "arguments": []
+                                }
+                              }
+                            ],
+                            "kind": "var"
+                          },
+                          {
+                            "type": "VariableDeclaration",
+                            "declarations": [
+                              {
+                                "type": "VariableDeclarator",
+                                "id": {
+                                  "type": "Identifier",
+                                  "name": "fragmentShaderText"
+                                },
+                                "init": {
+                                  "type": "CallExpression",
+                                  "callee": {
+                                    "type": "MemberExpression",
+                                    "computed": false,
+                                    "object": {
+                                      "type": "Identifier",
+                                      "name": "fragmentShaderSource"
+                                    },
+                                    "property": {
+                                      "type": "Identifier",
+                                      "name": "createCombinedFragmentShader"
+                                    }
+                                  },
+                                  "arguments": []
+                                }
+                              }
+                            ],
+                            "kind": "var"
+                          },
+                          {
+                            "type": "VariableDeclaration",
+                            "declarations": [
+                              {
+                                "type": "VariableDeclarator",
+                                "id": {
+                                  "type": "Identifier",
+                                  "name": "keyword"
+                                },
+                                "init": {
+                                  "type": "BinaryExpression",
+                                  "operator": "+",
+                                  "left": {
+                                    "type": "BinaryExpression",
+                                    "operator": "+",
+                                    "left": {
+                                      "type": "Identifier",
+                                      "name": "vertexShaderText"
+                                    },
+                                    "right": {
+                                      "type": "Identifier",
+                                      "name": "fragmentShaderText"
+                                    }
+                                  },
+                                  "right": {
+                                    "type": "CallExpression",
+                                    "callee": {
+                                      "type": "MemberExpression",
+                                      "computed": false,
+                                      "object": {
+                                        "type": "Identifier",
+                                        "name": "JSON"
+                                      },
+                                      "property": {
+                                        "type": "Identifier",
+                                        "name": "stringify"
+                                      }
+                                    },
+                                    "arguments": [
+                                      {
+                                        "type": "Identifier",
+                                        "name": "attributeLocations"
+                                      }
+                                    ]
+                                  }
+                                }
+                              }
+                            ],
+                            "kind": "var"
+                          },
+                          {
+                            "type": "VariableDeclaration",
+                            "declarations": [
+                              {
+                                "type": "VariableDeclarator",
+                                "id": {
+                                  "type": "Identifier",
+                                  "name": "cachedShader"
+                                },
+                                "init": null
+                              }
+                            ],
+                            "kind": "var"
+                          },
+                          {
+                            "type": "IfStatement",
+                            "test": {
+                              "type": "MemberExpression",
+                              "computed": true,
+                              "object": {
+                                "type": "MemberExpression",
+                                "computed": false,
+                                "object": {
+                                  "type": "ThisExpression"
+                                },
+                                "property": {
+                                  "type": "Identifier",
+                                  "name": "_shaders"
+                                }
+                              },
+                              "property": {
+                                "type": "Identifier",
+                                "name": "keyword"
+                              }
+                            },
+                            "consequent": {
+                              "type": "BlockStatement",
+                              "body": [
+                                {
+                                  "type": "ExpressionStatement",
+                                  "expression": {
+                                    "type": "AssignmentExpression",
+                                    "operator": "=",
+                                    "left": {
+                                      "type": "Identifier",
+                                      "name": "cachedShader"
+                                    },
+                                    "right": {
+                                      "type": "MemberExpression",
+                                      "computed": true,
+                                      "object": {
+                                        "type": "MemberExpression",
+                                        "computed": false,
+                                        "object": {
+                                          "type": "ThisExpression"
+                                        },
+                                        "property": {
+                                          "type": "Identifier",
+                                          "name": "_shaders"
+                                        }
+                                      },
+                                      "property": {
+                                        "type": "Identifier",
+                                        "name": "keyword"
+                                      }
+                                    }
+                                  }
+                                },
+                                {
+                                  "type": "ExpressionStatement",
+                                  "expression": {
+                                    "type": "UnaryExpression",
+                                    "operator": "delete",
+                                    "argument": {
+                                      "type": "MemberExpression",
+                                      "computed": true,
+                                      "object": {
+                                        "type": "MemberExpression",
+                                        "computed": false,
+                                        "object": {
+                                          "type": "ThisExpression"
+                                        },
+                                        "property": {
+                                          "type": "Identifier",
+                                          "name": "_shadersToRelease"
+                                        }
+                                      },
+                                      "property": {
+                                        "type": "Identifier",
+                                        "name": "keyword"
+                                      }
+                                    },
+                                    "prefix": true
+                                  }
+                                }
+                              ]
+                            },
+                            "alternate": {
+                              "type": "BlockStatement",
+                              "body": [
+                                {
+                                  "type": "VariableDeclaration",
+                                  "declarations": [
+                                    {
+                                      "type": "VariableDeclarator",
+                                      "id": {
+                                        "type": "Identifier",
+                                        "name": "context"
+                                      },
+                                      "init": {
+                                        "type": "MemberExpression",
+                                        "computed": false,
+                                        "object": {
+                                          "type": "ThisExpression"
+                                        },
+                                        "property": {
+                                          "type": "Identifier",
+                                          "name": "_context"
+                                        }
+                                      }
+                                    }
+                                  ],
+                                  "kind": "var"
+                                },
+                                {
+                                  "type": "VariableDeclaration",
+                                  "declarations": [
+                                    {
+                                      "type": "VariableDeclarator",
+                                      "id": {
+                                        "type": "Identifier",
+                                        "name": "shaderProgram"
+                                      },
+                                      "init": {
+                                        "type": "NewExpression",
+                                        "callee": {
+                                          "type": "Identifier",
+                                          "name": "ShaderProgram"
+                                        },
+                                        "arguments": [
+                                          {
+                                            "type": "ObjectExpression",
+                                            "properties": [
+                                              {
+                                                "type": "Property",
+                                                "key": {
+                                                  "type": "Identifier",
+                                                  "name": "gl"
+                                                },
+                                                "value": {
+                                                  "type": "MemberExpression",
+                                                  "computed": false,
+                                                  "object": {
+                                                    "type": "Identifier",
+                                                    "name": "context"
+                                                  },
+                                                  "property": {
+                                                    "type": "Identifier",
+                                                    "name": "_gl"
+                                                  }
+                                                },
+                                                "kind": "init"
+                                              },
+                                              {
+                                                "type": "Property",
+                                                "key": {
+                                                  "type": "Identifier",
+                                                  "name": "logShaderCompilation"
+                                                },
+                                                "value": {
+                                                  "type": "MemberExpression",
+                                                  "computed": false,
+                                                  "object": {
+                                                    "type": "Identifier",
+                                                    "name": "context"
+                                                  },
+                                                  "property": {
+                                                    "type": "Identifier",
+                                                    "name": "logShaderCompilation"
+                                                  }
+                                                },
+                                                "kind": "init"
+                                              },
+                                              {
+                                                "type": "Property",
+                                                "key": {
+                                                  "type": "Identifier",
+                                                  "name": "debugShaders"
+                                                },
+                                                "value": {
+                                                  "type": "MemberExpression",
+                                                  "computed": false,
+                                                  "object": {
+                                                    "type": "Identifier",
+                                                    "name": "context"
+                                                  },
+                                                  "property": {
+                                                    "type": "Identifier",
+                                                    "name": "debugShaders"
+                                                  }
+                                                },
+                                                "kind": "init"
+                                              },
+                                              {
+                                                "type": "Property",
+                                                "key": {
+                                                  "type": "Identifier",
+                                                  "name": "vertexShaderSource"
+                                                },
+                                                "value": {
+                                                  "type": "Identifier",
+                                                  "name": "vertexShaderSource"
+                                                },
+                                                "kind": "init"
+                                              },
+                                              {
+                                                "type": "Property",
+                                                "key": {
+                                                  "type": "Identifier",
+                                                  "name": "vertexShaderText"
+                                                },
+                                                "value": {
+                                                  "type": "Identifier",
+                                                  "name": "vertexShaderText"
+                                                },
+                                                "kind": "init"
+                                              },
+                                              {
+                                                "type": "Property",
+                                                "key": {
+                                                  "type": "Identifier",
+                                                  "name": "fragmentShaderSource"
+                                                },
+                                                "value": {
+                                                  "type": "Identifier",
+                                                  "name": "fragmentShaderSource"
+                                                },
+                                                "kind": "init"
+                                              },
+                                              {
+                                                "type": "Property",
+                                                "key": {
+                                                  "type": "Identifier",
+                                                  "name": "fragmentShaderText"
+                                                },
+                                                "value": {
+                                                  "type": "Identifier",
+                                                  "name": "fragmentShaderText"
+                                                },
+                                                "kind": "init"
+                                              },
+                                              {
+                                                "type": "Property",
+                                                "key": {
+                                                  "type": "Identifier",
+                                                  "name": "attributeLocations"
+                                                },
+                                                "value": {
+                                                  "type": "Identifier",
+                                                  "name": "attributeLocations"
+                                                },
+                                                "kind": "init"
+                                              }
+                                            ]
+                                          }
+                                        ]
+                                      }
+                                    }
+                                  ],
+                                  "kind": "var"
+                                },
+                                {
+                                  "type": "ExpressionStatement",
+                                  "expression": {
+                                    "type": "AssignmentExpression",
+                                    "operator": "=",
+                                    "left": {
+                                      "type": "Identifier",
+                                      "name": "cachedShader"
+                                    },
+                                    "right": {
+                                      "type": "ObjectExpression",
+                                      "properties": [
+                                        {
+                                          "type": "Property",
+                                          "key": {
+                                            "type": "Identifier",
+                                            "name": "cache"
+                                          },
+                                          "value": {
+                                            "type": "ThisExpression"
+                                          },
+                                          "kind": "init"
+                                        },
+                                        {
+                                          "type": "Property",
+                                          "key": {
+                                            "type": "Identifier",
+                                            "name": "shaderProgram"
+                                          },
+                                          "value": {
+                                            "type": "Identifier",
+                                            "name": "shaderProgram"
+                                          },
+                                          "kind": "init"
+                                        },
+                                        {
+                                          "type": "Property",
+                                          "key": {
+                                            "type": "Identifier",
+                                            "name": "keyword"
+                                          },
+                                          "value": {
+                                            "type": "Identifier",
+                                            "name": "keyword"
+                                          },
+                                          "kind": "init"
+                                        },
+                                        {
+                                          "type": "Property",
+                                          "key": {
+                                            "type": "Identifier",
+                                            "name": "count"
+                                          },
+                                          "value": {
+                                            "type": "Literal",
+                                            "value": 0
+                                          },
+                                          "kind": "init"
+                                        }
+                                      ]
+                                    }
+                                  }
+                                },
+                                {
+                                  "type": "ExpressionStatement",
+                                  "expression": {
+                                    "type": "AssignmentExpression",
+                                    "operator": "=",
+                                    "left": {
+                                      "type": "MemberExpression",
+                                      "computed": false,
+                                      "object": {
+                                        "type": "Identifier",
+                                        "name": "shaderProgram"
+                                      },
+                                      "property": {
+                                        "type": "Identifier",
+                                        "name": "_cachedShader"
+                                      }
+                                    },
+                                    "right": {
+                                      "type": "Identifier",
+                                      "name": "cachedShader"
+                                    }
+                                  }
+                                },
+                                {
+                                  "type": "ExpressionStatement",
+                                  "expression": {
+                                    "type": "AssignmentExpression",
+                                    "operator": "=",
+                                    "left": {
+                                      "type": "MemberExpression",
+                                      "computed": true,
+                                      "object": {
+                                        "type": "MemberExpression",
+                                        "computed": false,
+                                        "object": {
+                                          "type": "ThisExpression"
+                                        },
+                                        "property": {
+                                          "type": "Identifier",
+                                          "name": "_shaders"
+                                        }
+                                      },
+                                      "property": {
+                                        "type": "Identifier",
+                                        "name": "keyword"
+                                      }
+                                    },
+                                    "right": {
+                                      "type": "Identifier",
+                                      "name": "cachedShader"
+                                    }
+                                  }
+                                }
+                              ]
+                            }
+                          },
+                          {
+                            "type": "ExpressionStatement",
+                            "expression": {
+                              "type": "UpdateExpression",
+                              "operator": "++",
+                              "argument": {
+                                "type": "MemberExpression",
+                                "computed": false,
+                                "object": {
+                                  "type": "Identifier",
+                                  "name": "cachedShader"
+                                },
+                                "property": {
+                                  "type": "Identifier",
+                                  "name": "count"
+                                }
+                              },
+                              "prefix": true
+                            }
+                          },
+                          {
+                            "type": "ReturnStatement",
+                            "argument": {
+                              "type": "MemberExpression",
+                              "computed": false,
+                              "object": {
+                                "type": "Identifier",
+                                "name": "cachedShader"
+                              },
+                              "property": {
+                                "type": "Identifier",
+                                "name": "shaderProgram"
+                              }
+                            }
+                          }
+                        ]
+                      },
+                      "rest": null,
+                      "generator": false,
+                      "expression": false
+                    }
+                  }
+                },
+                {
+                  "type": "ExpressionStatement",
+                  "expression": {
+                    "type": "AssignmentExpression",
+                    "operator": "=",
+                    "left": {
+                      "type": "MemberExpression",
+                      "computed": false,
+                      "object": {
+                        "type": "MemberExpression",
+                        "computed": false,
+                        "object": {
+                          "type": "Identifier",
+                          "name": "ShaderCache"
+                        },
+                        "property": {
+                          "type": "Identifier",
+                          "name": "prototype"
+                        }
+                      },
+                      "property": {
+                        "type": "Identifier",
+                        "name": "destroyReleasedShaderPrograms"
+                      }
+                    },
+                    "right": {
+                      "type": "FunctionExpression",
+                      "id": null,
+                      "params": [],
+                      "defaults": [],
+                      "body": {
+                        "type": "BlockStatement",
+                        "body": [
+                          {
+                            "type": "VariableDeclaration",
+                            "declarations": [
+                              {
+                                "type": "VariableDeclarator",
+                                "id": {
+                                  "type": "Identifier",
+                                  "name": "shadersToRelease"
+                                },
+                                "init": {
+                                  "type": "MemberExpression",
+                                  "computed": false,
+                                  "object": {
+                                    "type": "ThisExpression"
+                                  },
+                                  "property": {
+                                    "type": "Identifier",
+                                    "name": "_shadersToRelease"
+                                  }
+                                }
+                              }
+                            ],
+                            "kind": "var"
+                          },
+                          {
+                            "type": "ForInStatement",
+                            "left": {
+                              "type": "VariableDeclaration",
+                              "declarations": [
+                                {
+                                  "type": "VariableDeclarator",
+                                  "id": {
+                                    "type": "Identifier",
+                                    "name": "keyword"
+                                  },
+                                  "init": null
+                                }
+                              ],
+                              "kind": "var"
+                            },
+                            "right": {
+                              "type": "Identifier",
+                              "name": "shadersToRelease"
+                            },
+                            "body": {
+                              "type": "BlockStatement",
+                              "body": [
+                                {
+                                  "type": "IfStatement",
+                                  "test": {
+                                    "type": "CallExpression",
+                                    "callee": {
+                                      "type": "MemberExpression",
+                                      "computed": false,
+                                      "object": {
+                                        "type": "Identifier",
+                                        "name": "shadersToRelease"
+                                      },
+                                      "property": {
+                                        "type": "Identifier",
+                                        "name": "hasOwnProperty"
+                                      }
+                                    },
+                                    "arguments": [
+                                      {
+                                        "type": "Identifier",
+                                        "name": "keyword"
+                                      }
+                                    ]
+                                  },
+                                  "consequent": {
+                                    "type": "BlockStatement",
+                                    "body": [
+                                      {
+                                        "type": "VariableDeclaration",
+                                        "declarations": [
+                                          {
+                                            "type": "VariableDeclarator",
+                                            "id": {
+                                              "type": "Identifier",
+                                              "name": "cachedShader"
+                                            },
+                                            "init": {
+                                              "type": "MemberExpression",
+                                              "computed": true,
+                                              "object": {
+                                                "type": "Identifier",
+                                                "name": "shadersToRelease"
+                                              },
+                                              "property": {
+                                                "type": "Identifier",
+                                                "name": "keyword"
+                                              }
+                                            }
+                                          }
+                                        ],
+                                        "kind": "var"
+                                      },
+                                      {
+                                        "type": "ExpressionStatement",
+                                        "expression": {
+                                          "type": "UnaryExpression",
+                                          "operator": "delete",
+                                          "argument": {
+                                            "type": "MemberExpression",
+                                            "computed": true,
+                                            "object": {
+                                              "type": "MemberExpression",
+                                              "computed": false,
+                                              "object": {
+                                                "type": "ThisExpression"
+                                              },
+                                              "property": {
+                                                "type": "Identifier",
+                                                "name": "_shaders"
+                                              }
+                                            },
+                                            "property": {
+                                              "type": "MemberExpression",
+                                              "computed": false,
+                                              "object": {
+                                                "type": "Identifier",
+                                                "name": "cachedShader"
+                                              },
+                                              "property": {
+                                                "type": "Identifier",
+                                                "name": "keyword"
+                                              }
+                                            }
+                                          },
+                                          "prefix": true
+                                        }
+                                      },
+                                      {
+                                        "type": "ExpressionStatement",
+                                        "expression": {
+                                          "type": "CallExpression",
+                                          "callee": {
+                                            "type": "MemberExpression",
+                                            "computed": false,
+                                            "object": {
+                                              "type": "MemberExpression",
+                                              "computed": false,
+                                              "object": {
+                                                "type": "Identifier",
+                                                "name": "cachedShader"
+                                              },
+                                              "property": {
+                                                "type": "Identifier",
+                                                "name": "shaderProgram"
+                                              }
+                                            },
+                                            "property": {
+                                              "type": "Identifier",
+                                              "name": "finalDestroy"
+                                            }
+                                          },
+                                          "arguments": []
+                                        }
+                                      }
+                                    ]
+                                  },
+                                  "alternate": null
+                                }
+                              ]
+                            },
+                            "each": false
+                          },
+                          {
+                            "type": "ExpressionStatement",
+                            "expression": {
+                              "type": "AssignmentExpression",
+                              "operator": "=",
+                              "left": {
+                                "type": "MemberExpression",
+                                "computed": false,
+                                "object": {
+                                  "type": "ThisExpression"
+                                },
+                                "property": {
+                                  "type": "Identifier",
+                                  "name": "_shadersToRelease"
+                                }
+                              },
+                              "right": {
+                                "type": "ObjectExpression",
+                                "properties": []
+                              }
+                            }
+                          }
+                        ]
+                      },
+                      "rest": null,
+                      "generator": false,
+                      "expression": false
+                    }
+                  }
+                },
+                {
+                  "type": "ExpressionStatement",
+                  "expression": {
+                    "type": "AssignmentExpression",
+                    "operator": "=",
+                    "left": {
+                      "type": "MemberExpression",
+                      "computed": false,
+                      "object": {
+                        "type": "MemberExpression",
+                        "computed": false,
+                        "object": {
+                          "type": "Identifier",
+                          "name": "ShaderCache"
+                        },
+                        "property": {
+                          "type": "Identifier",
+                          "name": "prototype"
+                        }
+                      },
+                      "property": {
+                        "type": "Identifier",
+                        "name": "releaseShaderProgram"
+                      }
+                    },
+                    "right": {
+                      "type": "FunctionExpression",
+                      "id": null,
+                      "params": [
+                        {
+                          "type": "Identifier",
+                          "name": "shaderProgram"
+                        }
+                      ],
+                      "defaults": [],
+                      "body": {
+                        "type": "BlockStatement",
+                        "body": [
+                          {
+                            "type": "IfStatement",
+                            "test": {
+                              "type": "Identifier",
+                              "name": "shaderProgram"
+                            },
+                            "consequent": {
+                              "type": "BlockStatement",
+                              "body": [
+                                {
+                                  "type": "VariableDeclaration",
+                                  "declarations": [
+                                    {
+                                      "type": "VariableDeclarator",
+                                      "id": {
+                                        "type": "Identifier",
+                                        "name": "cachedShader"
+                                      },
+                                      "init": {
+                                        "type": "MemberExpression",
+                                        "computed": false,
+                                        "object": {
+                                          "type": "Identifier",
+                                          "name": "shaderProgram"
+                                        },
+                                        "property": {
+                                          "type": "Identifier",
+                                          "name": "_cachedShader"
+                                        }
+                                      }
+                                    }
+                                  ],
+                                  "kind": "var"
+                                },
+                                {
+                                  "type": "IfStatement",
+                                  "test": {
+                                    "type": "LogicalExpression",
+                                    "operator": "&&",
+                                    "left": {
+                                      "type": "Identifier",
+                                      "name": "cachedShader"
+                                    },
+                                    "right": {
+                                      "type": "BinaryExpression",
+                                      "operator": "===",
+                                      "left": {
+                                        "type": "UpdateExpression",
+                                        "operator": "--",
+                                        "argument": {
+                                          "type": "MemberExpression",
+                                          "computed": false,
+                                          "object": {
+                                            "type": "Identifier",
+                                            "name": "cachedShader"
+                                          },
+                                          "property": {
+                                            "type": "Identifier",
+                                            "name": "count"
+                                          }
+                                        },
+                                        "prefix": true
+                                      },
+                                      "right": {
+                                        "type": "Literal",
+                                        "value": 0
+                                      }
+                                    }
+                                  },
+                                  "consequent": {
+                                    "type": "BlockStatement",
+                                    "body": [
+                                      {
+                                        "type": "ExpressionStatement",
+                                        "expression": {
+                                          "type": "AssignmentExpression",
+                                          "operator": "=",
+                                          "left": {
+                                            "type": "MemberExpression",
+                                            "computed": true,
+                                            "object": {
+                                              "type": "MemberExpression",
+                                              "computed": false,
+                                              "object": {
+                                                "type": "ThisExpression"
+                                              },
+                                              "property": {
+                                                "type": "Identifier",
+                                                "name": "_shadersToRelease"
+                                              }
+                                            },
+                                            "property": {
+                                              "type": "MemberExpression",
+                                              "computed": false,
+                                              "object": {
+                                                "type": "Identifier",
+                                                "name": "cachedShader"
+                                              },
+                                              "property": {
+                                                "type": "Identifier",
+                                                "name": "keyword"
+                                              }
+                                            }
+                                          },
+                                          "right": {
+                                            "type": "Identifier",
+                                            "name": "cachedShader"
+                                          }
+                                        }
+                                      }
+                                    ]
+                                  },
+                                  "alternate": null
+                                }
+                              ]
+                            },
+                            "alternate": null
+                          }
+                        ]
+                      },
+                      "rest": null,
+                      "generator": false,
+                      "expression": false
+                    }
+                  }
+                },
+                {
+                  "type": "ExpressionStatement",
+                  "expression": {
+                    "type": "AssignmentExpression",
+                    "operator": "=",
+                    "left": {
+                      "type": "MemberExpression",
+                      "computed": false,
+                      "object": {
+                        "type": "MemberExpression",
+                        "computed": false,
+                        "object": {
+                          "type": "Identifier",
+                          "name": "ShaderCache"
+                        },
+                        "property": {
+                          "type": "Identifier",
+                          "name": "prototype"
+                        }
+                      },
+                      "property": {
+                        "type": "Identifier",
+                        "name": "isDestroyed"
+                      }
+                    },
+                    "right": {
+                      "type": "FunctionExpression",
+                      "id": null,
+                      "params": [],
+                      "defaults": [],
+                      "body": {
+                        "type": "BlockStatement",
+                        "body": [
+                          {
+                            "type": "ReturnStatement",
+                            "argument": {
+                              "type": "Literal",
+                              "value": false
+                            }
+                          }
+                        ]
+                      },
+                      "rest": null,
+                      "generator": false,
+                      "expression": false
+                    }
+                  }
+                },
+                {
+                  "type": "ExpressionStatement",
+                  "expression": {
+                    "type": "AssignmentExpression",
+                    "operator": "=",
+                    "left": {
+                      "type": "MemberExpression",
+                      "computed": false,
+                      "object": {
+                        "type": "MemberExpression",
+                        "computed": false,
+                        "object": {
+                          "type": "Identifier",
+                          "name": "ShaderCache"
+                        },
+                        "property": {
+                          "type": "Identifier",
+                          "name": "prototype"
+                        }
+                      },
+                      "property": {
+                        "type": "Identifier",
+                        "name": "destroy"
+                      }
+                    },
+                    "right": {
+                      "type": "FunctionExpression",
+                      "id": null,
+                      "params": [],
+                      "defaults": [],
+                      "body": {
+                        "type": "BlockStatement",
+                        "body": [
+                          {
+                            "type": "VariableDeclaration",
+                            "declarations": [
+                              {
+                                "type": "VariableDeclarator",
+                                "id": {
+                                  "type": "Identifier",
+                                  "name": "shaders"
+                                },
+                                "init": {
+                                  "type": "MemberExpression",
+                                  "computed": false,
+                                  "object": {
+                                    "type": "ThisExpression"
+                                  },
+                                  "property": {
+                                    "type": "Identifier",
+                                    "name": "_shaders"
+                                  }
+                                }
+                              }
+                            ],
+                            "kind": "var"
+                          },
+                          {
+                            "type": "ForInStatement",
+                            "left": {
+                              "type": "VariableDeclaration",
+                              "declarations": [
+                                {
+                                  "type": "VariableDeclarator",
+                                  "id": {
+                                    "type": "Identifier",
+                                    "name": "keyword"
+                                  },
+                                  "init": null
+                                }
+                              ],
+                              "kind": "var"
+                            },
+                            "right": {
+                              "type": "Identifier",
+                              "name": "shaders"
+                            },
+                            "body": {
+                              "type": "BlockStatement",
+                              "body": [
+                                {
+                                  "type": "IfStatement",
+                                  "test": {
+                                    "type": "CallExpression",
+                                    "callee": {
+                                      "type": "MemberExpression",
+                                      "computed": false,
+                                      "object": {
+                                        "type": "Identifier",
+                                        "name": "shaders"
+                                      },
+                                      "property": {
+                                        "type": "Identifier",
+                                        "name": "hasOwnProperty"
+                                      }
+                                    },
+                                    "arguments": [
+                                      {
+                                        "type": "Identifier",
+                                        "name": "keyword"
+                                      }
+                                    ]
+                                  },
+                                  "consequent": {
+                                    "type": "BlockStatement",
+                                    "body": [
+                                      {
+                                        "type": "ExpressionStatement",
+                                        "expression": {
+                                          "type": "CallExpression",
+                                          "callee": {
+                                            "type": "MemberExpression",
+                                            "computed": false,
+                                            "object": {
+                                              "type": "MemberExpression",
+                                              "computed": false,
+                                              "object": {
+                                                "type": "MemberExpression",
+                                                "computed": true,
+                                                "object": {
+                                                  "type": "Identifier",
+                                                  "name": "shaders"
+                                                },
+                                                "property": {
+                                                  "type": "Identifier",
+                                                  "name": "keyword"
+                                                }
+                                              },
+                                              "property": {
+                                                "type": "Identifier",
+                                                "name": "shaderProgram"
+                                              }
+                                            },
+                                            "property": {
+                                              "type": "Identifier",
+                                              "name": "finalDestroy"
+                                            }
+                                          },
+                                          "arguments": []
+                                        }
+                                      }
+                                    ]
+                                  },
+                                  "alternate": null
+                                }
+                              ]
+                            },
+                            "each": false
+                          },
+                          {
+                            "type": "ReturnStatement",
+                            "argument": {
+                              "type": "CallExpression",
+                              "callee": {
+                                "type": "Identifier",
+                                "name": "destroyObject"
+                              },
+                              "arguments": [
+                                {
+                                  "type": "ThisExpression"
+                                }
+                              ]
+                            }
+                          }
+                        ]
+                      },
+                      "rest": null,
+                      "generator": false,
+                      "expression": false
+                    }
+                  }
+                },
+                {
+                  "type": "ReturnStatement",
+                  "argument": {
+                    "type": "Identifier",
+                    "name": "ShaderCache"
+                  }
+                }
+              ]
+            },
+            "rest": null,
+            "generator": false,
+            "expression": false
+          }
+        ]
+      }
+    }
+  ]
+}

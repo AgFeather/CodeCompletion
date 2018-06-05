@@ -1,0 +1,1029 @@
+{
+  "type": "Program",
+  "body": [
+    {
+      "type": "VariableDeclaration",
+      "declarations": [
+        {
+          "type": "VariableDeclarator",
+          "id": {
+            "type": "Identifier",
+            "name": "perPage"
+          },
+          "init": {
+            "type": "Literal",
+            "value": 6
+          }
+        },
+        {
+          "type": "VariableDeclarator",
+          "id": {
+            "type": "Identifier",
+            "name": "prev"
+          },
+          "init": {
+            "type": "CallExpression",
+            "callee": {
+              "type": "MemberExpression",
+              "computed": false,
+              "object": {
+                "type": "Identifier",
+                "name": "document"
+              },
+              "property": {
+                "type": "Identifier",
+                "name": "querySelector"
+              }
+            },
+            "arguments": [
+              {
+                "type": "Literal",
+                "value": "#prev"
+              }
+            ]
+          }
+        },
+        {
+          "type": "VariableDeclarator",
+          "id": {
+            "type": "Identifier",
+            "name": "next"
+          },
+          "init": {
+            "type": "CallExpression",
+            "callee": {
+              "type": "MemberExpression",
+              "computed": false,
+              "object": {
+                "type": "Identifier",
+                "name": "document"
+              },
+              "property": {
+                "type": "Identifier",
+                "name": "querySelector"
+              }
+            },
+            "arguments": [
+              {
+                "type": "Literal",
+                "value": "#next"
+              }
+            ]
+          }
+        }
+      ],
+      "kind": "var"
+    },
+    {
+      "type": "ExpressionStatement",
+      "expression": {
+        "type": "CallExpression",
+        "callee": {
+          "type": "MemberExpression",
+          "computed": false,
+          "object": {
+            "type": "Identifier",
+            "name": "page"
+          },
+          "property": {
+            "type": "Identifier",
+            "name": "base"
+          }
+        },
+        "arguments": [
+          {
+            "type": "Literal",
+            "value": "/album"
+          }
+        ]
+      }
+    },
+    {
+      "type": "ExpressionStatement",
+      "expression": {
+        "type": "CallExpression",
+        "callee": {
+          "type": "Identifier",
+          "name": "page"
+        },
+        "arguments": [
+          {
+            "type": "Literal",
+            "value": "/"
+          },
+          {
+            "type": "Literal",
+            "value": "/photos/0"
+          }
+        ]
+      }
+    },
+    {
+      "type": "ExpressionStatement",
+      "expression": {
+        "type": "CallExpression",
+        "callee": {
+          "type": "Identifier",
+          "name": "page"
+        },
+        "arguments": [
+          {
+            "type": "Literal",
+            "value": "/photos/:page"
+          },
+          {
+            "type": "Identifier",
+            "name": "photos"
+          }
+        ]
+      }
+    },
+    {
+      "type": "ExpressionStatement",
+      "expression": {
+        "type": "CallExpression",
+        "callee": {
+          "type": "Identifier",
+          "name": "page"
+        },
+        "arguments": [
+          {
+            "type": "Literal",
+            "value": "*"
+          },
+          {
+            "type": "Identifier",
+            "name": "notfound"
+          }
+        ]
+      }
+    },
+    {
+      "type": "ExpressionStatement",
+      "expression": {
+        "type": "CallExpression",
+        "callee": {
+          "type": "Identifier",
+          "name": "page"
+        },
+        "arguments": []
+      }
+    },
+    {
+      "type": "FunctionDeclaration",
+      "id": {
+        "type": "Identifier",
+        "name": "photos"
+      },
+      "params": [
+        {
+          "type": "Identifier",
+          "name": "ctx"
+        }
+      ],
+      "defaults": [],
+      "body": {
+        "type": "BlockStatement",
+        "body": [
+          {
+            "type": "VariableDeclaration",
+            "declarations": [
+              {
+                "type": "VariableDeclarator",
+                "id": {
+                  "type": "Identifier",
+                  "name": "page"
+                },
+                "init": {
+                  "type": "UnaryExpression",
+                  "operator": "~",
+                  "argument": {
+                    "type": "UnaryExpression",
+                    "operator": "~",
+                    "argument": {
+                      "type": "MemberExpression",
+                      "computed": false,
+                      "object": {
+                        "type": "MemberExpression",
+                        "computed": false,
+                        "object": {
+                          "type": "Identifier",
+                          "name": "ctx"
+                        },
+                        "property": {
+                          "type": "Identifier",
+                          "name": "params"
+                        }
+                      },
+                      "property": {
+                        "type": "Identifier",
+                        "name": "page"
+                      }
+                    },
+                    "prefix": true
+                  },
+                  "prefix": true
+                }
+              }
+            ],
+            "kind": "var"
+          },
+          {
+            "type": "VariableDeclaration",
+            "declarations": [
+              {
+                "type": "VariableDeclarator",
+                "id": {
+                  "type": "Identifier",
+                  "name": "from"
+                },
+                "init": {
+                  "type": "BinaryExpression",
+                  "operator": "*",
+                  "left": {
+                    "type": "Identifier",
+                    "name": "page"
+                  },
+                  "right": {
+                    "type": "Identifier",
+                    "name": "perPage"
+                  }
+                }
+              }
+            ],
+            "kind": "var"
+          },
+          {
+            "type": "VariableDeclaration",
+            "declarations": [
+              {
+                "type": "VariableDeclarator",
+                "id": {
+                  "type": "Identifier",
+                  "name": "to"
+                },
+                "init": {
+                  "type": "BinaryExpression",
+                  "operator": "+",
+                  "left": {
+                    "type": "Identifier",
+                    "name": "from"
+                  },
+                  "right": {
+                    "type": "Identifier",
+                    "name": "perPage"
+                  }
+                }
+              }
+            ],
+            "kind": "var"
+          },
+          {
+            "type": "ExpressionStatement",
+            "expression": {
+              "type": "CallExpression",
+              "callee": {
+                "type": "MemberExpression",
+                "computed": false,
+                "object": {
+                  "type": "Identifier",
+                  "name": "console"
+                },
+                "property": {
+                  "type": "Identifier",
+                  "name": "log"
+                }
+              },
+              "arguments": [
+                {
+                  "type": "Literal",
+                  "value": "showing page %s : %s..%s"
+                },
+                {
+                  "type": "Identifier",
+                  "name": "page"
+                },
+                {
+                  "type": "Identifier",
+                  "name": "from"
+                },
+                {
+                  "type": "Identifier",
+                  "name": "to"
+                }
+              ]
+            }
+          },
+          {
+            "type": "VariableDeclaration",
+            "declarations": [
+              {
+                "type": "VariableDeclarator",
+                "id": {
+                  "type": "Identifier",
+                  "name": "photos"
+                },
+                "init": {
+                  "type": "CallExpression",
+                  "callee": {
+                    "type": "MemberExpression",
+                    "computed": false,
+                    "object": {
+                      "type": "Identifier",
+                      "name": "images"
+                    },
+                    "property": {
+                      "type": "Identifier",
+                      "name": "slice"
+                    }
+                  },
+                  "arguments": [
+                    {
+                      "type": "Identifier",
+                      "name": "from"
+                    },
+                    {
+                      "type": "Identifier",
+                      "name": "to"
+                    }
+                  ]
+                }
+              }
+            ],
+            "kind": "var"
+          },
+          {
+            "type": "ExpressionStatement",
+            "expression": {
+              "type": "CallExpression",
+              "callee": {
+                "type": "Identifier",
+                "name": "display"
+              },
+              "arguments": [
+                {
+                  "type": "Identifier",
+                  "name": "photos"
+                }
+              ]
+            }
+          },
+          {
+            "type": "ExpressionStatement",
+            "expression": {
+              "type": "CallExpression",
+              "callee": {
+                "type": "Identifier",
+                "name": "adjustPager"
+              },
+              "arguments": [
+                {
+                  "type": "Identifier",
+                  "name": "page"
+                }
+              ]
+            }
+          }
+        ]
+      },
+      "rest": null,
+      "generator": false,
+      "expression": false
+    },
+    {
+      "type": "FunctionDeclaration",
+      "id": {
+        "type": "Identifier",
+        "name": "notfound"
+      },
+      "params": [],
+      "defaults": [],
+      "body": {
+        "type": "BlockStatement",
+        "body": [
+          {
+            "type": "ExpressionStatement",
+            "expression": {
+              "type": "AssignmentExpression",
+              "operator": "=",
+              "left": {
+                "type": "MemberExpression",
+                "computed": false,
+                "object": {
+                  "type": "CallExpression",
+                  "callee": {
+                    "type": "MemberExpression",
+                    "computed": false,
+                    "object": {
+                      "type": "Identifier",
+                      "name": "document"
+                    },
+                    "property": {
+                      "type": "Identifier",
+                      "name": "querySelector"
+                    }
+                  },
+                  "arguments": [
+                    {
+                      "type": "Literal",
+                      "value": "p"
+                    }
+                  ]
+                },
+                "property": {
+                  "type": "Identifier",
+                  "name": "textContent"
+                }
+              },
+              "right": {
+                "type": "Literal",
+                "value": "not found"
+              }
+            }
+          }
+        ]
+      },
+      "rest": null,
+      "generator": false,
+      "expression": false
+    },
+    {
+      "type": "FunctionDeclaration",
+      "id": {
+        "type": "Identifier",
+        "name": "display"
+      },
+      "params": [
+        {
+          "type": "Identifier",
+          "name": "photos"
+        }
+      ],
+      "defaults": [],
+      "body": {
+        "type": "BlockStatement",
+        "body": [
+          {
+            "type": "VariableDeclaration",
+            "declarations": [
+              {
+                "type": "VariableDeclarator",
+                "id": {
+                  "type": "Identifier",
+                  "name": "el"
+                },
+                "init": {
+                  "type": "CallExpression",
+                  "callee": {
+                    "type": "MemberExpression",
+                    "computed": false,
+                    "object": {
+                      "type": "Identifier",
+                      "name": "document"
+                    },
+                    "property": {
+                      "type": "Identifier",
+                      "name": "querySelector"
+                    }
+                  },
+                  "arguments": [
+                    {
+                      "type": "Literal",
+                      "value": "#photos"
+                    }
+                  ]
+                }
+              }
+            ],
+            "kind": "var"
+          },
+          {
+            "type": "ExpressionStatement",
+            "expression": {
+              "type": "AssignmentExpression",
+              "operator": "=",
+              "left": {
+                "type": "MemberExpression",
+                "computed": false,
+                "object": {
+                  "type": "Identifier",
+                  "name": "el"
+                },
+                "property": {
+                  "type": "Identifier",
+                  "name": "innerHTML"
+                }
+              },
+              "right": {
+                "type": "Literal",
+                "value": ""
+              }
+            }
+          },
+          {
+            "type": "ExpressionStatement",
+            "expression": {
+              "type": "CallExpression",
+              "callee": {
+                "type": "MemberExpression",
+                "computed": false,
+                "object": {
+                  "type": "Identifier",
+                  "name": "photos"
+                },
+                "property": {
+                  "type": "Identifier",
+                  "name": "forEach"
+                }
+              },
+              "arguments": [
+                {
+                  "type": "FunctionExpression",
+                  "id": null,
+                  "params": [
+                    {
+                      "type": "Identifier",
+                      "name": "photo"
+                    }
+                  ],
+                  "defaults": [],
+                  "body": {
+                    "type": "BlockStatement",
+                    "body": [
+                      {
+                        "type": "VariableDeclaration",
+                        "declarations": [
+                          {
+                            "type": "VariableDeclarator",
+                            "id": {
+                              "type": "Identifier",
+                              "name": "img"
+                            },
+                            "init": {
+                              "type": "CallExpression",
+                              "callee": {
+                                "type": "MemberExpression",
+                                "computed": false,
+                                "object": {
+                                  "type": "Identifier",
+                                  "name": "document"
+                                },
+                                "property": {
+                                  "type": "Identifier",
+                                  "name": "createElement"
+                                }
+                              },
+                              "arguments": [
+                                {
+                                  "type": "Literal",
+                                  "value": "img"
+                                }
+                              ]
+                            }
+                          }
+                        ],
+                        "kind": "var"
+                      },
+                      {
+                        "type": "ExpressionStatement",
+                        "expression": {
+                          "type": "AssignmentExpression",
+                          "operator": "=",
+                          "left": {
+                            "type": "MemberExpression",
+                            "computed": false,
+                            "object": {
+                              "type": "Identifier",
+                              "name": "img"
+                            },
+                            "property": {
+                              "type": "Identifier",
+                              "name": "src"
+                            }
+                          },
+                          "right": {
+                            "type": "Identifier",
+                            "name": "photo"
+                          }
+                        }
+                      },
+                      {
+                        "type": "ExpressionStatement",
+                        "expression": {
+                          "type": "CallExpression",
+                          "callee": {
+                            "type": "MemberExpression",
+                            "computed": false,
+                            "object": {
+                              "type": "Identifier",
+                              "name": "el"
+                            },
+                            "property": {
+                              "type": "Identifier",
+                              "name": "appendChild"
+                            }
+                          },
+                          "arguments": [
+                            {
+                              "type": "Identifier",
+                              "name": "img"
+                            }
+                          ]
+                        }
+                      }
+                    ]
+                  },
+                  "rest": null,
+                  "generator": false,
+                  "expression": false
+                }
+              ]
+            }
+          }
+        ]
+      },
+      "rest": null,
+      "generator": false,
+      "expression": false
+    },
+    {
+      "type": "FunctionDeclaration",
+      "id": {
+        "type": "Identifier",
+        "name": "adjustPager"
+      },
+      "params": [
+        {
+          "type": "Identifier",
+          "name": "page"
+        }
+      ],
+      "defaults": [],
+      "body": {
+        "type": "BlockStatement",
+        "body": [
+          {
+            "type": "IfStatement",
+            "test": {
+              "type": "Identifier",
+              "name": "page"
+            },
+            "consequent": {
+              "type": "BlockStatement",
+              "body": [
+                {
+                  "type": "ExpressionStatement",
+                  "expression": {
+                    "type": "AssignmentExpression",
+                    "operator": "=",
+                    "left": {
+                      "type": "MemberExpression",
+                      "computed": false,
+                      "object": {
+                        "type": "MemberExpression",
+                        "computed": false,
+                        "object": {
+                          "type": "Identifier",
+                          "name": "prev"
+                        },
+                        "property": {
+                          "type": "Identifier",
+                          "name": "style"
+                        }
+                      },
+                      "property": {
+                        "type": "Identifier",
+                        "name": "display"
+                      }
+                    },
+                    "right": {
+                      "type": "Literal",
+                      "value": "inline-block"
+                    }
+                  }
+                },
+                {
+                  "type": "ExpressionStatement",
+                  "expression": {
+                    "type": "CallExpression",
+                    "callee": {
+                      "type": "MemberExpression",
+                      "computed": false,
+                      "object": {
+                        "type": "Identifier",
+                        "name": "prev"
+                      },
+                      "property": {
+                        "type": "Identifier",
+                        "name": "setAttribute"
+                      }
+                    },
+                    "arguments": [
+                      {
+                        "type": "Literal",
+                        "value": "href"
+                      },
+                      {
+                        "type": "BinaryExpression",
+                        "operator": "+",
+                        "left": {
+                          "type": "Literal",
+                          "value": "/album/photos/"
+                        },
+                        "right": {
+                          "type": "BinaryExpression",
+                          "operator": "-",
+                          "left": {
+                            "type": "Identifier",
+                            "name": "page"
+                          },
+                          "right": {
+                            "type": "Literal",
+                            "value": 1
+                          }
+                        }
+                      }
+                    ]
+                  }
+                }
+              ]
+            },
+            "alternate": {
+              "type": "BlockStatement",
+              "body": [
+                {
+                  "type": "ExpressionStatement",
+                  "expression": {
+                    "type": "AssignmentExpression",
+                    "operator": "=",
+                    "left": {
+                      "type": "MemberExpression",
+                      "computed": false,
+                      "object": {
+                        "type": "MemberExpression",
+                        "computed": false,
+                        "object": {
+                          "type": "Identifier",
+                          "name": "prev"
+                        },
+                        "property": {
+                          "type": "Identifier",
+                          "name": "style"
+                        }
+                      },
+                      "property": {
+                        "type": "Identifier",
+                        "name": "display"
+                      }
+                    },
+                    "right": {
+                      "type": "Literal",
+                      "value": "none"
+                    }
+                  }
+                }
+              ]
+            }
+          },
+          {
+            "type": "ExpressionStatement",
+            "expression": {
+              "type": "CallExpression",
+              "callee": {
+                "type": "MemberExpression",
+                "computed": false,
+                "object": {
+                  "type": "Identifier",
+                  "name": "next"
+                },
+                "property": {
+                  "type": "Identifier",
+                  "name": "setAttribute"
+                }
+              },
+              "arguments": [
+                {
+                  "type": "Literal",
+                  "value": "href"
+                },
+                {
+                  "type": "BinaryExpression",
+                  "operator": "+",
+                  "left": {
+                    "type": "Literal",
+                    "value": "/album/photos/"
+                  },
+                  "right": {
+                    "type": "BinaryExpression",
+                    "operator": "+",
+                    "left": {
+                      "type": "Identifier",
+                      "name": "page"
+                    },
+                    "right": {
+                      "type": "Literal",
+                      "value": 1
+                    }
+                  }
+                }
+              ]
+            }
+          }
+        ]
+      },
+      "rest": null,
+      "generator": false,
+      "expression": false
+    },
+    {
+      "type": "VariableDeclaration",
+      "declarations": [
+        {
+          "type": "VariableDeclarator",
+          "id": {
+            "type": "Identifier",
+            "name": "images"
+          },
+          "init": {
+            "type": "ArrayExpression",
+            "elements": [
+              {
+                "type": "Literal",
+                "value": "http://upload.wikimedia.org/wikipedia/en/7/76/Grim_Fandango_artwork.jpg"
+              },
+              {
+                "type": "Literal",
+                "value": "http://www.xblafans.com/wp-content/uploads//2011/08/Grim-Fandango1.jpg"
+              },
+              {
+                "type": "Literal",
+                "value": "http://media.giantbomb.com/uploads/0/1371/190604-grimfandango106_super.jpg"
+              },
+              {
+                "type": "Literal",
+                "value": "http://gamejunkienz.files.wordpress.com/2012/02/grimfandango.jpg"
+              },
+              {
+                "type": "Literal",
+                "value": "http://onlyhdwallpapers.com/wallpaper/video_games_grim_fandango_lucas_arts_desktop_1024x768_wallpaper-305343.jpg"
+              },
+              {
+                "type": "Literal",
+                "value": "http://lparchive.org/Grim-Fandango-(Screenshot)/Update%207/02176.gif"
+              },
+              {
+                "type": "Literal",
+                "value": "http://bulk2.destructoid.com/ul/128679-GrimFandangoActionFigures.jpg"
+              },
+              {
+                "type": "Literal",
+                "value": "http://www.gamasutra.com/features/20061103/grimfandango02.jpg"
+              },
+              {
+                "type": "Literal",
+                "value": "http://metavideogame.files.wordpress.com/2011/05/grimhof_03_1081459316.jpg"
+              },
+              {
+                "type": "Literal",
+                "value": "http://3.bp.blogspot.com/_zBnIHQUy4r4/SpxdDw1Z8tI/AAAAAAAABJM/FoCWfc8imnc/s400/GrimFandango1024x768.jpg"
+              },
+              {
+                "type": "Literal",
+                "value": "http://www.deviantart.com/download/184571597/grim_fandango_by_domigorgon-d31w0ct.jpg"
+              },
+              {
+                "type": "Literal",
+                "value": "http://vgboxart.com/boxes/PC/29535-grim-fandango.png?t=1243105773"
+              },
+              {
+                "type": "Literal",
+                "value": "http://kastatic.com/i2/games/1/3/13230/10.png"
+              },
+              {
+                "type": "Literal",
+                "value": "http://www.thunderboltgames.com/s/img600/grimfandango.jpg"
+              },
+              {
+                "type": "Literal",
+                "value": "http://i2.listal.com/image/1425291/936full-grim-fandango-artwork.jpg"
+              },
+              {
+                "type": "Literal",
+                "value": "http://www.xblafans.com/wp-content/uploads//2011/08/Grim-Fandango1.jpg"
+              },
+              {
+                "type": "Literal",
+                "value": "http://media.giantbomb.com/uploads/0/1371/190604-grimfandango106_super.jpg"
+              },
+              {
+                "type": "Literal",
+                "value": "http://gamejunkienz.files.wordpress.com/2012/02/grimfandango.jpg"
+              },
+              {
+                "type": "Literal",
+                "value": "http://onlyhdwallpapers.com/wallpaper/video_games_grim_fandango_lucas_arts_desktop_1024x768_wallpaper-305343.jpg"
+              },
+              {
+                "type": "Literal",
+                "value": "http://lparchive.org/Grim-Fandango-(Screenshot)/Update%207/02176.gif"
+              },
+              {
+                "type": "Literal",
+                "value": "http://bulk2.destructoid.com/ul/128679-GrimFandangoActionFigures.jpg"
+              },
+              {
+                "type": "Literal",
+                "value": "http://www.gamasutra.com/features/20061103/grimfandango02.jpg"
+              },
+              {
+                "type": "Literal",
+                "value": "http://metavideogame.files.wordpress.com/2011/05/grimhof_03_1081459316.jpg"
+              },
+              {
+                "type": "Literal",
+                "value": "http://3.bp.blogspot.com/_zBnIHQUy4r4/SpxdDw1Z8tI/AAAAAAAABJM/FoCWfc8imnc/s400/GrimFandango1024x768.jpg"
+              },
+              {
+                "type": "Literal",
+                "value": "http://www.deviantart.com/download/184571597/grim_fandango_by_domigorgon-d31w0ct.jpg"
+              },
+              {
+                "type": "Literal",
+                "value": "http://vgboxart.com/boxes/PC/29535-grim-fandango.png?t=1243105773"
+              },
+              {
+                "type": "Literal",
+                "value": "http://kastatic.com/i2/games/1/3/13230/10.png"
+              },
+              {
+                "type": "Literal",
+                "value": "http://www.thunderboltgames.com/s/img600/grimfandango.jpg"
+              },
+              {
+                "type": "Literal",
+                "value": "http://i2.listal.com/image/1425291/936full-grim-fandango-artwork.jpg"
+              },
+              {
+                "type": "Literal",
+                "value": "http://www.xblafans.com/wp-content/uploads//2011/08/Grim-Fandango1.jpg"
+              },
+              {
+                "type": "Literal",
+                "value": "http://media.giantbomb.com/uploads/0/1371/190604-grimfandango106_super.jpg"
+              },
+              {
+                "type": "Literal",
+                "value": "http://gamejunkienz.files.wordpress.com/2012/02/grimfandango.jpg"
+              },
+              {
+                "type": "Literal",
+                "value": "http://onlyhdwallpapers.com/wallpaper/video_games_grim_fandango_lucas_arts_desktop_1024x768_wallpaper-305343.jpg"
+              },
+              {
+                "type": "Literal",
+                "value": "http://lparchive.org/Grim-Fandango-(Screenshot)/Update%207/02176.gif"
+              },
+              {
+                "type": "Literal",
+                "value": "http://bulk2.destructoid.com/ul/128679-GrimFandangoActionFigures.jpg"
+              },
+              {
+                "type": "Literal",
+                "value": "http://www.gamasutra.com/features/20061103/grimfandango02.jpg"
+              },
+              {
+                "type": "Literal",
+                "value": "http://metavideogame.files.wordpress.com/2011/05/grimhof_03_1081459316.jpg"
+              },
+              {
+                "type": "Literal",
+                "value": "http://3.bp.blogspot.com/_zBnIHQUy4r4/SpxdDw1Z8tI/AAAAAAAABJM/FoCWfc8imnc/s400/GrimFandango1024x768.jpg"
+              },
+              {
+                "type": "Literal",
+                "value": "http://www.deviantart.com/download/184571597/grim_fandango_by_domigorgon-d31w0ct.jpg"
+              },
+              {
+                "type": "Literal",
+                "value": "http://vgboxart.com/boxes/PC/29535-grim-fandango.png?t=1243105773"
+              },
+              {
+                "type": "Literal",
+                "value": "http://kastatic.com/i2/games/1/3/13230/10.png"
+              },
+              {
+                "type": "Literal",
+                "value": "http://www.thunderboltgames.com/s/img600/grimfandango.jpg"
+              },
+              {
+                "type": "Literal",
+                "value": "http://i2.listal.com/image/1425291/936full-grim-fandango-artwork.jpg"
+              }
+            ]
+          }
+        }
+      ],
+      "kind": "var"
+    }
+  ]
+}

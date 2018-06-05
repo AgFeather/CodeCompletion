@@ -1,0 +1,2558 @@
+{
+  "type": "Program",
+  "body": [
+    {
+      "type": "ExpressionStatement",
+      "expression": {
+        "type": "Literal",
+        "value": "use strict"
+      }
+    },
+    {
+      "type": "VariableDeclaration",
+      "declarations": [
+        {
+          "type": "VariableDeclarator",
+          "id": {
+            "type": "Identifier",
+            "name": "element"
+          },
+          "init": {
+            "type": "CallExpression",
+            "callee": {
+              "type": "MemberExpression",
+              "computed": false,
+              "object": {
+                "type": "Identifier",
+                "name": "document"
+              },
+              "property": {
+                "type": "Identifier",
+                "name": "getElementById"
+              }
+            },
+            "arguments": [
+              {
+                "type": "Literal",
+                "value": "steamdb-extension-protip"
+              }
+            ]
+          }
+        }
+      ],
+      "kind": "var"
+    },
+    {
+      "type": "IfStatement",
+      "test": {
+        "type": "Identifier",
+        "name": "element"
+      },
+      "consequent": {
+        "type": "BlockStatement",
+        "body": [
+          {
+            "type": "ExpressionStatement",
+            "expression": {
+              "type": "CallExpression",
+              "callee": {
+                "type": "MemberExpression",
+                "computed": false,
+                "object": {
+                  "type": "Identifier",
+                  "name": "element"
+                },
+                "property": {
+                  "type": "Identifier",
+                  "name": "setAttribute"
+                }
+              },
+              "arguments": [
+                {
+                  "type": "Literal",
+                  "value": "hidden"
+                },
+                {
+                  "type": "Literal",
+                  "value": true
+                }
+              ]
+            }
+          }
+        ]
+      },
+      "alternate": null
+    },
+    {
+      "type": "ExpressionStatement",
+      "expression": {
+        "type": "CallExpression",
+        "callee": {
+          "type": "Identifier",
+          "name": "GetOption"
+        },
+        "arguments": [
+          {
+            "type": "ObjectExpression",
+            "properties": [
+              {
+                "type": "Property",
+                "key": {
+                  "type": "Literal",
+                  "value": "steamdb-highlight"
+                },
+                "value": {
+                  "type": "Literal",
+                  "value": true
+                },
+                "kind": "init"
+              },
+              {
+                "type": "Property",
+                "key": {
+                  "type": "Literal",
+                  "value": "steamdb-hide-not-interested"
+                },
+                "value": {
+                  "type": "Literal",
+                  "value": false
+                },
+                "kind": "init"
+              }
+            ]
+          },
+          {
+            "type": "FunctionExpression",
+            "id": null,
+            "params": [
+              {
+                "type": "Identifier",
+                "name": "items"
+              }
+            ],
+            "defaults": [],
+            "body": {
+              "type": "BlockStatement",
+              "body": [
+                {
+                  "type": "IfStatement",
+                  "test": {
+                    "type": "UnaryExpression",
+                    "operator": "!",
+                    "argument": {
+                      "type": "MemberExpression",
+                      "computed": true,
+                      "object": {
+                        "type": "Identifier",
+                        "name": "items"
+                      },
+                      "property": {
+                        "type": "Literal",
+                        "value": "steamdb-highlight"
+                      }
+                    },
+                    "prefix": true
+                  },
+                  "consequent": {
+                    "type": "BlockStatement",
+                    "body": [
+                      {
+                        "type": "ReturnStatement",
+                        "argument": null
+                      }
+                    ]
+                  },
+                  "alternate": null
+                },
+                {
+                  "type": "VariableDeclaration",
+                  "declarations": [
+                    {
+                      "type": "VariableDeclarator",
+                      "id": {
+                        "type": "Identifier",
+                        "name": "apps"
+                      },
+                      "init": {
+                        "type": "CallExpression",
+                        "callee": {
+                          "type": "MemberExpression",
+                          "computed": false,
+                          "object": {
+                            "type": "Identifier",
+                            "name": "document"
+                          },
+                          "property": {
+                            "type": "Identifier",
+                            "name": "querySelectorAll"
+                          }
+                        },
+                        "arguments": [
+                          {
+                            "type": "Literal",
+                            "value": "tr.app"
+                          }
+                        ]
+                      }
+                    },
+                    {
+                      "type": "VariableDeclarator",
+                      "id": {
+                        "type": "Identifier",
+                        "name": "packages"
+                      },
+                      "init": {
+                        "type": "CallExpression",
+                        "callee": {
+                          "type": "MemberExpression",
+                          "computed": false,
+                          "object": {
+                            "type": "Identifier",
+                            "name": "document"
+                          },
+                          "property": {
+                            "type": "Identifier",
+                            "name": "querySelectorAll"
+                          }
+                        },
+                        "arguments": [
+                          {
+                            "type": "Literal",
+                            "value": "tr.package"
+                          }
+                        ]
+                      }
+                    },
+                    {
+                      "type": "VariableDeclarator",
+                      "id": {
+                        "type": "Identifier",
+                        "name": "packageScope"
+                      },
+                      "init": {
+                        "type": "CallExpression",
+                        "callee": {
+                          "type": "MemberExpression",
+                          "computed": false,
+                          "object": {
+                            "type": "Identifier",
+                            "name": "document"
+                          },
+                          "property": {
+                            "type": "Identifier",
+                            "name": "querySelector"
+                          }
+                        },
+                        "arguments": [
+                          {
+                            "type": "Literal",
+                            "value": ".scope-package"
+                          }
+                        ]
+                      }
+                    },
+                    {
+                      "type": "VariableDeclarator",
+                      "id": {
+                        "type": "Identifier",
+                        "name": "appScope"
+                      },
+                      "init": {
+                        "type": "CallExpression",
+                        "callee": {
+                          "type": "MemberExpression",
+                          "computed": false,
+                          "object": {
+                            "type": "Identifier",
+                            "name": "document"
+                          },
+                          "property": {
+                            "type": "Identifier",
+                            "name": "querySelector"
+                          }
+                        },
+                        "arguments": [
+                          {
+                            "type": "Literal",
+                            "value": ".scope-app"
+                          }
+                        ]
+                      }
+                    }
+                  ],
+                  "kind": "var"
+                },
+                {
+                  "type": "IfStatement",
+                  "test": {
+                    "type": "LogicalExpression",
+                    "operator": "||",
+                    "left": {
+                      "type": "LogicalExpression",
+                      "operator": "||",
+                      "left": {
+                        "type": "LogicalExpression",
+                        "operator": "||",
+                        "left": {
+                          "type": "BinaryExpression",
+                          "operator": ">",
+                          "left": {
+                            "type": "MemberExpression",
+                            "computed": false,
+                            "object": {
+                              "type": "Identifier",
+                              "name": "apps"
+                            },
+                            "property": {
+                              "type": "Identifier",
+                              "name": "length"
+                            }
+                          },
+                          "right": {
+                            "type": "Literal",
+                            "value": 0
+                          }
+                        },
+                        "right": {
+                          "type": "BinaryExpression",
+                          "operator": ">",
+                          "left": {
+                            "type": "MemberExpression",
+                            "computed": false,
+                            "object": {
+                              "type": "Identifier",
+                              "name": "packages"
+                            },
+                            "property": {
+                              "type": "Identifier",
+                              "name": "length"
+                            }
+                          },
+                          "right": {
+                            "type": "Literal",
+                            "value": 0
+                          }
+                        }
+                      },
+                      "right": {
+                        "type": "Identifier",
+                        "name": "appScope"
+                      }
+                    },
+                    "right": {
+                      "type": "Identifier",
+                      "name": "packageScope"
+                    }
+                  },
+                  "consequent": {
+                    "type": "BlockStatement",
+                    "body": [
+                      {
+                        "type": "VariableDeclaration",
+                        "declarations": [
+                          {
+                            "type": "VariableDeclarator",
+                            "id": {
+                              "type": "Identifier",
+                              "name": "xhr"
+                            },
+                            "init": {
+                              "type": "NewExpression",
+                              "callee": {
+                                "type": "Identifier",
+                                "name": "XMLHttpRequest"
+                              },
+                              "arguments": []
+                            }
+                          }
+                        ],
+                        "kind": "var"
+                      },
+                      {
+                        "type": "ExpressionStatement",
+                        "expression": {
+                          "type": "CallExpression",
+                          "callee": {
+                            "type": "MemberExpression",
+                            "computed": false,
+                            "object": {
+                              "type": "Identifier",
+                              "name": "xhr"
+                            },
+                            "property": {
+                              "type": "Identifier",
+                              "name": "open"
+                            }
+                          },
+                          "arguments": [
+                            {
+                              "type": "Literal",
+                              "value": "GET"
+                            },
+                            {
+                              "type": "Literal",
+                              "value": "https://store.steampowered.com/dynamicstore/userdata/"
+                            },
+                            {
+                              "type": "Literal",
+                              "value": true
+                            }
+                          ]
+                        }
+                      },
+                      {
+                        "type": "ExpressionStatement",
+                        "expression": {
+                          "type": "AssignmentExpression",
+                          "operator": "=",
+                          "left": {
+                            "type": "MemberExpression",
+                            "computed": false,
+                            "object": {
+                              "type": "Identifier",
+                              "name": "xhr"
+                            },
+                            "property": {
+                              "type": "Identifier",
+                              "name": "responseType"
+                            }
+                          },
+                          "right": {
+                            "type": "Literal",
+                            "value": "json"
+                          }
+                        }
+                      },
+                      {
+                        "type": "ExpressionStatement",
+                        "expression": {
+                          "type": "AssignmentExpression",
+                          "operator": "=",
+                          "left": {
+                            "type": "MemberExpression",
+                            "computed": false,
+                            "object": {
+                              "type": "Identifier",
+                              "name": "xhr"
+                            },
+                            "property": {
+                              "type": "Identifier",
+                              "name": "onreadystatechange"
+                            }
+                          },
+                          "right": {
+                            "type": "FunctionExpression",
+                            "id": null,
+                            "params": [],
+                            "defaults": [],
+                            "body": {
+                              "type": "BlockStatement",
+                              "body": [
+                                {
+                                  "type": "IfStatement",
+                                  "test": {
+                                    "type": "LogicalExpression",
+                                    "operator": "||",
+                                    "left": {
+                                      "type": "BinaryExpression",
+                                      "operator": "!==",
+                                      "left": {
+                                        "type": "MemberExpression",
+                                        "computed": false,
+                                        "object": {
+                                          "type": "Identifier",
+                                          "name": "xhr"
+                                        },
+                                        "property": {
+                                          "type": "Identifier",
+                                          "name": "readyState"
+                                        }
+                                      },
+                                      "right": {
+                                        "type": "Literal",
+                                        "value": 4
+                                      }
+                                    },
+                                    "right": {
+                                      "type": "BinaryExpression",
+                                      "operator": "!==",
+                                      "left": {
+                                        "type": "MemberExpression",
+                                        "computed": false,
+                                        "object": {
+                                          "type": "Identifier",
+                                          "name": "xhr"
+                                        },
+                                        "property": {
+                                          "type": "Identifier",
+                                          "name": "status"
+                                        }
+                                      },
+                                      "right": {
+                                        "type": "Literal",
+                                        "value": 200
+                                      }
+                                    }
+                                  },
+                                  "consequent": {
+                                    "type": "BlockStatement",
+                                    "body": [
+                                      {
+                                        "type": "ReturnStatement",
+                                        "argument": null
+                                      }
+                                    ]
+                                  },
+                                  "alternate": null
+                                },
+                                {
+                                  "type": "VariableDeclaration",
+                                  "declarations": [
+                                    {
+                                      "type": "VariableDeclarator",
+                                      "id": {
+                                        "type": "Identifier",
+                                        "name": "i"
+                                      },
+                                      "init": null
+                                    },
+                                    {
+                                      "type": "VariableDeclarator",
+                                      "id": {
+                                        "type": "Identifier",
+                                        "name": "mapAppsToElements"
+                                      },
+                                      "init": {
+                                        "type": "ArrayExpression",
+                                        "elements": []
+                                      }
+                                    },
+                                    {
+                                      "type": "VariableDeclarator",
+                                      "id": {
+                                        "type": "Identifier",
+                                        "name": "mapPackagesToElements"
+                                      },
+                                      "init": {
+                                        "type": "ArrayExpression",
+                                        "elements": []
+                                      }
+                                    }
+                                  ],
+                                  "kind": "var"
+                                },
+                                {
+                                  "type": "ForStatement",
+                                  "init": {
+                                    "type": "AssignmentExpression",
+                                    "operator": "=",
+                                    "left": {
+                                      "type": "Identifier",
+                                      "name": "i"
+                                    },
+                                    "right": {
+                                      "type": "Literal",
+                                      "value": 0
+                                    }
+                                  },
+                                  "test": {
+                                    "type": "BinaryExpression",
+                                    "operator": "<",
+                                    "left": {
+                                      "type": "Identifier",
+                                      "name": "i"
+                                    },
+                                    "right": {
+                                      "type": "MemberExpression",
+                                      "computed": false,
+                                      "object": {
+                                        "type": "Identifier",
+                                        "name": "apps"
+                                      },
+                                      "property": {
+                                        "type": "Identifier",
+                                        "name": "length"
+                                      }
+                                    }
+                                  },
+                                  "update": {
+                                    "type": "UpdateExpression",
+                                    "operator": "++",
+                                    "argument": {
+                                      "type": "Identifier",
+                                      "name": "i"
+                                    },
+                                    "prefix": false
+                                  },
+                                  "body": {
+                                    "type": "BlockStatement",
+                                    "body": [
+                                      {
+                                        "type": "ExpressionStatement",
+                                        "expression": {
+                                          "type": "AssignmentExpression",
+                                          "operator": "=",
+                                          "left": {
+                                            "type": "Identifier",
+                                            "name": "element"
+                                          },
+                                          "right": {
+                                            "type": "MemberExpression",
+                                            "computed": true,
+                                            "object": {
+                                              "type": "Identifier",
+                                              "name": "apps"
+                                            },
+                                            "property": {
+                                              "type": "Identifier",
+                                              "name": "i"
+                                            }
+                                          }
+                                        }
+                                      },
+                                      {
+                                        "type": "ExpressionStatement",
+                                        "expression": {
+                                          "type": "AssignmentExpression",
+                                          "operator": "=",
+                                          "left": {
+                                            "type": "MemberExpression",
+                                            "computed": true,
+                                            "object": {
+                                              "type": "Identifier",
+                                              "name": "mapAppsToElements"
+                                            },
+                                            "property": {
+                                              "type": "MemberExpression",
+                                              "computed": false,
+                                              "object": {
+                                                "type": "MemberExpression",
+                                                "computed": false,
+                                                "object": {
+                                                  "type": "Identifier",
+                                                  "name": "element"
+                                                },
+                                                "property": {
+                                                  "type": "Identifier",
+                                                  "name": "dataset"
+                                                }
+                                              },
+                                              "property": {
+                                                "type": "Identifier",
+                                                "name": "appid"
+                                              }
+                                            }
+                                          },
+                                          "right": {
+                                            "type": "Identifier",
+                                            "name": "element"
+                                          }
+                                        }
+                                      }
+                                    ]
+                                  }
+                                },
+                                {
+                                  "type": "ExpressionStatement",
+                                  "expression": {
+                                    "type": "AssignmentExpression",
+                                    "operator": "=",
+                                    "left": {
+                                      "type": "Identifier",
+                                      "name": "apps"
+                                    },
+                                    "right": {
+                                      "type": "Literal",
+                                      "value": null
+                                    }
+                                  }
+                                },
+                                {
+                                  "type": "ForStatement",
+                                  "init": {
+                                    "type": "AssignmentExpression",
+                                    "operator": "=",
+                                    "left": {
+                                      "type": "Identifier",
+                                      "name": "i"
+                                    },
+                                    "right": {
+                                      "type": "Literal",
+                                      "value": 0
+                                    }
+                                  },
+                                  "test": {
+                                    "type": "BinaryExpression",
+                                    "operator": "<",
+                                    "left": {
+                                      "type": "Identifier",
+                                      "name": "i"
+                                    },
+                                    "right": {
+                                      "type": "MemberExpression",
+                                      "computed": false,
+                                      "object": {
+                                        "type": "Identifier",
+                                        "name": "packages"
+                                      },
+                                      "property": {
+                                        "type": "Identifier",
+                                        "name": "length"
+                                      }
+                                    }
+                                  },
+                                  "update": {
+                                    "type": "UpdateExpression",
+                                    "operator": "++",
+                                    "argument": {
+                                      "type": "Identifier",
+                                      "name": "i"
+                                    },
+                                    "prefix": false
+                                  },
+                                  "body": {
+                                    "type": "BlockStatement",
+                                    "body": [
+                                      {
+                                        "type": "ExpressionStatement",
+                                        "expression": {
+                                          "type": "AssignmentExpression",
+                                          "operator": "=",
+                                          "left": {
+                                            "type": "Identifier",
+                                            "name": "element"
+                                          },
+                                          "right": {
+                                            "type": "MemberExpression",
+                                            "computed": true,
+                                            "object": {
+                                              "type": "Identifier",
+                                              "name": "packages"
+                                            },
+                                            "property": {
+                                              "type": "Identifier",
+                                              "name": "i"
+                                            }
+                                          }
+                                        }
+                                      },
+                                      {
+                                        "type": "ExpressionStatement",
+                                        "expression": {
+                                          "type": "AssignmentExpression",
+                                          "operator": "=",
+                                          "left": {
+                                            "type": "MemberExpression",
+                                            "computed": true,
+                                            "object": {
+                                              "type": "Identifier",
+                                              "name": "mapPackagesToElements"
+                                            },
+                                            "property": {
+                                              "type": "MemberExpression",
+                                              "computed": false,
+                                              "object": {
+                                                "type": "MemberExpression",
+                                                "computed": false,
+                                                "object": {
+                                                  "type": "Identifier",
+                                                  "name": "element"
+                                                },
+                                                "property": {
+                                                  "type": "Identifier",
+                                                  "name": "dataset"
+                                                }
+                                              },
+                                              "property": {
+                                                "type": "Identifier",
+                                                "name": "subid"
+                                              }
+                                            }
+                                          },
+                                          "right": {
+                                            "type": "Identifier",
+                                            "name": "element"
+                                          }
+                                        }
+                                      }
+                                    ]
+                                  }
+                                },
+                                {
+                                  "type": "ExpressionStatement",
+                                  "expression": {
+                                    "type": "AssignmentExpression",
+                                    "operator": "=",
+                                    "left": {
+                                      "type": "Identifier",
+                                      "name": "packages"
+                                    },
+                                    "right": {
+                                      "type": "Literal",
+                                      "value": null
+                                    }
+                                  }
+                                },
+                                {
+                                  "type": "VariableDeclaration",
+                                  "declarations": [
+                                    {
+                                      "type": "VariableDeclarator",
+                                      "id": {
+                                        "type": "Identifier",
+                                        "name": "data"
+                                      },
+                                      "init": {
+                                        "type": "MemberExpression",
+                                        "computed": false,
+                                        "object": {
+                                          "type": "Identifier",
+                                          "name": "xhr"
+                                        },
+                                        "property": {
+                                          "type": "Identifier",
+                                          "name": "response"
+                                        }
+                                      }
+                                    },
+                                    {
+                                      "type": "VariableDeclarator",
+                                      "id": {
+                                        "type": "Identifier",
+                                        "name": "id"
+                                      },
+                                      "init": null
+                                    }
+                                  ],
+                                  "kind": "var"
+                                },
+                                {
+                                  "type": "IfStatement",
+                                  "test": {
+                                    "type": "LogicalExpression",
+                                    "operator": "||",
+                                    "left": {
+                                      "type": "Identifier",
+                                      "name": "appScope"
+                                    },
+                                    "right": {
+                                      "type": "BinaryExpression",
+                                      "operator": ">",
+                                      "left": {
+                                        "type": "MemberExpression",
+                                        "computed": false,
+                                        "object": {
+                                          "type": "Identifier",
+                                          "name": "mapAppsToElements"
+                                        },
+                                        "property": {
+                                          "type": "Identifier",
+                                          "name": "length"
+                                        }
+                                      },
+                                      "right": {
+                                        "type": "Literal",
+                                        "value": 0
+                                      }
+                                    }
+                                  },
+                                  "consequent": {
+                                    "type": "BlockStatement",
+                                    "body": [
+                                      {
+                                        "type": "VariableDeclaration",
+                                        "declarations": [
+                                          {
+                                            "type": "VariableDeclarator",
+                                            "id": {
+                                              "type": "Identifier",
+                                              "name": "scopeAppID"
+                                            },
+                                            "init": {
+                                              "type": "LogicalExpression",
+                                              "operator": "&&",
+                                              "left": {
+                                                "type": "Identifier",
+                                                "name": "appScope"
+                                              },
+                                              "right": {
+                                                "type": "MemberExpression",
+                                                "computed": false,
+                                                "object": {
+                                                  "type": "MemberExpression",
+                                                  "computed": false,
+                                                  "object": {
+                                                    "type": "Identifier",
+                                                    "name": "appScope"
+                                                  },
+                                                  "property": {
+                                                    "type": "Identifier",
+                                                    "name": "dataset"
+                                                  }
+                                                },
+                                                "property": {
+                                                  "type": "Identifier",
+                                                  "name": "appid"
+                                                }
+                                              }
+                                            }
+                                          }
+                                        ],
+                                        "kind": "var"
+                                      },
+                                      {
+                                        "type": "ForStatement",
+                                        "init": {
+                                          "type": "AssignmentExpression",
+                                          "operator": "=",
+                                          "left": {
+                                            "type": "Identifier",
+                                            "name": "i"
+                                          },
+                                          "right": {
+                                            "type": "Literal",
+                                            "value": 0
+                                          }
+                                        },
+                                        "test": {
+                                          "type": "BinaryExpression",
+                                          "operator": "<",
+                                          "left": {
+                                            "type": "Identifier",
+                                            "name": "i"
+                                          },
+                                          "right": {
+                                            "type": "MemberExpression",
+                                            "computed": false,
+                                            "object": {
+                                              "type": "MemberExpression",
+                                              "computed": false,
+                                              "object": {
+                                                "type": "Identifier",
+                                                "name": "data"
+                                              },
+                                              "property": {
+                                                "type": "Identifier",
+                                                "name": "rgWishlist"
+                                              }
+                                            },
+                                            "property": {
+                                              "type": "Identifier",
+                                              "name": "length"
+                                            }
+                                          }
+                                        },
+                                        "update": {
+                                          "type": "UpdateExpression",
+                                          "operator": "++",
+                                          "argument": {
+                                            "type": "Identifier",
+                                            "name": "i"
+                                          },
+                                          "prefix": false
+                                        },
+                                        "body": {
+                                          "type": "BlockStatement",
+                                          "body": [
+                                            {
+                                              "type": "ExpressionStatement",
+                                              "expression": {
+                                                "type": "AssignmentExpression",
+                                                "operator": "=",
+                                                "left": {
+                                                  "type": "Identifier",
+                                                  "name": "element"
+                                                },
+                                                "right": {
+                                                  "type": "MemberExpression",
+                                                  "computed": true,
+                                                  "object": {
+                                                    "type": "Identifier",
+                                                    "name": "mapAppsToElements"
+                                                  },
+                                                  "property": {
+                                                    "type": "MemberExpression",
+                                                    "computed": true,
+                                                    "object": {
+                                                      "type": "MemberExpression",
+                                                      "computed": false,
+                                                      "object": {
+                                                        "type": "Identifier",
+                                                        "name": "data"
+                                                      },
+                                                      "property": {
+                                                        "type": "Identifier",
+                                                        "name": "rgWishlist"
+                                                      }
+                                                    },
+                                                    "property": {
+                                                      "type": "Identifier",
+                                                      "name": "i"
+                                                    }
+                                                  }
+                                                }
+                                              }
+                                            },
+                                            {
+                                              "type": "IfStatement",
+                                              "test": {
+                                                "type": "Identifier",
+                                                "name": "element"
+                                              },
+                                              "consequent": {
+                                                "type": "BlockStatement",
+                                                "body": [
+                                                  {
+                                                    "type": "ExpressionStatement",
+                                                    "expression": {
+                                                      "type": "CallExpression",
+                                                      "callee": {
+                                                        "type": "MemberExpression",
+                                                        "computed": false,
+                                                        "object": {
+                                                          "type": "MemberExpression",
+                                                          "computed": false,
+                                                          "object": {
+                                                            "type": "Identifier",
+                                                            "name": "element"
+                                                          },
+                                                          "property": {
+                                                            "type": "Identifier",
+                                                            "name": "classList"
+                                                          }
+                                                        },
+                                                        "property": {
+                                                          "type": "Identifier",
+                                                          "name": "add"
+                                                        }
+                                                      },
+                                                      "arguments": [
+                                                        {
+                                                          "type": "Literal",
+                                                          "value": "wished"
+                                                        }
+                                                      ]
+                                                    }
+                                                  }
+                                                ]
+                                              },
+                                              "alternate": null
+                                            }
+                                          ]
+                                        }
+                                      },
+                                      {
+                                        "type": "ForStatement",
+                                        "init": {
+                                          "type": "AssignmentExpression",
+                                          "operator": "=",
+                                          "left": {
+                                            "type": "Identifier",
+                                            "name": "i"
+                                          },
+                                          "right": {
+                                            "type": "Literal",
+                                            "value": 0
+                                          }
+                                        },
+                                        "test": {
+                                          "type": "BinaryExpression",
+                                          "operator": "<",
+                                          "left": {
+                                            "type": "Identifier",
+                                            "name": "i"
+                                          },
+                                          "right": {
+                                            "type": "MemberExpression",
+                                            "computed": false,
+                                            "object": {
+                                              "type": "MemberExpression",
+                                              "computed": false,
+                                              "object": {
+                                                "type": "Identifier",
+                                                "name": "data"
+                                              },
+                                              "property": {
+                                                "type": "Identifier",
+                                                "name": "rgOwnedApps"
+                                              }
+                                            },
+                                            "property": {
+                                              "type": "Identifier",
+                                              "name": "length"
+                                            }
+                                          }
+                                        },
+                                        "update": {
+                                          "type": "UpdateExpression",
+                                          "operator": "++",
+                                          "argument": {
+                                            "type": "Identifier",
+                                            "name": "i"
+                                          },
+                                          "prefix": false
+                                        },
+                                        "body": {
+                                          "type": "BlockStatement",
+                                          "body": [
+                                            {
+                                              "type": "ExpressionStatement",
+                                              "expression": {
+                                                "type": "AssignmentExpression",
+                                                "operator": "=",
+                                                "left": {
+                                                  "type": "Identifier",
+                                                  "name": "id"
+                                                },
+                                                "right": {
+                                                  "type": "MemberExpression",
+                                                  "computed": true,
+                                                  "object": {
+                                                    "type": "MemberExpression",
+                                                    "computed": false,
+                                                    "object": {
+                                                      "type": "Identifier",
+                                                      "name": "data"
+                                                    },
+                                                    "property": {
+                                                      "type": "Identifier",
+                                                      "name": "rgOwnedApps"
+                                                    }
+                                                  },
+                                                  "property": {
+                                                    "type": "Identifier",
+                                                    "name": "i"
+                                                  }
+                                                }
+                                              }
+                                            },
+                                            {
+                                              "type": "ExpressionStatement",
+                                              "expression": {
+                                                "type": "AssignmentExpression",
+                                                "operator": "=",
+                                                "left": {
+                                                  "type": "Identifier",
+                                                  "name": "element"
+                                                },
+                                                "right": {
+                                                  "type": "MemberExpression",
+                                                  "computed": true,
+                                                  "object": {
+                                                    "type": "Identifier",
+                                                    "name": "mapAppsToElements"
+                                                  },
+                                                  "property": {
+                                                    "type": "Identifier",
+                                                    "name": "id"
+                                                  }
+                                                }
+                                              }
+                                            },
+                                            {
+                                              "type": "IfStatement",
+                                              "test": {
+                                                "type": "Identifier",
+                                                "name": "element"
+                                              },
+                                              "consequent": {
+                                                "type": "BlockStatement",
+                                                "body": [
+                                                  {
+                                                    "type": "ExpressionStatement",
+                                                    "expression": {
+                                                      "type": "CallExpression",
+                                                      "callee": {
+                                                        "type": "MemberExpression",
+                                                        "computed": false,
+                                                        "object": {
+                                                          "type": "MemberExpression",
+                                                          "computed": false,
+                                                          "object": {
+                                                            "type": "Identifier",
+                                                            "name": "element"
+                                                          },
+                                                          "property": {
+                                                            "type": "Identifier",
+                                                            "name": "classList"
+                                                          }
+                                                        },
+                                                        "property": {
+                                                          "type": "Identifier",
+                                                          "name": "add"
+                                                        }
+                                                      },
+                                                      "arguments": [
+                                                        {
+                                                          "type": "Literal",
+                                                          "value": "owned"
+                                                        }
+                                                      ]
+                                                    }
+                                                  }
+                                                ]
+                                              },
+                                              "alternate": null
+                                            },
+                                            {
+                                              "type": "IfStatement",
+                                              "test": {
+                                                "type": "BinaryExpression",
+                                                "operator": "==",
+                                                "left": {
+                                                  "type": "Identifier",
+                                                  "name": "scopeAppID"
+                                                },
+                                                "right": {
+                                                  "type": "Identifier",
+                                                  "name": "id"
+                                                }
+                                              },
+                                              "consequent": {
+                                                "type": "BlockStatement",
+                                                "body": [
+                                                  {
+                                                    "type": "ExpressionStatement",
+                                                    "expression": {
+                                                      "type": "AssignmentExpression",
+                                                      "operator": "=",
+                                                      "left": {
+                                                        "type": "Identifier",
+                                                        "name": "appScope"
+                                                      },
+                                                      "right": {
+                                                        "type": "CallExpression",
+                                                        "callee": {
+                                                          "type": "MemberExpression",
+                                                          "computed": false,
+                                                          "object": {
+                                                            "type": "Identifier",
+                                                            "name": "document"
+                                                          },
+                                                          "property": {
+                                                            "type": "Identifier",
+                                                            "name": "querySelector"
+                                                          }
+                                                        },
+                                                        "arguments": [
+                                                          {
+                                                            "type": "Literal",
+                                                            "value": ".panel-ownership"
+                                                          }
+                                                        ]
+                                                      }
+                                                    }
+                                                  },
+                                                  {
+                                                    "type": "IfStatement",
+                                                    "test": {
+                                                      "type": "Identifier",
+                                                      "name": "appScope"
+                                                    },
+                                                    "consequent": {
+                                                      "type": "BlockStatement",
+                                                      "body": [
+                                                        {
+                                                          "type": "ExpressionStatement",
+                                                          "expression": {
+                                                            "type": "AssignmentExpression",
+                                                            "operator": "=",
+                                                            "left": {
+                                                              "type": "MemberExpression",
+                                                              "computed": false,
+                                                              "object": {
+                                                                "type": "Identifier",
+                                                                "name": "appScope"
+                                                              },
+                                                              "property": {
+                                                                "type": "Identifier",
+                                                                "name": "hidden"
+                                                              }
+                                                            },
+                                                            "right": {
+                                                              "type": "Literal",
+                                                              "value": false
+                                                            }
+                                                          }
+                                                        }
+                                                      ]
+                                                    },
+                                                    "alternate": null
+                                                  },
+                                                  {
+                                                    "type": "ExpressionStatement",
+                                                    "expression": {
+                                                      "type": "AssignmentExpression",
+                                                      "operator": "=",
+                                                      "left": {
+                                                        "type": "Identifier",
+                                                        "name": "appScope"
+                                                      },
+                                                      "right": {
+                                                        "type": "Literal",
+                                                        "value": false
+                                                      }
+                                                    }
+                                                  }
+                                                ]
+                                              },
+                                              "alternate": null
+                                            }
+                                          ]
+                                        }
+                                      },
+                                      {
+                                        "type": "ForStatement",
+                                        "init": {
+                                          "type": "AssignmentExpression",
+                                          "operator": "=",
+                                          "left": {
+                                            "type": "Identifier",
+                                            "name": "i"
+                                          },
+                                          "right": {
+                                            "type": "Literal",
+                                            "value": 0
+                                          }
+                                        },
+                                        "test": {
+                                          "type": "BinaryExpression",
+                                          "operator": "<",
+                                          "left": {
+                                            "type": "Identifier",
+                                            "name": "i"
+                                          },
+                                          "right": {
+                                            "type": "MemberExpression",
+                                            "computed": false,
+                                            "object": {
+                                              "type": "MemberExpression",
+                                              "computed": false,
+                                              "object": {
+                                                "type": "Identifier",
+                                                "name": "data"
+                                              },
+                                              "property": {
+                                                "type": "Identifier",
+                                                "name": "rgAppsInCart"
+                                              }
+                                            },
+                                            "property": {
+                                              "type": "Identifier",
+                                              "name": "length"
+                                            }
+                                          }
+                                        },
+                                        "update": {
+                                          "type": "UpdateExpression",
+                                          "operator": "++",
+                                          "argument": {
+                                            "type": "Identifier",
+                                            "name": "i"
+                                          },
+                                          "prefix": false
+                                        },
+                                        "body": {
+                                          "type": "BlockStatement",
+                                          "body": [
+                                            {
+                                              "type": "ExpressionStatement",
+                                              "expression": {
+                                                "type": "AssignmentExpression",
+                                                "operator": "=",
+                                                "left": {
+                                                  "type": "Identifier",
+                                                  "name": "element"
+                                                },
+                                                "right": {
+                                                  "type": "MemberExpression",
+                                                  "computed": true,
+                                                  "object": {
+                                                    "type": "Identifier",
+                                                    "name": "mapAppsToElements"
+                                                  },
+                                                  "property": {
+                                                    "type": "MemberExpression",
+                                                    "computed": true,
+                                                    "object": {
+                                                      "type": "MemberExpression",
+                                                      "computed": false,
+                                                      "object": {
+                                                        "type": "Identifier",
+                                                        "name": "data"
+                                                      },
+                                                      "property": {
+                                                        "type": "Identifier",
+                                                        "name": "rgAppsInCart"
+                                                      }
+                                                    },
+                                                    "property": {
+                                                      "type": "Identifier",
+                                                      "name": "i"
+                                                    }
+                                                  }
+                                                }
+                                              }
+                                            },
+                                            {
+                                              "type": "IfStatement",
+                                              "test": {
+                                                "type": "Identifier",
+                                                "name": "element"
+                                              },
+                                              "consequent": {
+                                                "type": "BlockStatement",
+                                                "body": [
+                                                  {
+                                                    "type": "ExpressionStatement",
+                                                    "expression": {
+                                                      "type": "CallExpression",
+                                                      "callee": {
+                                                        "type": "MemberExpression",
+                                                        "computed": false,
+                                                        "object": {
+                                                          "type": "MemberExpression",
+                                                          "computed": false,
+                                                          "object": {
+                                                            "type": "Identifier",
+                                                            "name": "element"
+                                                          },
+                                                          "property": {
+                                                            "type": "Identifier",
+                                                            "name": "classList"
+                                                          }
+                                                        },
+                                                        "property": {
+                                                          "type": "Identifier",
+                                                          "name": "add"
+                                                        }
+                                                      },
+                                                      "arguments": [
+                                                        {
+                                                          "type": "Literal",
+                                                          "value": "cart"
+                                                        }
+                                                      ]
+                                                    }
+                                                  }
+                                                ]
+                                              },
+                                              "alternate": null
+                                            }
+                                          ]
+                                        }
+                                      }
+                                    ]
+                                  },
+                                  "alternate": null
+                                },
+                                {
+                                  "type": "IfStatement",
+                                  "test": {
+                                    "type": "LogicalExpression",
+                                    "operator": "||",
+                                    "left": {
+                                      "type": "Identifier",
+                                      "name": "packageScope"
+                                    },
+                                    "right": {
+                                      "type": "BinaryExpression",
+                                      "operator": ">",
+                                      "left": {
+                                        "type": "MemberExpression",
+                                        "computed": false,
+                                        "object": {
+                                          "type": "Identifier",
+                                          "name": "mapPackagesToElements"
+                                        },
+                                        "property": {
+                                          "type": "Identifier",
+                                          "name": "length"
+                                        }
+                                      },
+                                      "right": {
+                                        "type": "Literal",
+                                        "value": 0
+                                      }
+                                    }
+                                  },
+                                  "consequent": {
+                                    "type": "BlockStatement",
+                                    "body": [
+                                      {
+                                        "type": "VariableDeclaration",
+                                        "declarations": [
+                                          {
+                                            "type": "VariableDeclarator",
+                                            "id": {
+                                              "type": "Identifier",
+                                              "name": "scopeSubID"
+                                            },
+                                            "init": {
+                                              "type": "LogicalExpression",
+                                              "operator": "&&",
+                                              "left": {
+                                                "type": "Identifier",
+                                                "name": "packageScope"
+                                              },
+                                              "right": {
+                                                "type": "MemberExpression",
+                                                "computed": false,
+                                                "object": {
+                                                  "type": "MemberExpression",
+                                                  "computed": false,
+                                                  "object": {
+                                                    "type": "Identifier",
+                                                    "name": "packageScope"
+                                                  },
+                                                  "property": {
+                                                    "type": "Identifier",
+                                                    "name": "dataset"
+                                                  }
+                                                },
+                                                "property": {
+                                                  "type": "Identifier",
+                                                  "name": "subid"
+                                                }
+                                              }
+                                            }
+                                          }
+                                        ],
+                                        "kind": "var"
+                                      },
+                                      {
+                                        "type": "ForStatement",
+                                        "init": {
+                                          "type": "AssignmentExpression",
+                                          "operator": "=",
+                                          "left": {
+                                            "type": "Identifier",
+                                            "name": "i"
+                                          },
+                                          "right": {
+                                            "type": "Literal",
+                                            "value": 0
+                                          }
+                                        },
+                                        "test": {
+                                          "type": "BinaryExpression",
+                                          "operator": "<",
+                                          "left": {
+                                            "type": "Identifier",
+                                            "name": "i"
+                                          },
+                                          "right": {
+                                            "type": "MemberExpression",
+                                            "computed": false,
+                                            "object": {
+                                              "type": "MemberExpression",
+                                              "computed": false,
+                                              "object": {
+                                                "type": "Identifier",
+                                                "name": "data"
+                                              },
+                                              "property": {
+                                                "type": "Identifier",
+                                                "name": "rgOwnedPackages"
+                                              }
+                                            },
+                                            "property": {
+                                              "type": "Identifier",
+                                              "name": "length"
+                                            }
+                                          }
+                                        },
+                                        "update": {
+                                          "type": "UpdateExpression",
+                                          "operator": "++",
+                                          "argument": {
+                                            "type": "Identifier",
+                                            "name": "i"
+                                          },
+                                          "prefix": false
+                                        },
+                                        "body": {
+                                          "type": "BlockStatement",
+                                          "body": [
+                                            {
+                                              "type": "ExpressionStatement",
+                                              "expression": {
+                                                "type": "AssignmentExpression",
+                                                "operator": "=",
+                                                "left": {
+                                                  "type": "Identifier",
+                                                  "name": "id"
+                                                },
+                                                "right": {
+                                                  "type": "MemberExpression",
+                                                  "computed": true,
+                                                  "object": {
+                                                    "type": "MemberExpression",
+                                                    "computed": false,
+                                                    "object": {
+                                                      "type": "Identifier",
+                                                      "name": "data"
+                                                    },
+                                                    "property": {
+                                                      "type": "Identifier",
+                                                      "name": "rgOwnedPackages"
+                                                    }
+                                                  },
+                                                  "property": {
+                                                    "type": "Identifier",
+                                                    "name": "i"
+                                                  }
+                                                }
+                                              }
+                                            },
+                                            {
+                                              "type": "ExpressionStatement",
+                                              "expression": {
+                                                "type": "AssignmentExpression",
+                                                "operator": "=",
+                                                "left": {
+                                                  "type": "Identifier",
+                                                  "name": "element"
+                                                },
+                                                "right": {
+                                                  "type": "MemberExpression",
+                                                  "computed": true,
+                                                  "object": {
+                                                    "type": "Identifier",
+                                                    "name": "mapPackagesToElements"
+                                                  },
+                                                  "property": {
+                                                    "type": "Identifier",
+                                                    "name": "id"
+                                                  }
+                                                }
+                                              }
+                                            },
+                                            {
+                                              "type": "IfStatement",
+                                              "test": {
+                                                "type": "Identifier",
+                                                "name": "element"
+                                              },
+                                              "consequent": {
+                                                "type": "BlockStatement",
+                                                "body": [
+                                                  {
+                                                    "type": "ExpressionStatement",
+                                                    "expression": {
+                                                      "type": "CallExpression",
+                                                      "callee": {
+                                                        "type": "MemberExpression",
+                                                        "computed": false,
+                                                        "object": {
+                                                          "type": "MemberExpression",
+                                                          "computed": false,
+                                                          "object": {
+                                                            "type": "Identifier",
+                                                            "name": "element"
+                                                          },
+                                                          "property": {
+                                                            "type": "Identifier",
+                                                            "name": "classList"
+                                                          }
+                                                        },
+                                                        "property": {
+                                                          "type": "Identifier",
+                                                          "name": "add"
+                                                        }
+                                                      },
+                                                      "arguments": [
+                                                        {
+                                                          "type": "Literal",
+                                                          "value": "owned"
+                                                        }
+                                                      ]
+                                                    }
+                                                  }
+                                                ]
+                                              },
+                                              "alternate": null
+                                            },
+                                            {
+                                              "type": "IfStatement",
+                                              "test": {
+                                                "type": "BinaryExpression",
+                                                "operator": "==",
+                                                "left": {
+                                                  "type": "Identifier",
+                                                  "name": "scopeSubID"
+                                                },
+                                                "right": {
+                                                  "type": "Identifier",
+                                                  "name": "id"
+                                                }
+                                              },
+                                              "consequent": {
+                                                "type": "BlockStatement",
+                                                "body": [
+                                                  {
+                                                    "type": "ExpressionStatement",
+                                                    "expression": {
+                                                      "type": "AssignmentExpression",
+                                                      "operator": "=",
+                                                      "left": {
+                                                        "type": "Identifier",
+                                                        "name": "packageScope"
+                                                      },
+                                                      "right": {
+                                                        "type": "CallExpression",
+                                                        "callee": {
+                                                          "type": "MemberExpression",
+                                                          "computed": false,
+                                                          "object": {
+                                                            "type": "Identifier",
+                                                            "name": "document"
+                                                          },
+                                                          "property": {
+                                                            "type": "Identifier",
+                                                            "name": "querySelector"
+                                                          }
+                                                        },
+                                                        "arguments": [
+                                                          {
+                                                            "type": "Literal",
+                                                            "value": ".panel-ownership"
+                                                          }
+                                                        ]
+                                                      }
+                                                    }
+                                                  },
+                                                  {
+                                                    "type": "IfStatement",
+                                                    "test": {
+                                                      "type": "Identifier",
+                                                      "name": "packageScope"
+                                                    },
+                                                    "consequent": {
+                                                      "type": "BlockStatement",
+                                                      "body": [
+                                                        {
+                                                          "type": "ExpressionStatement",
+                                                          "expression": {
+                                                            "type": "AssignmentExpression",
+                                                            "operator": "=",
+                                                            "left": {
+                                                              "type": "MemberExpression",
+                                                              "computed": false,
+                                                              "object": {
+                                                                "type": "Identifier",
+                                                                "name": "packageScope"
+                                                              },
+                                                              "property": {
+                                                                "type": "Identifier",
+                                                                "name": "hidden"
+                                                              }
+                                                            },
+                                                            "right": {
+                                                              "type": "Literal",
+                                                              "value": false
+                                                            }
+                                                          }
+                                                        }
+                                                      ]
+                                                    },
+                                                    "alternate": null
+                                                  }
+                                                ]
+                                              },
+                                              "alternate": null
+                                            }
+                                          ]
+                                        }
+                                      },
+                                      {
+                                        "type": "ForStatement",
+                                        "init": {
+                                          "type": "AssignmentExpression",
+                                          "operator": "=",
+                                          "left": {
+                                            "type": "Identifier",
+                                            "name": "i"
+                                          },
+                                          "right": {
+                                            "type": "Literal",
+                                            "value": 0
+                                          }
+                                        },
+                                        "test": {
+                                          "type": "BinaryExpression",
+                                          "operator": "<",
+                                          "left": {
+                                            "type": "Identifier",
+                                            "name": "i"
+                                          },
+                                          "right": {
+                                            "type": "MemberExpression",
+                                            "computed": false,
+                                            "object": {
+                                              "type": "MemberExpression",
+                                              "computed": false,
+                                              "object": {
+                                                "type": "Identifier",
+                                                "name": "data"
+                                              },
+                                              "property": {
+                                                "type": "Identifier",
+                                                "name": "rgPackagesInCart"
+                                              }
+                                            },
+                                            "property": {
+                                              "type": "Identifier",
+                                              "name": "length"
+                                            }
+                                          }
+                                        },
+                                        "update": {
+                                          "type": "UpdateExpression",
+                                          "operator": "++",
+                                          "argument": {
+                                            "type": "Identifier",
+                                            "name": "i"
+                                          },
+                                          "prefix": false
+                                        },
+                                        "body": {
+                                          "type": "BlockStatement",
+                                          "body": [
+                                            {
+                                              "type": "ExpressionStatement",
+                                              "expression": {
+                                                "type": "AssignmentExpression",
+                                                "operator": "=",
+                                                "left": {
+                                                  "type": "Identifier",
+                                                  "name": "element"
+                                                },
+                                                "right": {
+                                                  "type": "MemberExpression",
+                                                  "computed": true,
+                                                  "object": {
+                                                    "type": "Identifier",
+                                                    "name": "mapPackagesToElements"
+                                                  },
+                                                  "property": {
+                                                    "type": "MemberExpression",
+                                                    "computed": true,
+                                                    "object": {
+                                                      "type": "MemberExpression",
+                                                      "computed": false,
+                                                      "object": {
+                                                        "type": "Identifier",
+                                                        "name": "data"
+                                                      },
+                                                      "property": {
+                                                        "type": "Identifier",
+                                                        "name": "rgPackagesInCart"
+                                                      }
+                                                    },
+                                                    "property": {
+                                                      "type": "Identifier",
+                                                      "name": "i"
+                                                    }
+                                                  }
+                                                }
+                                              }
+                                            },
+                                            {
+                                              "type": "IfStatement",
+                                              "test": {
+                                                "type": "Identifier",
+                                                "name": "element"
+                                              },
+                                              "consequent": {
+                                                "type": "BlockStatement",
+                                                "body": [
+                                                  {
+                                                    "type": "ExpressionStatement",
+                                                    "expression": {
+                                                      "type": "CallExpression",
+                                                      "callee": {
+                                                        "type": "MemberExpression",
+                                                        "computed": false,
+                                                        "object": {
+                                                          "type": "MemberExpression",
+                                                          "computed": false,
+                                                          "object": {
+                                                            "type": "Identifier",
+                                                            "name": "element"
+                                                          },
+                                                          "property": {
+                                                            "type": "Identifier",
+                                                            "name": "classList"
+                                                          }
+                                                        },
+                                                        "property": {
+                                                          "type": "Identifier",
+                                                          "name": "add"
+                                                        }
+                                                      },
+                                                      "arguments": [
+                                                        {
+                                                          "type": "Literal",
+                                                          "value": "cart"
+                                                        }
+                                                      ]
+                                                    }
+                                                  }
+                                                ]
+                                              },
+                                              "alternate": null
+                                            }
+                                          ]
+                                        }
+                                      }
+                                    ]
+                                  },
+                                  "alternate": null
+                                },
+                                {
+                                  "type": "IfStatement",
+                                  "test": {
+                                    "type": "Identifier",
+                                    "name": "appScope"
+                                  },
+                                  "consequent": {
+                                    "type": "BlockStatement",
+                                    "body": [
+                                      {
+                                        "type": "ExpressionStatement",
+                                        "expression": {
+                                          "type": "AssignmentExpression",
+                                          "operator": "=",
+                                          "left": {
+                                            "type": "Identifier",
+                                            "name": "appScope"
+                                          },
+                                          "right": {
+                                            "type": "CallExpression",
+                                            "callee": {
+                                              "type": "MemberExpression",
+                                              "computed": false,
+                                              "object": {
+                                                "type": "Identifier",
+                                                "name": "document"
+                                              },
+                                              "property": {
+                                                "type": "Identifier",
+                                                "name": "querySelector"
+                                              }
+                                            },
+                                            "arguments": [
+                                              {
+                                                "type": "Literal",
+                                                "value": ".panel-ownership"
+                                              }
+                                            ]
+                                          }
+                                        }
+                                      },
+                                      {
+                                        "type": "IfStatement",
+                                        "test": {
+                                          "type": "LogicalExpression",
+                                          "operator": "&&",
+                                          "left": {
+                                            "type": "LogicalExpression",
+                                            "operator": "&&",
+                                            "left": {
+                                              "type": "Identifier",
+                                              "name": "appScope"
+                                            },
+                                            "right": {
+                                              "type": "MemberExpression",
+                                              "computed": false,
+                                              "object": {
+                                                "type": "Identifier",
+                                                "name": "appScope"
+                                              },
+                                              "property": {
+                                                "type": "Identifier",
+                                                "name": "hidden"
+                                              }
+                                            }
+                                          },
+                                          "right": {
+                                            "type": "CallExpression",
+                                            "callee": {
+                                              "type": "MemberExpression",
+                                              "computed": false,
+                                              "object": {
+                                                "type": "Identifier",
+                                                "name": "document"
+                                              },
+                                              "property": {
+                                                "type": "Identifier",
+                                                "name": "querySelector"
+                                              }
+                                            },
+                                            "arguments": [
+                                              {
+                                                "type": "Literal",
+                                                "value": "#subs .package.owned"
+                                              }
+                                            ]
+                                          }
+                                        },
+                                        "consequent": {
+                                          "type": "BlockStatement",
+                                          "body": [
+                                            {
+                                              "type": "ExpressionStatement",
+                                              "expression": {
+                                                "type": "AssignmentExpression",
+                                                "operator": "=",
+                                                "left": {
+                                                  "type": "MemberExpression",
+                                                  "computed": false,
+                                                  "object": {
+                                                    "type": "Identifier",
+                                                    "name": "appScope"
+                                                  },
+                                                  "property": {
+                                                    "type": "Identifier",
+                                                    "name": "hidden"
+                                                  }
+                                                },
+                                                "right": {
+                                                  "type": "Literal",
+                                                  "value": false
+                                                }
+                                              }
+                                            }
+                                          ]
+                                        },
+                                        "alternate": null
+                                      }
+                                    ]
+                                  },
+                                  "alternate": null
+                                },
+                                {
+                                  "type": "IfStatement",
+                                  "test": {
+                                    "type": "CallExpression",
+                                    "callee": {
+                                      "type": "MemberExpression",
+                                      "computed": false,
+                                      "object": {
+                                        "type": "Identifier",
+                                        "name": "document"
+                                      },
+                                      "property": {
+                                        "type": "Identifier",
+                                        "name": "querySelector"
+                                      }
+                                    },
+                                    "arguments": [
+                                      {
+                                        "type": "Literal",
+                                        "value": ".scope-sales"
+                                      }
+                                    ]
+                                  },
+                                  "consequent": {
+                                    "type": "BlockStatement",
+                                    "body": [
+                                      {
+                                        "type": "IfStatement",
+                                        "test": {
+                                          "type": "MemberExpression",
+                                          "computed": true,
+                                          "object": {
+                                            "type": "Identifier",
+                                            "name": "items"
+                                          },
+                                          "property": {
+                                            "type": "Literal",
+                                            "value": "steamdb-hide-not-interested"
+                                          }
+                                        },
+                                        "consequent": {
+                                          "type": "BlockStatement",
+                                          "body": [
+                                            {
+                                              "type": "ForStatement",
+                                              "init": {
+                                                "type": "AssignmentExpression",
+                                                "operator": "=",
+                                                "left": {
+                                                  "type": "Identifier",
+                                                  "name": "i"
+                                                },
+                                                "right": {
+                                                  "type": "Literal",
+                                                  "value": 0
+                                                }
+                                              },
+                                              "test": {
+                                                "type": "BinaryExpression",
+                                                "operator": "<",
+                                                "left": {
+                                                  "type": "Identifier",
+                                                  "name": "i"
+                                                },
+                                                "right": {
+                                                  "type": "MemberExpression",
+                                                  "computed": false,
+                                                  "object": {
+                                                    "type": "MemberExpression",
+                                                    "computed": false,
+                                                    "object": {
+                                                      "type": "Identifier",
+                                                      "name": "data"
+                                                    },
+                                                    "property": {
+                                                      "type": "Identifier",
+                                                      "name": "rgIgnoredApps"
+                                                    }
+                                                  },
+                                                  "property": {
+                                                    "type": "Identifier",
+                                                    "name": "length"
+                                                  }
+                                                }
+                                              },
+                                              "update": {
+                                                "type": "UpdateExpression",
+                                                "operator": "++",
+                                                "argument": {
+                                                  "type": "Identifier",
+                                                  "name": "i"
+                                                },
+                                                "prefix": false
+                                              },
+                                              "body": {
+                                                "type": "BlockStatement",
+                                                "body": [
+                                                  {
+                                                    "type": "ExpressionStatement",
+                                                    "expression": {
+                                                      "type": "AssignmentExpression",
+                                                      "operator": "=",
+                                                      "left": {
+                                                        "type": "Identifier",
+                                                        "name": "element"
+                                                      },
+                                                      "right": {
+                                                        "type": "MemberExpression",
+                                                        "computed": true,
+                                                        "object": {
+                                                          "type": "Identifier",
+                                                          "name": "mapAppsToElements"
+                                                        },
+                                                        "property": {
+                                                          "type": "MemberExpression",
+                                                          "computed": true,
+                                                          "object": {
+                                                            "type": "MemberExpression",
+                                                            "computed": false,
+                                                            "object": {
+                                                              "type": "Identifier",
+                                                              "name": "data"
+                                                            },
+                                                            "property": {
+                                                              "type": "Identifier",
+                                                              "name": "rgIgnoredApps"
+                                                            }
+                                                          },
+                                                          "property": {
+                                                            "type": "Identifier",
+                                                            "name": "i"
+                                                          }
+                                                        }
+                                                      }
+                                                    }
+                                                  },
+                                                  {
+                                                    "type": "IfStatement",
+                                                    "test": {
+                                                      "type": "Identifier",
+                                                      "name": "element"
+                                                    },
+                                                    "consequent": {
+                                                      "type": "BlockStatement",
+                                                      "body": [
+                                                        {
+                                                          "type": "ExpressionStatement",
+                                                          "expression": {
+                                                            "type": "CallExpression",
+                                                            "callee": {
+                                                              "type": "MemberExpression",
+                                                              "computed": false,
+                                                              "object": {
+                                                                "type": "MemberExpression",
+                                                                "computed": false,
+                                                                "object": {
+                                                                  "type": "Identifier",
+                                                                  "name": "element"
+                                                                },
+                                                                "property": {
+                                                                  "type": "Identifier",
+                                                                  "name": "parentNode"
+                                                                }
+                                                              },
+                                                              "property": {
+                                                                "type": "Identifier",
+                                                                "name": "removeChild"
+                                                              }
+                                                            },
+                                                            "arguments": [
+                                                              {
+                                                                "type": "Identifier",
+                                                                "name": "element"
+                                                              }
+                                                            ]
+                                                          }
+                                                        }
+                                                      ]
+                                                    },
+                                                    "alternate": null
+                                                  }
+                                                ]
+                                              }
+                                            },
+                                            {
+                                              "type": "ForStatement",
+                                              "init": {
+                                                "type": "AssignmentExpression",
+                                                "operator": "=",
+                                                "left": {
+                                                  "type": "Identifier",
+                                                  "name": "i"
+                                                },
+                                                "right": {
+                                                  "type": "Literal",
+                                                  "value": 0
+                                                }
+                                              },
+                                              "test": {
+                                                "type": "BinaryExpression",
+                                                "operator": "<",
+                                                "left": {
+                                                  "type": "Identifier",
+                                                  "name": "i"
+                                                },
+                                                "right": {
+                                                  "type": "MemberExpression",
+                                                  "computed": false,
+                                                  "object": {
+                                                    "type": "MemberExpression",
+                                                    "computed": false,
+                                                    "object": {
+                                                      "type": "Identifier",
+                                                      "name": "data"
+                                                    },
+                                                    "property": {
+                                                      "type": "Identifier",
+                                                      "name": "rgIgnoredPackages"
+                                                    }
+                                                  },
+                                                  "property": {
+                                                    "type": "Identifier",
+                                                    "name": "length"
+                                                  }
+                                                }
+                                              },
+                                              "update": {
+                                                "type": "UpdateExpression",
+                                                "operator": "++",
+                                                "argument": {
+                                                  "type": "Identifier",
+                                                  "name": "i"
+                                                },
+                                                "prefix": false
+                                              },
+                                              "body": {
+                                                "type": "BlockStatement",
+                                                "body": [
+                                                  {
+                                                    "type": "ExpressionStatement",
+                                                    "expression": {
+                                                      "type": "AssignmentExpression",
+                                                      "operator": "=",
+                                                      "left": {
+                                                        "type": "Identifier",
+                                                        "name": "element"
+                                                      },
+                                                      "right": {
+                                                        "type": "MemberExpression",
+                                                        "computed": true,
+                                                        "object": {
+                                                          "type": "Identifier",
+                                                          "name": "mapPackagesToElements"
+                                                        },
+                                                        "property": {
+                                                          "type": "MemberExpression",
+                                                          "computed": true,
+                                                          "object": {
+                                                            "type": "MemberExpression",
+                                                            "computed": false,
+                                                            "object": {
+                                                              "type": "Identifier",
+                                                              "name": "data"
+                                                            },
+                                                            "property": {
+                                                              "type": "Identifier",
+                                                              "name": "rgIgnoredPackages"
+                                                            }
+                                                          },
+                                                          "property": {
+                                                            "type": "Identifier",
+                                                            "name": "i"
+                                                          }
+                                                        }
+                                                      }
+                                                    }
+                                                  },
+                                                  {
+                                                    "type": "IfStatement",
+                                                    "test": {
+                                                      "type": "Identifier",
+                                                      "name": "element"
+                                                    },
+                                                    "consequent": {
+                                                      "type": "BlockStatement",
+                                                      "body": [
+                                                        {
+                                                          "type": "ExpressionStatement",
+                                                          "expression": {
+                                                            "type": "CallExpression",
+                                                            "callee": {
+                                                              "type": "MemberExpression",
+                                                              "computed": false,
+                                                              "object": {
+                                                                "type": "MemberExpression",
+                                                                "computed": false,
+                                                                "object": {
+                                                                  "type": "Identifier",
+                                                                  "name": "element"
+                                                                },
+                                                                "property": {
+                                                                  "type": "Identifier",
+                                                                  "name": "parentNode"
+                                                                }
+                                                              },
+                                                              "property": {
+                                                                "type": "Identifier",
+                                                                "name": "removeChild"
+                                                              }
+                                                            },
+                                                            "arguments": [
+                                                              {
+                                                                "type": "Identifier",
+                                                                "name": "element"
+                                                              }
+                                                            ]
+                                                          }
+                                                        }
+                                                      ]
+                                                    },
+                                                    "alternate": null
+                                                  }
+                                                ]
+                                              }
+                                            }
+                                          ]
+                                        },
+                                        "alternate": null
+                                      },
+                                      {
+                                        "type": "IfStatement",
+                                        "test": {
+                                          "type": "CallExpression",
+                                          "callee": {
+                                            "type": "MemberExpression",
+                                            "computed": false,
+                                            "object": {
+                                              "type": "Identifier",
+                                              "name": "document"
+                                            },
+                                            "property": {
+                                              "type": "Identifier",
+                                              "name": "querySelector"
+                                            }
+                                          },
+                                          "arguments": [
+                                            {
+                                              "type": "Literal",
+                                              "value": "#js-hide-owned-games.checked"
+                                            }
+                                          ]
+                                        },
+                                        "consequent": {
+                                          "type": "BlockStatement",
+                                          "body": [
+                                            {
+                                              "type": "VariableDeclaration",
+                                              "declarations": [
+                                                {
+                                                  "type": "VariableDeclarator",
+                                                  "id": {
+                                                    "type": "Identifier",
+                                                    "name": "elements"
+                                                  },
+                                                  "init": {
+                                                    "type": "CallExpression",
+                                                    "callee": {
+                                                      "type": "MemberExpression",
+                                                      "computed": false,
+                                                      "object": {
+                                                        "type": "Identifier",
+                                                        "name": "document"
+                                                      },
+                                                      "property": {
+                                                        "type": "Identifier",
+                                                        "name": "querySelectorAll"
+                                                      }
+                                                    },
+                                                    "arguments": [
+                                                      {
+                                                        "type": "Literal",
+                                                        "value": ".appimg.owned"
+                                                      }
+                                                    ]
+                                                  }
+                                                }
+                                              ],
+                                              "kind": "var"
+                                            },
+                                            {
+                                              "type": "ForStatement",
+                                              "init": {
+                                                "type": "VariableDeclaration",
+                                                "declarations": [
+                                                  {
+                                                    "type": "VariableDeclarator",
+                                                    "id": {
+                                                      "type": "Identifier",
+                                                      "name": "i"
+                                                    },
+                                                    "init": {
+                                                      "type": "Literal",
+                                                      "value": 0
+                                                    }
+                                                  }
+                                                ],
+                                                "kind": "var"
+                                              },
+                                              "test": {
+                                                "type": "BinaryExpression",
+                                                "operator": "<",
+                                                "left": {
+                                                  "type": "Identifier",
+                                                  "name": "i"
+                                                },
+                                                "right": {
+                                                  "type": "MemberExpression",
+                                                  "computed": false,
+                                                  "object": {
+                                                    "type": "Identifier",
+                                                    "name": "elements"
+                                                  },
+                                                  "property": {
+                                                    "type": "Identifier",
+                                                    "name": "length"
+                                                  }
+                                                }
+                                              },
+                                              "update": {
+                                                "type": "UpdateExpression",
+                                                "operator": "++",
+                                                "argument": {
+                                                  "type": "Identifier",
+                                                  "name": "i"
+                                                },
+                                                "prefix": false
+                                              },
+                                              "body": {
+                                                "type": "BlockStatement",
+                                                "body": [
+                                                  {
+                                                    "type": "ExpressionStatement",
+                                                    "expression": {
+                                                      "type": "AssignmentExpression",
+                                                      "operator": "=",
+                                                      "left": {
+                                                        "type": "MemberExpression",
+                                                        "computed": false,
+                                                        "object": {
+                                                          "type": "MemberExpression",
+                                                          "computed": true,
+                                                          "object": {
+                                                            "type": "Identifier",
+                                                            "name": "elements"
+                                                          },
+                                                          "property": {
+                                                            "type": "Identifier",
+                                                            "name": "i"
+                                                          }
+                                                        },
+                                                        "property": {
+                                                          "type": "Identifier",
+                                                          "name": "hidden"
+                                                        }
+                                                      },
+                                                      "right": {
+                                                        "type": "Literal",
+                                                        "value": true
+                                                      }
+                                                    }
+                                                  }
+                                                ]
+                                              }
+                                            }
+                                          ]
+                                        },
+                                        "alternate": null
+                                      }
+                                    ]
+                                  },
+                                  "alternate": null
+                                }
+                              ]
+                            },
+                            "rest": null,
+                            "generator": false,
+                            "expression": false
+                          }
+                        }
+                      },
+                      {
+                        "type": "ExpressionStatement",
+                        "expression": {
+                          "type": "CallExpression",
+                          "callee": {
+                            "type": "MemberExpression",
+                            "computed": false,
+                            "object": {
+                              "type": "Identifier",
+                              "name": "xhr"
+                            },
+                            "property": {
+                              "type": "Identifier",
+                              "name": "send"
+                            }
+                          },
+                          "arguments": []
+                        }
+                      }
+                    ]
+                  },
+                  "alternate": null
+                }
+              ]
+            },
+            "rest": null,
+            "generator": false,
+            "expression": false
+          }
+        ]
+      }
+    }
+  ]
+}

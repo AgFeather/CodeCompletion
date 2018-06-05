@@ -1,0 +1,126 @@
+{
+  "type": "Program",
+  "body": [
+    {
+      "type": "FunctionDeclaration",
+      "id": {
+        "type": "Identifier",
+        "name": "fn"
+      },
+      "params": [],
+      "defaults": [],
+      "body": {
+        "type": "BlockStatement",
+        "body": [
+          {
+            "type": "ReturnStatement",
+            "argument": {
+              "type": "FunctionExpression",
+              "id": null,
+              "params": [
+                {
+                  "type": "Identifier",
+                  "name": "a"
+                },
+                {
+                  "type": "Identifier",
+                  "name": "b"
+                },
+                {
+                  "type": "Identifier",
+                  "name": "c"
+                }
+              ],
+              "defaults": [],
+              "body": {
+                "type": "BlockStatement",
+                "body": []
+              },
+              "rest": null,
+              "generator": false,
+              "expression": false
+            }
+          }
+        ]
+      },
+      "rest": null,
+      "generator": false,
+      "expression": false
+    },
+    {
+      "type": "ExpressionStatement",
+      "expression": {
+        "type": "CallExpression",
+        "callee": {
+          "type": "Identifier",
+          "name": "assertEq"
+        },
+        "arguments": [
+          {
+            "type": "CallExpression",
+            "callee": {
+              "type": "Identifier",
+              "name": "testLenientAndStrict"
+            },
+            "arguments": [
+              {
+                "type": "Literal",
+                "value": "var f = fn(); delete f.prototype"
+              },
+              {
+                "type": "CallExpression",
+                "callee": {
+                  "type": "Identifier",
+                  "name": "returns"
+                },
+                "arguments": [
+                  {
+                    "type": "Literal",
+                    "value": false
+                  }
+                ]
+              },
+              {
+                "type": "CallExpression",
+                "callee": {
+                  "type": "Identifier",
+                  "name": "raisesException"
+                },
+                "arguments": [
+                  {
+                    "type": "Identifier",
+                    "name": "TypeError"
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "type": "Literal",
+            "value": true
+          }
+        ]
+      }
+    },
+    {
+      "type": "ExpressionStatement",
+      "expression": {
+        "type": "CallExpression",
+        "callee": {
+          "type": "Identifier",
+          "name": "reportCompare"
+        },
+        "arguments": [
+          {
+            "type": "Literal",
+            "value": true
+          },
+          {
+            "type": "Literal",
+            "value": true
+          }
+        ]
+      }
+    }
+  ]
+}

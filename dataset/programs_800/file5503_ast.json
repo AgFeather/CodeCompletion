@@ -1,0 +1,1158 @@
+{
+  "type": "Program",
+  "body": [
+    {
+      "type": "VariableDeclaration",
+      "declarations": [
+        {
+          "type": "VariableDeclarator",
+          "id": {
+            "type": "Identifier",
+            "name": "prog"
+          },
+          "init": {
+            "type": "CallExpression",
+            "callee": {
+              "type": "Identifier",
+              "name": "require"
+            },
+            "arguments": [
+              {
+                "type": "Literal",
+                "value": "child_process"
+              }
+            ]
+          }
+        }
+      ],
+      "kind": "var"
+    },
+    {
+      "type": "VariableDeclaration",
+      "declarations": [
+        {
+          "type": "VariableDeclarator",
+          "id": {
+            "type": "Identifier",
+            "name": "util"
+          },
+          "init": {
+            "type": "CallExpression",
+            "callee": {
+              "type": "Identifier",
+              "name": "require"
+            },
+            "arguments": [
+              {
+                "type": "Literal",
+                "value": "util"
+              }
+            ]
+          }
+        }
+      ],
+      "kind": "var"
+    },
+    {
+      "type": "VariableDeclaration",
+      "declarations": [
+        {
+          "type": "VariableDeclarator",
+          "id": {
+            "type": "Identifier",
+            "name": "cons"
+          },
+          "init": {
+            "type": "MemberExpression",
+            "computed": false,
+            "object": {
+              "type": "CallExpression",
+              "callee": {
+                "type": "Identifier",
+                "name": "require"
+              },
+              "arguments": [
+                {
+                  "type": "Literal",
+                  "value": "./console"
+                }
+              ]
+            },
+            "property": {
+              "type": "Identifier",
+              "name": "Console"
+            }
+          }
+        }
+      ],
+      "kind": "var"
+    },
+    {
+      "type": "FunctionDeclaration",
+      "id": {
+        "type": "Identifier",
+        "name": "f"
+      },
+      "params": [
+        {
+          "type": "Identifier",
+          "name": "key"
+        },
+        {
+          "type": "Identifier",
+          "name": "i"
+        },
+        {
+          "type": "Identifier",
+          "name": "ports"
+        },
+        {
+          "type": "Identifier",
+          "name": "proc"
+        },
+        {
+          "type": "Identifier",
+          "name": "reqs"
+        },
+        {
+          "type": "Identifier",
+          "name": "portargs"
+        },
+        {
+          "type": "Identifier",
+          "name": "localhost"
+        },
+        {
+          "type": "Identifier",
+          "name": "emitter"
+        }
+      ],
+      "defaults": [],
+      "body": {
+        "type": "BlockStatement",
+        "body": [
+          {
+            "type": "VariableDeclaration",
+            "declarations": [
+              {
+                "type": "VariableDeclarator",
+                "id": {
+                  "type": "Identifier",
+                  "name": "j"
+                },
+                "init": {
+                  "type": "UpdateExpression",
+                  "operator": "++",
+                  "argument": {
+                    "type": "Identifier",
+                    "name": "i"
+                  },
+                  "prefix": false
+                }
+              }
+            ],
+            "kind": "var"
+          },
+          {
+            "type": "VariableDeclaration",
+            "declarations": [
+              {
+                "type": "VariableDeclarator",
+                "id": {
+                  "type": "Identifier",
+                  "name": "port"
+                },
+                "init": {
+                  "type": "MemberExpression",
+                  "computed": true,
+                  "object": {
+                    "type": "Identifier",
+                    "name": "ports"
+                  },
+                  "property": {
+                    "type": "Identifier",
+                    "name": "j"
+                  }
+                }
+              }
+            ],
+            "kind": "var"
+          },
+          {
+            "type": "IfStatement",
+            "test": {
+              "type": "LogicalExpression",
+              "operator": "&&",
+              "left": {
+                "type": "BinaryExpression",
+                "operator": "<",
+                "left": {
+                  "type": "Identifier",
+                  "name": "port"
+                },
+                "right": {
+                  "type": "Literal",
+                  "value": 1024
+                }
+              },
+              "right": {
+                "type": "BinaryExpression",
+                "operator": "!==",
+                "left": {
+                  "type": "CallExpression",
+                  "callee": {
+                    "type": "MemberExpression",
+                    "computed": false,
+                    "object": {
+                      "type": "Identifier",
+                      "name": "process"
+                    },
+                    "property": {
+                      "type": "Identifier",
+                      "name": "getuid"
+                    }
+                  },
+                  "arguments": []
+                },
+                "right": {
+                  "type": "Literal",
+                  "value": 0
+                }
+              }
+            },
+            "consequent": {
+              "type": "BlockStatement",
+              "body": [
+                {
+                  "type": "ReturnStatement",
+                  "argument": {
+                    "type": "CallExpression",
+                    "callee": {
+                      "type": "MemberExpression",
+                      "computed": false,
+                      "object": {
+                        "type": "Identifier",
+                        "name": "cons"
+                      },
+                      "property": {
+                        "type": "Identifier",
+                        "name": "Error"
+                      }
+                    },
+                    "arguments": [
+                      {
+                        "type": "Literal",
+                        "value": "Cannot Bind to Privileged Port %s Without Permission - Try 'sudo'"
+                      },
+                      {
+                        "type": "Identifier",
+                        "name": "port"
+                      }
+                    ]
+                  }
+                }
+              ]
+            },
+            "alternate": null
+          },
+          {
+            "type": "IfStatement",
+            "test": {
+              "type": "UnaryExpression",
+              "operator": "!",
+              "argument": {
+                "type": "Identifier",
+                "name": "port"
+              },
+              "prefix": true
+            },
+            "consequent": {
+              "type": "BlockStatement",
+              "body": [
+                {
+                  "type": "ReturnStatement",
+                  "argument": {
+                    "type": "CallExpression",
+                    "callee": {
+                      "type": "MemberExpression",
+                      "computed": false,
+                      "object": {
+                        "type": "Identifier",
+                        "name": "cons"
+                      },
+                      "property": {
+                        "type": "Identifier",
+                        "name": "Warn"
+                      }
+                    },
+                    "arguments": [
+                      {
+                        "type": "Literal",
+                        "value": "No Downstream Port Defined for '%s' Proxy"
+                      },
+                      {
+                        "type": "Identifier",
+                        "name": "key"
+                      }
+                    ]
+                  }
+                }
+              ]
+            },
+            "alternate": null
+          },
+          {
+            "type": "IfStatement",
+            "test": {
+              "type": "UnaryExpression",
+              "operator": "!",
+              "argument": {
+                "type": "BinaryExpression",
+                "operator": "in",
+                "left": {
+                  "type": "Identifier",
+                  "name": "key"
+                },
+                "right": {
+                  "type": "Identifier",
+                  "name": "proc"
+                }
+              },
+              "prefix": true
+            },
+            "consequent": {
+              "type": "BlockStatement",
+              "body": [
+                {
+                  "type": "ReturnStatement",
+                  "argument": {
+                    "type": "CallExpression",
+                    "callee": {
+                      "type": "MemberExpression",
+                      "computed": false,
+                      "object": {
+                        "type": "Identifier",
+                        "name": "cons"
+                      },
+                      "property": {
+                        "type": "Identifier",
+                        "name": "Warn"
+                      }
+                    },
+                    "arguments": [
+                      {
+                        "type": "Literal",
+                        "value": "Proxy Not Started for Undefined Key '%s'"
+                      },
+                      {
+                        "type": "Identifier",
+                        "name": "key"
+                      }
+                    ]
+                  }
+                }
+              ]
+            },
+            "alternate": null
+          },
+          {
+            "type": "VariableDeclaration",
+            "declarations": [
+              {
+                "type": "VariableDeclarator",
+                "id": {
+                  "type": "Identifier",
+                  "name": "upstream_size"
+                },
+                "init": {
+                  "type": "MemberExpression",
+                  "computed": true,
+                  "object": {
+                    "type": "Identifier",
+                    "name": "reqs"
+                  },
+                  "property": {
+                    "type": "Identifier",
+                    "name": "key"
+                  }
+                }
+              }
+            ],
+            "kind": "var"
+          },
+          {
+            "type": "VariableDeclaration",
+            "declarations": [
+              {
+                "type": "VariableDeclarator",
+                "id": {
+                  "type": "Identifier",
+                  "name": "upstream_port"
+                },
+                "init": {
+                  "type": "BinaryExpression",
+                  "operator": "+",
+                  "left": {
+                    "type": "CallExpression",
+                    "callee": {
+                      "type": "Identifier",
+                      "name": "parseInt"
+                    },
+                    "arguments": [
+                      {
+                        "type": "Identifier",
+                        "name": "portargs"
+                      }
+                    ]
+                  },
+                  "right": {
+                    "type": "BinaryExpression",
+                    "operator": "*",
+                    "left": {
+                      "type": "Identifier",
+                      "name": "j"
+                    },
+                    "right": {
+                      "type": "Literal",
+                      "value": 100
+                    }
+                  }
+                }
+              }
+            ],
+            "kind": "var"
+          },
+          {
+            "type": "VariableDeclaration",
+            "declarations": [
+              {
+                "type": "VariableDeclarator",
+                "id": {
+                  "type": "Identifier",
+                  "name": "proxy"
+                },
+                "init": {
+                  "type": "CallExpression",
+                  "callee": {
+                    "type": "MemberExpression",
+                    "computed": false,
+                    "object": {
+                      "type": "Identifier",
+                      "name": "prog"
+                    },
+                    "property": {
+                      "type": "Identifier",
+                      "name": "fork"
+                    }
+                  },
+                  "arguments": [
+                    {
+                      "type": "BinaryExpression",
+                      "operator": "+",
+                      "left": {
+                        "type": "Identifier",
+                        "name": "__dirname"
+                      },
+                      "right": {
+                        "type": "Literal",
+                        "value": "/../proxy.js"
+                      }
+                    },
+                    {
+                      "type": "ArrayExpression",
+                      "elements": []
+                    },
+                    {
+                      "type": "ObjectExpression",
+                      "properties": [
+                        {
+                          "type": "Property",
+                          "key": {
+                            "type": "Identifier",
+                            "name": "env"
+                          },
+                          "value": {
+                            "type": "ObjectExpression",
+                            "properties": [
+                              {
+                                "type": "Property",
+                                "key": {
+                                  "type": "Identifier",
+                                  "name": "HOST"
+                                },
+                                "value": {
+                                  "type": "Identifier",
+                                  "name": "localhost"
+                                },
+                                "kind": "init"
+                              },
+                              {
+                                "type": "Property",
+                                "key": {
+                                  "type": "Identifier",
+                                  "name": "PORT"
+                                },
+                                "value": {
+                                  "type": "Identifier",
+                                  "name": "port"
+                                },
+                                "kind": "init"
+                              },
+                              {
+                                "type": "Property",
+                                "key": {
+                                  "type": "Identifier",
+                                  "name": "UPSTREAM_HOST"
+                                },
+                                "value": {
+                                  "type": "Identifier",
+                                  "name": "localhost"
+                                },
+                                "kind": "init"
+                              },
+                              {
+                                "type": "Property",
+                                "key": {
+                                  "type": "Identifier",
+                                  "name": "UPSTREAM_PORT"
+                                },
+                                "value": {
+                                  "type": "Identifier",
+                                  "name": "upstream_port"
+                                },
+                                "kind": "init"
+                              },
+                              {
+                                "type": "Property",
+                                "key": {
+                                  "type": "Identifier",
+                                  "name": "UPSTREAM_SIZE"
+                                },
+                                "value": {
+                                  "type": "Identifier",
+                                  "name": "upstream_size"
+                                },
+                                "kind": "init"
+                              },
+                              {
+                                "type": "Property",
+                                "key": {
+                                  "type": "Identifier",
+                                  "name": "SUDO_USER"
+                                },
+                                "value": {
+                                  "type": "MemberExpression",
+                                  "computed": false,
+                                  "object": {
+                                    "type": "MemberExpression",
+                                    "computed": false,
+                                    "object": {
+                                      "type": "Identifier",
+                                      "name": "process"
+                                    },
+                                    "property": {
+                                      "type": "Identifier",
+                                      "name": "env"
+                                    }
+                                  },
+                                  "property": {
+                                    "type": "Identifier",
+                                    "name": "SUDO_USER"
+                                  }
+                                },
+                                "kind": "init"
+                              }
+                            ]
+                          },
+                          "kind": "init"
+                        }
+                      ]
+                    }
+                  ]
+                }
+              }
+            ],
+            "kind": "var"
+          },
+          {
+            "type": "VariableDeclaration",
+            "declarations": [
+              {
+                "type": "VariableDeclarator",
+                "id": {
+                  "type": "Identifier",
+                  "name": "port_targets"
+                },
+                "init": null
+              }
+            ],
+            "kind": "var"
+          },
+          {
+            "type": "IfStatement",
+            "test": {
+              "type": "BinaryExpression",
+              "operator": "===",
+              "left": {
+                "type": "Identifier",
+                "name": "upstream_size"
+              },
+              "right": {
+                "type": "Literal",
+                "value": 1
+              }
+            },
+            "consequent": {
+              "type": "BlockStatement",
+              "body": [
+                {
+                  "type": "ExpressionStatement",
+                  "expression": {
+                    "type": "AssignmentExpression",
+                    "operator": "=",
+                    "left": {
+                      "type": "Identifier",
+                      "name": "port_targets"
+                    },
+                    "right": {
+                      "type": "CallExpression",
+                      "callee": {
+                        "type": "MemberExpression",
+                        "computed": false,
+                        "object": {
+                          "type": "Identifier",
+                          "name": "util"
+                        },
+                        "property": {
+                          "type": "Identifier",
+                          "name": "format"
+                        }
+                      },
+                      "arguments": [
+                        {
+                          "type": "Literal",
+                          "value": "%d"
+                        },
+                        {
+                          "type": "Identifier",
+                          "name": "upstream_port"
+                        }
+                      ]
+                    }
+                  }
+                }
+              ]
+            },
+            "alternate": {
+              "type": "BlockStatement",
+              "body": [
+                {
+                  "type": "ExpressionStatement",
+                  "expression": {
+                    "type": "AssignmentExpression",
+                    "operator": "=",
+                    "left": {
+                      "type": "Identifier",
+                      "name": "port_targets"
+                    },
+                    "right": {
+                      "type": "CallExpression",
+                      "callee": {
+                        "type": "MemberExpression",
+                        "computed": false,
+                        "object": {
+                          "type": "Identifier",
+                          "name": "util"
+                        },
+                        "property": {
+                          "type": "Identifier",
+                          "name": "format"
+                        }
+                      },
+                      "arguments": [
+                        {
+                          "type": "Literal",
+                          "value": "(%d-%d)"
+                        },
+                        {
+                          "type": "Identifier",
+                          "name": "upstream_port"
+                        },
+                        {
+                          "type": "BinaryExpression",
+                          "operator": "-",
+                          "left": {
+                            "type": "BinaryExpression",
+                            "operator": "+",
+                            "left": {
+                              "type": "Identifier",
+                              "name": "upstream_port"
+                            },
+                            "right": {
+                              "type": "Identifier",
+                              "name": "upstream_size"
+                            }
+                          },
+                          "right": {
+                            "type": "Literal",
+                            "value": 1
+                          }
+                        }
+                      ]
+                    }
+                  }
+                }
+              ]
+            }
+          },
+          {
+            "type": "ExpressionStatement",
+            "expression": {
+              "type": "CallExpression",
+              "callee": {
+                "type": "MemberExpression",
+                "computed": false,
+                "object": {
+                  "type": "Identifier",
+                  "name": "cons"
+                },
+                "property": {
+                  "type": "Identifier",
+                  "name": "Alert"
+                }
+              },
+              "arguments": [
+                {
+                  "type": "Literal",
+                  "value": "Starting Proxy Server [%s] %s -> %s"
+                },
+                {
+                  "type": "Identifier",
+                  "name": "key"
+                },
+                {
+                  "type": "Identifier",
+                  "name": "port"
+                },
+                {
+                  "type": "Identifier",
+                  "name": "port_targets"
+                }
+              ]
+            }
+          },
+          {
+            "type": "ExpressionStatement",
+            "expression": {
+              "type": "CallExpression",
+              "callee": {
+                "type": "MemberExpression",
+                "computed": false,
+                "object": {
+                  "type": "Identifier",
+                  "name": "emitter"
+                },
+                "property": {
+                  "type": "Identifier",
+                  "name": "once"
+                }
+              },
+              "arguments": [
+                {
+                  "type": "Literal",
+                  "value": "killall"
+                },
+                {
+                  "type": "FunctionExpression",
+                  "id": null,
+                  "params": [
+                    {
+                      "type": "Identifier",
+                      "name": "signal"
+                    }
+                  ],
+                  "defaults": [],
+                  "body": {
+                    "type": "BlockStatement",
+                    "body": [
+                      {
+                        "type": "ExpressionStatement",
+                        "expression": {
+                          "type": "CallExpression",
+                          "callee": {
+                            "type": "MemberExpression",
+                            "computed": false,
+                            "object": {
+                              "type": "Identifier",
+                              "name": "cons"
+                            },
+                            "property": {
+                              "type": "Identifier",
+                              "name": "Done"
+                            }
+                          },
+                          "arguments": [
+                            {
+                              "type": "Literal",
+                              "value": "Killing Proxy Server on Port %s"
+                            },
+                            {
+                              "type": "Identifier",
+                              "name": "port"
+                            }
+                          ]
+                        }
+                      },
+                      {
+                        "type": "ExpressionStatement",
+                        "expression": {
+                          "type": "CallExpression",
+                          "callee": {
+                            "type": "MemberExpression",
+                            "computed": false,
+                            "object": {
+                              "type": "Identifier",
+                              "name": "proxy"
+                            },
+                            "property": {
+                              "type": "Identifier",
+                              "name": "kill"
+                            }
+                          },
+                          "arguments": [
+                            {
+                              "type": "Identifier",
+                              "name": "signal"
+                            }
+                          ]
+                        }
+                      }
+                    ]
+                  },
+                  "rest": null,
+                  "generator": false,
+                  "expression": false
+                }
+              ]
+            }
+          },
+          {
+            "type": "ExpressionStatement",
+            "expression": {
+              "type": "CallExpression",
+              "callee": {
+                "type": "MemberExpression",
+                "computed": false,
+                "object": {
+                  "type": "Identifier",
+                  "name": "proxy"
+                },
+                "property": {
+                  "type": "Identifier",
+                  "name": "on"
+                }
+              },
+              "arguments": [
+                {
+                  "type": "Literal",
+                  "value": "exit"
+                },
+                {
+                  "type": "FunctionExpression",
+                  "id": null,
+                  "params": [
+                    {
+                      "type": "Identifier",
+                      "name": "code"
+                    },
+                    {
+                      "type": "Identifier",
+                      "name": "signal"
+                    }
+                  ],
+                  "defaults": [],
+                  "body": {
+                    "type": "BlockStatement",
+                    "body": [
+                      {
+                        "type": "ExpressionStatement",
+                        "expression": {
+                          "type": "CallExpression",
+                          "callee": {
+                            "type": "MemberExpression",
+                            "computed": false,
+                            "object": {
+                              "type": "Identifier",
+                              "name": "emitter"
+                            },
+                            "property": {
+                              "type": "Identifier",
+                              "name": "emit"
+                            }
+                          },
+                          "arguments": [
+                            {
+                              "type": "Literal",
+                              "value": "killall"
+                            },
+                            {
+                              "type": "Identifier",
+                              "name": "signal"
+                            }
+                          ]
+                        }
+                      }
+                    ]
+                  },
+                  "rest": null,
+                  "generator": false,
+                  "expression": false
+                }
+              ]
+            }
+          }
+        ]
+      },
+      "rest": null,
+      "generator": false,
+      "expression": false
+    },
+    {
+      "type": "FunctionDeclaration",
+      "id": {
+        "type": "Identifier",
+        "name": "startProxies"
+      },
+      "params": [
+        {
+          "type": "Identifier",
+          "name": "reqs"
+        },
+        {
+          "type": "Identifier",
+          "name": "proc"
+        },
+        {
+          "type": "Identifier",
+          "name": "command"
+        },
+        {
+          "type": "Identifier",
+          "name": "emitter"
+        },
+        {
+          "type": "Identifier",
+          "name": "portargs"
+        }
+      ],
+      "defaults": [],
+      "body": {
+        "type": "BlockStatement",
+        "body": [
+          {
+            "type": "IfStatement",
+            "test": {
+              "type": "MemberExpression",
+              "computed": false,
+              "object": {
+                "type": "Identifier",
+                "name": "command"
+              },
+              "property": {
+                "type": "Identifier",
+                "name": "proxy"
+              }
+            },
+            "consequent": {
+              "type": "BlockStatement",
+              "body": [
+                {
+                  "type": "VariableDeclaration",
+                  "declarations": [
+                    {
+                      "type": "VariableDeclarator",
+                      "id": {
+                        "type": "Identifier",
+                        "name": "localhost"
+                      },
+                      "init": {
+                        "type": "Literal",
+                        "value": "localhost"
+                      }
+                    }
+                  ],
+                  "kind": "var"
+                },
+                {
+                  "type": "VariableDeclaration",
+                  "declarations": [
+                    {
+                      "type": "VariableDeclarator",
+                      "id": {
+                        "type": "Identifier",
+                        "name": "i"
+                      },
+                      "init": {
+                        "type": "Literal",
+                        "value": 0
+                      }
+                    }
+                  ],
+                  "kind": "var"
+                },
+                {
+                  "type": "VariableDeclaration",
+                  "declarations": [
+                    {
+                      "type": "VariableDeclarator",
+                      "id": {
+                        "type": "Identifier",
+                        "name": "ports"
+                      },
+                      "init": {
+                        "type": "CallExpression",
+                        "callee": {
+                          "type": "MemberExpression",
+                          "computed": false,
+                          "object": {
+                            "type": "MemberExpression",
+                            "computed": false,
+                            "object": {
+                              "type": "Identifier",
+                              "name": "command"
+                            },
+                            "property": {
+                              "type": "Identifier",
+                              "name": "proxy"
+                            }
+                          },
+                          "property": {
+                            "type": "Identifier",
+                            "name": "split"
+                          }
+                        },
+                        "arguments": [
+                          {
+                            "type": "Literal",
+                            "value": ","
+                          }
+                        ]
+                      }
+                    }
+                  ],
+                  "kind": "var"
+                },
+                {
+                  "type": "ForInStatement",
+                  "left": {
+                    "type": "VariableDeclaration",
+                    "declarations": [
+                      {
+                        "type": "VariableDeclarator",
+                        "id": {
+                          "type": "Identifier",
+                          "name": "key"
+                        },
+                        "init": null
+                      }
+                    ],
+                    "kind": "var"
+                  },
+                  "right": {
+                    "type": "Identifier",
+                    "name": "reqs"
+                  },
+                  "body": {
+                    "type": "BlockStatement",
+                    "body": [
+                      {
+                        "type": "ExpressionStatement",
+                        "expression": {
+                          "type": "CallExpression",
+                          "callee": {
+                            "type": "Identifier",
+                            "name": "f"
+                          },
+                          "arguments": [
+                            {
+                              "type": "Identifier",
+                              "name": "key"
+                            },
+                            {
+                              "type": "Identifier",
+                              "name": "i"
+                            },
+                            {
+                              "type": "Identifier",
+                              "name": "ports"
+                            },
+                            {
+                              "type": "Identifier",
+                              "name": "proc"
+                            },
+                            {
+                              "type": "Identifier",
+                              "name": "reqs"
+                            },
+                            {
+                              "type": "Identifier",
+                              "name": "portargs"
+                            },
+                            {
+                              "type": "Identifier",
+                              "name": "localhost"
+                            },
+                            {
+                              "type": "Identifier",
+                              "name": "emitter"
+                            }
+                          ]
+                        }
+                      }
+                    ]
+                  },
+                  "each": false
+                }
+              ]
+            },
+            "alternate": null
+          }
+        ]
+      },
+      "rest": null,
+      "generator": false,
+      "expression": false
+    },
+    {
+      "type": "ExpressionStatement",
+      "expression": {
+        "type": "AssignmentExpression",
+        "operator": "=",
+        "left": {
+          "type": "MemberExpression",
+          "computed": false,
+          "object": {
+            "type": "MemberExpression",
+            "computed": false,
+            "object": {
+              "type": "Identifier",
+              "name": "module"
+            },
+            "property": {
+              "type": "Identifier",
+              "name": "exports"
+            }
+          },
+          "property": {
+            "type": "Identifier",
+            "name": "startProxies"
+          }
+        },
+        "right": {
+          "type": "Identifier",
+          "name": "startProxies"
+        }
+      }
+    }
+  ]
+}

@@ -1,0 +1,485 @@
+{
+  "type": "Program",
+  "body": [
+    {
+      "type": "FunctionDeclaration",
+      "id": {
+        "type": "Identifier",
+        "name": "shim"
+      },
+      "params": [
+        {
+          "type": "Identifier",
+          "name": "method"
+        }
+      ],
+      "defaults": [],
+      "body": {
+        "type": "BlockStatement",
+        "body": [
+          {
+            "type": "VariableDeclaration",
+            "declarations": [
+              {
+                "type": "VariableDeclarator",
+                "id": {
+                  "type": "Identifier",
+                  "name": "args"
+                },
+                "init": {
+                  "type": "CallExpression",
+                  "callee": {
+                    "type": "MemberExpression",
+                    "computed": false,
+                    "object": {
+                      "type": "MemberExpression",
+                      "computed": false,
+                      "object": {
+                        "type": "MemberExpression",
+                        "computed": false,
+                        "object": {
+                          "type": "Identifier",
+                          "name": "Array"
+                        },
+                        "property": {
+                          "type": "Identifier",
+                          "name": "prototype"
+                        }
+                      },
+                      "property": {
+                        "type": "Identifier",
+                        "name": "slice"
+                      }
+                    },
+                    "property": {
+                      "type": "Identifier",
+                      "name": "call"
+                    }
+                  },
+                  "arguments": [
+                    {
+                      "type": "Identifier",
+                      "name": "arguments"
+                    },
+                    {
+                      "type": "Literal",
+                      "value": 1
+                    }
+                  ]
+                }
+              }
+            ],
+            "kind": "let"
+          },
+          {
+            "type": "ReturnStatement",
+            "argument": {
+              "type": "MemberExpression",
+              "computed": true,
+              "object": {
+                "type": "CallExpression",
+                "callee": {
+                  "type": "MemberExpression",
+                  "computed": false,
+                  "object": {
+                    "type": "Identifier",
+                    "name": "framescript"
+                  },
+                  "property": {
+                    "type": "Identifier",
+                    "name": "sendSyncMessage"
+                  }
+                },
+                "arguments": [
+                  {
+                    "type": "Literal",
+                    "value": "fileaccess-shim"
+                  },
+                  {
+                    "type": "ObjectExpression",
+                    "properties": [
+                      {
+                        "type": "Property",
+                        "key": {
+                          "type": "Identifier",
+                          "name": "method"
+                        },
+                        "value": {
+                          "type": "Identifier",
+                          "name": "method"
+                        },
+                        "kind": "init"
+                      },
+                      {
+                        "type": "Property",
+                        "key": {
+                          "type": "Identifier",
+                          "name": "args"
+                        },
+                        "value": {
+                          "type": "Identifier",
+                          "name": "args"
+                        },
+                        "kind": "init"
+                      }
+                    ]
+                  }
+                ]
+              },
+              "property": {
+                "type": "Literal",
+                "value": 0
+              }
+            }
+          }
+        ]
+      },
+      "rest": null,
+      "generator": false,
+      "expression": false
+    },
+    {
+      "type": "IfStatement",
+      "test": {
+        "type": "Identifier",
+        "name": "inFrameScript"
+      },
+      "consequent": {
+        "type": "BlockStatement",
+        "body": [
+          {
+            "type": "ExpressionStatement",
+            "expression": {
+              "type": "AssignmentExpression",
+              "operator": "=",
+              "left": {
+                "type": "MemberExpression",
+                "computed": true,
+                "object": {
+                  "type": "Identifier",
+                  "name": "exports"
+                },
+                "property": {
+                  "type": "Literal",
+                  "value": "exists"
+                }
+              },
+              "right": {
+                "type": "CallExpression",
+                "callee": {
+                  "type": "MemberExpression",
+                  "computed": false,
+                  "object": {
+                    "type": "Identifier",
+                    "name": "shim"
+                  },
+                  "property": {
+                    "type": "Identifier",
+                    "name": "bind"
+                  }
+                },
+                "arguments": [
+                  {
+                    "type": "Literal",
+                    "value": null
+                  },
+                  {
+                    "type": "Literal",
+                    "value": "exists"
+                  }
+                ]
+              }
+            }
+          },
+          {
+            "type": "ExpressionStatement",
+            "expression": {
+              "type": "AssignmentExpression",
+              "operator": "=",
+              "left": {
+                "type": "MemberExpression",
+                "computed": true,
+                "object": {
+                  "type": "Identifier",
+                  "name": "exports"
+                },
+                "property": {
+                  "type": "Literal",
+                  "value": "writeFile"
+                }
+              },
+              "right": {
+                "type": "CallExpression",
+                "callee": {
+                  "type": "MemberExpression",
+                  "computed": false,
+                  "object": {
+                    "type": "Identifier",
+                    "name": "shim"
+                  },
+                  "property": {
+                    "type": "Identifier",
+                    "name": "bind"
+                  }
+                },
+                "arguments": [
+                  {
+                    "type": "Literal",
+                    "value": null
+                  },
+                  {
+                    "type": "Literal",
+                    "value": "writeFile"
+                  }
+                ]
+              }
+            }
+          },
+          {
+            "type": "ExpressionStatement",
+            "expression": {
+              "type": "AssignmentExpression",
+              "operator": "=",
+              "left": {
+                "type": "MemberExpression",
+                "computed": true,
+                "object": {
+                  "type": "Identifier",
+                  "name": "exports"
+                },
+                "property": {
+                  "type": "Literal",
+                  "value": "readFile"
+                }
+              },
+              "right": {
+                "type": "CallExpression",
+                "callee": {
+                  "type": "MemberExpression",
+                  "computed": false,
+                  "object": {
+                    "type": "Identifier",
+                    "name": "shim"
+                  },
+                  "property": {
+                    "type": "Identifier",
+                    "name": "bind"
+                  }
+                },
+                "arguments": [
+                  {
+                    "type": "Literal",
+                    "value": null
+                  },
+                  {
+                    "type": "Literal",
+                    "value": "readFile"
+                  }
+                ]
+              }
+            }
+          },
+          {
+            "type": "ExpressionStatement",
+            "expression": {
+              "type": "AssignmentExpression",
+              "operator": "=",
+              "left": {
+                "type": "MemberExpression",
+                "computed": true,
+                "object": {
+                  "type": "Identifier",
+                  "name": "exports"
+                },
+                "property": {
+                  "type": "Literal",
+                  "value": "removeFile"
+                }
+              },
+              "right": {
+                "type": "CallExpression",
+                "callee": {
+                  "type": "MemberExpression",
+                  "computed": false,
+                  "object": {
+                    "type": "Identifier",
+                    "name": "shim"
+                  },
+                  "property": {
+                    "type": "Identifier",
+                    "name": "bind"
+                  }
+                },
+                "arguments": [
+                  {
+                    "type": "Literal",
+                    "value": null
+                  },
+                  {
+                    "type": "Literal",
+                    "value": "removeFile"
+                  }
+                ]
+              }
+            }
+          }
+        ]
+      },
+      "alternate": {
+        "type": "BlockStatement",
+        "body": [
+          {
+            "type": "VariableDeclaration",
+            "declarations": [
+              {
+                "type": "VariableDeclarator",
+                "id": {
+                  "type": "Identifier",
+                  "name": "fileaccess"
+                },
+                "init": {
+                  "type": "CallExpression",
+                  "callee": {
+                    "type": "Identifier",
+                    "name": "require"
+                  },
+                  "arguments": [
+                    {
+                      "type": "Literal",
+                      "value": "fileaccess"
+                    }
+                  ]
+                }
+              }
+            ],
+            "kind": "var"
+          },
+          {
+            "type": "ExpressionStatement",
+            "expression": {
+              "type": "AssignmentExpression",
+              "operator": "=",
+              "left": {
+                "type": "MemberExpression",
+                "computed": true,
+                "object": {
+                  "type": "Identifier",
+                  "name": "exports"
+                },
+                "property": {
+                  "type": "Literal",
+                  "value": "exists"
+                }
+              },
+              "right": {
+                "type": "MemberExpression",
+                "computed": false,
+                "object": {
+                  "type": "Identifier",
+                  "name": "fileaccess"
+                },
+                "property": {
+                  "type": "Identifier",
+                  "name": "exists"
+                }
+              }
+            }
+          },
+          {
+            "type": "ExpressionStatement",
+            "expression": {
+              "type": "AssignmentExpression",
+              "operator": "=",
+              "left": {
+                "type": "MemberExpression",
+                "computed": true,
+                "object": {
+                  "type": "Identifier",
+                  "name": "exports"
+                },
+                "property": {
+                  "type": "Literal",
+                  "value": "writeFile"
+                }
+              },
+              "right": {
+                "type": "MemberExpression",
+                "computed": false,
+                "object": {
+                  "type": "Identifier",
+                  "name": "fileaccess"
+                },
+                "property": {
+                  "type": "Identifier",
+                  "name": "writeFile"
+                }
+              }
+            }
+          },
+          {
+            "type": "ExpressionStatement",
+            "expression": {
+              "type": "AssignmentExpression",
+              "operator": "=",
+              "left": {
+                "type": "MemberExpression",
+                "computed": true,
+                "object": {
+                  "type": "Identifier",
+                  "name": "exports"
+                },
+                "property": {
+                  "type": "Literal",
+                  "value": "readFile"
+                }
+              },
+              "right": {
+                "type": "MemberExpression",
+                "computed": false,
+                "object": {
+                  "type": "Identifier",
+                  "name": "fileaccess"
+                },
+                "property": {
+                  "type": "Identifier",
+                  "name": "readFile"
+                }
+              }
+            }
+          },
+          {
+            "type": "ExpressionStatement",
+            "expression": {
+              "type": "AssignmentExpression",
+              "operator": "=",
+              "left": {
+                "type": "MemberExpression",
+                "computed": true,
+                "object": {
+                  "type": "Identifier",
+                  "name": "exports"
+                },
+                "property": {
+                  "type": "Literal",
+                  "value": "removeFile"
+                }
+              },
+              "right": {
+                "type": "MemberExpression",
+                "computed": false,
+                "object": {
+                  "type": "Identifier",
+                  "name": "fileaccess"
+                },
+                "property": {
+                  "type": "Identifier",
+                  "name": "removeFile"
+                }
+              }
+            }
+          }
+        ]
+      }
+    }
+  ]
+}

@@ -1,0 +1,1402 @@
+{
+  "type": "Program",
+  "body": [
+    {
+      "type": "FunctionDeclaration",
+      "id": {
+        "type": "Identifier",
+        "name": "aggregate_properties"
+      },
+      "params": [
+        {
+          "type": "Identifier",
+          "name": "obj"
+        },
+        {
+          "type": "Identifier",
+          "name": "class_name"
+        }
+      ],
+      "defaults": [],
+      "body": {
+        "type": "BlockStatement",
+        "body": [
+          {
+            "type": "VariableDeclaration",
+            "declarations": [
+              {
+                "type": "VariableDeclarator",
+                "id": {
+                  "type": "Identifier",
+                  "name": "p"
+                },
+                "init": {
+                  "type": "Literal",
+                  "value": ""
+                }
+              },
+              {
+                "type": "VariableDeclarator",
+                "id": {
+                  "type": "Identifier",
+                  "name": "record"
+                },
+                "init": {
+                  "type": "ObjectExpression",
+                  "properties": []
+                }
+              },
+              {
+                "type": "VariableDeclarator",
+                "id": {
+                  "type": "Identifier",
+                  "name": "pos"
+                },
+                "init": {
+                  "type": "UnaryExpression",
+                  "operator": "-",
+                  "argument": {
+                    "type": "Literal",
+                    "value": 1
+                  },
+                  "prefix": true
+                }
+              },
+              {
+                "type": "VariableDeclarator",
+                "id": {
+                  "type": "Identifier",
+                  "name": "indexOf"
+                },
+                "init": {
+                  "type": "FunctionExpression",
+                  "id": null,
+                  "params": [
+                    {
+                      "type": "Identifier",
+                      "name": "value"
+                    }
+                  ],
+                  "defaults": [],
+                  "body": {
+                    "type": "BlockStatement",
+                    "body": [
+                      {
+                        "type": "ForStatement",
+                        "init": {
+                          "type": "VariableDeclaration",
+                          "declarations": [
+                            {
+                              "type": "VariableDeclarator",
+                              "id": {
+                                "type": "Identifier",
+                                "name": "i"
+                              },
+                              "init": {
+                                "type": "Literal",
+                                "value": 0
+                              }
+                            },
+                            {
+                              "type": "VariableDeclarator",
+                              "id": {
+                                "type": "Identifier",
+                                "name": "length"
+                              },
+                              "init": {
+                                "type": "MemberExpression",
+                                "computed": false,
+                                "object": {
+                                  "type": "ThisExpression"
+                                },
+                                "property": {
+                                  "type": "Identifier",
+                                  "name": "length"
+                                }
+                              }
+                            }
+                          ],
+                          "kind": "var"
+                        },
+                        "test": {
+                          "type": "BinaryExpression",
+                          "operator": "<",
+                          "left": {
+                            "type": "Identifier",
+                            "name": "i"
+                          },
+                          "right": {
+                            "type": "Identifier",
+                            "name": "length"
+                          }
+                        },
+                        "update": {
+                          "type": "UpdateExpression",
+                          "operator": "++",
+                          "argument": {
+                            "type": "Identifier",
+                            "name": "i"
+                          },
+                          "prefix": false
+                        },
+                        "body": {
+                          "type": "BlockStatement",
+                          "body": [
+                            {
+                              "type": "IfStatement",
+                              "test": {
+                                "type": "BinaryExpression",
+                                "operator": "===",
+                                "left": {
+                                  "type": "MemberExpression",
+                                  "computed": true,
+                                  "object": {
+                                    "type": "ThisExpression"
+                                  },
+                                  "property": {
+                                    "type": "Identifier",
+                                    "name": "i"
+                                  }
+                                },
+                                "right": {
+                                  "type": "Identifier",
+                                  "name": "value"
+                                }
+                              },
+                              "consequent": {
+                                "type": "BlockStatement",
+                                "body": [
+                                  {
+                                    "type": "ReturnStatement",
+                                    "argument": {
+                                      "type": "Identifier",
+                                      "name": "i"
+                                    }
+                                  }
+                                ]
+                              },
+                              "alternate": null
+                            }
+                          ]
+                        }
+                      },
+                      {
+                        "type": "ReturnStatement",
+                        "argument": {
+                          "type": "UnaryExpression",
+                          "operator": "-",
+                          "argument": {
+                            "type": "Literal",
+                            "value": 1
+                          },
+                          "prefix": true
+                        }
+                      }
+                    ]
+                  },
+                  "rest": null,
+                  "generator": false,
+                  "expression": false
+                }
+              }
+            ],
+            "kind": "var"
+          },
+          {
+            "type": "IfStatement",
+            "test": {
+              "type": "BinaryExpression",
+              "operator": "===",
+              "left": {
+                "type": "UnaryExpression",
+                "operator": "typeof",
+                "argument": {
+                  "type": "Identifier",
+                  "name": "class_name"
+                },
+                "prefix": true
+              },
+              "right": {
+                "type": "Literal",
+                "value": "string"
+              }
+            },
+            "consequent": {
+              "type": "BlockStatement",
+              "body": [
+                {
+                  "type": "ExpressionStatement",
+                  "expression": {
+                    "type": "AssignmentExpression",
+                    "operator": "=",
+                    "left": {
+                      "type": "Identifier",
+                      "name": "class_name"
+                    },
+                    "right": {
+                      "type": "MemberExpression",
+                      "computed": true,
+                      "object": {
+                        "type": "MemberExpression",
+                        "computed": false,
+                        "object": {
+                          "type": "ThisExpression"
+                        },
+                        "property": {
+                          "type": "Identifier",
+                          "name": "window"
+                        }
+                      },
+                      "property": {
+                        "type": "Identifier",
+                        "name": "class_name"
+                      }
+                    }
+                  }
+                }
+              ]
+            },
+            "alternate": null
+          },
+          {
+            "type": "ExpressionStatement",
+            "expression": {
+              "type": "AssignmentExpression",
+              "operator": "=",
+              "left": {
+                "type": "MemberExpression",
+                "computed": false,
+                "object": {
+                  "type": "ThisExpression"
+                },
+                "property": {
+                  "type": "Identifier",
+                  "name": "php_js"
+                }
+              },
+              "right": {
+                "type": "LogicalExpression",
+                "operator": "||",
+                "left": {
+                  "type": "MemberExpression",
+                  "computed": false,
+                  "object": {
+                    "type": "ThisExpression"
+                  },
+                  "property": {
+                    "type": "Identifier",
+                    "name": "php_js"
+                  }
+                },
+                "right": {
+                  "type": "ObjectExpression",
+                  "properties": []
+                }
+              }
+            }
+          },
+          {
+            "type": "ExpressionStatement",
+            "expression": {
+              "type": "AssignmentExpression",
+              "operator": "=",
+              "left": {
+                "type": "MemberExpression",
+                "computed": false,
+                "object": {
+                  "type": "MemberExpression",
+                  "computed": false,
+                  "object": {
+                    "type": "ThisExpression"
+                  },
+                  "property": {
+                    "type": "Identifier",
+                    "name": "php_js"
+                  }
+                },
+                "property": {
+                  "type": "Identifier",
+                  "name": "aggregateKeys"
+                }
+              },
+              "right": {
+                "type": "LogicalExpression",
+                "operator": "||",
+                "left": {
+                  "type": "MemberExpression",
+                  "computed": false,
+                  "object": {
+                    "type": "MemberExpression",
+                    "computed": false,
+                    "object": {
+                      "type": "ThisExpression"
+                    },
+                    "property": {
+                      "type": "Identifier",
+                      "name": "php_js"
+                    }
+                  },
+                  "property": {
+                    "type": "Identifier",
+                    "name": "aggregateKeys"
+                  }
+                },
+                "right": {
+                  "type": "ArrayExpression",
+                  "elements": []
+                }
+              }
+            }
+          },
+          {
+            "type": "ExpressionStatement",
+            "expression": {
+              "type": "AssignmentExpression",
+              "operator": "=",
+              "left": {
+                "type": "MemberExpression",
+                "computed": false,
+                "object": {
+                  "type": "MemberExpression",
+                  "computed": false,
+                  "object": {
+                    "type": "ThisExpression"
+                  },
+                  "property": {
+                    "type": "Identifier",
+                    "name": "php_js"
+                  }
+                },
+                "property": {
+                  "type": "Identifier",
+                  "name": "aggregateRecords"
+                }
+              },
+              "right": {
+                "type": "LogicalExpression",
+                "operator": "||",
+                "left": {
+                  "type": "MemberExpression",
+                  "computed": false,
+                  "object": {
+                    "type": "MemberExpression",
+                    "computed": false,
+                    "object": {
+                      "type": "ThisExpression"
+                    },
+                    "property": {
+                      "type": "Identifier",
+                      "name": "php_js"
+                    }
+                  },
+                  "property": {
+                    "type": "Identifier",
+                    "name": "aggregateRecords"
+                  }
+                },
+                "right": {
+                  "type": "ArrayExpression",
+                  "elements": []
+                }
+              }
+            }
+          },
+          {
+            "type": "ExpressionStatement",
+            "expression": {
+              "type": "AssignmentExpression",
+              "operator": "=",
+              "left": {
+                "type": "MemberExpression",
+                "computed": false,
+                "object": {
+                  "type": "MemberExpression",
+                  "computed": false,
+                  "object": {
+                    "type": "ThisExpression"
+                  },
+                  "property": {
+                    "type": "Identifier",
+                    "name": "php_js"
+                  }
+                },
+                "property": {
+                  "type": "Identifier",
+                  "name": "aggregateClasses"
+                }
+              },
+              "right": {
+                "type": "LogicalExpression",
+                "operator": "||",
+                "left": {
+                  "type": "MemberExpression",
+                  "computed": false,
+                  "object": {
+                    "type": "MemberExpression",
+                    "computed": false,
+                    "object": {
+                      "type": "ThisExpression"
+                    },
+                    "property": {
+                      "type": "Identifier",
+                      "name": "php_js"
+                    }
+                  },
+                  "property": {
+                    "type": "Identifier",
+                    "name": "aggregateClasses"
+                  }
+                },
+                "right": {
+                  "type": "ArrayExpression",
+                  "elements": []
+                }
+              }
+            }
+          },
+          {
+            "type": "VariableDeclaration",
+            "declarations": [
+              {
+                "type": "VariableDeclarator",
+                "id": {
+                  "type": "Identifier",
+                  "name": "getFuncName"
+                },
+                "init": {
+                  "type": "FunctionExpression",
+                  "id": null,
+                  "params": [
+                    {
+                      "type": "Identifier",
+                      "name": "fn"
+                    }
+                  ],
+                  "defaults": [],
+                  "body": {
+                    "type": "BlockStatement",
+                    "body": [
+                      {
+                        "type": "VariableDeclaration",
+                        "declarations": [
+                          {
+                            "type": "VariableDeclarator",
+                            "id": {
+                              "type": "Identifier",
+                              "name": "name"
+                            },
+                            "init": {
+                              "type": "CallExpression",
+                              "callee": {
+                                "type": "MemberExpression",
+                                "computed": false,
+                                "object": {
+                                  "type": "Literal",
+                                  "value": {}
+                                },
+                                "property": {
+                                  "type": "Identifier",
+                                  "name": "exec"
+                                }
+                              },
+                              "arguments": [
+                                {
+                                  "type": "Identifier",
+                                  "name": "fn"
+                                }
+                              ]
+                            }
+                          }
+                        ],
+                        "kind": "var"
+                      },
+                      {
+                        "type": "IfStatement",
+                        "test": {
+                          "type": "UnaryExpression",
+                          "operator": "!",
+                          "argument": {
+                            "type": "Identifier",
+                            "name": "name"
+                          },
+                          "prefix": true
+                        },
+                        "consequent": {
+                          "type": "BlockStatement",
+                          "body": [
+                            {
+                              "type": "ReturnStatement",
+                              "argument": {
+                                "type": "Literal",
+                                "value": "(Anonymous)"
+                              }
+                            }
+                          ]
+                        },
+                        "alternate": null
+                      },
+                      {
+                        "type": "ReturnStatement",
+                        "argument": {
+                          "type": "MemberExpression",
+                          "computed": true,
+                          "object": {
+                            "type": "Identifier",
+                            "name": "name"
+                          },
+                          "property": {
+                            "type": "Literal",
+                            "value": 1
+                          }
+                        }
+                      }
+                    ]
+                  },
+                  "rest": null,
+                  "generator": false,
+                  "expression": false
+                }
+              }
+            ],
+            "kind": "var"
+          },
+          {
+            "type": "ExpressionStatement",
+            "expression": {
+              "type": "CallExpression",
+              "callee": {
+                "type": "MemberExpression",
+                "computed": false,
+                "object": {
+                  "type": "MemberExpression",
+                  "computed": false,
+                  "object": {
+                    "type": "MemberExpression",
+                    "computed": false,
+                    "object": {
+                      "type": "ThisExpression"
+                    },
+                    "property": {
+                      "type": "Identifier",
+                      "name": "php_js"
+                    }
+                  },
+                  "property": {
+                    "type": "Identifier",
+                    "name": "aggregateClasses"
+                  }
+                },
+                "property": {
+                  "type": "Identifier",
+                  "name": "push"
+                }
+              },
+              "arguments": [
+                {
+                  "type": "CallExpression",
+                  "callee": {
+                    "type": "Identifier",
+                    "name": "getFuncName"
+                  },
+                  "arguments": [
+                    {
+                      "type": "Identifier",
+                      "name": "class_name"
+                    }
+                  ]
+                }
+              ]
+            }
+          },
+          {
+            "type": "ForInStatement",
+            "left": {
+              "type": "Identifier",
+              "name": "p"
+            },
+            "right": {
+              "type": "Identifier",
+              "name": "class_name"
+            },
+            "body": {
+              "type": "BlockStatement",
+              "body": [
+                {
+                  "type": "IfStatement",
+                  "test": {
+                    "type": "LogicalExpression",
+                    "operator": "&&",
+                    "left": {
+                      "type": "LogicalExpression",
+                      "operator": "&&",
+                      "left": {
+                        "type": "UnaryExpression",
+                        "operator": "!",
+                        "argument": {
+                          "type": "BinaryExpression",
+                          "operator": "in",
+                          "left": {
+                            "type": "Identifier",
+                            "name": "p"
+                          },
+                          "right": {
+                            "type": "Identifier",
+                            "name": "obj"
+                          }
+                        },
+                        "prefix": true
+                      },
+                      "right": {
+                        "type": "BinaryExpression",
+                        "operator": "!==",
+                        "left": {
+                          "type": "UnaryExpression",
+                          "operator": "typeof",
+                          "argument": {
+                            "type": "MemberExpression",
+                            "computed": true,
+                            "object": {
+                              "type": "Identifier",
+                              "name": "class_name"
+                            },
+                            "property": {
+                              "type": "Identifier",
+                              "name": "p"
+                            }
+                          },
+                          "prefix": true
+                        },
+                        "right": {
+                          "type": "Literal",
+                          "value": "function"
+                        }
+                      }
+                    },
+                    "right": {
+                      "type": "BinaryExpression",
+                      "operator": "!==",
+                      "left": {
+                        "type": "MemberExpression",
+                        "computed": true,
+                        "object": {
+                          "type": "Identifier",
+                          "name": "p"
+                        },
+                        "property": {
+                          "type": "Literal",
+                          "value": 0
+                        }
+                      },
+                      "right": {
+                        "type": "Literal",
+                        "value": "_"
+                      }
+                    }
+                  },
+                  "consequent": {
+                    "type": "BlockStatement",
+                    "body": [
+                      {
+                        "type": "ExpressionStatement",
+                        "expression": {
+                          "type": "AssignmentExpression",
+                          "operator": "=",
+                          "left": {
+                            "type": "MemberExpression",
+                            "computed": true,
+                            "object": {
+                              "type": "Identifier",
+                              "name": "obj"
+                            },
+                            "property": {
+                              "type": "Identifier",
+                              "name": "p"
+                            }
+                          },
+                          "right": {
+                            "type": "MemberExpression",
+                            "computed": true,
+                            "object": {
+                              "type": "Identifier",
+                              "name": "class_name"
+                            },
+                            "property": {
+                              "type": "Identifier",
+                              "name": "p"
+                            }
+                          }
+                        }
+                      },
+                      {
+                        "type": "ExpressionStatement",
+                        "expression": {
+                          "type": "AssignmentExpression",
+                          "operator": "=",
+                          "left": {
+                            "type": "MemberExpression",
+                            "computed": true,
+                            "object": {
+                              "type": "Identifier",
+                              "name": "record"
+                            },
+                            "property": {
+                              "type": "Identifier",
+                              "name": "p"
+                            }
+                          },
+                          "right": {
+                            "type": "MemberExpression",
+                            "computed": true,
+                            "object": {
+                              "type": "Identifier",
+                              "name": "class_name"
+                            },
+                            "property": {
+                              "type": "Identifier",
+                              "name": "p"
+                            }
+                          }
+                        }
+                      }
+                    ]
+                  },
+                  "alternate": null
+                }
+              ]
+            },
+            "each": false
+          },
+          {
+            "type": "ForInStatement",
+            "left": {
+              "type": "Identifier",
+              "name": "p"
+            },
+            "right": {
+              "type": "MemberExpression",
+              "computed": false,
+              "object": {
+                "type": "Identifier",
+                "name": "class_name"
+              },
+              "property": {
+                "type": "Identifier",
+                "name": "prototype"
+              }
+            },
+            "body": {
+              "type": "BlockStatement",
+              "body": [
+                {
+                  "type": "IfStatement",
+                  "test": {
+                    "type": "LogicalExpression",
+                    "operator": "&&",
+                    "left": {
+                      "type": "LogicalExpression",
+                      "operator": "&&",
+                      "left": {
+                        "type": "UnaryExpression",
+                        "operator": "!",
+                        "argument": {
+                          "type": "BinaryExpression",
+                          "operator": "in",
+                          "left": {
+                            "type": "Identifier",
+                            "name": "p"
+                          },
+                          "right": {
+                            "type": "Identifier",
+                            "name": "obj"
+                          }
+                        },
+                        "prefix": true
+                      },
+                      "right": {
+                        "type": "BinaryExpression",
+                        "operator": "!==",
+                        "left": {
+                          "type": "UnaryExpression",
+                          "operator": "typeof",
+                          "argument": {
+                            "type": "MemberExpression",
+                            "computed": true,
+                            "object": {
+                              "type": "MemberExpression",
+                              "computed": false,
+                              "object": {
+                                "type": "Identifier",
+                                "name": "class_name"
+                              },
+                              "property": {
+                                "type": "Identifier",
+                                "name": "prototype"
+                              }
+                            },
+                            "property": {
+                              "type": "Identifier",
+                              "name": "p"
+                            }
+                          },
+                          "prefix": true
+                        },
+                        "right": {
+                          "type": "Literal",
+                          "value": "function"
+                        }
+                      }
+                    },
+                    "right": {
+                      "type": "BinaryExpression",
+                      "operator": "!==",
+                      "left": {
+                        "type": "MemberExpression",
+                        "computed": true,
+                        "object": {
+                          "type": "Identifier",
+                          "name": "p"
+                        },
+                        "property": {
+                          "type": "Literal",
+                          "value": 0
+                        }
+                      },
+                      "right": {
+                        "type": "Literal",
+                        "value": "_"
+                      }
+                    }
+                  },
+                  "consequent": {
+                    "type": "BlockStatement",
+                    "body": [
+                      {
+                        "type": "ExpressionStatement",
+                        "expression": {
+                          "type": "AssignmentExpression",
+                          "operator": "=",
+                          "left": {
+                            "type": "MemberExpression",
+                            "computed": true,
+                            "object": {
+                              "type": "Identifier",
+                              "name": "obj"
+                            },
+                            "property": {
+                              "type": "Identifier",
+                              "name": "p"
+                            }
+                          },
+                          "right": {
+                            "type": "MemberExpression",
+                            "computed": true,
+                            "object": {
+                              "type": "MemberExpression",
+                              "computed": false,
+                              "object": {
+                                "type": "Identifier",
+                                "name": "class_name"
+                              },
+                              "property": {
+                                "type": "Identifier",
+                                "name": "prototype"
+                              }
+                            },
+                            "property": {
+                              "type": "Identifier",
+                              "name": "p"
+                            }
+                          }
+                        }
+                      },
+                      {
+                        "type": "ExpressionStatement",
+                        "expression": {
+                          "type": "AssignmentExpression",
+                          "operator": "=",
+                          "left": {
+                            "type": "MemberExpression",
+                            "computed": true,
+                            "object": {
+                              "type": "Identifier",
+                              "name": "record"
+                            },
+                            "property": {
+                              "type": "Identifier",
+                              "name": "p"
+                            }
+                          },
+                          "right": {
+                            "type": "MemberExpression",
+                            "computed": true,
+                            "object": {
+                              "type": "MemberExpression",
+                              "computed": false,
+                              "object": {
+                                "type": "Identifier",
+                                "name": "class_name"
+                              },
+                              "property": {
+                                "type": "Identifier",
+                                "name": "prototype"
+                              }
+                            },
+                            "property": {
+                              "type": "Identifier",
+                              "name": "p"
+                            }
+                          }
+                        }
+                      }
+                    ]
+                  },
+                  "alternate": null
+                }
+              ]
+            },
+            "each": false
+          },
+          {
+            "type": "IfStatement",
+            "test": {
+              "type": "UnaryExpression",
+              "operator": "!",
+              "argument": {
+                "type": "MemberExpression",
+                "computed": false,
+                "object": {
+                  "type": "MemberExpression",
+                  "computed": false,
+                  "object": {
+                    "type": "MemberExpression",
+                    "computed": false,
+                    "object": {
+                      "type": "ThisExpression"
+                    },
+                    "property": {
+                      "type": "Identifier",
+                      "name": "php_js"
+                    }
+                  },
+                  "property": {
+                    "type": "Identifier",
+                    "name": "aggregateKeys"
+                  }
+                },
+                "property": {
+                  "type": "Identifier",
+                  "name": "indexOf"
+                }
+              },
+              "prefix": true
+            },
+            "consequent": {
+              "type": "BlockStatement",
+              "body": [
+                {
+                  "type": "ExpressionStatement",
+                  "expression": {
+                    "type": "AssignmentExpression",
+                    "operator": "=",
+                    "left": {
+                      "type": "MemberExpression",
+                      "computed": false,
+                      "object": {
+                        "type": "MemberExpression",
+                        "computed": false,
+                        "object": {
+                          "type": "MemberExpression",
+                          "computed": false,
+                          "object": {
+                            "type": "ThisExpression"
+                          },
+                          "property": {
+                            "type": "Identifier",
+                            "name": "php_js"
+                          }
+                        },
+                        "property": {
+                          "type": "Identifier",
+                          "name": "aggregateKeys"
+                        }
+                      },
+                      "property": {
+                        "type": "Identifier",
+                        "name": "indexOf"
+                      }
+                    },
+                    "right": {
+                      "type": "Identifier",
+                      "name": "indexOf"
+                    }
+                  }
+                }
+              ]
+            },
+            "alternate": null
+          },
+          {
+            "type": "ExpressionStatement",
+            "expression": {
+              "type": "AssignmentExpression",
+              "operator": "=",
+              "left": {
+                "type": "Identifier",
+                "name": "pos"
+              },
+              "right": {
+                "type": "CallExpression",
+                "callee": {
+                  "type": "MemberExpression",
+                  "computed": false,
+                  "object": {
+                    "type": "MemberExpression",
+                    "computed": false,
+                    "object": {
+                      "type": "MemberExpression",
+                      "computed": false,
+                      "object": {
+                        "type": "ThisExpression"
+                      },
+                      "property": {
+                        "type": "Identifier",
+                        "name": "php_js"
+                      }
+                    },
+                    "property": {
+                      "type": "Identifier",
+                      "name": "aggregateKeys"
+                    }
+                  },
+                  "property": {
+                    "type": "Identifier",
+                    "name": "indexOf"
+                  }
+                },
+                "arguments": [
+                  {
+                    "type": "Identifier",
+                    "name": "obj"
+                  }
+                ]
+              }
+            }
+          },
+          {
+            "type": "IfStatement",
+            "test": {
+              "type": "BinaryExpression",
+              "operator": "!==",
+              "left": {
+                "type": "Identifier",
+                "name": "pos"
+              },
+              "right": {
+                "type": "UnaryExpression",
+                "operator": "-",
+                "argument": {
+                  "type": "Literal",
+                  "value": 1
+                },
+                "prefix": true
+              }
+            },
+            "consequent": {
+              "type": "BlockStatement",
+              "body": [
+                {
+                  "type": "ExpressionStatement",
+                  "expression": {
+                    "type": "CallExpression",
+                    "callee": {
+                      "type": "MemberExpression",
+                      "computed": false,
+                      "object": {
+                        "type": "MemberExpression",
+                        "computed": true,
+                        "object": {
+                          "type": "MemberExpression",
+                          "computed": false,
+                          "object": {
+                            "type": "MemberExpression",
+                            "computed": false,
+                            "object": {
+                              "type": "ThisExpression"
+                            },
+                            "property": {
+                              "type": "Identifier",
+                              "name": "php_js"
+                            }
+                          },
+                          "property": {
+                            "type": "Identifier",
+                            "name": "aggregateRecords"
+                          }
+                        },
+                        "property": {
+                          "type": "Identifier",
+                          "name": "pos"
+                        }
+                      },
+                      "property": {
+                        "type": "Identifier",
+                        "name": "push"
+                      }
+                    },
+                    "arguments": [
+                      {
+                        "type": "Identifier",
+                        "name": "record"
+                      }
+                    ]
+                  }
+                },
+                {
+                  "type": "ExpressionStatement",
+                  "expression": {
+                    "type": "CallExpression",
+                    "callee": {
+                      "type": "MemberExpression",
+                      "computed": false,
+                      "object": {
+                        "type": "MemberExpression",
+                        "computed": true,
+                        "object": {
+                          "type": "MemberExpression",
+                          "computed": false,
+                          "object": {
+                            "type": "MemberExpression",
+                            "computed": false,
+                            "object": {
+                              "type": "ThisExpression"
+                            },
+                            "property": {
+                              "type": "Identifier",
+                              "name": "php_js"
+                            }
+                          },
+                          "property": {
+                            "type": "Identifier",
+                            "name": "aggregateClasses"
+                          }
+                        },
+                        "property": {
+                          "type": "Identifier",
+                          "name": "pos"
+                        }
+                      },
+                      "property": {
+                        "type": "Identifier",
+                        "name": "push"
+                      }
+                    },
+                    "arguments": [
+                      {
+                        "type": "CallExpression",
+                        "callee": {
+                          "type": "Identifier",
+                          "name": "getFuncName"
+                        },
+                        "arguments": [
+                          {
+                            "type": "Identifier",
+                            "name": "class_name"
+                          }
+                        ]
+                      }
+                    ]
+                  }
+                }
+              ]
+            },
+            "alternate": {
+              "type": "BlockStatement",
+              "body": [
+                {
+                  "type": "ExpressionStatement",
+                  "expression": {
+                    "type": "CallExpression",
+                    "callee": {
+                      "type": "MemberExpression",
+                      "computed": false,
+                      "object": {
+                        "type": "MemberExpression",
+                        "computed": false,
+                        "object": {
+                          "type": "MemberExpression",
+                          "computed": false,
+                          "object": {
+                            "type": "ThisExpression"
+                          },
+                          "property": {
+                            "type": "Identifier",
+                            "name": "php_js"
+                          }
+                        },
+                        "property": {
+                          "type": "Identifier",
+                          "name": "aggregateKeys"
+                        }
+                      },
+                      "property": {
+                        "type": "Identifier",
+                        "name": "push"
+                      }
+                    },
+                    "arguments": [
+                      {
+                        "type": "Identifier",
+                        "name": "obj"
+                      }
+                    ]
+                  }
+                },
+                {
+                  "type": "ExpressionStatement",
+                  "expression": {
+                    "type": "CallExpression",
+                    "callee": {
+                      "type": "MemberExpression",
+                      "computed": false,
+                      "object": {
+                        "type": "MemberExpression",
+                        "computed": false,
+                        "object": {
+                          "type": "MemberExpression",
+                          "computed": false,
+                          "object": {
+                            "type": "ThisExpression"
+                          },
+                          "property": {
+                            "type": "Identifier",
+                            "name": "php_js"
+                          }
+                        },
+                        "property": {
+                          "type": "Identifier",
+                          "name": "aggregateRecords"
+                        }
+                      },
+                      "property": {
+                        "type": "Identifier",
+                        "name": "push"
+                      }
+                    },
+                    "arguments": [
+                      {
+                        "type": "ArrayExpression",
+                        "elements": [
+                          {
+                            "type": "Identifier",
+                            "name": "record"
+                          }
+                        ]
+                      }
+                    ]
+                  }
+                },
+                {
+                  "type": "ExpressionStatement",
+                  "expression": {
+                    "type": "AssignmentExpression",
+                    "operator": "=",
+                    "left": {
+                      "type": "MemberExpression",
+                      "computed": true,
+                      "object": {
+                        "type": "MemberExpression",
+                        "computed": false,
+                        "object": {
+                          "type": "MemberExpression",
+                          "computed": false,
+                          "object": {
+                            "type": "ThisExpression"
+                          },
+                          "property": {
+                            "type": "Identifier",
+                            "name": "php_js"
+                          }
+                        },
+                        "property": {
+                          "type": "Identifier",
+                          "name": "aggregateClasses"
+                        }
+                      },
+                      "property": {
+                        "type": "Literal",
+                        "value": 0
+                      }
+                    },
+                    "right": {
+                      "type": "ArrayExpression",
+                      "elements": []
+                    }
+                  }
+                },
+                {
+                  "type": "ExpressionStatement",
+                  "expression": {
+                    "type": "CallExpression",
+                    "callee": {
+                      "type": "MemberExpression",
+                      "computed": false,
+                      "object": {
+                        "type": "MemberExpression",
+                        "computed": true,
+                        "object": {
+                          "type": "MemberExpression",
+                          "computed": false,
+                          "object": {
+                            "type": "MemberExpression",
+                            "computed": false,
+                            "object": {
+                              "type": "ThisExpression"
+                            },
+                            "property": {
+                              "type": "Identifier",
+                              "name": "php_js"
+                            }
+                          },
+                          "property": {
+                            "type": "Identifier",
+                            "name": "aggregateClasses"
+                          }
+                        },
+                        "property": {
+                          "type": "Literal",
+                          "value": 0
+                        }
+                      },
+                      "property": {
+                        "type": "Identifier",
+                        "name": "push"
+                      }
+                    },
+                    "arguments": [
+                      {
+                        "type": "CallExpression",
+                        "callee": {
+                          "type": "Identifier",
+                          "name": "getFuncName"
+                        },
+                        "arguments": [
+                          {
+                            "type": "Identifier",
+                            "name": "class_name"
+                          }
+                        ]
+                      }
+                    ]
+                  }
+                }
+              ]
+            }
+          }
+        ]
+      },
+      "rest": null,
+      "generator": false,
+      "expression": false
+    }
+  ]
+}

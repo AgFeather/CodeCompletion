@@ -1,0 +1,45 @@
+{
+  "type": "Program",
+  "body": [
+    {
+      "type": "ExpressionStatement",
+      "expression": {
+        "type": "CallExpression",
+        "callee": {
+          "type": "Identifier",
+          "name": "define"
+        },
+        "arguments": [
+          {
+            "type": "FunctionExpression",
+            "id": null,
+            "params": [],
+            "defaults": [],
+            "body": {
+              "type": "BlockStatement",
+              "body": [
+                {
+                  "type": "ExpressionStatement",
+                  "expression": {
+                    "type": "Literal",
+                    "value": "use strict"
+                  }
+                },
+                {
+                  "type": "ReturnStatement",
+                  "argument": {
+                    "type": "Literal",
+                    "value": "attribute vec3 position3DHigh;\nattribute vec3 position3DLow;\nattribute vec2 st;\n\nvarying vec3 v_positionMC;\nvarying vec3 v_positionEC;\nvarying vec2 v_st;\n\nvoid main() \n{\n    vec4 p = czm_computePosition();\n\n    v_positionMC = position3DHigh + position3DLow;           // position in model coordinates\n    v_positionEC = (czm_modelViewRelativeToEye * p).xyz;     // position in eye coordinates\n    v_st = st;\n    \n    gl_Position = czm_modelViewProjectionRelativeToEye * p;\n}\n"
+                  }
+                }
+              ]
+            },
+            "rest": null,
+            "generator": false,
+            "expression": false
+          }
+        ]
+      }
+    }
+  ]
+}

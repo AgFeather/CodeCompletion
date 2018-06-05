@@ -1,0 +1,384 @@
+{
+  "type": "Program",
+  "body": [
+    {
+      "type": "VariableDeclaration",
+      "declarations": [
+        {
+          "type": "VariableDeclarator",
+          "id": {
+            "type": "Identifier",
+            "name": "gTestfile"
+          },
+          "init": {
+            "type": "Literal",
+            "value": "regress-443569.js"
+          }
+        }
+      ],
+      "kind": "var"
+    },
+    {
+      "type": "VariableDeclaration",
+      "declarations": [
+        {
+          "type": "VariableDeclarator",
+          "id": {
+            "type": "Identifier",
+            "name": "BUGNUMBER"
+          },
+          "init": {
+            "type": "Literal",
+            "value": 443569
+          }
+        }
+      ],
+      "kind": "var"
+    },
+    {
+      "type": "VariableDeclaration",
+      "declarations": [
+        {
+          "type": "VariableDeclarator",
+          "id": {
+            "type": "Identifier",
+            "name": "summary"
+          },
+          "init": {
+            "type": "Literal",
+            "value": "Do not assert: OBJ_IS_NATIVE(obj)"
+          }
+        }
+      ],
+      "kind": "var"
+    },
+    {
+      "type": "VariableDeclaration",
+      "declarations": [
+        {
+          "type": "VariableDeclarator",
+          "id": {
+            "type": "Identifier",
+            "name": "actual"
+          },
+          "init": {
+            "type": "Literal",
+            "value": "No Crash"
+          }
+        }
+      ],
+      "kind": "var"
+    },
+    {
+      "type": "VariableDeclaration",
+      "declarations": [
+        {
+          "type": "VariableDeclarator",
+          "id": {
+            "type": "Identifier",
+            "name": "expect"
+          },
+          "init": {
+            "type": "Literal",
+            "value": "No Crash"
+          }
+        }
+      ],
+      "kind": "var"
+    },
+    {
+      "type": "ExpressionStatement",
+      "expression": {
+        "type": "CallExpression",
+        "callee": {
+          "type": "Identifier",
+          "name": "printBugNumber"
+        },
+        "arguments": [
+          {
+            "type": "Identifier",
+            "name": "BUGNUMBER"
+          }
+        ]
+      }
+    },
+    {
+      "type": "ExpressionStatement",
+      "expression": {
+        "type": "CallExpression",
+        "callee": {
+          "type": "Identifier",
+          "name": "printStatus"
+        },
+        "arguments": [
+          {
+            "type": "Identifier",
+            "name": "summary"
+          }
+        ]
+      }
+    },
+    {
+      "type": "IfStatement",
+      "test": {
+        "type": "BinaryExpression",
+        "operator": "!=",
+        "left": {
+          "type": "UnaryExpression",
+          "operator": "typeof",
+          "argument": {
+            "type": "Identifier",
+            "name": "window"
+          },
+          "prefix": true
+        },
+        "right": {
+          "type": "Literal",
+          "value": "undefined"
+        }
+      },
+      "consequent": {
+        "type": "BlockStatement",
+        "body": [
+          {
+            "type": "ExpressionStatement",
+            "expression": {
+              "type": "AssignmentExpression",
+              "operator": "=",
+              "left": {
+                "type": "Identifier",
+                "name": "gDelayTestDriverEnd"
+              },
+              "right": {
+                "type": "Literal",
+                "value": true
+              }
+            }
+          },
+          {
+            "type": "ExpressionStatement",
+            "expression": {
+              "type": "CallExpression",
+              "callee": {
+                "type": "MemberExpression",
+                "computed": false,
+                "object": {
+                  "type": "Identifier",
+                  "name": "window"
+                },
+                "property": {
+                  "type": "Identifier",
+                  "name": "addEventListener"
+                }
+              },
+              "arguments": [
+                {
+                  "type": "Literal",
+                  "value": "load"
+                },
+                {
+                  "type": "Identifier",
+                  "name": "boom"
+                },
+                {
+                  "type": "Literal",
+                  "value": false
+                }
+              ]
+            }
+          }
+        ]
+      },
+      "alternate": {
+        "type": "BlockStatement",
+        "body": [
+          {
+            "type": "ExpressionStatement",
+            "expression": {
+              "type": "CallExpression",
+              "callee": {
+                "type": "Identifier",
+                "name": "reportCompare"
+              },
+              "arguments": [
+                {
+                  "type": "Identifier",
+                  "name": "expect"
+                },
+                {
+                  "type": "Identifier",
+                  "name": "actual"
+                },
+                {
+                  "type": "Identifier",
+                  "name": "summary"
+                }
+              ]
+            }
+          }
+        ]
+      }
+    },
+    {
+      "type": "FunctionDeclaration",
+      "id": {
+        "type": "Identifier",
+        "name": "boom"
+      },
+      "params": [],
+      "defaults": [],
+      "body": {
+        "type": "BlockStatement",
+        "body": [
+          {
+            "type": "VariableDeclaration",
+            "declarations": [
+              {
+                "type": "VariableDeclarator",
+                "id": {
+                  "type": "Identifier",
+                  "name": "r"
+                },
+                "init": {
+                  "type": "MemberExpression",
+                  "computed": false,
+                  "object": {
+                    "type": "Identifier",
+                    "name": "RegExp"
+                  },
+                  "property": {
+                    "type": "Identifier",
+                    "name": "prototype"
+                  }
+                }
+              }
+            ],
+            "kind": "var"
+          },
+          {
+            "type": "ExpressionStatement",
+            "expression": {
+              "type": "AssignmentExpression",
+              "operator": "=",
+              "left": {
+                "type": "MemberExpression",
+                "computed": true,
+                "object": {
+                  "type": "Identifier",
+                  "name": "r"
+                },
+                "property": {
+                  "type": "Literal",
+                  "value": "-1"
+                }
+              },
+              "right": {
+                "type": "Literal",
+                "value": 0
+              }
+            }
+          },
+          {
+            "type": "ExpressionStatement",
+            "expression": {
+              "type": "AssignmentExpression",
+              "operator": "=",
+              "left": {
+                "type": "MemberExpression",
+                "computed": false,
+                "object": {
+                  "type": "MemberExpression",
+                  "computed": false,
+                  "object": {
+                    "type": "Identifier",
+                    "name": "Array"
+                  },
+                  "property": {
+                    "type": "Identifier",
+                    "name": "prototype"
+                  }
+                },
+                "property": {
+                  "type": "Identifier",
+                  "name": "__proto__"
+                }
+              },
+              "right": {
+                "type": "Identifier",
+                "name": "r"
+              }
+            }
+          },
+          {
+            "type": "ExpressionStatement",
+            "expression": {
+              "type": "MemberExpression",
+              "computed": true,
+              "object": {
+                "type": "ArrayExpression",
+                "elements": []
+              },
+              "property": {
+                "type": "Literal",
+                "value": "-1"
+              }
+            }
+          },
+          {
+            "type": "ExpressionStatement",
+            "expression": {
+              "type": "CallExpression",
+              "callee": {
+                "type": "Identifier",
+                "name": "reportCompare"
+              },
+              "arguments": [
+                {
+                  "type": "Identifier",
+                  "name": "expect"
+                },
+                {
+                  "type": "Identifier",
+                  "name": "actual"
+                },
+                {
+                  "type": "Identifier",
+                  "name": "summary"
+                }
+              ]
+            }
+          },
+          {
+            "type": "ExpressionStatement",
+            "expression": {
+              "type": "AssignmentExpression",
+              "operator": "=",
+              "left": {
+                "type": "Identifier",
+                "name": "gDelayTestDriverEnd"
+              },
+              "right": {
+                "type": "Literal",
+                "value": false
+              }
+            }
+          },
+          {
+            "type": "ExpressionStatement",
+            "expression": {
+              "type": "CallExpression",
+              "callee": {
+                "type": "Identifier",
+                "name": "jsTestDriverEnd"
+              },
+              "arguments": []
+            }
+          }
+        ]
+      },
+      "rest": null,
+      "generator": false,
+      "expression": false
+    }
+  ]
+}

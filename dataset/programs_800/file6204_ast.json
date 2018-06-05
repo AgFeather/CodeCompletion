@@ -1,0 +1,175 @@
+{
+  "type": "Program",
+  "body": [
+    {
+      "type": "VariableDeclaration",
+      "declarations": [
+        {
+          "type": "VariableDeclarator",
+          "id": {
+            "type": "Identifier",
+            "name": "chars"
+          },
+          "init": {
+            "type": "Literal",
+            "value": "𐒠"
+          }
+        }
+      ],
+      "kind": "var"
+    },
+    {
+      "type": "IfStatement",
+      "test": {
+        "type": "BinaryExpression",
+        "operator": "!==",
+        "left": {
+          "type": "MemberExpression",
+          "computed": false,
+          "object": {
+            "type": "Identifier",
+            "name": "chars"
+          },
+          "property": {
+            "type": "Identifier",
+            "name": "length"
+          }
+        },
+        "right": {
+          "type": "Literal",
+          "value": 2
+        }
+      },
+      "consequent": {
+        "type": "BlockStatement",
+        "body": [
+          {
+            "type": "ExpressionStatement",
+            "expression": {
+              "type": "CallExpression",
+              "callee": {
+                "type": "Identifier",
+                "name": "$ERROR"
+              },
+              "arguments": [
+                {
+                  "type": "Literal",
+                  "value": "A character outside the BMP (Unicode CodePoint > 0xFFFF) should consume two code units"
+                }
+              ]
+            }
+          }
+        ]
+      },
+      "alternate": null
+    },
+    {
+      "type": "IfStatement",
+      "test": {
+        "type": "BinaryExpression",
+        "operator": "!==",
+        "left": {
+          "type": "CallExpression",
+          "callee": {
+            "type": "MemberExpression",
+            "computed": false,
+            "object": {
+              "type": "Identifier",
+              "name": "chars"
+            },
+            "property": {
+              "type": "Identifier",
+              "name": "charCodeAt"
+            }
+          },
+          "arguments": [
+            {
+              "type": "Literal",
+              "value": 0
+            }
+          ]
+        },
+        "right": {
+          "type": "Literal",
+          "value": 55297
+        }
+      },
+      "consequent": {
+        "type": "BlockStatement",
+        "body": [
+          {
+            "type": "ExpressionStatement",
+            "expression": {
+              "type": "CallExpression",
+              "callee": {
+                "type": "Identifier",
+                "name": "$ERROR"
+              },
+              "arguments": [
+                {
+                  "type": "Literal",
+                  "value": "First code unit of surrogate pair for 0x104A0 should be 0xD801"
+                }
+              ]
+            }
+          }
+        ]
+      },
+      "alternate": null
+    },
+    {
+      "type": "IfStatement",
+      "test": {
+        "type": "BinaryExpression",
+        "operator": "!==",
+        "left": {
+          "type": "CallExpression",
+          "callee": {
+            "type": "MemberExpression",
+            "computed": false,
+            "object": {
+              "type": "Identifier",
+              "name": "chars"
+            },
+            "property": {
+              "type": "Identifier",
+              "name": "charCodeAt"
+            }
+          },
+          "arguments": [
+            {
+              "type": "Literal",
+              "value": 1
+            }
+          ]
+        },
+        "right": {
+          "type": "Literal",
+          "value": 56480
+        }
+      },
+      "consequent": {
+        "type": "BlockStatement",
+        "body": [
+          {
+            "type": "ExpressionStatement",
+            "expression": {
+              "type": "CallExpression",
+              "callee": {
+                "type": "Identifier",
+                "name": "$ERROR"
+              },
+              "arguments": [
+                {
+                  "type": "Literal",
+                  "value": "Second code unit of surrogate pair for 0x104A0 should be 0xDCA0"
+                }
+              ]
+            }
+          }
+        ]
+      },
+      "alternate": null
+    }
+  ]
+}

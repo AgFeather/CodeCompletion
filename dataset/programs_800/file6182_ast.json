@@ -1,0 +1,270 @@
+{
+  "type": "Program",
+  "body": [
+    {
+      "type": "VariableDeclaration",
+      "declarations": [
+        {
+          "type": "VariableDeclarator",
+          "id": {
+            "type": "Identifier",
+            "name": "gTestfile"
+          },
+          "init": {
+            "type": "Literal",
+            "value": "regress-352640-02.js"
+          }
+        }
+      ],
+      "kind": "var"
+    },
+    {
+      "type": "VariableDeclaration",
+      "declarations": [
+        {
+          "type": "VariableDeclarator",
+          "id": {
+            "type": "Identifier",
+            "name": "BUGNUMBER"
+          },
+          "init": {
+            "type": "Literal",
+            "value": 352640
+          }
+        }
+      ],
+      "kind": "var"
+    },
+    {
+      "type": "VariableDeclaration",
+      "declarations": [
+        {
+          "type": "VariableDeclarator",
+          "id": {
+            "type": "Identifier",
+            "name": "summary"
+          },
+          "init": {
+            "type": "Literal",
+            "value": "Do not assert: scopeStmt or crash @ js_LexicalLookup"
+          }
+        }
+      ],
+      "kind": "var"
+    },
+    {
+      "type": "VariableDeclaration",
+      "declarations": [
+        {
+          "type": "VariableDeclarator",
+          "id": {
+            "type": "Identifier",
+            "name": "actual"
+          },
+          "init": {
+            "type": "Literal",
+            "value": ""
+          }
+        }
+      ],
+      "kind": "var"
+    },
+    {
+      "type": "VariableDeclaration",
+      "declarations": [
+        {
+          "type": "VariableDeclarator",
+          "id": {
+            "type": "Identifier",
+            "name": "expect"
+          },
+          "init": {
+            "type": "Literal",
+            "value": ""
+          }
+        }
+      ],
+      "kind": "var"
+    },
+    {
+      "type": "ExpressionStatement",
+      "expression": {
+        "type": "CallExpression",
+        "callee": {
+          "type": "Identifier",
+          "name": "test"
+        },
+        "arguments": []
+      }
+    },
+    {
+      "type": "FunctionDeclaration",
+      "id": {
+        "type": "Identifier",
+        "name": "test"
+      },
+      "params": [],
+      "defaults": [],
+      "body": {
+        "type": "BlockStatement",
+        "body": [
+          {
+            "type": "ExpressionStatement",
+            "expression": {
+              "type": "CallExpression",
+              "callee": {
+                "type": "Identifier",
+                "name": "enterFunc"
+              },
+              "arguments": [
+                {
+                  "type": "Literal",
+                  "value": "test"
+                }
+              ]
+            }
+          },
+          {
+            "type": "ExpressionStatement",
+            "expression": {
+              "type": "CallExpression",
+              "callee": {
+                "type": "Identifier",
+                "name": "printBugNumber"
+              },
+              "arguments": [
+                {
+                  "type": "Identifier",
+                  "name": "BUGNUMBER"
+                }
+              ]
+            }
+          },
+          {
+            "type": "ExpressionStatement",
+            "expression": {
+              "type": "CallExpression",
+              "callee": {
+                "type": "Identifier",
+                "name": "printStatus"
+              },
+              "arguments": [
+                {
+                  "type": "Identifier",
+                  "name": "summary"
+                }
+              ]
+            }
+          },
+          {
+            "type": "TryStatement",
+            "block": {
+              "type": "BlockStatement",
+              "body": [
+                {
+                  "type": "ExpressionStatement",
+                  "expression": {
+                    "type": "NewExpression",
+                    "callee": {
+                      "type": "Identifier",
+                      "name": "Function"
+                    },
+                    "arguments": [
+                      {
+                        "type": "Literal",
+                        "value": "do { with({}) let x; var b; } while( 1 );"
+                      }
+                    ]
+                  }
+                }
+              ]
+            },
+            "guardedHandlers": [],
+            "handlers": [
+              {
+                "type": "CatchClause",
+                "param": {
+                  "type": "Identifier",
+                  "name": "ex"
+                },
+                "body": {
+                  "type": "BlockStatement",
+                  "body": [
+                    {
+                      "type": "ExpressionStatement",
+                      "expression": {
+                        "type": "CallExpression",
+                        "callee": {
+                          "type": "Identifier",
+                          "name": "print"
+                        },
+                        "arguments": [
+                          {
+                            "type": "BinaryExpression",
+                            "operator": "+",
+                            "left": {
+                              "type": "Identifier",
+                              "name": "ex"
+                            },
+                            "right": {
+                              "type": "Literal",
+                              "value": ""
+                            }
+                          }
+                        ]
+                      }
+                    }
+                  ]
+                }
+              }
+            ],
+            "finalizer": null
+          },
+          {
+            "type": "ExpressionStatement",
+            "expression": {
+              "type": "CallExpression",
+              "callee": {
+                "type": "Identifier",
+                "name": "reportCompare"
+              },
+              "arguments": [
+                {
+                  "type": "Identifier",
+                  "name": "expect"
+                },
+                {
+                  "type": "Identifier",
+                  "name": "actual"
+                },
+                {
+                  "type": "Identifier",
+                  "name": "summary"
+                }
+              ]
+            }
+          },
+          {
+            "type": "ExpressionStatement",
+            "expression": {
+              "type": "CallExpression",
+              "callee": {
+                "type": "Identifier",
+                "name": "exitFunc"
+              },
+              "arguments": [
+                {
+                  "type": "Literal",
+                  "value": "test"
+                }
+              ]
+            }
+          }
+        ]
+      },
+      "rest": null,
+      "generator": false,
+      "expression": false
+    }
+  ]
+}

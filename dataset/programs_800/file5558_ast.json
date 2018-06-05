@@ -1,0 +1,3553 @@
+{
+  "type": "Program",
+  "body": [
+    {
+      "type": "ExpressionStatement",
+      "expression": {
+        "type": "AssignmentExpression",
+        "operator": "=",
+        "left": {
+          "type": "MemberExpression",
+          "computed": false,
+          "object": {
+            "type": "Identifier",
+            "name": "THREE"
+          },
+          "property": {
+            "type": "Identifier",
+            "name": "WireframeHelper"
+          }
+        },
+        "right": {
+          "type": "FunctionExpression",
+          "id": null,
+          "params": [
+            {
+              "type": "Identifier",
+              "name": "object"
+            },
+            {
+              "type": "Identifier",
+              "name": "hex"
+            }
+          ],
+          "defaults": [],
+          "body": {
+            "type": "BlockStatement",
+            "body": [
+              {
+                "type": "VariableDeclaration",
+                "declarations": [
+                  {
+                    "type": "VariableDeclarator",
+                    "id": {
+                      "type": "Identifier",
+                      "name": "color"
+                    },
+                    "init": {
+                      "type": "ConditionalExpression",
+                      "test": {
+                        "type": "BinaryExpression",
+                        "operator": "!==",
+                        "left": {
+                          "type": "Identifier",
+                          "name": "hex"
+                        },
+                        "right": {
+                          "type": "Identifier",
+                          "name": "undefined"
+                        }
+                      },
+                      "consequent": {
+                        "type": "Identifier",
+                        "name": "hex"
+                      },
+                      "alternate": {
+                        "type": "Literal",
+                        "value": 16777215
+                      }
+                    }
+                  }
+                ],
+                "kind": "var"
+              },
+              {
+                "type": "VariableDeclaration",
+                "declarations": [
+                  {
+                    "type": "VariableDeclarator",
+                    "id": {
+                      "type": "Identifier",
+                      "name": "edge"
+                    },
+                    "init": {
+                      "type": "ArrayExpression",
+                      "elements": [
+                        {
+                          "type": "Literal",
+                          "value": 0
+                        },
+                        {
+                          "type": "Literal",
+                          "value": 0
+                        }
+                      ]
+                    }
+                  },
+                  {
+                    "type": "VariableDeclarator",
+                    "id": {
+                      "type": "Identifier",
+                      "name": "hash"
+                    },
+                    "init": {
+                      "type": "ObjectExpression",
+                      "properties": []
+                    }
+                  }
+                ],
+                "kind": "var"
+              },
+              {
+                "type": "VariableDeclaration",
+                "declarations": [
+                  {
+                    "type": "VariableDeclarator",
+                    "id": {
+                      "type": "Identifier",
+                      "name": "sortFunction"
+                    },
+                    "init": {
+                      "type": "FunctionExpression",
+                      "id": null,
+                      "params": [
+                        {
+                          "type": "Identifier",
+                          "name": "a"
+                        },
+                        {
+                          "type": "Identifier",
+                          "name": "b"
+                        }
+                      ],
+                      "defaults": [],
+                      "body": {
+                        "type": "BlockStatement",
+                        "body": [
+                          {
+                            "type": "ReturnStatement",
+                            "argument": {
+                              "type": "BinaryExpression",
+                              "operator": "-",
+                              "left": {
+                                "type": "Identifier",
+                                "name": "a"
+                              },
+                              "right": {
+                                "type": "Identifier",
+                                "name": "b"
+                              }
+                            }
+                          }
+                        ]
+                      },
+                      "rest": null,
+                      "generator": false,
+                      "expression": false
+                    }
+                  }
+                ],
+                "kind": "var"
+              },
+              {
+                "type": "VariableDeclaration",
+                "declarations": [
+                  {
+                    "type": "VariableDeclarator",
+                    "id": {
+                      "type": "Identifier",
+                      "name": "keys"
+                    },
+                    "init": {
+                      "type": "ArrayExpression",
+                      "elements": [
+                        {
+                          "type": "Literal",
+                          "value": "a"
+                        },
+                        {
+                          "type": "Literal",
+                          "value": "b"
+                        },
+                        {
+                          "type": "Literal",
+                          "value": "c"
+                        }
+                      ]
+                    }
+                  }
+                ],
+                "kind": "var"
+              },
+              {
+                "type": "VariableDeclaration",
+                "declarations": [
+                  {
+                    "type": "VariableDeclarator",
+                    "id": {
+                      "type": "Identifier",
+                      "name": "geometry"
+                    },
+                    "init": {
+                      "type": "NewExpression",
+                      "callee": {
+                        "type": "MemberExpression",
+                        "computed": false,
+                        "object": {
+                          "type": "Identifier",
+                          "name": "THREE"
+                        },
+                        "property": {
+                          "type": "Identifier",
+                          "name": "BufferGeometry"
+                        }
+                      },
+                      "arguments": []
+                    }
+                  }
+                ],
+                "kind": "var"
+              },
+              {
+                "type": "IfStatement",
+                "test": {
+                  "type": "BinaryExpression",
+                  "operator": "instanceof",
+                  "left": {
+                    "type": "MemberExpression",
+                    "computed": false,
+                    "object": {
+                      "type": "Identifier",
+                      "name": "object"
+                    },
+                    "property": {
+                      "type": "Identifier",
+                      "name": "geometry"
+                    }
+                  },
+                  "right": {
+                    "type": "MemberExpression",
+                    "computed": false,
+                    "object": {
+                      "type": "Identifier",
+                      "name": "THREE"
+                    },
+                    "property": {
+                      "type": "Identifier",
+                      "name": "Geometry"
+                    }
+                  }
+                },
+                "consequent": {
+                  "type": "BlockStatement",
+                  "body": [
+                    {
+                      "type": "VariableDeclaration",
+                      "declarations": [
+                        {
+                          "type": "VariableDeclarator",
+                          "id": {
+                            "type": "Identifier",
+                            "name": "vertices"
+                          },
+                          "init": {
+                            "type": "MemberExpression",
+                            "computed": false,
+                            "object": {
+                              "type": "MemberExpression",
+                              "computed": false,
+                              "object": {
+                                "type": "Identifier",
+                                "name": "object"
+                              },
+                              "property": {
+                                "type": "Identifier",
+                                "name": "geometry"
+                              }
+                            },
+                            "property": {
+                              "type": "Identifier",
+                              "name": "vertices"
+                            }
+                          }
+                        }
+                      ],
+                      "kind": "var"
+                    },
+                    {
+                      "type": "VariableDeclaration",
+                      "declarations": [
+                        {
+                          "type": "VariableDeclarator",
+                          "id": {
+                            "type": "Identifier",
+                            "name": "faces"
+                          },
+                          "init": {
+                            "type": "MemberExpression",
+                            "computed": false,
+                            "object": {
+                              "type": "MemberExpression",
+                              "computed": false,
+                              "object": {
+                                "type": "Identifier",
+                                "name": "object"
+                              },
+                              "property": {
+                                "type": "Identifier",
+                                "name": "geometry"
+                              }
+                            },
+                            "property": {
+                              "type": "Identifier",
+                              "name": "faces"
+                            }
+                          }
+                        }
+                      ],
+                      "kind": "var"
+                    },
+                    {
+                      "type": "VariableDeclaration",
+                      "declarations": [
+                        {
+                          "type": "VariableDeclarator",
+                          "id": {
+                            "type": "Identifier",
+                            "name": "numEdges"
+                          },
+                          "init": {
+                            "type": "Literal",
+                            "value": 0
+                          }
+                        }
+                      ],
+                      "kind": "var"
+                    },
+                    {
+                      "type": "VariableDeclaration",
+                      "declarations": [
+                        {
+                          "type": "VariableDeclarator",
+                          "id": {
+                            "type": "Identifier",
+                            "name": "edges"
+                          },
+                          "init": {
+                            "type": "NewExpression",
+                            "callee": {
+                              "type": "Identifier",
+                              "name": "Uint32Array"
+                            },
+                            "arguments": [
+                              {
+                                "type": "BinaryExpression",
+                                "operator": "*",
+                                "left": {
+                                  "type": "Literal",
+                                  "value": 6
+                                },
+                                "right": {
+                                  "type": "MemberExpression",
+                                  "computed": false,
+                                  "object": {
+                                    "type": "Identifier",
+                                    "name": "faces"
+                                  },
+                                  "property": {
+                                    "type": "Identifier",
+                                    "name": "length"
+                                  }
+                                }
+                              }
+                            ]
+                          }
+                        }
+                      ],
+                      "kind": "var"
+                    },
+                    {
+                      "type": "ForStatement",
+                      "init": {
+                        "type": "VariableDeclaration",
+                        "declarations": [
+                          {
+                            "type": "VariableDeclarator",
+                            "id": {
+                              "type": "Identifier",
+                              "name": "i"
+                            },
+                            "init": {
+                              "type": "Literal",
+                              "value": 0
+                            }
+                          },
+                          {
+                            "type": "VariableDeclarator",
+                            "id": {
+                              "type": "Identifier",
+                              "name": "l"
+                            },
+                            "init": {
+                              "type": "MemberExpression",
+                              "computed": false,
+                              "object": {
+                                "type": "Identifier",
+                                "name": "faces"
+                              },
+                              "property": {
+                                "type": "Identifier",
+                                "name": "length"
+                              }
+                            }
+                          }
+                        ],
+                        "kind": "var"
+                      },
+                      "test": {
+                        "type": "BinaryExpression",
+                        "operator": "<",
+                        "left": {
+                          "type": "Identifier",
+                          "name": "i"
+                        },
+                        "right": {
+                          "type": "Identifier",
+                          "name": "l"
+                        }
+                      },
+                      "update": {
+                        "type": "UpdateExpression",
+                        "operator": "++",
+                        "argument": {
+                          "type": "Identifier",
+                          "name": "i"
+                        },
+                        "prefix": false
+                      },
+                      "body": {
+                        "type": "BlockStatement",
+                        "body": [
+                          {
+                            "type": "VariableDeclaration",
+                            "declarations": [
+                              {
+                                "type": "VariableDeclarator",
+                                "id": {
+                                  "type": "Identifier",
+                                  "name": "face"
+                                },
+                                "init": {
+                                  "type": "MemberExpression",
+                                  "computed": true,
+                                  "object": {
+                                    "type": "Identifier",
+                                    "name": "faces"
+                                  },
+                                  "property": {
+                                    "type": "Identifier",
+                                    "name": "i"
+                                  }
+                                }
+                              }
+                            ],
+                            "kind": "var"
+                          },
+                          {
+                            "type": "ForStatement",
+                            "init": {
+                              "type": "VariableDeclaration",
+                              "declarations": [
+                                {
+                                  "type": "VariableDeclarator",
+                                  "id": {
+                                    "type": "Identifier",
+                                    "name": "j"
+                                  },
+                                  "init": {
+                                    "type": "Literal",
+                                    "value": 0
+                                  }
+                                }
+                              ],
+                              "kind": "var"
+                            },
+                            "test": {
+                              "type": "BinaryExpression",
+                              "operator": "<",
+                              "left": {
+                                "type": "Identifier",
+                                "name": "j"
+                              },
+                              "right": {
+                                "type": "Literal",
+                                "value": 3
+                              }
+                            },
+                            "update": {
+                              "type": "UpdateExpression",
+                              "operator": "++",
+                              "argument": {
+                                "type": "Identifier",
+                                "name": "j"
+                              },
+                              "prefix": false
+                            },
+                            "body": {
+                              "type": "BlockStatement",
+                              "body": [
+                                {
+                                  "type": "ExpressionStatement",
+                                  "expression": {
+                                    "type": "AssignmentExpression",
+                                    "operator": "=",
+                                    "left": {
+                                      "type": "MemberExpression",
+                                      "computed": true,
+                                      "object": {
+                                        "type": "Identifier",
+                                        "name": "edge"
+                                      },
+                                      "property": {
+                                        "type": "Literal",
+                                        "value": 0
+                                      }
+                                    },
+                                    "right": {
+                                      "type": "MemberExpression",
+                                      "computed": true,
+                                      "object": {
+                                        "type": "Identifier",
+                                        "name": "face"
+                                      },
+                                      "property": {
+                                        "type": "MemberExpression",
+                                        "computed": true,
+                                        "object": {
+                                          "type": "Identifier",
+                                          "name": "keys"
+                                        },
+                                        "property": {
+                                          "type": "Identifier",
+                                          "name": "j"
+                                        }
+                                      }
+                                    }
+                                  }
+                                },
+                                {
+                                  "type": "ExpressionStatement",
+                                  "expression": {
+                                    "type": "AssignmentExpression",
+                                    "operator": "=",
+                                    "left": {
+                                      "type": "MemberExpression",
+                                      "computed": true,
+                                      "object": {
+                                        "type": "Identifier",
+                                        "name": "edge"
+                                      },
+                                      "property": {
+                                        "type": "Literal",
+                                        "value": 1
+                                      }
+                                    },
+                                    "right": {
+                                      "type": "MemberExpression",
+                                      "computed": true,
+                                      "object": {
+                                        "type": "Identifier",
+                                        "name": "face"
+                                      },
+                                      "property": {
+                                        "type": "MemberExpression",
+                                        "computed": true,
+                                        "object": {
+                                          "type": "Identifier",
+                                          "name": "keys"
+                                        },
+                                        "property": {
+                                          "type": "BinaryExpression",
+                                          "operator": "%",
+                                          "left": {
+                                            "type": "BinaryExpression",
+                                            "operator": "+",
+                                            "left": {
+                                              "type": "Identifier",
+                                              "name": "j"
+                                            },
+                                            "right": {
+                                              "type": "Literal",
+                                              "value": 1
+                                            }
+                                          },
+                                          "right": {
+                                            "type": "Literal",
+                                            "value": 3
+                                          }
+                                        }
+                                      }
+                                    }
+                                  }
+                                },
+                                {
+                                  "type": "ExpressionStatement",
+                                  "expression": {
+                                    "type": "CallExpression",
+                                    "callee": {
+                                      "type": "MemberExpression",
+                                      "computed": false,
+                                      "object": {
+                                        "type": "Identifier",
+                                        "name": "edge"
+                                      },
+                                      "property": {
+                                        "type": "Identifier",
+                                        "name": "sort"
+                                      }
+                                    },
+                                    "arguments": [
+                                      {
+                                        "type": "Identifier",
+                                        "name": "sortFunction"
+                                      }
+                                    ]
+                                  }
+                                },
+                                {
+                                  "type": "VariableDeclaration",
+                                  "declarations": [
+                                    {
+                                      "type": "VariableDeclarator",
+                                      "id": {
+                                        "type": "Identifier",
+                                        "name": "key"
+                                      },
+                                      "init": {
+                                        "type": "CallExpression",
+                                        "callee": {
+                                          "type": "MemberExpression",
+                                          "computed": false,
+                                          "object": {
+                                            "type": "Identifier",
+                                            "name": "edge"
+                                          },
+                                          "property": {
+                                            "type": "Identifier",
+                                            "name": "toString"
+                                          }
+                                        },
+                                        "arguments": []
+                                      }
+                                    }
+                                  ],
+                                  "kind": "var"
+                                },
+                                {
+                                  "type": "IfStatement",
+                                  "test": {
+                                    "type": "BinaryExpression",
+                                    "operator": "===",
+                                    "left": {
+                                      "type": "MemberExpression",
+                                      "computed": true,
+                                      "object": {
+                                        "type": "Identifier",
+                                        "name": "hash"
+                                      },
+                                      "property": {
+                                        "type": "Identifier",
+                                        "name": "key"
+                                      }
+                                    },
+                                    "right": {
+                                      "type": "Identifier",
+                                      "name": "undefined"
+                                    }
+                                  },
+                                  "consequent": {
+                                    "type": "BlockStatement",
+                                    "body": [
+                                      {
+                                        "type": "ExpressionStatement",
+                                        "expression": {
+                                          "type": "AssignmentExpression",
+                                          "operator": "=",
+                                          "left": {
+                                            "type": "MemberExpression",
+                                            "computed": true,
+                                            "object": {
+                                              "type": "Identifier",
+                                              "name": "edges"
+                                            },
+                                            "property": {
+                                              "type": "BinaryExpression",
+                                              "operator": "*",
+                                              "left": {
+                                                "type": "Literal",
+                                                "value": 2
+                                              },
+                                              "right": {
+                                                "type": "Identifier",
+                                                "name": "numEdges"
+                                              }
+                                            }
+                                          },
+                                          "right": {
+                                            "type": "MemberExpression",
+                                            "computed": true,
+                                            "object": {
+                                              "type": "Identifier",
+                                              "name": "edge"
+                                            },
+                                            "property": {
+                                              "type": "Literal",
+                                              "value": 0
+                                            }
+                                          }
+                                        }
+                                      },
+                                      {
+                                        "type": "ExpressionStatement",
+                                        "expression": {
+                                          "type": "AssignmentExpression",
+                                          "operator": "=",
+                                          "left": {
+                                            "type": "MemberExpression",
+                                            "computed": true,
+                                            "object": {
+                                              "type": "Identifier",
+                                              "name": "edges"
+                                            },
+                                            "property": {
+                                              "type": "BinaryExpression",
+                                              "operator": "+",
+                                              "left": {
+                                                "type": "BinaryExpression",
+                                                "operator": "*",
+                                                "left": {
+                                                  "type": "Literal",
+                                                  "value": 2
+                                                },
+                                                "right": {
+                                                  "type": "Identifier",
+                                                  "name": "numEdges"
+                                                }
+                                              },
+                                              "right": {
+                                                "type": "Literal",
+                                                "value": 1
+                                              }
+                                            }
+                                          },
+                                          "right": {
+                                            "type": "MemberExpression",
+                                            "computed": true,
+                                            "object": {
+                                              "type": "Identifier",
+                                              "name": "edge"
+                                            },
+                                            "property": {
+                                              "type": "Literal",
+                                              "value": 1
+                                            }
+                                          }
+                                        }
+                                      },
+                                      {
+                                        "type": "ExpressionStatement",
+                                        "expression": {
+                                          "type": "AssignmentExpression",
+                                          "operator": "=",
+                                          "left": {
+                                            "type": "MemberExpression",
+                                            "computed": true,
+                                            "object": {
+                                              "type": "Identifier",
+                                              "name": "hash"
+                                            },
+                                            "property": {
+                                              "type": "Identifier",
+                                              "name": "key"
+                                            }
+                                          },
+                                          "right": {
+                                            "type": "Literal",
+                                            "value": true
+                                          }
+                                        }
+                                      },
+                                      {
+                                        "type": "ExpressionStatement",
+                                        "expression": {
+                                          "type": "UpdateExpression",
+                                          "operator": "++",
+                                          "argument": {
+                                            "type": "Identifier",
+                                            "name": "numEdges"
+                                          },
+                                          "prefix": false
+                                        }
+                                      }
+                                    ]
+                                  },
+                                  "alternate": null
+                                }
+                              ]
+                            }
+                          }
+                        ]
+                      }
+                    },
+                    {
+                      "type": "VariableDeclaration",
+                      "declarations": [
+                        {
+                          "type": "VariableDeclarator",
+                          "id": {
+                            "type": "Identifier",
+                            "name": "coords"
+                          },
+                          "init": {
+                            "type": "NewExpression",
+                            "callee": {
+                              "type": "Identifier",
+                              "name": "Float32Array"
+                            },
+                            "arguments": [
+                              {
+                                "type": "BinaryExpression",
+                                "operator": "*",
+                                "left": {
+                                  "type": "BinaryExpression",
+                                  "operator": "*",
+                                  "left": {
+                                    "type": "Identifier",
+                                    "name": "numEdges"
+                                  },
+                                  "right": {
+                                    "type": "Literal",
+                                    "value": 2
+                                  }
+                                },
+                                "right": {
+                                  "type": "Literal",
+                                  "value": 3
+                                }
+                              }
+                            ]
+                          }
+                        }
+                      ],
+                      "kind": "var"
+                    },
+                    {
+                      "type": "ForStatement",
+                      "init": {
+                        "type": "VariableDeclaration",
+                        "declarations": [
+                          {
+                            "type": "VariableDeclarator",
+                            "id": {
+                              "type": "Identifier",
+                              "name": "i"
+                            },
+                            "init": {
+                              "type": "Literal",
+                              "value": 0
+                            }
+                          },
+                          {
+                            "type": "VariableDeclarator",
+                            "id": {
+                              "type": "Identifier",
+                              "name": "l"
+                            },
+                            "init": {
+                              "type": "Identifier",
+                              "name": "numEdges"
+                            }
+                          }
+                        ],
+                        "kind": "var"
+                      },
+                      "test": {
+                        "type": "BinaryExpression",
+                        "operator": "<",
+                        "left": {
+                          "type": "Identifier",
+                          "name": "i"
+                        },
+                        "right": {
+                          "type": "Identifier",
+                          "name": "l"
+                        }
+                      },
+                      "update": {
+                        "type": "UpdateExpression",
+                        "operator": "++",
+                        "argument": {
+                          "type": "Identifier",
+                          "name": "i"
+                        },
+                        "prefix": false
+                      },
+                      "body": {
+                        "type": "BlockStatement",
+                        "body": [
+                          {
+                            "type": "ForStatement",
+                            "init": {
+                              "type": "VariableDeclaration",
+                              "declarations": [
+                                {
+                                  "type": "VariableDeclarator",
+                                  "id": {
+                                    "type": "Identifier",
+                                    "name": "j"
+                                  },
+                                  "init": {
+                                    "type": "Literal",
+                                    "value": 0
+                                  }
+                                }
+                              ],
+                              "kind": "var"
+                            },
+                            "test": {
+                              "type": "BinaryExpression",
+                              "operator": "<",
+                              "left": {
+                                "type": "Identifier",
+                                "name": "j"
+                              },
+                              "right": {
+                                "type": "Literal",
+                                "value": 2
+                              }
+                            },
+                            "update": {
+                              "type": "UpdateExpression",
+                              "operator": "++",
+                              "argument": {
+                                "type": "Identifier",
+                                "name": "j"
+                              },
+                              "prefix": false
+                            },
+                            "body": {
+                              "type": "BlockStatement",
+                              "body": [
+                                {
+                                  "type": "VariableDeclaration",
+                                  "declarations": [
+                                    {
+                                      "type": "VariableDeclarator",
+                                      "id": {
+                                        "type": "Identifier",
+                                        "name": "vertex"
+                                      },
+                                      "init": {
+                                        "type": "MemberExpression",
+                                        "computed": true,
+                                        "object": {
+                                          "type": "Identifier",
+                                          "name": "vertices"
+                                        },
+                                        "property": {
+                                          "type": "MemberExpression",
+                                          "computed": true,
+                                          "object": {
+                                            "type": "Identifier",
+                                            "name": "edges"
+                                          },
+                                          "property": {
+                                            "type": "BinaryExpression",
+                                            "operator": "+",
+                                            "left": {
+                                              "type": "BinaryExpression",
+                                              "operator": "*",
+                                              "left": {
+                                                "type": "Literal",
+                                                "value": 2
+                                              },
+                                              "right": {
+                                                "type": "Identifier",
+                                                "name": "i"
+                                              }
+                                            },
+                                            "right": {
+                                              "type": "Identifier",
+                                              "name": "j"
+                                            }
+                                          }
+                                        }
+                                      }
+                                    }
+                                  ],
+                                  "kind": "var"
+                                },
+                                {
+                                  "type": "VariableDeclaration",
+                                  "declarations": [
+                                    {
+                                      "type": "VariableDeclarator",
+                                      "id": {
+                                        "type": "Identifier",
+                                        "name": "index"
+                                      },
+                                      "init": {
+                                        "type": "BinaryExpression",
+                                        "operator": "+",
+                                        "left": {
+                                          "type": "BinaryExpression",
+                                          "operator": "*",
+                                          "left": {
+                                            "type": "Literal",
+                                            "value": 6
+                                          },
+                                          "right": {
+                                            "type": "Identifier",
+                                            "name": "i"
+                                          }
+                                        },
+                                        "right": {
+                                          "type": "BinaryExpression",
+                                          "operator": "*",
+                                          "left": {
+                                            "type": "Literal",
+                                            "value": 3
+                                          },
+                                          "right": {
+                                            "type": "Identifier",
+                                            "name": "j"
+                                          }
+                                        }
+                                      }
+                                    }
+                                  ],
+                                  "kind": "var"
+                                },
+                                {
+                                  "type": "ExpressionStatement",
+                                  "expression": {
+                                    "type": "AssignmentExpression",
+                                    "operator": "=",
+                                    "left": {
+                                      "type": "MemberExpression",
+                                      "computed": true,
+                                      "object": {
+                                        "type": "Identifier",
+                                        "name": "coords"
+                                      },
+                                      "property": {
+                                        "type": "BinaryExpression",
+                                        "operator": "+",
+                                        "left": {
+                                          "type": "Identifier",
+                                          "name": "index"
+                                        },
+                                        "right": {
+                                          "type": "Literal",
+                                          "value": 0
+                                        }
+                                      }
+                                    },
+                                    "right": {
+                                      "type": "MemberExpression",
+                                      "computed": false,
+                                      "object": {
+                                        "type": "Identifier",
+                                        "name": "vertex"
+                                      },
+                                      "property": {
+                                        "type": "Identifier",
+                                        "name": "x"
+                                      }
+                                    }
+                                  }
+                                },
+                                {
+                                  "type": "ExpressionStatement",
+                                  "expression": {
+                                    "type": "AssignmentExpression",
+                                    "operator": "=",
+                                    "left": {
+                                      "type": "MemberExpression",
+                                      "computed": true,
+                                      "object": {
+                                        "type": "Identifier",
+                                        "name": "coords"
+                                      },
+                                      "property": {
+                                        "type": "BinaryExpression",
+                                        "operator": "+",
+                                        "left": {
+                                          "type": "Identifier",
+                                          "name": "index"
+                                        },
+                                        "right": {
+                                          "type": "Literal",
+                                          "value": 1
+                                        }
+                                      }
+                                    },
+                                    "right": {
+                                      "type": "MemberExpression",
+                                      "computed": false,
+                                      "object": {
+                                        "type": "Identifier",
+                                        "name": "vertex"
+                                      },
+                                      "property": {
+                                        "type": "Identifier",
+                                        "name": "y"
+                                      }
+                                    }
+                                  }
+                                },
+                                {
+                                  "type": "ExpressionStatement",
+                                  "expression": {
+                                    "type": "AssignmentExpression",
+                                    "operator": "=",
+                                    "left": {
+                                      "type": "MemberExpression",
+                                      "computed": true,
+                                      "object": {
+                                        "type": "Identifier",
+                                        "name": "coords"
+                                      },
+                                      "property": {
+                                        "type": "BinaryExpression",
+                                        "operator": "+",
+                                        "left": {
+                                          "type": "Identifier",
+                                          "name": "index"
+                                        },
+                                        "right": {
+                                          "type": "Literal",
+                                          "value": 2
+                                        }
+                                      }
+                                    },
+                                    "right": {
+                                      "type": "MemberExpression",
+                                      "computed": false,
+                                      "object": {
+                                        "type": "Identifier",
+                                        "name": "vertex"
+                                      },
+                                      "property": {
+                                        "type": "Identifier",
+                                        "name": "z"
+                                      }
+                                    }
+                                  }
+                                }
+                              ]
+                            }
+                          }
+                        ]
+                      }
+                    },
+                    {
+                      "type": "ExpressionStatement",
+                      "expression": {
+                        "type": "CallExpression",
+                        "callee": {
+                          "type": "MemberExpression",
+                          "computed": false,
+                          "object": {
+                            "type": "Identifier",
+                            "name": "geometry"
+                          },
+                          "property": {
+                            "type": "Identifier",
+                            "name": "addAttribute"
+                          }
+                        },
+                        "arguments": [
+                          {
+                            "type": "Literal",
+                            "value": "position"
+                          },
+                          {
+                            "type": "NewExpression",
+                            "callee": {
+                              "type": "MemberExpression",
+                              "computed": false,
+                              "object": {
+                                "type": "Identifier",
+                                "name": "THREE"
+                              },
+                              "property": {
+                                "type": "Identifier",
+                                "name": "BufferAttribute"
+                              }
+                            },
+                            "arguments": [
+                              {
+                                "type": "Identifier",
+                                "name": "coords"
+                              },
+                              {
+                                "type": "Literal",
+                                "value": 3
+                              }
+                            ]
+                          }
+                        ]
+                      }
+                    }
+                  ]
+                },
+                "alternate": {
+                  "type": "IfStatement",
+                  "test": {
+                    "type": "BinaryExpression",
+                    "operator": "instanceof",
+                    "left": {
+                      "type": "MemberExpression",
+                      "computed": false,
+                      "object": {
+                        "type": "Identifier",
+                        "name": "object"
+                      },
+                      "property": {
+                        "type": "Identifier",
+                        "name": "geometry"
+                      }
+                    },
+                    "right": {
+                      "type": "MemberExpression",
+                      "computed": false,
+                      "object": {
+                        "type": "Identifier",
+                        "name": "THREE"
+                      },
+                      "property": {
+                        "type": "Identifier",
+                        "name": "BufferGeometry"
+                      }
+                    }
+                  },
+                  "consequent": {
+                    "type": "BlockStatement",
+                    "body": [
+                      {
+                        "type": "IfStatement",
+                        "test": {
+                          "type": "BinaryExpression",
+                          "operator": "!==",
+                          "left": {
+                            "type": "MemberExpression",
+                            "computed": false,
+                            "object": {
+                              "type": "MemberExpression",
+                              "computed": false,
+                              "object": {
+                                "type": "MemberExpression",
+                                "computed": false,
+                                "object": {
+                                  "type": "Identifier",
+                                  "name": "object"
+                                },
+                                "property": {
+                                  "type": "Identifier",
+                                  "name": "geometry"
+                                }
+                              },
+                              "property": {
+                                "type": "Identifier",
+                                "name": "attributes"
+                              }
+                            },
+                            "property": {
+                              "type": "Identifier",
+                              "name": "index"
+                            }
+                          },
+                          "right": {
+                            "type": "Identifier",
+                            "name": "undefined"
+                          }
+                        },
+                        "consequent": {
+                          "type": "BlockStatement",
+                          "body": [
+                            {
+                              "type": "VariableDeclaration",
+                              "declarations": [
+                                {
+                                  "type": "VariableDeclarator",
+                                  "id": {
+                                    "type": "Identifier",
+                                    "name": "vertices"
+                                  },
+                                  "init": {
+                                    "type": "MemberExpression",
+                                    "computed": false,
+                                    "object": {
+                                      "type": "MemberExpression",
+                                      "computed": false,
+                                      "object": {
+                                        "type": "MemberExpression",
+                                        "computed": false,
+                                        "object": {
+                                          "type": "MemberExpression",
+                                          "computed": false,
+                                          "object": {
+                                            "type": "Identifier",
+                                            "name": "object"
+                                          },
+                                          "property": {
+                                            "type": "Identifier",
+                                            "name": "geometry"
+                                          }
+                                        },
+                                        "property": {
+                                          "type": "Identifier",
+                                          "name": "attributes"
+                                        }
+                                      },
+                                      "property": {
+                                        "type": "Identifier",
+                                        "name": "position"
+                                      }
+                                    },
+                                    "property": {
+                                      "type": "Identifier",
+                                      "name": "array"
+                                    }
+                                  }
+                                }
+                              ],
+                              "kind": "var"
+                            },
+                            {
+                              "type": "VariableDeclaration",
+                              "declarations": [
+                                {
+                                  "type": "VariableDeclarator",
+                                  "id": {
+                                    "type": "Identifier",
+                                    "name": "indices"
+                                  },
+                                  "init": {
+                                    "type": "MemberExpression",
+                                    "computed": false,
+                                    "object": {
+                                      "type": "MemberExpression",
+                                      "computed": false,
+                                      "object": {
+                                        "type": "MemberExpression",
+                                        "computed": false,
+                                        "object": {
+                                          "type": "MemberExpression",
+                                          "computed": false,
+                                          "object": {
+                                            "type": "Identifier",
+                                            "name": "object"
+                                          },
+                                          "property": {
+                                            "type": "Identifier",
+                                            "name": "geometry"
+                                          }
+                                        },
+                                        "property": {
+                                          "type": "Identifier",
+                                          "name": "attributes"
+                                        }
+                                      },
+                                      "property": {
+                                        "type": "Identifier",
+                                        "name": "index"
+                                      }
+                                    },
+                                    "property": {
+                                      "type": "Identifier",
+                                      "name": "array"
+                                    }
+                                  }
+                                }
+                              ],
+                              "kind": "var"
+                            },
+                            {
+                              "type": "VariableDeclaration",
+                              "declarations": [
+                                {
+                                  "type": "VariableDeclarator",
+                                  "id": {
+                                    "type": "Identifier",
+                                    "name": "drawcalls"
+                                  },
+                                  "init": {
+                                    "type": "MemberExpression",
+                                    "computed": false,
+                                    "object": {
+                                      "type": "MemberExpression",
+                                      "computed": false,
+                                      "object": {
+                                        "type": "Identifier",
+                                        "name": "object"
+                                      },
+                                      "property": {
+                                        "type": "Identifier",
+                                        "name": "geometry"
+                                      }
+                                    },
+                                    "property": {
+                                      "type": "Identifier",
+                                      "name": "drawcalls"
+                                    }
+                                  }
+                                }
+                              ],
+                              "kind": "var"
+                            },
+                            {
+                              "type": "VariableDeclaration",
+                              "declarations": [
+                                {
+                                  "type": "VariableDeclarator",
+                                  "id": {
+                                    "type": "Identifier",
+                                    "name": "numEdges"
+                                  },
+                                  "init": {
+                                    "type": "Literal",
+                                    "value": 0
+                                  }
+                                }
+                              ],
+                              "kind": "var"
+                            },
+                            {
+                              "type": "IfStatement",
+                              "test": {
+                                "type": "BinaryExpression",
+                                "operator": "===",
+                                "left": {
+                                  "type": "MemberExpression",
+                                  "computed": false,
+                                  "object": {
+                                    "type": "Identifier",
+                                    "name": "drawcalls"
+                                  },
+                                  "property": {
+                                    "type": "Identifier",
+                                    "name": "length"
+                                  }
+                                },
+                                "right": {
+                                  "type": "Literal",
+                                  "value": 0
+                                }
+                              },
+                              "consequent": {
+                                "type": "BlockStatement",
+                                "body": [
+                                  {
+                                    "type": "ExpressionStatement",
+                                    "expression": {
+                                      "type": "AssignmentExpression",
+                                      "operator": "=",
+                                      "left": {
+                                        "type": "Identifier",
+                                        "name": "drawcalls"
+                                      },
+                                      "right": {
+                                        "type": "ArrayExpression",
+                                        "elements": [
+                                          {
+                                            "type": "ObjectExpression",
+                                            "properties": [
+                                              {
+                                                "type": "Property",
+                                                "key": {
+                                                  "type": "Identifier",
+                                                  "name": "count"
+                                                },
+                                                "value": {
+                                                  "type": "MemberExpression",
+                                                  "computed": false,
+                                                  "object": {
+                                                    "type": "Identifier",
+                                                    "name": "indices"
+                                                  },
+                                                  "property": {
+                                                    "type": "Identifier",
+                                                    "name": "length"
+                                                  }
+                                                },
+                                                "kind": "init"
+                                              },
+                                              {
+                                                "type": "Property",
+                                                "key": {
+                                                  "type": "Identifier",
+                                                  "name": "index"
+                                                },
+                                                "value": {
+                                                  "type": "Literal",
+                                                  "value": 0
+                                                },
+                                                "kind": "init"
+                                              },
+                                              {
+                                                "type": "Property",
+                                                "key": {
+                                                  "type": "Identifier",
+                                                  "name": "start"
+                                                },
+                                                "value": {
+                                                  "type": "Literal",
+                                                  "value": 0
+                                                },
+                                                "kind": "init"
+                                              }
+                                            ]
+                                          }
+                                        ]
+                                      }
+                                    }
+                                  }
+                                ]
+                              },
+                              "alternate": null
+                            },
+                            {
+                              "type": "VariableDeclaration",
+                              "declarations": [
+                                {
+                                  "type": "VariableDeclarator",
+                                  "id": {
+                                    "type": "Identifier",
+                                    "name": "edges"
+                                  },
+                                  "init": {
+                                    "type": "NewExpression",
+                                    "callee": {
+                                      "type": "Identifier",
+                                      "name": "Uint32Array"
+                                    },
+                                    "arguments": [
+                                      {
+                                        "type": "BinaryExpression",
+                                        "operator": "*",
+                                        "left": {
+                                          "type": "Literal",
+                                          "value": 2
+                                        },
+                                        "right": {
+                                          "type": "MemberExpression",
+                                          "computed": false,
+                                          "object": {
+                                            "type": "Identifier",
+                                            "name": "indices"
+                                          },
+                                          "property": {
+                                            "type": "Identifier",
+                                            "name": "length"
+                                          }
+                                        }
+                                      }
+                                    ]
+                                  }
+                                }
+                              ],
+                              "kind": "var"
+                            },
+                            {
+                              "type": "ForStatement",
+                              "init": {
+                                "type": "VariableDeclaration",
+                                "declarations": [
+                                  {
+                                    "type": "VariableDeclarator",
+                                    "id": {
+                                      "type": "Identifier",
+                                      "name": "o"
+                                    },
+                                    "init": {
+                                      "type": "Literal",
+                                      "value": 0
+                                    }
+                                  },
+                                  {
+                                    "type": "VariableDeclarator",
+                                    "id": {
+                                      "type": "Identifier",
+                                      "name": "ol"
+                                    },
+                                    "init": {
+                                      "type": "MemberExpression",
+                                      "computed": false,
+                                      "object": {
+                                        "type": "Identifier",
+                                        "name": "drawcalls"
+                                      },
+                                      "property": {
+                                        "type": "Identifier",
+                                        "name": "length"
+                                      }
+                                    }
+                                  }
+                                ],
+                                "kind": "var"
+                              },
+                              "test": {
+                                "type": "BinaryExpression",
+                                "operator": "<",
+                                "left": {
+                                  "type": "Identifier",
+                                  "name": "o"
+                                },
+                                "right": {
+                                  "type": "Identifier",
+                                  "name": "ol"
+                                }
+                              },
+                              "update": {
+                                "type": "UpdateExpression",
+                                "operator": "++",
+                                "argument": {
+                                  "type": "Identifier",
+                                  "name": "o"
+                                },
+                                "prefix": true
+                              },
+                              "body": {
+                                "type": "BlockStatement",
+                                "body": [
+                                  {
+                                    "type": "VariableDeclaration",
+                                    "declarations": [
+                                      {
+                                        "type": "VariableDeclarator",
+                                        "id": {
+                                          "type": "Identifier",
+                                          "name": "start"
+                                        },
+                                        "init": {
+                                          "type": "MemberExpression",
+                                          "computed": false,
+                                          "object": {
+                                            "type": "MemberExpression",
+                                            "computed": true,
+                                            "object": {
+                                              "type": "Identifier",
+                                              "name": "drawcalls"
+                                            },
+                                            "property": {
+                                              "type": "Identifier",
+                                              "name": "o"
+                                            }
+                                          },
+                                          "property": {
+                                            "type": "Identifier",
+                                            "name": "start"
+                                          }
+                                        }
+                                      }
+                                    ],
+                                    "kind": "var"
+                                  },
+                                  {
+                                    "type": "VariableDeclaration",
+                                    "declarations": [
+                                      {
+                                        "type": "VariableDeclarator",
+                                        "id": {
+                                          "type": "Identifier",
+                                          "name": "count"
+                                        },
+                                        "init": {
+                                          "type": "MemberExpression",
+                                          "computed": false,
+                                          "object": {
+                                            "type": "MemberExpression",
+                                            "computed": true,
+                                            "object": {
+                                              "type": "Identifier",
+                                              "name": "drawcalls"
+                                            },
+                                            "property": {
+                                              "type": "Identifier",
+                                              "name": "o"
+                                            }
+                                          },
+                                          "property": {
+                                            "type": "Identifier",
+                                            "name": "count"
+                                          }
+                                        }
+                                      }
+                                    ],
+                                    "kind": "var"
+                                  },
+                                  {
+                                    "type": "VariableDeclaration",
+                                    "declarations": [
+                                      {
+                                        "type": "VariableDeclarator",
+                                        "id": {
+                                          "type": "Identifier",
+                                          "name": "index"
+                                        },
+                                        "init": {
+                                          "type": "MemberExpression",
+                                          "computed": false,
+                                          "object": {
+                                            "type": "MemberExpression",
+                                            "computed": true,
+                                            "object": {
+                                              "type": "Identifier",
+                                              "name": "drawcalls"
+                                            },
+                                            "property": {
+                                              "type": "Identifier",
+                                              "name": "o"
+                                            }
+                                          },
+                                          "property": {
+                                            "type": "Identifier",
+                                            "name": "index"
+                                          }
+                                        }
+                                      }
+                                    ],
+                                    "kind": "var"
+                                  },
+                                  {
+                                    "type": "ForStatement",
+                                    "init": {
+                                      "type": "VariableDeclaration",
+                                      "declarations": [
+                                        {
+                                          "type": "VariableDeclarator",
+                                          "id": {
+                                            "type": "Identifier",
+                                            "name": "i"
+                                          },
+                                          "init": {
+                                            "type": "Identifier",
+                                            "name": "start"
+                                          }
+                                        },
+                                        {
+                                          "type": "VariableDeclarator",
+                                          "id": {
+                                            "type": "Identifier",
+                                            "name": "il"
+                                          },
+                                          "init": {
+                                            "type": "BinaryExpression",
+                                            "operator": "+",
+                                            "left": {
+                                              "type": "Identifier",
+                                              "name": "start"
+                                            },
+                                            "right": {
+                                              "type": "Identifier",
+                                              "name": "count"
+                                            }
+                                          }
+                                        }
+                                      ],
+                                      "kind": "var"
+                                    },
+                                    "test": {
+                                      "type": "BinaryExpression",
+                                      "operator": "<",
+                                      "left": {
+                                        "type": "Identifier",
+                                        "name": "i"
+                                      },
+                                      "right": {
+                                        "type": "Identifier",
+                                        "name": "il"
+                                      }
+                                    },
+                                    "update": {
+                                      "type": "AssignmentExpression",
+                                      "operator": "+=",
+                                      "left": {
+                                        "type": "Identifier",
+                                        "name": "i"
+                                      },
+                                      "right": {
+                                        "type": "Literal",
+                                        "value": 3
+                                      }
+                                    },
+                                    "body": {
+                                      "type": "BlockStatement",
+                                      "body": [
+                                        {
+                                          "type": "ForStatement",
+                                          "init": {
+                                            "type": "VariableDeclaration",
+                                            "declarations": [
+                                              {
+                                                "type": "VariableDeclarator",
+                                                "id": {
+                                                  "type": "Identifier",
+                                                  "name": "j"
+                                                },
+                                                "init": {
+                                                  "type": "Literal",
+                                                  "value": 0
+                                                }
+                                              }
+                                            ],
+                                            "kind": "var"
+                                          },
+                                          "test": {
+                                            "type": "BinaryExpression",
+                                            "operator": "<",
+                                            "left": {
+                                              "type": "Identifier",
+                                              "name": "j"
+                                            },
+                                            "right": {
+                                              "type": "Literal",
+                                              "value": 3
+                                            }
+                                          },
+                                          "update": {
+                                            "type": "UpdateExpression",
+                                            "operator": "++",
+                                            "argument": {
+                                              "type": "Identifier",
+                                              "name": "j"
+                                            },
+                                            "prefix": false
+                                          },
+                                          "body": {
+                                            "type": "BlockStatement",
+                                            "body": [
+                                              {
+                                                "type": "ExpressionStatement",
+                                                "expression": {
+                                                  "type": "AssignmentExpression",
+                                                  "operator": "=",
+                                                  "left": {
+                                                    "type": "MemberExpression",
+                                                    "computed": true,
+                                                    "object": {
+                                                      "type": "Identifier",
+                                                      "name": "edge"
+                                                    },
+                                                    "property": {
+                                                      "type": "Literal",
+                                                      "value": 0
+                                                    }
+                                                  },
+                                                  "right": {
+                                                    "type": "BinaryExpression",
+                                                    "operator": "+",
+                                                    "left": {
+                                                      "type": "Identifier",
+                                                      "name": "index"
+                                                    },
+                                                    "right": {
+                                                      "type": "MemberExpression",
+                                                      "computed": true,
+                                                      "object": {
+                                                        "type": "Identifier",
+                                                        "name": "indices"
+                                                      },
+                                                      "property": {
+                                                        "type": "BinaryExpression",
+                                                        "operator": "+",
+                                                        "left": {
+                                                          "type": "Identifier",
+                                                          "name": "i"
+                                                        },
+                                                        "right": {
+                                                          "type": "Identifier",
+                                                          "name": "j"
+                                                        }
+                                                      }
+                                                    }
+                                                  }
+                                                }
+                                              },
+                                              {
+                                                "type": "ExpressionStatement",
+                                                "expression": {
+                                                  "type": "AssignmentExpression",
+                                                  "operator": "=",
+                                                  "left": {
+                                                    "type": "MemberExpression",
+                                                    "computed": true,
+                                                    "object": {
+                                                      "type": "Identifier",
+                                                      "name": "edge"
+                                                    },
+                                                    "property": {
+                                                      "type": "Literal",
+                                                      "value": 1
+                                                    }
+                                                  },
+                                                  "right": {
+                                                    "type": "BinaryExpression",
+                                                    "operator": "+",
+                                                    "left": {
+                                                      "type": "Identifier",
+                                                      "name": "index"
+                                                    },
+                                                    "right": {
+                                                      "type": "MemberExpression",
+                                                      "computed": true,
+                                                      "object": {
+                                                        "type": "Identifier",
+                                                        "name": "indices"
+                                                      },
+                                                      "property": {
+                                                        "type": "BinaryExpression",
+                                                        "operator": "+",
+                                                        "left": {
+                                                          "type": "Identifier",
+                                                          "name": "i"
+                                                        },
+                                                        "right": {
+                                                          "type": "BinaryExpression",
+                                                          "operator": "%",
+                                                          "left": {
+                                                            "type": "BinaryExpression",
+                                                            "operator": "+",
+                                                            "left": {
+                                                              "type": "Identifier",
+                                                              "name": "j"
+                                                            },
+                                                            "right": {
+                                                              "type": "Literal",
+                                                              "value": 1
+                                                            }
+                                                          },
+                                                          "right": {
+                                                            "type": "Literal",
+                                                            "value": 3
+                                                          }
+                                                        }
+                                                      }
+                                                    }
+                                                  }
+                                                }
+                                              },
+                                              {
+                                                "type": "ExpressionStatement",
+                                                "expression": {
+                                                  "type": "CallExpression",
+                                                  "callee": {
+                                                    "type": "MemberExpression",
+                                                    "computed": false,
+                                                    "object": {
+                                                      "type": "Identifier",
+                                                      "name": "edge"
+                                                    },
+                                                    "property": {
+                                                      "type": "Identifier",
+                                                      "name": "sort"
+                                                    }
+                                                  },
+                                                  "arguments": [
+                                                    {
+                                                      "type": "Identifier",
+                                                      "name": "sortFunction"
+                                                    }
+                                                  ]
+                                                }
+                                              },
+                                              {
+                                                "type": "VariableDeclaration",
+                                                "declarations": [
+                                                  {
+                                                    "type": "VariableDeclarator",
+                                                    "id": {
+                                                      "type": "Identifier",
+                                                      "name": "key"
+                                                    },
+                                                    "init": {
+                                                      "type": "CallExpression",
+                                                      "callee": {
+                                                        "type": "MemberExpression",
+                                                        "computed": false,
+                                                        "object": {
+                                                          "type": "Identifier",
+                                                          "name": "edge"
+                                                        },
+                                                        "property": {
+                                                          "type": "Identifier",
+                                                          "name": "toString"
+                                                        }
+                                                      },
+                                                      "arguments": []
+                                                    }
+                                                  }
+                                                ],
+                                                "kind": "var"
+                                              },
+                                              {
+                                                "type": "IfStatement",
+                                                "test": {
+                                                  "type": "BinaryExpression",
+                                                  "operator": "===",
+                                                  "left": {
+                                                    "type": "MemberExpression",
+                                                    "computed": true,
+                                                    "object": {
+                                                      "type": "Identifier",
+                                                      "name": "hash"
+                                                    },
+                                                    "property": {
+                                                      "type": "Identifier",
+                                                      "name": "key"
+                                                    }
+                                                  },
+                                                  "right": {
+                                                    "type": "Identifier",
+                                                    "name": "undefined"
+                                                  }
+                                                },
+                                                "consequent": {
+                                                  "type": "BlockStatement",
+                                                  "body": [
+                                                    {
+                                                      "type": "ExpressionStatement",
+                                                      "expression": {
+                                                        "type": "AssignmentExpression",
+                                                        "operator": "=",
+                                                        "left": {
+                                                          "type": "MemberExpression",
+                                                          "computed": true,
+                                                          "object": {
+                                                            "type": "Identifier",
+                                                            "name": "edges"
+                                                          },
+                                                          "property": {
+                                                            "type": "BinaryExpression",
+                                                            "operator": "*",
+                                                            "left": {
+                                                              "type": "Literal",
+                                                              "value": 2
+                                                            },
+                                                            "right": {
+                                                              "type": "Identifier",
+                                                              "name": "numEdges"
+                                                            }
+                                                          }
+                                                        },
+                                                        "right": {
+                                                          "type": "MemberExpression",
+                                                          "computed": true,
+                                                          "object": {
+                                                            "type": "Identifier",
+                                                            "name": "edge"
+                                                          },
+                                                          "property": {
+                                                            "type": "Literal",
+                                                            "value": 0
+                                                          }
+                                                        }
+                                                      }
+                                                    },
+                                                    {
+                                                      "type": "ExpressionStatement",
+                                                      "expression": {
+                                                        "type": "AssignmentExpression",
+                                                        "operator": "=",
+                                                        "left": {
+                                                          "type": "MemberExpression",
+                                                          "computed": true,
+                                                          "object": {
+                                                            "type": "Identifier",
+                                                            "name": "edges"
+                                                          },
+                                                          "property": {
+                                                            "type": "BinaryExpression",
+                                                            "operator": "+",
+                                                            "left": {
+                                                              "type": "BinaryExpression",
+                                                              "operator": "*",
+                                                              "left": {
+                                                                "type": "Literal",
+                                                                "value": 2
+                                                              },
+                                                              "right": {
+                                                                "type": "Identifier",
+                                                                "name": "numEdges"
+                                                              }
+                                                            },
+                                                            "right": {
+                                                              "type": "Literal",
+                                                              "value": 1
+                                                            }
+                                                          }
+                                                        },
+                                                        "right": {
+                                                          "type": "MemberExpression",
+                                                          "computed": true,
+                                                          "object": {
+                                                            "type": "Identifier",
+                                                            "name": "edge"
+                                                          },
+                                                          "property": {
+                                                            "type": "Literal",
+                                                            "value": 1
+                                                          }
+                                                        }
+                                                      }
+                                                    },
+                                                    {
+                                                      "type": "ExpressionStatement",
+                                                      "expression": {
+                                                        "type": "AssignmentExpression",
+                                                        "operator": "=",
+                                                        "left": {
+                                                          "type": "MemberExpression",
+                                                          "computed": true,
+                                                          "object": {
+                                                            "type": "Identifier",
+                                                            "name": "hash"
+                                                          },
+                                                          "property": {
+                                                            "type": "Identifier",
+                                                            "name": "key"
+                                                          }
+                                                        },
+                                                        "right": {
+                                                          "type": "Literal",
+                                                          "value": true
+                                                        }
+                                                      }
+                                                    },
+                                                    {
+                                                      "type": "ExpressionStatement",
+                                                      "expression": {
+                                                        "type": "UpdateExpression",
+                                                        "operator": "++",
+                                                        "argument": {
+                                                          "type": "Identifier",
+                                                          "name": "numEdges"
+                                                        },
+                                                        "prefix": false
+                                                      }
+                                                    }
+                                                  ]
+                                                },
+                                                "alternate": null
+                                              }
+                                            ]
+                                          }
+                                        }
+                                      ]
+                                    }
+                                  }
+                                ]
+                              }
+                            },
+                            {
+                              "type": "VariableDeclaration",
+                              "declarations": [
+                                {
+                                  "type": "VariableDeclarator",
+                                  "id": {
+                                    "type": "Identifier",
+                                    "name": "coords"
+                                  },
+                                  "init": {
+                                    "type": "NewExpression",
+                                    "callee": {
+                                      "type": "Identifier",
+                                      "name": "Float32Array"
+                                    },
+                                    "arguments": [
+                                      {
+                                        "type": "BinaryExpression",
+                                        "operator": "*",
+                                        "left": {
+                                          "type": "BinaryExpression",
+                                          "operator": "*",
+                                          "left": {
+                                            "type": "Identifier",
+                                            "name": "numEdges"
+                                          },
+                                          "right": {
+                                            "type": "Literal",
+                                            "value": 2
+                                          }
+                                        },
+                                        "right": {
+                                          "type": "Literal",
+                                          "value": 3
+                                        }
+                                      }
+                                    ]
+                                  }
+                                }
+                              ],
+                              "kind": "var"
+                            },
+                            {
+                              "type": "ForStatement",
+                              "init": {
+                                "type": "VariableDeclaration",
+                                "declarations": [
+                                  {
+                                    "type": "VariableDeclarator",
+                                    "id": {
+                                      "type": "Identifier",
+                                      "name": "i"
+                                    },
+                                    "init": {
+                                      "type": "Literal",
+                                      "value": 0
+                                    }
+                                  },
+                                  {
+                                    "type": "VariableDeclarator",
+                                    "id": {
+                                      "type": "Identifier",
+                                      "name": "l"
+                                    },
+                                    "init": {
+                                      "type": "Identifier",
+                                      "name": "numEdges"
+                                    }
+                                  }
+                                ],
+                                "kind": "var"
+                              },
+                              "test": {
+                                "type": "BinaryExpression",
+                                "operator": "<",
+                                "left": {
+                                  "type": "Identifier",
+                                  "name": "i"
+                                },
+                                "right": {
+                                  "type": "Identifier",
+                                  "name": "l"
+                                }
+                              },
+                              "update": {
+                                "type": "UpdateExpression",
+                                "operator": "++",
+                                "argument": {
+                                  "type": "Identifier",
+                                  "name": "i"
+                                },
+                                "prefix": false
+                              },
+                              "body": {
+                                "type": "BlockStatement",
+                                "body": [
+                                  {
+                                    "type": "ForStatement",
+                                    "init": {
+                                      "type": "VariableDeclaration",
+                                      "declarations": [
+                                        {
+                                          "type": "VariableDeclarator",
+                                          "id": {
+                                            "type": "Identifier",
+                                            "name": "j"
+                                          },
+                                          "init": {
+                                            "type": "Literal",
+                                            "value": 0
+                                          }
+                                        }
+                                      ],
+                                      "kind": "var"
+                                    },
+                                    "test": {
+                                      "type": "BinaryExpression",
+                                      "operator": "<",
+                                      "left": {
+                                        "type": "Identifier",
+                                        "name": "j"
+                                      },
+                                      "right": {
+                                        "type": "Literal",
+                                        "value": 2
+                                      }
+                                    },
+                                    "update": {
+                                      "type": "UpdateExpression",
+                                      "operator": "++",
+                                      "argument": {
+                                        "type": "Identifier",
+                                        "name": "j"
+                                      },
+                                      "prefix": false
+                                    },
+                                    "body": {
+                                      "type": "BlockStatement",
+                                      "body": [
+                                        {
+                                          "type": "VariableDeclaration",
+                                          "declarations": [
+                                            {
+                                              "type": "VariableDeclarator",
+                                              "id": {
+                                                "type": "Identifier",
+                                                "name": "index"
+                                              },
+                                              "init": {
+                                                "type": "BinaryExpression",
+                                                "operator": "+",
+                                                "left": {
+                                                  "type": "BinaryExpression",
+                                                  "operator": "*",
+                                                  "left": {
+                                                    "type": "Literal",
+                                                    "value": 6
+                                                  },
+                                                  "right": {
+                                                    "type": "Identifier",
+                                                    "name": "i"
+                                                  }
+                                                },
+                                                "right": {
+                                                  "type": "BinaryExpression",
+                                                  "operator": "*",
+                                                  "left": {
+                                                    "type": "Literal",
+                                                    "value": 3
+                                                  },
+                                                  "right": {
+                                                    "type": "Identifier",
+                                                    "name": "j"
+                                                  }
+                                                }
+                                              }
+                                            }
+                                          ],
+                                          "kind": "var"
+                                        },
+                                        {
+                                          "type": "VariableDeclaration",
+                                          "declarations": [
+                                            {
+                                              "type": "VariableDeclarator",
+                                              "id": {
+                                                "type": "Identifier",
+                                                "name": "index2"
+                                              },
+                                              "init": {
+                                                "type": "BinaryExpression",
+                                                "operator": "*",
+                                                "left": {
+                                                  "type": "Literal",
+                                                  "value": 3
+                                                },
+                                                "right": {
+                                                  "type": "MemberExpression",
+                                                  "computed": true,
+                                                  "object": {
+                                                    "type": "Identifier",
+                                                    "name": "edges"
+                                                  },
+                                                  "property": {
+                                                    "type": "BinaryExpression",
+                                                    "operator": "+",
+                                                    "left": {
+                                                      "type": "BinaryExpression",
+                                                      "operator": "*",
+                                                      "left": {
+                                                        "type": "Literal",
+                                                        "value": 2
+                                                      },
+                                                      "right": {
+                                                        "type": "Identifier",
+                                                        "name": "i"
+                                                      }
+                                                    },
+                                                    "right": {
+                                                      "type": "Identifier",
+                                                      "name": "j"
+                                                    }
+                                                  }
+                                                }
+                                              }
+                                            }
+                                          ],
+                                          "kind": "var"
+                                        },
+                                        {
+                                          "type": "ExpressionStatement",
+                                          "expression": {
+                                            "type": "AssignmentExpression",
+                                            "operator": "=",
+                                            "left": {
+                                              "type": "MemberExpression",
+                                              "computed": true,
+                                              "object": {
+                                                "type": "Identifier",
+                                                "name": "coords"
+                                              },
+                                              "property": {
+                                                "type": "BinaryExpression",
+                                                "operator": "+",
+                                                "left": {
+                                                  "type": "Identifier",
+                                                  "name": "index"
+                                                },
+                                                "right": {
+                                                  "type": "Literal",
+                                                  "value": 0
+                                                }
+                                              }
+                                            },
+                                            "right": {
+                                              "type": "MemberExpression",
+                                              "computed": true,
+                                              "object": {
+                                                "type": "Identifier",
+                                                "name": "vertices"
+                                              },
+                                              "property": {
+                                                "type": "Identifier",
+                                                "name": "index2"
+                                              }
+                                            }
+                                          }
+                                        },
+                                        {
+                                          "type": "ExpressionStatement",
+                                          "expression": {
+                                            "type": "AssignmentExpression",
+                                            "operator": "=",
+                                            "left": {
+                                              "type": "MemberExpression",
+                                              "computed": true,
+                                              "object": {
+                                                "type": "Identifier",
+                                                "name": "coords"
+                                              },
+                                              "property": {
+                                                "type": "BinaryExpression",
+                                                "operator": "+",
+                                                "left": {
+                                                  "type": "Identifier",
+                                                  "name": "index"
+                                                },
+                                                "right": {
+                                                  "type": "Literal",
+                                                  "value": 1
+                                                }
+                                              }
+                                            },
+                                            "right": {
+                                              "type": "MemberExpression",
+                                              "computed": true,
+                                              "object": {
+                                                "type": "Identifier",
+                                                "name": "vertices"
+                                              },
+                                              "property": {
+                                                "type": "BinaryExpression",
+                                                "operator": "+",
+                                                "left": {
+                                                  "type": "Identifier",
+                                                  "name": "index2"
+                                                },
+                                                "right": {
+                                                  "type": "Literal",
+                                                  "value": 1
+                                                }
+                                              }
+                                            }
+                                          }
+                                        },
+                                        {
+                                          "type": "ExpressionStatement",
+                                          "expression": {
+                                            "type": "AssignmentExpression",
+                                            "operator": "=",
+                                            "left": {
+                                              "type": "MemberExpression",
+                                              "computed": true,
+                                              "object": {
+                                                "type": "Identifier",
+                                                "name": "coords"
+                                              },
+                                              "property": {
+                                                "type": "BinaryExpression",
+                                                "operator": "+",
+                                                "left": {
+                                                  "type": "Identifier",
+                                                  "name": "index"
+                                                },
+                                                "right": {
+                                                  "type": "Literal",
+                                                  "value": 2
+                                                }
+                                              }
+                                            },
+                                            "right": {
+                                              "type": "MemberExpression",
+                                              "computed": true,
+                                              "object": {
+                                                "type": "Identifier",
+                                                "name": "vertices"
+                                              },
+                                              "property": {
+                                                "type": "BinaryExpression",
+                                                "operator": "+",
+                                                "left": {
+                                                  "type": "Identifier",
+                                                  "name": "index2"
+                                                },
+                                                "right": {
+                                                  "type": "Literal",
+                                                  "value": 2
+                                                }
+                                              }
+                                            }
+                                          }
+                                        }
+                                      ]
+                                    }
+                                  }
+                                ]
+                              }
+                            },
+                            {
+                              "type": "ExpressionStatement",
+                              "expression": {
+                                "type": "CallExpression",
+                                "callee": {
+                                  "type": "MemberExpression",
+                                  "computed": false,
+                                  "object": {
+                                    "type": "Identifier",
+                                    "name": "geometry"
+                                  },
+                                  "property": {
+                                    "type": "Identifier",
+                                    "name": "addAttribute"
+                                  }
+                                },
+                                "arguments": [
+                                  {
+                                    "type": "Literal",
+                                    "value": "position"
+                                  },
+                                  {
+                                    "type": "NewExpression",
+                                    "callee": {
+                                      "type": "MemberExpression",
+                                      "computed": false,
+                                      "object": {
+                                        "type": "Identifier",
+                                        "name": "THREE"
+                                      },
+                                      "property": {
+                                        "type": "Identifier",
+                                        "name": "BufferAttribute"
+                                      }
+                                    },
+                                    "arguments": [
+                                      {
+                                        "type": "Identifier",
+                                        "name": "coords"
+                                      },
+                                      {
+                                        "type": "Literal",
+                                        "value": 3
+                                      }
+                                    ]
+                                  }
+                                ]
+                              }
+                            }
+                          ]
+                        },
+                        "alternate": {
+                          "type": "BlockStatement",
+                          "body": [
+                            {
+                              "type": "VariableDeclaration",
+                              "declarations": [
+                                {
+                                  "type": "VariableDeclarator",
+                                  "id": {
+                                    "type": "Identifier",
+                                    "name": "vertices"
+                                  },
+                                  "init": {
+                                    "type": "MemberExpression",
+                                    "computed": false,
+                                    "object": {
+                                      "type": "MemberExpression",
+                                      "computed": false,
+                                      "object": {
+                                        "type": "MemberExpression",
+                                        "computed": false,
+                                        "object": {
+                                          "type": "MemberExpression",
+                                          "computed": false,
+                                          "object": {
+                                            "type": "Identifier",
+                                            "name": "object"
+                                          },
+                                          "property": {
+                                            "type": "Identifier",
+                                            "name": "geometry"
+                                          }
+                                        },
+                                        "property": {
+                                          "type": "Identifier",
+                                          "name": "attributes"
+                                        }
+                                      },
+                                      "property": {
+                                        "type": "Identifier",
+                                        "name": "position"
+                                      }
+                                    },
+                                    "property": {
+                                      "type": "Identifier",
+                                      "name": "array"
+                                    }
+                                  }
+                                }
+                              ],
+                              "kind": "var"
+                            },
+                            {
+                              "type": "VariableDeclaration",
+                              "declarations": [
+                                {
+                                  "type": "VariableDeclarator",
+                                  "id": {
+                                    "type": "Identifier",
+                                    "name": "numEdges"
+                                  },
+                                  "init": {
+                                    "type": "BinaryExpression",
+                                    "operator": "/",
+                                    "left": {
+                                      "type": "MemberExpression",
+                                      "computed": false,
+                                      "object": {
+                                        "type": "Identifier",
+                                        "name": "vertices"
+                                      },
+                                      "property": {
+                                        "type": "Identifier",
+                                        "name": "length"
+                                      }
+                                    },
+                                    "right": {
+                                      "type": "Literal",
+                                      "value": 3
+                                    }
+                                  }
+                                }
+                              ],
+                              "kind": "var"
+                            },
+                            {
+                              "type": "VariableDeclaration",
+                              "declarations": [
+                                {
+                                  "type": "VariableDeclarator",
+                                  "id": {
+                                    "type": "Identifier",
+                                    "name": "numTris"
+                                  },
+                                  "init": {
+                                    "type": "BinaryExpression",
+                                    "operator": "/",
+                                    "left": {
+                                      "type": "Identifier",
+                                      "name": "numEdges"
+                                    },
+                                    "right": {
+                                      "type": "Literal",
+                                      "value": 3
+                                    }
+                                  }
+                                }
+                              ],
+                              "kind": "var"
+                            },
+                            {
+                              "type": "VariableDeclaration",
+                              "declarations": [
+                                {
+                                  "type": "VariableDeclarator",
+                                  "id": {
+                                    "type": "Identifier",
+                                    "name": "coords"
+                                  },
+                                  "init": {
+                                    "type": "NewExpression",
+                                    "callee": {
+                                      "type": "Identifier",
+                                      "name": "Float32Array"
+                                    },
+                                    "arguments": [
+                                      {
+                                        "type": "BinaryExpression",
+                                        "operator": "*",
+                                        "left": {
+                                          "type": "BinaryExpression",
+                                          "operator": "*",
+                                          "left": {
+                                            "type": "Identifier",
+                                            "name": "numEdges"
+                                          },
+                                          "right": {
+                                            "type": "Literal",
+                                            "value": 2
+                                          }
+                                        },
+                                        "right": {
+                                          "type": "Literal",
+                                          "value": 3
+                                        }
+                                      }
+                                    ]
+                                  }
+                                }
+                              ],
+                              "kind": "var"
+                            },
+                            {
+                              "type": "ForStatement",
+                              "init": {
+                                "type": "VariableDeclaration",
+                                "declarations": [
+                                  {
+                                    "type": "VariableDeclarator",
+                                    "id": {
+                                      "type": "Identifier",
+                                      "name": "i"
+                                    },
+                                    "init": {
+                                      "type": "Literal",
+                                      "value": 0
+                                    }
+                                  },
+                                  {
+                                    "type": "VariableDeclarator",
+                                    "id": {
+                                      "type": "Identifier",
+                                      "name": "l"
+                                    },
+                                    "init": {
+                                      "type": "Identifier",
+                                      "name": "numTris"
+                                    }
+                                  }
+                                ],
+                                "kind": "var"
+                              },
+                              "test": {
+                                "type": "BinaryExpression",
+                                "operator": "<",
+                                "left": {
+                                  "type": "Identifier",
+                                  "name": "i"
+                                },
+                                "right": {
+                                  "type": "Identifier",
+                                  "name": "l"
+                                }
+                              },
+                              "update": {
+                                "type": "UpdateExpression",
+                                "operator": "++",
+                                "argument": {
+                                  "type": "Identifier",
+                                  "name": "i"
+                                },
+                                "prefix": false
+                              },
+                              "body": {
+                                "type": "BlockStatement",
+                                "body": [
+                                  {
+                                    "type": "ForStatement",
+                                    "init": {
+                                      "type": "VariableDeclaration",
+                                      "declarations": [
+                                        {
+                                          "type": "VariableDeclarator",
+                                          "id": {
+                                            "type": "Identifier",
+                                            "name": "j"
+                                          },
+                                          "init": {
+                                            "type": "Literal",
+                                            "value": 0
+                                          }
+                                        }
+                                      ],
+                                      "kind": "var"
+                                    },
+                                    "test": {
+                                      "type": "BinaryExpression",
+                                      "operator": "<",
+                                      "left": {
+                                        "type": "Identifier",
+                                        "name": "j"
+                                      },
+                                      "right": {
+                                        "type": "Literal",
+                                        "value": 3
+                                      }
+                                    },
+                                    "update": {
+                                      "type": "UpdateExpression",
+                                      "operator": "++",
+                                      "argument": {
+                                        "type": "Identifier",
+                                        "name": "j"
+                                      },
+                                      "prefix": false
+                                    },
+                                    "body": {
+                                      "type": "BlockStatement",
+                                      "body": [
+                                        {
+                                          "type": "VariableDeclaration",
+                                          "declarations": [
+                                            {
+                                              "type": "VariableDeclarator",
+                                              "id": {
+                                                "type": "Identifier",
+                                                "name": "index"
+                                              },
+                                              "init": {
+                                                "type": "BinaryExpression",
+                                                "operator": "+",
+                                                "left": {
+                                                  "type": "BinaryExpression",
+                                                  "operator": "*",
+                                                  "left": {
+                                                    "type": "Literal",
+                                                    "value": 18
+                                                  },
+                                                  "right": {
+                                                    "type": "Identifier",
+                                                    "name": "i"
+                                                  }
+                                                },
+                                                "right": {
+                                                  "type": "BinaryExpression",
+                                                  "operator": "*",
+                                                  "left": {
+                                                    "type": "Literal",
+                                                    "value": 6
+                                                  },
+                                                  "right": {
+                                                    "type": "Identifier",
+                                                    "name": "j"
+                                                  }
+                                                }
+                                              }
+                                            }
+                                          ],
+                                          "kind": "var"
+                                        },
+                                        {
+                                          "type": "VariableDeclaration",
+                                          "declarations": [
+                                            {
+                                              "type": "VariableDeclarator",
+                                              "id": {
+                                                "type": "Identifier",
+                                                "name": "index1"
+                                              },
+                                              "init": {
+                                                "type": "BinaryExpression",
+                                                "operator": "+",
+                                                "left": {
+                                                  "type": "BinaryExpression",
+                                                  "operator": "*",
+                                                  "left": {
+                                                    "type": "Literal",
+                                                    "value": 9
+                                                  },
+                                                  "right": {
+                                                    "type": "Identifier",
+                                                    "name": "i"
+                                                  }
+                                                },
+                                                "right": {
+                                                  "type": "BinaryExpression",
+                                                  "operator": "*",
+                                                  "left": {
+                                                    "type": "Literal",
+                                                    "value": 3
+                                                  },
+                                                  "right": {
+                                                    "type": "Identifier",
+                                                    "name": "j"
+                                                  }
+                                                }
+                                              }
+                                            }
+                                          ],
+                                          "kind": "var"
+                                        },
+                                        {
+                                          "type": "ExpressionStatement",
+                                          "expression": {
+                                            "type": "AssignmentExpression",
+                                            "operator": "=",
+                                            "left": {
+                                              "type": "MemberExpression",
+                                              "computed": true,
+                                              "object": {
+                                                "type": "Identifier",
+                                                "name": "coords"
+                                              },
+                                              "property": {
+                                                "type": "BinaryExpression",
+                                                "operator": "+",
+                                                "left": {
+                                                  "type": "Identifier",
+                                                  "name": "index"
+                                                },
+                                                "right": {
+                                                  "type": "Literal",
+                                                  "value": 0
+                                                }
+                                              }
+                                            },
+                                            "right": {
+                                              "type": "MemberExpression",
+                                              "computed": true,
+                                              "object": {
+                                                "type": "Identifier",
+                                                "name": "vertices"
+                                              },
+                                              "property": {
+                                                "type": "Identifier",
+                                                "name": "index1"
+                                              }
+                                            }
+                                          }
+                                        },
+                                        {
+                                          "type": "ExpressionStatement",
+                                          "expression": {
+                                            "type": "AssignmentExpression",
+                                            "operator": "=",
+                                            "left": {
+                                              "type": "MemberExpression",
+                                              "computed": true,
+                                              "object": {
+                                                "type": "Identifier",
+                                                "name": "coords"
+                                              },
+                                              "property": {
+                                                "type": "BinaryExpression",
+                                                "operator": "+",
+                                                "left": {
+                                                  "type": "Identifier",
+                                                  "name": "index"
+                                                },
+                                                "right": {
+                                                  "type": "Literal",
+                                                  "value": 1
+                                                }
+                                              }
+                                            },
+                                            "right": {
+                                              "type": "MemberExpression",
+                                              "computed": true,
+                                              "object": {
+                                                "type": "Identifier",
+                                                "name": "vertices"
+                                              },
+                                              "property": {
+                                                "type": "BinaryExpression",
+                                                "operator": "+",
+                                                "left": {
+                                                  "type": "Identifier",
+                                                  "name": "index1"
+                                                },
+                                                "right": {
+                                                  "type": "Literal",
+                                                  "value": 1
+                                                }
+                                              }
+                                            }
+                                          }
+                                        },
+                                        {
+                                          "type": "ExpressionStatement",
+                                          "expression": {
+                                            "type": "AssignmentExpression",
+                                            "operator": "=",
+                                            "left": {
+                                              "type": "MemberExpression",
+                                              "computed": true,
+                                              "object": {
+                                                "type": "Identifier",
+                                                "name": "coords"
+                                              },
+                                              "property": {
+                                                "type": "BinaryExpression",
+                                                "operator": "+",
+                                                "left": {
+                                                  "type": "Identifier",
+                                                  "name": "index"
+                                                },
+                                                "right": {
+                                                  "type": "Literal",
+                                                  "value": 2
+                                                }
+                                              }
+                                            },
+                                            "right": {
+                                              "type": "MemberExpression",
+                                              "computed": true,
+                                              "object": {
+                                                "type": "Identifier",
+                                                "name": "vertices"
+                                              },
+                                              "property": {
+                                                "type": "BinaryExpression",
+                                                "operator": "+",
+                                                "left": {
+                                                  "type": "Identifier",
+                                                  "name": "index1"
+                                                },
+                                                "right": {
+                                                  "type": "Literal",
+                                                  "value": 2
+                                                }
+                                              }
+                                            }
+                                          }
+                                        },
+                                        {
+                                          "type": "VariableDeclaration",
+                                          "declarations": [
+                                            {
+                                              "type": "VariableDeclarator",
+                                              "id": {
+                                                "type": "Identifier",
+                                                "name": "index2"
+                                              },
+                                              "init": {
+                                                "type": "BinaryExpression",
+                                                "operator": "+",
+                                                "left": {
+                                                  "type": "BinaryExpression",
+                                                  "operator": "*",
+                                                  "left": {
+                                                    "type": "Literal",
+                                                    "value": 9
+                                                  },
+                                                  "right": {
+                                                    "type": "Identifier",
+                                                    "name": "i"
+                                                  }
+                                                },
+                                                "right": {
+                                                  "type": "BinaryExpression",
+                                                  "operator": "*",
+                                                  "left": {
+                                                    "type": "Literal",
+                                                    "value": 3
+                                                  },
+                                                  "right": {
+                                                    "type": "BinaryExpression",
+                                                    "operator": "%",
+                                                    "left": {
+                                                      "type": "BinaryExpression",
+                                                      "operator": "+",
+                                                      "left": {
+                                                        "type": "Identifier",
+                                                        "name": "j"
+                                                      },
+                                                      "right": {
+                                                        "type": "Literal",
+                                                        "value": 1
+                                                      }
+                                                    },
+                                                    "right": {
+                                                      "type": "Literal",
+                                                      "value": 3
+                                                    }
+                                                  }
+                                                }
+                                              }
+                                            }
+                                          ],
+                                          "kind": "var"
+                                        },
+                                        {
+                                          "type": "ExpressionStatement",
+                                          "expression": {
+                                            "type": "AssignmentExpression",
+                                            "operator": "=",
+                                            "left": {
+                                              "type": "MemberExpression",
+                                              "computed": true,
+                                              "object": {
+                                                "type": "Identifier",
+                                                "name": "coords"
+                                              },
+                                              "property": {
+                                                "type": "BinaryExpression",
+                                                "operator": "+",
+                                                "left": {
+                                                  "type": "Identifier",
+                                                  "name": "index"
+                                                },
+                                                "right": {
+                                                  "type": "Literal",
+                                                  "value": 3
+                                                }
+                                              }
+                                            },
+                                            "right": {
+                                              "type": "MemberExpression",
+                                              "computed": true,
+                                              "object": {
+                                                "type": "Identifier",
+                                                "name": "vertices"
+                                              },
+                                              "property": {
+                                                "type": "Identifier",
+                                                "name": "index2"
+                                              }
+                                            }
+                                          }
+                                        },
+                                        {
+                                          "type": "ExpressionStatement",
+                                          "expression": {
+                                            "type": "AssignmentExpression",
+                                            "operator": "=",
+                                            "left": {
+                                              "type": "MemberExpression",
+                                              "computed": true,
+                                              "object": {
+                                                "type": "Identifier",
+                                                "name": "coords"
+                                              },
+                                              "property": {
+                                                "type": "BinaryExpression",
+                                                "operator": "+",
+                                                "left": {
+                                                  "type": "Identifier",
+                                                  "name": "index"
+                                                },
+                                                "right": {
+                                                  "type": "Literal",
+                                                  "value": 4
+                                                }
+                                              }
+                                            },
+                                            "right": {
+                                              "type": "MemberExpression",
+                                              "computed": true,
+                                              "object": {
+                                                "type": "Identifier",
+                                                "name": "vertices"
+                                              },
+                                              "property": {
+                                                "type": "BinaryExpression",
+                                                "operator": "+",
+                                                "left": {
+                                                  "type": "Identifier",
+                                                  "name": "index2"
+                                                },
+                                                "right": {
+                                                  "type": "Literal",
+                                                  "value": 1
+                                                }
+                                              }
+                                            }
+                                          }
+                                        },
+                                        {
+                                          "type": "ExpressionStatement",
+                                          "expression": {
+                                            "type": "AssignmentExpression",
+                                            "operator": "=",
+                                            "left": {
+                                              "type": "MemberExpression",
+                                              "computed": true,
+                                              "object": {
+                                                "type": "Identifier",
+                                                "name": "coords"
+                                              },
+                                              "property": {
+                                                "type": "BinaryExpression",
+                                                "operator": "+",
+                                                "left": {
+                                                  "type": "Identifier",
+                                                  "name": "index"
+                                                },
+                                                "right": {
+                                                  "type": "Literal",
+                                                  "value": 5
+                                                }
+                                              }
+                                            },
+                                            "right": {
+                                              "type": "MemberExpression",
+                                              "computed": true,
+                                              "object": {
+                                                "type": "Identifier",
+                                                "name": "vertices"
+                                              },
+                                              "property": {
+                                                "type": "BinaryExpression",
+                                                "operator": "+",
+                                                "left": {
+                                                  "type": "Identifier",
+                                                  "name": "index2"
+                                                },
+                                                "right": {
+                                                  "type": "Literal",
+                                                  "value": 2
+                                                }
+                                              }
+                                            }
+                                          }
+                                        }
+                                      ]
+                                    }
+                                  }
+                                ]
+                              }
+                            },
+                            {
+                              "type": "ExpressionStatement",
+                              "expression": {
+                                "type": "CallExpression",
+                                "callee": {
+                                  "type": "MemberExpression",
+                                  "computed": false,
+                                  "object": {
+                                    "type": "Identifier",
+                                    "name": "geometry"
+                                  },
+                                  "property": {
+                                    "type": "Identifier",
+                                    "name": "addAttribute"
+                                  }
+                                },
+                                "arguments": [
+                                  {
+                                    "type": "Literal",
+                                    "value": "position"
+                                  },
+                                  {
+                                    "type": "NewExpression",
+                                    "callee": {
+                                      "type": "MemberExpression",
+                                      "computed": false,
+                                      "object": {
+                                        "type": "Identifier",
+                                        "name": "THREE"
+                                      },
+                                      "property": {
+                                        "type": "Identifier",
+                                        "name": "BufferAttribute"
+                                      }
+                                    },
+                                    "arguments": [
+                                      {
+                                        "type": "Identifier",
+                                        "name": "coords"
+                                      },
+                                      {
+                                        "type": "Literal",
+                                        "value": 3
+                                      }
+                                    ]
+                                  }
+                                ]
+                              }
+                            }
+                          ]
+                        }
+                      }
+                    ]
+                  },
+                  "alternate": null
+                }
+              },
+              {
+                "type": "ExpressionStatement",
+                "expression": {
+                  "type": "CallExpression",
+                  "callee": {
+                    "type": "MemberExpression",
+                    "computed": false,
+                    "object": {
+                      "type": "MemberExpression",
+                      "computed": false,
+                      "object": {
+                        "type": "Identifier",
+                        "name": "THREE"
+                      },
+                      "property": {
+                        "type": "Identifier",
+                        "name": "Line"
+                      }
+                    },
+                    "property": {
+                      "type": "Identifier",
+                      "name": "call"
+                    }
+                  },
+                  "arguments": [
+                    {
+                      "type": "ThisExpression"
+                    },
+                    {
+                      "type": "Identifier",
+                      "name": "geometry"
+                    },
+                    {
+                      "type": "NewExpression",
+                      "callee": {
+                        "type": "MemberExpression",
+                        "computed": false,
+                        "object": {
+                          "type": "Identifier",
+                          "name": "THREE"
+                        },
+                        "property": {
+                          "type": "Identifier",
+                          "name": "LineBasicMaterial"
+                        }
+                      },
+                      "arguments": [
+                        {
+                          "type": "ObjectExpression",
+                          "properties": [
+                            {
+                              "type": "Property",
+                              "key": {
+                                "type": "Identifier",
+                                "name": "color"
+                              },
+                              "value": {
+                                "type": "Identifier",
+                                "name": "color"
+                              },
+                              "kind": "init"
+                            }
+                          ]
+                        }
+                      ]
+                    },
+                    {
+                      "type": "MemberExpression",
+                      "computed": false,
+                      "object": {
+                        "type": "Identifier",
+                        "name": "THREE"
+                      },
+                      "property": {
+                        "type": "Identifier",
+                        "name": "LinePieces"
+                      }
+                    }
+                  ]
+                }
+              },
+              {
+                "type": "ExpressionStatement",
+                "expression": {
+                  "type": "AssignmentExpression",
+                  "operator": "=",
+                  "left": {
+                    "type": "MemberExpression",
+                    "computed": false,
+                    "object": {
+                      "type": "ThisExpression"
+                    },
+                    "property": {
+                      "type": "Identifier",
+                      "name": "matrix"
+                    }
+                  },
+                  "right": {
+                    "type": "MemberExpression",
+                    "computed": false,
+                    "object": {
+                      "type": "Identifier",
+                      "name": "object"
+                    },
+                    "property": {
+                      "type": "Identifier",
+                      "name": "matrixWorld"
+                    }
+                  }
+                }
+              },
+              {
+                "type": "ExpressionStatement",
+                "expression": {
+                  "type": "AssignmentExpression",
+                  "operator": "=",
+                  "left": {
+                    "type": "MemberExpression",
+                    "computed": false,
+                    "object": {
+                      "type": "ThisExpression"
+                    },
+                    "property": {
+                      "type": "Identifier",
+                      "name": "matrixAutoUpdate"
+                    }
+                  },
+                  "right": {
+                    "type": "Literal",
+                    "value": false
+                  }
+                }
+              }
+            ]
+          },
+          "rest": null,
+          "generator": false,
+          "expression": false
+        }
+      }
+    },
+    {
+      "type": "ExpressionStatement",
+      "expression": {
+        "type": "AssignmentExpression",
+        "operator": "=",
+        "left": {
+          "type": "MemberExpression",
+          "computed": false,
+          "object": {
+            "type": "MemberExpression",
+            "computed": false,
+            "object": {
+              "type": "Identifier",
+              "name": "THREE"
+            },
+            "property": {
+              "type": "Identifier",
+              "name": "WireframeHelper"
+            }
+          },
+          "property": {
+            "type": "Identifier",
+            "name": "prototype"
+          }
+        },
+        "right": {
+          "type": "CallExpression",
+          "callee": {
+            "type": "MemberExpression",
+            "computed": false,
+            "object": {
+              "type": "Identifier",
+              "name": "Object"
+            },
+            "property": {
+              "type": "Identifier",
+              "name": "create"
+            }
+          },
+          "arguments": [
+            {
+              "type": "MemberExpression",
+              "computed": false,
+              "object": {
+                "type": "MemberExpression",
+                "computed": false,
+                "object": {
+                  "type": "Identifier",
+                  "name": "THREE"
+                },
+                "property": {
+                  "type": "Identifier",
+                  "name": "Line"
+                }
+              },
+              "property": {
+                "type": "Identifier",
+                "name": "prototype"
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "type": "ExpressionStatement",
+      "expression": {
+        "type": "AssignmentExpression",
+        "operator": "=",
+        "left": {
+          "type": "MemberExpression",
+          "computed": false,
+          "object": {
+            "type": "MemberExpression",
+            "computed": false,
+            "object": {
+              "type": "MemberExpression",
+              "computed": false,
+              "object": {
+                "type": "Identifier",
+                "name": "THREE"
+              },
+              "property": {
+                "type": "Identifier",
+                "name": "WireframeHelper"
+              }
+            },
+            "property": {
+              "type": "Identifier",
+              "name": "prototype"
+            }
+          },
+          "property": {
+            "type": "Identifier",
+            "name": "constructor"
+          }
+        },
+        "right": {
+          "type": "MemberExpression",
+          "computed": false,
+          "object": {
+            "type": "Identifier",
+            "name": "THREE"
+          },
+          "property": {
+            "type": "Identifier",
+            "name": "WireframeHelper"
+          }
+        }
+      }
+    }
+  ]
+}

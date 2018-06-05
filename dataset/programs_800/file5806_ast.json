@@ -1,0 +1,544 @@
+{
+  "type": "Program",
+  "body": [
+    {
+      "type": "VariableDeclaration",
+      "declarations": [
+        {
+          "type": "VariableDeclarator",
+          "id": {
+            "type": "Identifier",
+            "name": "defaultLoader"
+          },
+          "init": {
+            "type": "MemberExpression",
+            "computed": false,
+            "object": {
+              "type": "Identifier",
+              "name": "require"
+            },
+            "property": {
+              "type": "Identifier",
+              "name": "loader"
+            }
+          }
+        }
+      ],
+      "kind": "var"
+    },
+    {
+      "type": "VariableDeclaration",
+      "declarations": [
+        {
+          "type": "VariableDeclarator",
+          "id": {
+            "type": "Identifier",
+            "name": "packages"
+          },
+          "init": {
+            "type": "ArrayExpression",
+            "elements": [
+              {
+                "type": "Literal",
+                "value": "perstore"
+              },
+              {
+                "type": "Literal",
+                "value": "pintura"
+              },
+              {
+                "type": "Literal",
+                "value": "commonjs-utils"
+              },
+              {
+                "type": "Literal",
+                "value": "wiky"
+              },
+              {
+                "type": "Literal",
+                "value": "transporter"
+              },
+              {
+                "type": "Literal",
+                "value": "narwhal-lib"
+              },
+              {
+                "type": "Literal",
+                "value": "narwhal"
+              },
+              {
+                "type": "Literal",
+                "value": "tunguska"
+              },
+              {
+                "type": "Literal",
+                "value": "promised-io"
+              },
+              {
+                "type": "Literal",
+                "value": "rql"
+              },
+              {
+                "type": "Literal",
+                "value": "patr"
+              }
+            ]
+          }
+        }
+      ],
+      "kind": "var"
+    },
+    {
+      "type": "VariableDeclaration",
+      "declarations": [
+        {
+          "type": "VariableDeclarator",
+          "id": {
+            "type": "Identifier",
+            "name": "remapped"
+          },
+          "init": {
+            "type": "ObjectExpression",
+            "properties": [
+              {
+                "type": "Property",
+                "key": {
+                  "type": "Literal",
+                  "value": "http-client"
+                },
+                "value": {
+                  "type": "Literal",
+                  "value": "rhino-http-client"
+                },
+                "kind": "init"
+              }
+            ]
+          }
+        }
+      ],
+      "kind": "var"
+    },
+    {
+      "type": "TryStatement",
+      "block": {
+        "type": "BlockStatement",
+        "body": [
+          {
+            "type": "ExpressionStatement",
+            "expression": {
+              "type": "CallExpression",
+              "callee": {
+                "type": "Identifier",
+                "name": "require"
+              },
+              "arguments": [
+                {
+                  "type": "Literal",
+                  "value": "perstore/model"
+                }
+              ]
+            }
+          }
+        ]
+      },
+      "guardedHandlers": [],
+      "handlers": [
+        {
+          "type": "CatchClause",
+          "param": {
+            "type": "Identifier",
+            "name": "e"
+          },
+          "body": {
+            "type": "BlockStatement",
+            "body": [
+              {
+                "type": "VariableDeclaration",
+                "declarations": [
+                  {
+                    "type": "VariableDeclarator",
+                    "id": {
+                      "type": "Identifier",
+                      "name": "defaultResolvePkg"
+                    },
+                    "init": {
+                      "type": "MemberExpression",
+                      "computed": false,
+                      "object": {
+                        "type": "MemberExpression",
+                        "computed": false,
+                        "object": {
+                          "type": "Identifier",
+                          "name": "require"
+                        },
+                        "property": {
+                          "type": "Identifier",
+                          "name": "loader"
+                        }
+                      },
+                      "property": {
+                        "type": "Identifier",
+                        "name": "resolvePkg"
+                      }
+                    }
+                  }
+                ],
+                "kind": "var"
+              },
+              {
+                "type": "ExpressionStatement",
+                "expression": {
+                  "type": "AssignmentExpression",
+                  "operator": "=",
+                  "left": {
+                    "type": "MemberExpression",
+                    "computed": false,
+                    "object": {
+                      "type": "MemberExpression",
+                      "computed": false,
+                      "object": {
+                        "type": "Identifier",
+                        "name": "require"
+                      },
+                      "property": {
+                        "type": "Identifier",
+                        "name": "loader"
+                      }
+                    },
+                    "property": {
+                      "type": "Identifier",
+                      "name": "resolvePkg"
+                    }
+                  },
+                  "right": {
+                    "type": "FunctionExpression",
+                    "id": null,
+                    "params": [
+                      {
+                        "type": "Identifier",
+                        "name": "id"
+                      },
+                      {
+                        "type": "Identifier",
+                        "name": "baseId"
+                      },
+                      {
+                        "type": "Identifier",
+                        "name": "pkg"
+                      },
+                      {
+                        "type": "Identifier",
+                        "name": "basePkg"
+                      }
+                    ],
+                    "defaults": [],
+                    "body": {
+                      "type": "BlockStatement",
+                      "body": [
+                        {
+                          "type": "VariableDeclaration",
+                          "declarations": [
+                            {
+                              "type": "VariableDeclarator",
+                              "id": {
+                                "type": "Identifier",
+                                "name": "packageName"
+                              },
+                              "init": null
+                            }
+                          ],
+                          "kind": "var"
+                        },
+                        {
+                          "type": "ForStatement",
+                          "init": {
+                            "type": "VariableDeclaration",
+                            "declarations": [
+                              {
+                                "type": "VariableDeclarator",
+                                "id": {
+                                  "type": "Identifier",
+                                  "name": "i"
+                                },
+                                "init": {
+                                  "type": "Literal",
+                                  "value": 0
+                                }
+                              }
+                            ],
+                            "kind": "var"
+                          },
+                          "test": {
+                            "type": "BinaryExpression",
+                            "operator": "<",
+                            "left": {
+                              "type": "Identifier",
+                              "name": "i"
+                            },
+                            "right": {
+                              "type": "MemberExpression",
+                              "computed": false,
+                              "object": {
+                                "type": "Identifier",
+                                "name": "packages"
+                              },
+                              "property": {
+                                "type": "Identifier",
+                                "name": "length"
+                              }
+                            }
+                          },
+                          "update": {
+                            "type": "UpdateExpression",
+                            "operator": "++",
+                            "argument": {
+                              "type": "Identifier",
+                              "name": "i"
+                            },
+                            "prefix": false
+                          },
+                          "body": {
+                            "type": "BlockStatement",
+                            "body": [
+                              {
+                                "type": "ExpressionStatement",
+                                "expression": {
+                                  "type": "AssignmentExpression",
+                                  "operator": "=",
+                                  "left": {
+                                    "type": "Identifier",
+                                    "name": "packageName"
+                                  },
+                                  "right": {
+                                    "type": "MemberExpression",
+                                    "computed": true,
+                                    "object": {
+                                      "type": "Identifier",
+                                      "name": "packages"
+                                    },
+                                    "property": {
+                                      "type": "Identifier",
+                                      "name": "i"
+                                    }
+                                  }
+                                }
+                              },
+                              {
+                                "type": "IfStatement",
+                                "test": {
+                                  "type": "BinaryExpression",
+                                  "operator": "==",
+                                  "left": {
+                                    "type": "CallExpression",
+                                    "callee": {
+                                      "type": "MemberExpression",
+                                      "computed": false,
+                                      "object": {
+                                        "type": "Identifier",
+                                        "name": "id"
+                                      },
+                                      "property": {
+                                        "type": "Identifier",
+                                        "name": "substring"
+                                      }
+                                    },
+                                    "arguments": [
+                                      {
+                                        "type": "Literal",
+                                        "value": 0
+                                      },
+                                      {
+                                        "type": "MemberExpression",
+                                        "computed": false,
+                                        "object": {
+                                          "type": "Identifier",
+                                          "name": "packageName"
+                                        },
+                                        "property": {
+                                          "type": "Identifier",
+                                          "name": "length"
+                                        }
+                                      }
+                                    ]
+                                  },
+                                  "right": {
+                                    "type": "Identifier",
+                                    "name": "packageName"
+                                  }
+                                },
+                                "consequent": {
+                                  "type": "BlockStatement",
+                                  "body": [
+                                    {
+                                      "type": "VariableDeclaration",
+                                      "declarations": [
+                                        {
+                                          "type": "VariableDeclarator",
+                                          "id": {
+                                            "type": "Identifier",
+                                            "name": "id"
+                                          },
+                                          "init": {
+                                            "type": "CallExpression",
+                                            "callee": {
+                                              "type": "MemberExpression",
+                                              "computed": false,
+                                              "object": {
+                                                "type": "Identifier",
+                                                "name": "id"
+                                              },
+                                              "property": {
+                                                "type": "Identifier",
+                                                "name": "substring"
+                                              }
+                                            },
+                                            "arguments": [
+                                              {
+                                                "type": "BinaryExpression",
+                                                "operator": "+",
+                                                "left": {
+                                                  "type": "MemberExpression",
+                                                  "computed": false,
+                                                  "object": {
+                                                    "type": "Identifier",
+                                                    "name": "packageName"
+                                                  },
+                                                  "property": {
+                                                    "type": "Identifier",
+                                                    "name": "length"
+                                                  }
+                                                },
+                                                "right": {
+                                                  "type": "Literal",
+                                                  "value": 1
+                                                }
+                                              }
+                                            ]
+                                          }
+                                        }
+                                      ],
+                                      "kind": "var"
+                                    },
+                                    {
+                                      "type": "IfStatement",
+                                      "test": {
+                                        "type": "BinaryExpression",
+                                        "operator": "in",
+                                        "left": {
+                                          "type": "Identifier",
+                                          "name": "id"
+                                        },
+                                        "right": {
+                                          "type": "Identifier",
+                                          "name": "remapped"
+                                        }
+                                      },
+                                      "consequent": {
+                                        "type": "BlockStatement",
+                                        "body": [
+                                          {
+                                            "type": "ExpressionStatement",
+                                            "expression": {
+                                              "type": "AssignmentExpression",
+                                              "operator": "=",
+                                              "left": {
+                                                "type": "Identifier",
+                                                "name": "id"
+                                              },
+                                              "right": {
+                                                "type": "MemberExpression",
+                                                "computed": true,
+                                                "object": {
+                                                  "type": "Identifier",
+                                                  "name": "remapped"
+                                                },
+                                                "property": {
+                                                  "type": "Identifier",
+                                                  "name": "id"
+                                                }
+                                              }
+                                            }
+                                          }
+                                        ]
+                                      },
+                                      "alternate": null
+                                    },
+                                    {
+                                      "type": "ReturnStatement",
+                                      "argument": {
+                                        "type": "CallExpression",
+                                        "callee": {
+                                          "type": "Identifier",
+                                          "name": "defaultResolvePkg"
+                                        },
+                                        "arguments": [
+                                          {
+                                            "type": "Identifier",
+                                            "name": "id"
+                                          },
+                                          {
+                                            "type": "Identifier",
+                                            "name": "baseId"
+                                          },
+                                          {
+                                            "type": "Identifier",
+                                            "name": "pkg"
+                                          },
+                                          {
+                                            "type": "Identifier",
+                                            "name": "basePkg"
+                                          }
+                                        ]
+                                      }
+                                    }
+                                  ]
+                                },
+                                "alternate": null
+                              }
+                            ]
+                          }
+                        },
+                        {
+                          "type": "ReturnStatement",
+                          "argument": {
+                            "type": "CallExpression",
+                            "callee": {
+                              "type": "Identifier",
+                              "name": "defaultResolvePkg"
+                            },
+                            "arguments": [
+                              {
+                                "type": "Identifier",
+                                "name": "id"
+                              },
+                              {
+                                "type": "Identifier",
+                                "name": "baseId"
+                              },
+                              {
+                                "type": "Identifier",
+                                "name": "pkg"
+                              },
+                              {
+                                "type": "Identifier",
+                                "name": "basePkg"
+                              }
+                            ]
+                          }
+                        }
+                      ]
+                    },
+                    "rest": null,
+                    "generator": false,
+                    "expression": false
+                  }
+                }
+              }
+            ]
+          }
+        }
+      ],
+      "finalizer": null
+    }
+  ]
+}

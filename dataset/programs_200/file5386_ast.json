@@ -1,0 +1,370 @@
+{
+  "type": "Program",
+  "body": [
+    {
+      "type": "ExpressionStatement",
+      "expression": {
+        "type": "Literal",
+        "value": "use strict"
+      }
+    },
+    {
+      "type": "FunctionDeclaration",
+      "id": {
+        "type": "Identifier",
+        "name": "adler32"
+      },
+      "params": [
+        {
+          "type": "Identifier",
+          "name": "adler"
+        },
+        {
+          "type": "Identifier",
+          "name": "buf"
+        },
+        {
+          "type": "Identifier",
+          "name": "len"
+        },
+        {
+          "type": "Identifier",
+          "name": "pos"
+        }
+      ],
+      "defaults": [],
+      "body": {
+        "type": "BlockStatement",
+        "body": [
+          {
+            "type": "VariableDeclaration",
+            "declarations": [
+              {
+                "type": "VariableDeclarator",
+                "id": {
+                  "type": "Identifier",
+                  "name": "s1"
+                },
+                "init": {
+                  "type": "BinaryExpression",
+                  "operator": "|",
+                  "left": {
+                    "type": "BinaryExpression",
+                    "operator": "&",
+                    "left": {
+                      "type": "Identifier",
+                      "name": "adler"
+                    },
+                    "right": {
+                      "type": "Literal",
+                      "value": 65535
+                    }
+                  },
+                  "right": {
+                    "type": "Literal",
+                    "value": 0
+                  }
+                }
+              },
+              {
+                "type": "VariableDeclarator",
+                "id": {
+                  "type": "Identifier",
+                  "name": "s2"
+                },
+                "init": {
+                  "type": "BinaryExpression",
+                  "operator": "|",
+                  "left": {
+                    "type": "BinaryExpression",
+                    "operator": "&",
+                    "left": {
+                      "type": "BinaryExpression",
+                      "operator": ">>>",
+                      "left": {
+                        "type": "Identifier",
+                        "name": "adler"
+                      },
+                      "right": {
+                        "type": "Literal",
+                        "value": 16
+                      }
+                    },
+                    "right": {
+                      "type": "Literal",
+                      "value": 65535
+                    }
+                  },
+                  "right": {
+                    "type": "Literal",
+                    "value": 0
+                  }
+                }
+              },
+              {
+                "type": "VariableDeclarator",
+                "id": {
+                  "type": "Identifier",
+                  "name": "n"
+                },
+                "init": {
+                  "type": "Literal",
+                  "value": 0
+                }
+              }
+            ],
+            "kind": "var"
+          },
+          {
+            "type": "WhileStatement",
+            "test": {
+              "type": "BinaryExpression",
+              "operator": "!==",
+              "left": {
+                "type": "Identifier",
+                "name": "len"
+              },
+              "right": {
+                "type": "Literal",
+                "value": 0
+              }
+            },
+            "body": {
+              "type": "BlockStatement",
+              "body": [
+                {
+                  "type": "ExpressionStatement",
+                  "expression": {
+                    "type": "AssignmentExpression",
+                    "operator": "=",
+                    "left": {
+                      "type": "Identifier",
+                      "name": "n"
+                    },
+                    "right": {
+                      "type": "ConditionalExpression",
+                      "test": {
+                        "type": "BinaryExpression",
+                        "operator": ">",
+                        "left": {
+                          "type": "Identifier",
+                          "name": "len"
+                        },
+                        "right": {
+                          "type": "Literal",
+                          "value": 2000
+                        }
+                      },
+                      "consequent": {
+                        "type": "Literal",
+                        "value": 2000
+                      },
+                      "alternate": {
+                        "type": "Identifier",
+                        "name": "len"
+                      }
+                    }
+                  }
+                },
+                {
+                  "type": "ExpressionStatement",
+                  "expression": {
+                    "type": "AssignmentExpression",
+                    "operator": "-=",
+                    "left": {
+                      "type": "Identifier",
+                      "name": "len"
+                    },
+                    "right": {
+                      "type": "Identifier",
+                      "name": "n"
+                    }
+                  }
+                },
+                {
+                  "type": "DoWhileStatement",
+                  "body": {
+                    "type": "BlockStatement",
+                    "body": [
+                      {
+                        "type": "ExpressionStatement",
+                        "expression": {
+                          "type": "AssignmentExpression",
+                          "operator": "=",
+                          "left": {
+                            "type": "Identifier",
+                            "name": "s1"
+                          },
+                          "right": {
+                            "type": "BinaryExpression",
+                            "operator": "|",
+                            "left": {
+                              "type": "BinaryExpression",
+                              "operator": "+",
+                              "left": {
+                                "type": "Identifier",
+                                "name": "s1"
+                              },
+                              "right": {
+                                "type": "MemberExpression",
+                                "computed": true,
+                                "object": {
+                                  "type": "Identifier",
+                                  "name": "buf"
+                                },
+                                "property": {
+                                  "type": "UpdateExpression",
+                                  "operator": "++",
+                                  "argument": {
+                                    "type": "Identifier",
+                                    "name": "pos"
+                                  },
+                                  "prefix": false
+                                }
+                              }
+                            },
+                            "right": {
+                              "type": "Literal",
+                              "value": 0
+                            }
+                          }
+                        }
+                      },
+                      {
+                        "type": "ExpressionStatement",
+                        "expression": {
+                          "type": "AssignmentExpression",
+                          "operator": "=",
+                          "left": {
+                            "type": "Identifier",
+                            "name": "s2"
+                          },
+                          "right": {
+                            "type": "BinaryExpression",
+                            "operator": "|",
+                            "left": {
+                              "type": "BinaryExpression",
+                              "operator": "+",
+                              "left": {
+                                "type": "Identifier",
+                                "name": "s2"
+                              },
+                              "right": {
+                                "type": "Identifier",
+                                "name": "s1"
+                              }
+                            },
+                            "right": {
+                              "type": "Literal",
+                              "value": 0
+                            }
+                          }
+                        }
+                      }
+                    ]
+                  },
+                  "test": {
+                    "type": "UpdateExpression",
+                    "operator": "--",
+                    "argument": {
+                      "type": "Identifier",
+                      "name": "n"
+                    },
+                    "prefix": true
+                  }
+                },
+                {
+                  "type": "ExpressionStatement",
+                  "expression": {
+                    "type": "AssignmentExpression",
+                    "operator": "%=",
+                    "left": {
+                      "type": "Identifier",
+                      "name": "s1"
+                    },
+                    "right": {
+                      "type": "Literal",
+                      "value": 65521
+                    }
+                  }
+                },
+                {
+                  "type": "ExpressionStatement",
+                  "expression": {
+                    "type": "AssignmentExpression",
+                    "operator": "%=",
+                    "left": {
+                      "type": "Identifier",
+                      "name": "s2"
+                    },
+                    "right": {
+                      "type": "Literal",
+                      "value": 65521
+                    }
+                  }
+                }
+              ]
+            }
+          },
+          {
+            "type": "ReturnStatement",
+            "argument": {
+              "type": "BinaryExpression",
+              "operator": "|",
+              "left": {
+                "type": "BinaryExpression",
+                "operator": "|",
+                "left": {
+                  "type": "Identifier",
+                  "name": "s1"
+                },
+                "right": {
+                  "type": "BinaryExpression",
+                  "operator": "<<",
+                  "left": {
+                    "type": "Identifier",
+                    "name": "s2"
+                  },
+                  "right": {
+                    "type": "Literal",
+                    "value": 16
+                  }
+                }
+              },
+              "right": {
+                "type": "Literal",
+                "value": 0
+              }
+            }
+          }
+        ]
+      },
+      "rest": null,
+      "generator": false,
+      "expression": false
+    },
+    {
+      "type": "ExpressionStatement",
+      "expression": {
+        "type": "AssignmentExpression",
+        "operator": "=",
+        "left": {
+          "type": "MemberExpression",
+          "computed": false,
+          "object": {
+            "type": "Identifier",
+            "name": "module"
+          },
+          "property": {
+            "type": "Identifier",
+            "name": "exports"
+          }
+        },
+        "right": {
+          "type": "Identifier",
+          "name": "adler32"
+        }
+      }
+    }
+  ]
+}

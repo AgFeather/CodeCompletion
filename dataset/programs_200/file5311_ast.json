@@ -1,0 +1,107 @@
+{
+  "type": "Program",
+  "body": [
+    {
+      "type": "FunctionDeclaration",
+      "id": {
+        "type": "Identifier",
+        "name": "isNode"
+      },
+      "params": [
+        {
+          "type": "Identifier",
+          "name": "value"
+        }
+      ],
+      "defaults": [],
+      "body": {
+        "type": "BlockStatement",
+        "body": [
+          {
+            "type": "ReturnStatement",
+            "argument": {
+              "type": "LogicalExpression",
+              "operator": "&&",
+              "left": {
+                "type": "BinaryExpression",
+                "operator": "!=",
+                "left": {
+                  "type": "UnaryExpression",
+                  "operator": "typeof",
+                  "argument": {
+                    "type": "MemberExpression",
+                    "computed": false,
+                    "object": {
+                      "type": "Identifier",
+                      "name": "value"
+                    },
+                    "property": {
+                      "type": "Identifier",
+                      "name": "toString"
+                    }
+                  },
+                  "prefix": true
+                },
+                "right": {
+                  "type": "Literal",
+                  "value": "function"
+                }
+              },
+              "right": {
+                "type": "BinaryExpression",
+                "operator": "==",
+                "left": {
+                  "type": "UnaryExpression",
+                  "operator": "typeof",
+                  "argument": {
+                    "type": "BinaryExpression",
+                    "operator": "+",
+                    "left": {
+                      "type": "Identifier",
+                      "name": "value"
+                    },
+                    "right": {
+                      "type": "Literal",
+                      "value": ""
+                    }
+                  },
+                  "prefix": true
+                },
+                "right": {
+                  "type": "Literal",
+                  "value": "string"
+                }
+              }
+            }
+          }
+        ]
+      },
+      "rest": null,
+      "generator": false,
+      "expression": false
+    },
+    {
+      "type": "ExpressionStatement",
+      "expression": {
+        "type": "AssignmentExpression",
+        "operator": "=",
+        "left": {
+          "type": "MemberExpression",
+          "computed": false,
+          "object": {
+            "type": "Identifier",
+            "name": "module"
+          },
+          "property": {
+            "type": "Identifier",
+            "name": "exports"
+          }
+        },
+        "right": {
+          "type": "Identifier",
+          "name": "isNode"
+        }
+      }
+    }
+  ]
+}

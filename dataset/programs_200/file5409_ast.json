@@ -1,0 +1,929 @@
+{
+  "type": "Program",
+  "body": [
+    {
+      "type": "VariableDeclaration",
+      "declarations": [
+        {
+          "type": "VariableDeclarator",
+          "id": {
+            "type": "Identifier",
+            "name": "mongoose"
+          },
+          "init": {
+            "type": "CallExpression",
+            "callee": {
+              "type": "Identifier",
+              "name": "require"
+            },
+            "arguments": [
+              {
+                "type": "Literal",
+                "value": "mongoose"
+              }
+            ]
+          }
+        },
+        {
+          "type": "VariableDeclarator",
+          "id": {
+            "type": "Identifier",
+            "name": "db"
+          },
+          "init": {
+            "type": "CallExpression",
+            "callee": {
+              "type": "Identifier",
+              "name": "require"
+            },
+            "arguments": [
+              {
+                "type": "Literal",
+                "value": "../lib/database"
+              }
+            ]
+          }
+        },
+        {
+          "type": "VariableDeclarator",
+          "id": {
+            "type": "Identifier",
+            "name": "Tx"
+          },
+          "init": {
+            "type": "CallExpression",
+            "callee": {
+              "type": "Identifier",
+              "name": "require"
+            },
+            "arguments": [
+              {
+                "type": "Literal",
+                "value": "../models/tx"
+              }
+            ]
+          }
+        },
+        {
+          "type": "VariableDeclarator",
+          "id": {
+            "type": "Identifier",
+            "name": "Address"
+          },
+          "init": {
+            "type": "CallExpression",
+            "callee": {
+              "type": "Identifier",
+              "name": "require"
+            },
+            "arguments": [
+              {
+                "type": "Literal",
+                "value": "../models/address"
+              }
+            ]
+          }
+        },
+        {
+          "type": "VariableDeclarator",
+          "id": {
+            "type": "Identifier",
+            "name": "settings"
+          },
+          "init": {
+            "type": "CallExpression",
+            "callee": {
+              "type": "Identifier",
+              "name": "require"
+            },
+            "arguments": [
+              {
+                "type": "Literal",
+                "value": "../lib/settings"
+              }
+            ]
+          }
+        }
+      ],
+      "kind": "var"
+    },
+    {
+      "type": "VariableDeclaration",
+      "declarations": [
+        {
+          "type": "VariableDeclarator",
+          "id": {
+            "type": "Identifier",
+            "name": "COUNT"
+          },
+          "init": {
+            "type": "Literal",
+            "value": 5000
+          }
+        }
+      ],
+      "kind": "var"
+    },
+    {
+      "type": "FunctionDeclaration",
+      "id": {
+        "type": "Identifier",
+        "name": "exit"
+      },
+      "params": [],
+      "defaults": [],
+      "body": {
+        "type": "BlockStatement",
+        "body": [
+          {
+            "type": "ExpressionStatement",
+            "expression": {
+              "type": "CallExpression",
+              "callee": {
+                "type": "MemberExpression",
+                "computed": false,
+                "object": {
+                  "type": "Identifier",
+                  "name": "mongoose"
+                },
+                "property": {
+                  "type": "Identifier",
+                  "name": "disconnect"
+                }
+              },
+              "arguments": []
+            }
+          },
+          {
+            "type": "ExpressionStatement",
+            "expression": {
+              "type": "CallExpression",
+              "callee": {
+                "type": "MemberExpression",
+                "computed": false,
+                "object": {
+                  "type": "Identifier",
+                  "name": "process"
+                },
+                "property": {
+                  "type": "Identifier",
+                  "name": "exit"
+                }
+              },
+              "arguments": [
+                {
+                  "type": "Literal",
+                  "value": 0
+                }
+              ]
+            }
+          }
+        ]
+      },
+      "rest": null,
+      "generator": false,
+      "expression": false
+    },
+    {
+      "type": "VariableDeclaration",
+      "declarations": [
+        {
+          "type": "VariableDeclarator",
+          "id": {
+            "type": "Identifier",
+            "name": "dbString"
+          },
+          "init": {
+            "type": "BinaryExpression",
+            "operator": "+",
+            "left": {
+              "type": "Literal",
+              "value": "mongodb://"
+            },
+            "right": {
+              "type": "MemberExpression",
+              "computed": false,
+              "object": {
+                "type": "MemberExpression",
+                "computed": false,
+                "object": {
+                  "type": "Identifier",
+                  "name": "settings"
+                },
+                "property": {
+                  "type": "Identifier",
+                  "name": "dbsettings"
+                }
+              },
+              "property": {
+                "type": "Identifier",
+                "name": "user"
+              }
+            }
+          }
+        }
+      ],
+      "kind": "var"
+    },
+    {
+      "type": "ExpressionStatement",
+      "expression": {
+        "type": "AssignmentExpression",
+        "operator": "=",
+        "left": {
+          "type": "Identifier",
+          "name": "dbString"
+        },
+        "right": {
+          "type": "BinaryExpression",
+          "operator": "+",
+          "left": {
+            "type": "BinaryExpression",
+            "operator": "+",
+            "left": {
+              "type": "Identifier",
+              "name": "dbString"
+            },
+            "right": {
+              "type": "Literal",
+              "value": ":"
+            }
+          },
+          "right": {
+            "type": "MemberExpression",
+            "computed": false,
+            "object": {
+              "type": "MemberExpression",
+              "computed": false,
+              "object": {
+                "type": "Identifier",
+                "name": "settings"
+              },
+              "property": {
+                "type": "Identifier",
+                "name": "dbsettings"
+              }
+            },
+            "property": {
+              "type": "Identifier",
+              "name": "password"
+            }
+          }
+        }
+      }
+    },
+    {
+      "type": "ExpressionStatement",
+      "expression": {
+        "type": "AssignmentExpression",
+        "operator": "=",
+        "left": {
+          "type": "Identifier",
+          "name": "dbString"
+        },
+        "right": {
+          "type": "BinaryExpression",
+          "operator": "+",
+          "left": {
+            "type": "BinaryExpression",
+            "operator": "+",
+            "left": {
+              "type": "Identifier",
+              "name": "dbString"
+            },
+            "right": {
+              "type": "Literal",
+              "value": "@"
+            }
+          },
+          "right": {
+            "type": "MemberExpression",
+            "computed": false,
+            "object": {
+              "type": "MemberExpression",
+              "computed": false,
+              "object": {
+                "type": "Identifier",
+                "name": "settings"
+              },
+              "property": {
+                "type": "Identifier",
+                "name": "dbsettings"
+              }
+            },
+            "property": {
+              "type": "Identifier",
+              "name": "address"
+            }
+          }
+        }
+      }
+    },
+    {
+      "type": "ExpressionStatement",
+      "expression": {
+        "type": "AssignmentExpression",
+        "operator": "=",
+        "left": {
+          "type": "Identifier",
+          "name": "dbString"
+        },
+        "right": {
+          "type": "BinaryExpression",
+          "operator": "+",
+          "left": {
+            "type": "BinaryExpression",
+            "operator": "+",
+            "left": {
+              "type": "Identifier",
+              "name": "dbString"
+            },
+            "right": {
+              "type": "Literal",
+              "value": ":"
+            }
+          },
+          "right": {
+            "type": "MemberExpression",
+            "computed": false,
+            "object": {
+              "type": "MemberExpression",
+              "computed": false,
+              "object": {
+                "type": "Identifier",
+                "name": "settings"
+              },
+              "property": {
+                "type": "Identifier",
+                "name": "dbsettings"
+              }
+            },
+            "property": {
+              "type": "Identifier",
+              "name": "port"
+            }
+          }
+        }
+      }
+    },
+    {
+      "type": "ExpressionStatement",
+      "expression": {
+        "type": "AssignmentExpression",
+        "operator": "=",
+        "left": {
+          "type": "Identifier",
+          "name": "dbString"
+        },
+        "right": {
+          "type": "BinaryExpression",
+          "operator": "+",
+          "left": {
+            "type": "Identifier",
+            "name": "dbString"
+          },
+          "right": {
+            "type": "Literal",
+            "value": "/IQUIDUS-BENCHMARK"
+          }
+        }
+      }
+    },
+    {
+      "type": "ExpressionStatement",
+      "expression": {
+        "type": "CallExpression",
+        "callee": {
+          "type": "MemberExpression",
+          "computed": false,
+          "object": {
+            "type": "Identifier",
+            "name": "mongoose"
+          },
+          "property": {
+            "type": "Identifier",
+            "name": "connect"
+          }
+        },
+        "arguments": [
+          {
+            "type": "Identifier",
+            "name": "dbString"
+          },
+          {
+            "type": "FunctionExpression",
+            "id": null,
+            "params": [
+              {
+                "type": "Identifier",
+                "name": "err"
+              }
+            ],
+            "defaults": [],
+            "body": {
+              "type": "BlockStatement",
+              "body": [
+                {
+                  "type": "IfStatement",
+                  "test": {
+                    "type": "Identifier",
+                    "name": "err"
+                  },
+                  "consequent": {
+                    "type": "BlockStatement",
+                    "body": [
+                      {
+                        "type": "ExpressionStatement",
+                        "expression": {
+                          "type": "CallExpression",
+                          "callee": {
+                            "type": "MemberExpression",
+                            "computed": false,
+                            "object": {
+                              "type": "Identifier",
+                              "name": "console"
+                            },
+                            "property": {
+                              "type": "Identifier",
+                              "name": "log"
+                            }
+                          },
+                          "arguments": [
+                            {
+                              "type": "Literal",
+                              "value": "Unable to connect to database: %s"
+                            },
+                            {
+                              "type": "Identifier",
+                              "name": "dbString"
+                            }
+                          ]
+                        }
+                      },
+                      {
+                        "type": "ExpressionStatement",
+                        "expression": {
+                          "type": "CallExpression",
+                          "callee": {
+                            "type": "MemberExpression",
+                            "computed": false,
+                            "object": {
+                              "type": "Identifier",
+                              "name": "console"
+                            },
+                            "property": {
+                              "type": "Identifier",
+                              "name": "log"
+                            }
+                          },
+                          "arguments": [
+                            {
+                              "type": "Literal",
+                              "value": "Aborting"
+                            }
+                          ]
+                        }
+                      },
+                      {
+                        "type": "ExpressionStatement",
+                        "expression": {
+                          "type": "CallExpression",
+                          "callee": {
+                            "type": "Identifier",
+                            "name": "exit"
+                          },
+                          "arguments": []
+                        }
+                      }
+                    ]
+                  },
+                  "alternate": null
+                },
+                {
+                  "type": "ExpressionStatement",
+                  "expression": {
+                    "type": "CallExpression",
+                    "callee": {
+                      "type": "MemberExpression",
+                      "computed": false,
+                      "object": {
+                        "type": "Identifier",
+                        "name": "Tx"
+                      },
+                      "property": {
+                        "type": "Identifier",
+                        "name": "remove"
+                      }
+                    },
+                    "arguments": [
+                      {
+                        "type": "ObjectExpression",
+                        "properties": []
+                      },
+                      {
+                        "type": "FunctionExpression",
+                        "id": null,
+                        "params": [
+                          {
+                            "type": "Identifier",
+                            "name": "err"
+                          }
+                        ],
+                        "defaults": [],
+                        "body": {
+                          "type": "BlockStatement",
+                          "body": [
+                            {
+                              "type": "ExpressionStatement",
+                              "expression": {
+                                "type": "CallExpression",
+                                "callee": {
+                                  "type": "MemberExpression",
+                                  "computed": false,
+                                  "object": {
+                                    "type": "Identifier",
+                                    "name": "Address"
+                                  },
+                                  "property": {
+                                    "type": "Identifier",
+                                    "name": "remove"
+                                  }
+                                },
+                                "arguments": [
+                                  {
+                                    "type": "ObjectExpression",
+                                    "properties": []
+                                  },
+                                  {
+                                    "type": "FunctionExpression",
+                                    "id": null,
+                                    "params": [
+                                      {
+                                        "type": "Identifier",
+                                        "name": "err2"
+                                      }
+                                    ],
+                                    "defaults": [],
+                                    "body": {
+                                      "type": "BlockStatement",
+                                      "body": [
+                                        {
+                                          "type": "VariableDeclaration",
+                                          "declarations": [
+                                            {
+                                              "type": "VariableDeclarator",
+                                              "id": {
+                                                "type": "Identifier",
+                                                "name": "s_timer"
+                                              },
+                                              "init": {
+                                                "type": "CallExpression",
+                                                "callee": {
+                                                  "type": "MemberExpression",
+                                                  "computed": false,
+                                                  "object": {
+                                                    "type": "NewExpression",
+                                                    "callee": {
+                                                      "type": "Identifier",
+                                                      "name": "Date"
+                                                    },
+                                                    "arguments": []
+                                                  },
+                                                  "property": {
+                                                    "type": "Identifier",
+                                                    "name": "getTime"
+                                                  }
+                                                },
+                                                "arguments": []
+                                              }
+                                            }
+                                          ],
+                                          "kind": "var"
+                                        },
+                                        {
+                                          "type": "ExpressionStatement",
+                                          "expression": {
+                                            "type": "CallExpression",
+                                            "callee": {
+                                              "type": "MemberExpression",
+                                              "computed": false,
+                                              "object": {
+                                                "type": "Identifier",
+                                                "name": "db"
+                                              },
+                                              "property": {
+                                                "type": "Identifier",
+                                                "name": "update_tx_db"
+                                              }
+                                            },
+                                            "arguments": [
+                                              {
+                                                "type": "MemberExpression",
+                                                "computed": false,
+                                                "object": {
+                                                  "type": "Identifier",
+                                                  "name": "settings"
+                                                },
+                                                "property": {
+                                                  "type": "Identifier",
+                                                  "name": "coin"
+                                                }
+                                              },
+                                              {
+                                                "type": "Literal",
+                                                "value": 1
+                                              },
+                                              {
+                                                "type": "Identifier",
+                                                "name": "COUNT"
+                                              },
+                                              {
+                                                "type": "MemberExpression",
+                                                "computed": false,
+                                                "object": {
+                                                  "type": "Identifier",
+                                                  "name": "settings"
+                                                },
+                                                "property": {
+                                                  "type": "Identifier",
+                                                  "name": "update_timeout"
+                                                }
+                                              },
+                                              {
+                                                "type": "FunctionExpression",
+                                                "id": null,
+                                                "params": [],
+                                                "defaults": [],
+                                                "body": {
+                                                  "type": "BlockStatement",
+                                                  "body": [
+                                                    {
+                                                      "type": "VariableDeclaration",
+                                                      "declarations": [
+                                                        {
+                                                          "type": "VariableDeclarator",
+                                                          "id": {
+                                                            "type": "Identifier",
+                                                            "name": "e_timer"
+                                                          },
+                                                          "init": {
+                                                            "type": "CallExpression",
+                                                            "callee": {
+                                                              "type": "MemberExpression",
+                                                              "computed": false,
+                                                              "object": {
+                                                                "type": "NewExpression",
+                                                                "callee": {
+                                                                  "type": "Identifier",
+                                                                  "name": "Date"
+                                                                },
+                                                                "arguments": []
+                                                              },
+                                                              "property": {
+                                                                "type": "Identifier",
+                                                                "name": "getTime"
+                                                              }
+                                                            },
+                                                            "arguments": []
+                                                          }
+                                                        }
+                                                      ],
+                                                      "kind": "var"
+                                                    },
+                                                    {
+                                                      "type": "ExpressionStatement",
+                                                      "expression": {
+                                                        "type": "CallExpression",
+                                                        "callee": {
+                                                          "type": "MemberExpression",
+                                                          "computed": false,
+                                                          "object": {
+                                                            "type": "Identifier",
+                                                            "name": "Tx"
+                                                          },
+                                                          "property": {
+                                                            "type": "Identifier",
+                                                            "name": "count"
+                                                          }
+                                                        },
+                                                        "arguments": [
+                                                          {
+                                                            "type": "ObjectExpression",
+                                                            "properties": []
+                                                          },
+                                                          {
+                                                            "type": "FunctionExpression",
+                                                            "id": null,
+                                                            "params": [
+                                                              {
+                                                                "type": "Identifier",
+                                                                "name": "txerr"
+                                                              },
+                                                              {
+                                                                "type": "Identifier",
+                                                                "name": "txcount"
+                                                              }
+                                                            ],
+                                                            "defaults": [],
+                                                            "body": {
+                                                              "type": "BlockStatement",
+                                                              "body": [
+                                                                {
+                                                                  "type": "ExpressionStatement",
+                                                                  "expression": {
+                                                                    "type": "CallExpression",
+                                                                    "callee": {
+                                                                      "type": "MemberExpression",
+                                                                      "computed": false,
+                                                                      "object": {
+                                                                        "type": "Identifier",
+                                                                        "name": "Address"
+                                                                      },
+                                                                      "property": {
+                                                                        "type": "Identifier",
+                                                                        "name": "count"
+                                                                      }
+                                                                    },
+                                                                    "arguments": [
+                                                                      {
+                                                                        "type": "ObjectExpression",
+                                                                        "properties": []
+                                                                      },
+                                                                      {
+                                                                        "type": "FunctionExpression",
+                                                                        "id": null,
+                                                                        "params": [
+                                                                          {
+                                                                            "type": "Identifier",
+                                                                            "name": "aerr"
+                                                                          },
+                                                                          {
+                                                                            "type": "Identifier",
+                                                                            "name": "acount"
+                                                                          }
+                                                                        ],
+                                                                        "defaults": [],
+                                                                        "body": {
+                                                                          "type": "BlockStatement",
+                                                                          "body": [
+                                                                            {
+                                                                              "type": "VariableDeclaration",
+                                                                              "declarations": [
+                                                                                {
+                                                                                  "type": "VariableDeclarator",
+                                                                                  "id": {
+                                                                                    "type": "Identifier",
+                                                                                    "name": "stats"
+                                                                                  },
+                                                                                  "init": {
+                                                                                    "type": "ObjectExpression",
+                                                                                    "properties": [
+                                                                                      {
+                                                                                        "type": "Property",
+                                                                                        "key": {
+                                                                                          "type": "Identifier",
+                                                                                          "name": "tx_count"
+                                                                                        },
+                                                                                        "value": {
+                                                                                          "type": "Identifier",
+                                                                                          "name": "txcount"
+                                                                                        },
+                                                                                        "kind": "init"
+                                                                                      },
+                                                                                      {
+                                                                                        "type": "Property",
+                                                                                        "key": {
+                                                                                          "type": "Identifier",
+                                                                                          "name": "address_count"
+                                                                                        },
+                                                                                        "value": {
+                                                                                          "type": "Identifier",
+                                                                                          "name": "acount"
+                                                                                        },
+                                                                                        "kind": "init"
+                                                                                      },
+                                                                                      {
+                                                                                        "type": "Property",
+                                                                                        "key": {
+                                                                                          "type": "Identifier",
+                                                                                          "name": "seconds"
+                                                                                        },
+                                                                                        "value": {
+                                                                                          "type": "BinaryExpression",
+                                                                                          "operator": "/",
+                                                                                          "left": {
+                                                                                            "type": "BinaryExpression",
+                                                                                            "operator": "-",
+                                                                                            "left": {
+                                                                                              "type": "Identifier",
+                                                                                              "name": "e_timer"
+                                                                                            },
+                                                                                            "right": {
+                                                                                              "type": "Identifier",
+                                                                                              "name": "s_timer"
+                                                                                            }
+                                                                                          },
+                                                                                          "right": {
+                                                                                            "type": "Literal",
+                                                                                            "value": 1000
+                                                                                          }
+                                                                                        },
+                                                                                        "kind": "init"
+                                                                                      }
+                                                                                    ]
+                                                                                  }
+                                                                                }
+                                                                              ],
+                                                                              "kind": "var"
+                                                                            },
+                                                                            {
+                                                                              "type": "ExpressionStatement",
+                                                                              "expression": {
+                                                                                "type": "CallExpression",
+                                                                                "callee": {
+                                                                                  "type": "MemberExpression",
+                                                                                  "computed": false,
+                                                                                  "object": {
+                                                                                    "type": "Identifier",
+                                                                                    "name": "console"
+                                                                                  },
+                                                                                  "property": {
+                                                                                    "type": "Identifier",
+                                                                                    "name": "log"
+                                                                                  }
+                                                                                },
+                                                                                "arguments": [
+                                                                                  {
+                                                                                    "type": "Identifier",
+                                                                                    "name": "stats"
+                                                                                  }
+                                                                                ]
+                                                                              }
+                                                                            },
+                                                                            {
+                                                                              "type": "ExpressionStatement",
+                                                                              "expression": {
+                                                                                "type": "CallExpression",
+                                                                                "callee": {
+                                                                                  "type": "Identifier",
+                                                                                  "name": "exit"
+                                                                                },
+                                                                                "arguments": []
+                                                                              }
+                                                                            }
+                                                                          ]
+                                                                        },
+                                                                        "rest": null,
+                                                                        "generator": false,
+                                                                        "expression": false
+                                                                      }
+                                                                    ]
+                                                                  }
+                                                                }
+                                                              ]
+                                                            },
+                                                            "rest": null,
+                                                            "generator": false,
+                                                            "expression": false
+                                                          }
+                                                        ]
+                                                      }
+                                                    }
+                                                  ]
+                                                },
+                                                "rest": null,
+                                                "generator": false,
+                                                "expression": false
+                                              }
+                                            ]
+                                          }
+                                        }
+                                      ]
+                                    },
+                                    "rest": null,
+                                    "generator": false,
+                                    "expression": false
+                                  }
+                                ]
+                              }
+                            }
+                          ]
+                        },
+                        "rest": null,
+                        "generator": false,
+                        "expression": false
+                      }
+                    ]
+                  }
+                }
+              ]
+            },
+            "rest": null,
+            "generator": false,
+            "expression": false
+          }
+        ]
+      }
+    }
+  ]
+}

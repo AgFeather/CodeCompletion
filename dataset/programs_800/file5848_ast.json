@@ -1,0 +1,2660 @@
+{
+  "type": "Program",
+  "body": [
+    {
+      "type": "VariableDeclaration",
+      "declarations": [
+        {
+          "type": "VariableDeclarator",
+          "id": {
+            "type": "Identifier",
+            "name": "FiberMgr"
+          },
+          "init": {
+            "type": "CallExpression",
+            "callee": {
+              "type": "Identifier",
+              "name": "require"
+            },
+            "arguments": [
+              {
+                "type": "Literal",
+                "value": "./fiberManager"
+              }
+            ]
+          }
+        }
+      ],
+      "kind": "var"
+    },
+    {
+      "type": "VariableDeclaration",
+      "declarations": [
+        {
+          "type": "VariableDeclarator",
+          "id": {
+            "type": "Identifier",
+            "name": "Semaphore"
+          },
+          "init": {
+            "type": "CallExpression",
+            "callee": {
+              "type": "Identifier",
+              "name": "require"
+            },
+            "arguments": [
+              {
+                "type": "Literal",
+                "value": "./semaphore"
+              }
+            ]
+          }
+        }
+      ],
+      "kind": "var"
+    },
+    {
+      "type": "VariableDeclaration",
+      "declarations": [
+        {
+          "type": "VariableDeclarator",
+          "id": {
+            "type": "Identifier",
+            "name": "Config"
+          },
+          "init": {
+            "type": "CallExpression",
+            "callee": {
+              "type": "Identifier",
+              "name": "require"
+            },
+            "arguments": [
+              {
+                "type": "Literal",
+                "value": "./config"
+              }
+            ]
+          }
+        }
+      ],
+      "kind": "var"
+    },
+    {
+      "type": "VariableDeclaration",
+      "declarations": [
+        {
+          "type": "VariableDeclarator",
+          "id": {
+            "type": "Identifier",
+            "name": "defer"
+          },
+          "init": {
+            "type": "CallExpression",
+            "callee": {
+              "type": "Identifier",
+              "name": "require"
+            },
+            "arguments": [
+              {
+                "type": "Literal",
+                "value": "./defer"
+              }
+            ]
+          }
+        }
+      ],
+      "kind": "var"
+    },
+    {
+      "type": "VariableDeclaration",
+      "declarations": [
+        {
+          "type": "VariableDeclarator",
+          "id": {
+            "type": "Identifier",
+            "name": "await"
+          },
+          "init": {
+            "type": "CallExpression",
+            "callee": {
+              "type": "Identifier",
+              "name": "require"
+            },
+            "arguments": [
+              {
+                "type": "Literal",
+                "value": "../await/index"
+              }
+            ]
+          }
+        }
+      ],
+      "kind": "var"
+    },
+    {
+      "type": "VariableDeclaration",
+      "declarations": [
+        {
+          "type": "VariableDeclarator",
+          "id": {
+            "type": "Identifier",
+            "name": "AsyncIterator"
+          },
+          "init": {
+            "type": "CallExpression",
+            "callee": {
+              "type": "FunctionExpression",
+              "id": null,
+              "params": [],
+              "defaults": [],
+              "body": {
+                "type": "BlockStatement",
+                "body": [
+                  {
+                    "type": "FunctionDeclaration",
+                    "id": {
+                      "type": "Identifier",
+                      "name": "AsyncIterator"
+                    },
+                    "params": [
+                      {
+                        "type": "Identifier",
+                        "name": "runContext"
+                      },
+                      {
+                        "type": "Identifier",
+                        "name": "semaphore"
+                      },
+                      {
+                        "type": "Identifier",
+                        "name": "returnValue"
+                      },
+                      {
+                        "type": "Identifier",
+                        "name": "acceptsCallback"
+                      }
+                    ],
+                    "defaults": [],
+                    "body": {
+                      "type": "BlockStatement",
+                      "body": [
+                        {
+                          "type": "ExpressionStatement",
+                          "expression": {
+                            "type": "AssignmentExpression",
+                            "operator": "=",
+                            "left": {
+                              "type": "MemberExpression",
+                              "computed": false,
+                              "object": {
+                                "type": "ThisExpression"
+                              },
+                              "property": {
+                                "type": "Identifier",
+                                "name": "_runContext"
+                              }
+                            },
+                            "right": {
+                              "type": "Identifier",
+                              "name": "runContext"
+                            }
+                          }
+                        },
+                        {
+                          "type": "ExpressionStatement",
+                          "expression": {
+                            "type": "AssignmentExpression",
+                            "operator": "=",
+                            "left": {
+                              "type": "MemberExpression",
+                              "computed": false,
+                              "object": {
+                                "type": "ThisExpression"
+                              },
+                              "property": {
+                                "type": "Identifier",
+                                "name": "_semaphore"
+                              }
+                            },
+                            "right": {
+                              "type": "Identifier",
+                              "name": "semaphore"
+                            }
+                          }
+                        },
+                        {
+                          "type": "ExpressionStatement",
+                          "expression": {
+                            "type": "AssignmentExpression",
+                            "operator": "=",
+                            "left": {
+                              "type": "MemberExpression",
+                              "computed": false,
+                              "object": {
+                                "type": "ThisExpression"
+                              },
+                              "property": {
+                                "type": "Identifier",
+                                "name": "_fiber"
+                              }
+                            },
+                            "right": {
+                              "type": "CallExpression",
+                              "callee": {
+                                "type": "MemberExpression",
+                                "computed": false,
+                                "object": {
+                                  "type": "Identifier",
+                                  "name": "FiberMgr"
+                                },
+                                "property": {
+                                  "type": "Identifier",
+                                  "name": "create"
+                                }
+                              },
+                              "arguments": []
+                            }
+                          }
+                        },
+                        {
+                          "type": "ExpressionStatement",
+                          "expression": {
+                            "type": "AssignmentExpression",
+                            "operator": "=",
+                            "left": {
+                              "type": "MemberExpression",
+                              "computed": false,
+                              "object": {
+                                "type": "ThisExpression"
+                              },
+                              "property": {
+                                "type": "Identifier",
+                                "name": "_returnValue"
+                              }
+                            },
+                            "right": {
+                              "type": "Identifier",
+                              "name": "returnValue"
+                            }
+                          }
+                        },
+                        {
+                          "type": "ExpressionStatement",
+                          "expression": {
+                            "type": "AssignmentExpression",
+                            "operator": "=",
+                            "left": {
+                              "type": "MemberExpression",
+                              "computed": false,
+                              "object": {
+                                "type": "ThisExpression"
+                              },
+                              "property": {
+                                "type": "Identifier",
+                                "name": "_acceptsCallback"
+                              }
+                            },
+                            "right": {
+                              "type": "Identifier",
+                              "name": "acceptsCallback"
+                            }
+                          }
+                        }
+                      ]
+                    },
+                    "rest": null,
+                    "generator": false,
+                    "expression": false
+                  },
+                  {
+                    "type": "ExpressionStatement",
+                    "expression": {
+                      "type": "AssignmentExpression",
+                      "operator": "=",
+                      "left": {
+                        "type": "MemberExpression",
+                        "computed": false,
+                        "object": {
+                          "type": "MemberExpression",
+                          "computed": false,
+                          "object": {
+                            "type": "Identifier",
+                            "name": "AsyncIterator"
+                          },
+                          "property": {
+                            "type": "Identifier",
+                            "name": "prototype"
+                          }
+                        },
+                        "property": {
+                          "type": "Identifier",
+                          "name": "next"
+                        }
+                      },
+                      "right": {
+                        "type": "FunctionExpression",
+                        "id": null,
+                        "params": [
+                          {
+                            "type": "Identifier",
+                            "name": "callback"
+                          }
+                        ],
+                        "defaults": [],
+                        "body": {
+                          "type": "BlockStatement",
+                          "body": [
+                            {
+                              "type": "VariableDeclaration",
+                              "declarations": [
+                                {
+                                  "type": "VariableDeclarator",
+                                  "id": {
+                                    "type": "Identifier",
+                                    "name": "_this"
+                                  },
+                                  "init": {
+                                    "type": "ThisExpression"
+                                  }
+                                }
+                              ],
+                              "kind": "var"
+                            },
+                            {
+                              "type": "IfStatement",
+                              "test": {
+                                "type": "MemberExpression",
+                                "computed": false,
+                                "object": {
+                                  "type": "ThisExpression"
+                                },
+                                "property": {
+                                  "type": "Identifier",
+                                  "name": "_acceptsCallback"
+                                }
+                              },
+                              "consequent": {
+                                "type": "BlockStatement",
+                                "body": [
+                                  {
+                                    "type": "ExpressionStatement",
+                                    "expression": {
+                                      "type": "AssignmentExpression",
+                                      "operator": "=",
+                                      "left": {
+                                        "type": "MemberExpression",
+                                        "computed": false,
+                                        "object": {
+                                          "type": "MemberExpression",
+                                          "computed": false,
+                                          "object": {
+                                            "type": "ThisExpression"
+                                          },
+                                          "property": {
+                                            "type": "Identifier",
+                                            "name": "_runContext"
+                                          }
+                                        },
+                                        "property": {
+                                          "type": "Identifier",
+                                          "name": "callback"
+                                        }
+                                      },
+                                      "right": {
+                                        "type": "Identifier",
+                                        "name": "callback"
+                                      }
+                                    }
+                                  }
+                                ]
+                              },
+                              "alternate": null
+                            },
+                            {
+                              "type": "IfStatement",
+                              "test": {
+                                "type": "BinaryExpression",
+                                "operator": "!==",
+                                "left": {
+                                  "type": "MemberExpression",
+                                  "computed": false,
+                                  "object": {
+                                    "type": "ThisExpression"
+                                  },
+                                  "property": {
+                                    "type": "Identifier",
+                                    "name": "_returnValue"
+                                  }
+                                },
+                                "right": {
+                                  "type": "MemberExpression",
+                                  "computed": false,
+                                  "object": {
+                                    "type": "Identifier",
+                                    "name": "Config"
+                                  },
+                                  "property": {
+                                    "type": "Identifier",
+                                    "name": "NONE"
+                                  }
+                                }
+                              },
+                              "consequent": {
+                                "type": "BlockStatement",
+                                "body": [
+                                  {
+                                    "type": "VariableDeclaration",
+                                    "declarations": [
+                                      {
+                                        "type": "VariableDeclarator",
+                                        "id": {
+                                          "type": "Identifier",
+                                          "name": "resolver"
+                                        },
+                                        "init": {
+                                          "type": "CallExpression",
+                                          "callee": {
+                                            "type": "Identifier",
+                                            "name": "defer"
+                                          },
+                                          "arguments": []
+                                        }
+                                      }
+                                    ],
+                                    "kind": "var"
+                                  },
+                                  {
+                                    "type": "ExpressionStatement",
+                                    "expression": {
+                                      "type": "AssignmentExpression",
+                                      "operator": "=",
+                                      "left": {
+                                        "type": "MemberExpression",
+                                        "computed": false,
+                                        "object": {
+                                          "type": "MemberExpression",
+                                          "computed": false,
+                                          "object": {
+                                            "type": "ThisExpression"
+                                          },
+                                          "property": {
+                                            "type": "Identifier",
+                                            "name": "_runContext"
+                                          }
+                                        },
+                                        "property": {
+                                          "type": "Identifier",
+                                          "name": "resolver"
+                                        }
+                                      },
+                                      "right": {
+                                        "type": "Identifier",
+                                        "name": "resolver"
+                                      }
+                                    }
+                                  }
+                                ]
+                              },
+                              "alternate": null
+                            },
+                            {
+                              "type": "IfStatement",
+                              "test": {
+                                "type": "CallExpression",
+                                "callee": {
+                                  "type": "MemberExpression",
+                                  "computed": false,
+                                  "object": {
+                                    "type": "Identifier",
+                                    "name": "FiberMgr"
+                                  },
+                                  "property": {
+                                    "type": "Identifier",
+                                    "name": "isExecutingInFiber"
+                                  }
+                                },
+                                "arguments": []
+                              },
+                              "consequent": {
+                                "type": "ExpressionStatement",
+                                "expression": {
+                                  "type": "AssignmentExpression",
+                                  "operator": "=",
+                                  "left": {
+                                    "type": "MemberExpression",
+                                    "computed": false,
+                                    "object": {
+                                      "type": "ThisExpression"
+                                    },
+                                    "property": {
+                                      "type": "Identifier",
+                                      "name": "_semaphore"
+                                    }
+                                  },
+                                  "right": {
+                                    "type": "MemberExpression",
+                                    "computed": false,
+                                    "object": {
+                                      "type": "Identifier",
+                                      "name": "Semaphore"
+                                    },
+                                    "property": {
+                                      "type": "Identifier",
+                                      "name": "unlimited"
+                                    }
+                                  }
+                                }
+                              },
+                              "alternate": null
+                            },
+                            {
+                              "type": "IfStatement",
+                              "test": {
+                                "type": "BinaryExpression",
+                                "operator": "===",
+                                "left": {
+                                  "type": "MemberExpression",
+                                  "computed": false,
+                                  "object": {
+                                    "type": "ThisExpression"
+                                  },
+                                  "property": {
+                                    "type": "Identifier",
+                                    "name": "_returnValue"
+                                  }
+                                },
+                                "right": {
+                                  "type": "MemberExpression",
+                                  "computed": false,
+                                  "object": {
+                                    "type": "Identifier",
+                                    "name": "Config"
+                                  },
+                                  "property": {
+                                    "type": "Identifier",
+                                    "name": "THUNK"
+                                  }
+                                }
+                              },
+                              "consequent": {
+                                "type": "BlockStatement",
+                                "body": [
+                                  {
+                                    "type": "VariableDeclaration",
+                                    "declarations": [
+                                      {
+                                        "type": "VariableDeclarator",
+                                        "id": {
+                                          "type": "Identifier",
+                                          "name": "thunk"
+                                        },
+                                        "init": {
+                                          "type": "FunctionExpression",
+                                          "id": null,
+                                          "params": [
+                                            {
+                                              "type": "Identifier",
+                                              "name": "done"
+                                            }
+                                          ],
+                                          "defaults": [],
+                                          "body": {
+                                            "type": "BlockStatement",
+                                            "body": [
+                                              {
+                                                "type": "IfStatement",
+                                                "test": {
+                                                  "type": "Identifier",
+                                                  "name": "done"
+                                                },
+                                                "consequent": {
+                                                  "type": "ExpressionStatement",
+                                                  "expression": {
+                                                    "type": "CallExpression",
+                                                    "callee": {
+                                                      "type": "MemberExpression",
+                                                      "computed": false,
+                                                      "object": {
+                                                        "type": "MemberExpression",
+                                                        "computed": false,
+                                                        "object": {
+                                                          "type": "Identifier",
+                                                          "name": "resolver"
+                                                        },
+                                                        "property": {
+                                                          "type": "Identifier",
+                                                          "name": "promise"
+                                                        }
+                                                      },
+                                                      "property": {
+                                                        "type": "Identifier",
+                                                        "name": "then"
+                                                      }
+                                                    },
+                                                    "arguments": [
+                                                      {
+                                                        "type": "FunctionExpression",
+                                                        "id": null,
+                                                        "params": [
+                                                          {
+                                                            "type": "Identifier",
+                                                            "name": "val"
+                                                          }
+                                                        ],
+                                                        "defaults": [],
+                                                        "body": {
+                                                          "type": "BlockStatement",
+                                                          "body": [
+                                                            {
+                                                              "type": "ReturnStatement",
+                                                              "argument": {
+                                                                "type": "CallExpression",
+                                                                "callee": {
+                                                                  "type": "Identifier",
+                                                                  "name": "done"
+                                                                },
+                                                                "arguments": [
+                                                                  {
+                                                                    "type": "Literal",
+                                                                    "value": null
+                                                                  },
+                                                                  {
+                                                                    "type": "Identifier",
+                                                                    "name": "val"
+                                                                  }
+                                                                ]
+                                                              }
+                                                            }
+                                                          ]
+                                                        },
+                                                        "rest": null,
+                                                        "generator": false,
+                                                        "expression": false
+                                                      },
+                                                      {
+                                                        "type": "FunctionExpression",
+                                                        "id": null,
+                                                        "params": [
+                                                          {
+                                                            "type": "Identifier",
+                                                            "name": "err"
+                                                          }
+                                                        ],
+                                                        "defaults": [],
+                                                        "body": {
+                                                          "type": "BlockStatement",
+                                                          "body": [
+                                                            {
+                                                              "type": "ReturnStatement",
+                                                              "argument": {
+                                                                "type": "CallExpression",
+                                                                "callee": {
+                                                                  "type": "Identifier",
+                                                                  "name": "done"
+                                                                },
+                                                                "arguments": [
+                                                                  {
+                                                                    "type": "Identifier",
+                                                                    "name": "err"
+                                                                  }
+                                                                ]
+                                                              }
+                                                            }
+                                                          ]
+                                                        },
+                                                        "rest": null,
+                                                        "generator": false,
+                                                        "expression": false
+                                                      }
+                                                    ]
+                                                  }
+                                                },
+                                                "alternate": null
+                                              },
+                                              {
+                                                "type": "ExpressionStatement",
+                                                "expression": {
+                                                  "type": "CallExpression",
+                                                  "callee": {
+                                                    "type": "MemberExpression",
+                                                    "computed": false,
+                                                    "object": {
+                                                      "type": "MemberExpression",
+                                                      "computed": false,
+                                                      "object": {
+                                                        "type": "Identifier",
+                                                        "name": "_this"
+                                                      },
+                                                      "property": {
+                                                        "type": "Identifier",
+                                                        "name": "_semaphore"
+                                                      }
+                                                    },
+                                                    "property": {
+                                                      "type": "Identifier",
+                                                      "name": "enter"
+                                                    }
+                                                  },
+                                                  "arguments": [
+                                                    {
+                                                      "type": "FunctionExpression",
+                                                      "id": null,
+                                                      "params": [],
+                                                      "defaults": [],
+                                                      "body": {
+                                                        "type": "BlockStatement",
+                                                        "body": [
+                                                          {
+                                                            "type": "ReturnStatement",
+                                                            "argument": {
+                                                              "type": "CallExpression",
+                                                              "callee": {
+                                                                "type": "MemberExpression",
+                                                                "computed": false,
+                                                                "object": {
+                                                                  "type": "MemberExpression",
+                                                                  "computed": false,
+                                                                  "object": {
+                                                                    "type": "Identifier",
+                                                                    "name": "_this"
+                                                                  },
+                                                                  "property": {
+                                                                    "type": "Identifier",
+                                                                    "name": "_fiber"
+                                                                  }
+                                                                },
+                                                                "property": {
+                                                                  "type": "Identifier",
+                                                                  "name": "run"
+                                                                }
+                                                              },
+                                                              "arguments": [
+                                                                {
+                                                                  "type": "MemberExpression",
+                                                                  "computed": false,
+                                                                  "object": {
+                                                                    "type": "Identifier",
+                                                                    "name": "_this"
+                                                                  },
+                                                                  "property": {
+                                                                    "type": "Identifier",
+                                                                    "name": "_runContext"
+                                                                  }
+                                                                }
+                                                              ]
+                                                            }
+                                                          }
+                                                        ]
+                                                      },
+                                                      "rest": null,
+                                                      "generator": false,
+                                                      "expression": false
+                                                    }
+                                                  ]
+                                                }
+                                              },
+                                              {
+                                                "type": "ExpressionStatement",
+                                                "expression": {
+                                                  "type": "AssignmentExpression",
+                                                  "operator": "=",
+                                                  "left": {
+                                                    "type": "MemberExpression",
+                                                    "computed": false,
+                                                    "object": {
+                                                      "type": "MemberExpression",
+                                                      "computed": false,
+                                                      "object": {
+                                                        "type": "Identifier",
+                                                        "name": "_this"
+                                                      },
+                                                      "property": {
+                                                        "type": "Identifier",
+                                                        "name": "_runContext"
+                                                      }
+                                                    },
+                                                    "property": {
+                                                      "type": "Identifier",
+                                                      "name": "done"
+                                                    }
+                                                  },
+                                                  "right": {
+                                                    "type": "FunctionExpression",
+                                                    "id": null,
+                                                    "params": [],
+                                                    "defaults": [],
+                                                    "body": {
+                                                      "type": "BlockStatement",
+                                                      "body": [
+                                                        {
+                                                          "type": "ReturnStatement",
+                                                          "argument": {
+                                                            "type": "CallExpression",
+                                                            "callee": {
+                                                              "type": "MemberExpression",
+                                                              "computed": false,
+                                                              "object": {
+                                                                "type": "MemberExpression",
+                                                                "computed": false,
+                                                                "object": {
+                                                                  "type": "Identifier",
+                                                                  "name": "_this"
+                                                                },
+                                                                "property": {
+                                                                  "type": "Identifier",
+                                                                  "name": "_semaphore"
+                                                                }
+                                                              },
+                                                              "property": {
+                                                                "type": "Identifier",
+                                                                "name": "leave"
+                                                              }
+                                                            },
+                                                            "arguments": []
+                                                          }
+                                                        }
+                                                      ]
+                                                    },
+                                                    "rest": null,
+                                                    "generator": false,
+                                                    "expression": false
+                                                  }
+                                                }
+                                              }
+                                            ]
+                                          },
+                                          "rest": null,
+                                          "generator": false,
+                                          "expression": false
+                                        }
+                                      }
+                                    ],
+                                    "kind": "var"
+                                  }
+                                ]
+                              },
+                              "alternate": {
+                                "type": "BlockStatement",
+                                "body": [
+                                  {
+                                    "type": "ExpressionStatement",
+                                    "expression": {
+                                      "type": "CallExpression",
+                                      "callee": {
+                                        "type": "MemberExpression",
+                                        "computed": false,
+                                        "object": {
+                                          "type": "MemberExpression",
+                                          "computed": false,
+                                          "object": {
+                                            "type": "ThisExpression"
+                                          },
+                                          "property": {
+                                            "type": "Identifier",
+                                            "name": "_semaphore"
+                                          }
+                                        },
+                                        "property": {
+                                          "type": "Identifier",
+                                          "name": "enter"
+                                        }
+                                      },
+                                      "arguments": [
+                                        {
+                                          "type": "FunctionExpression",
+                                          "id": null,
+                                          "params": [],
+                                          "defaults": [],
+                                          "body": {
+                                            "type": "BlockStatement",
+                                            "body": [
+                                              {
+                                                "type": "ReturnStatement",
+                                                "argument": {
+                                                  "type": "CallExpression",
+                                                  "callee": {
+                                                    "type": "MemberExpression",
+                                                    "computed": false,
+                                                    "object": {
+                                                      "type": "MemberExpression",
+                                                      "computed": false,
+                                                      "object": {
+                                                        "type": "Identifier",
+                                                        "name": "_this"
+                                                      },
+                                                      "property": {
+                                                        "type": "Identifier",
+                                                        "name": "_fiber"
+                                                      }
+                                                    },
+                                                    "property": {
+                                                      "type": "Identifier",
+                                                      "name": "run"
+                                                    }
+                                                  },
+                                                  "arguments": [
+                                                    {
+                                                      "type": "MemberExpression",
+                                                      "computed": false,
+                                                      "object": {
+                                                        "type": "Identifier",
+                                                        "name": "_this"
+                                                      },
+                                                      "property": {
+                                                        "type": "Identifier",
+                                                        "name": "_runContext"
+                                                      }
+                                                    }
+                                                  ]
+                                                }
+                                              }
+                                            ]
+                                          },
+                                          "rest": null,
+                                          "generator": false,
+                                          "expression": false
+                                        }
+                                      ]
+                                    }
+                                  },
+                                  {
+                                    "type": "ExpressionStatement",
+                                    "expression": {
+                                      "type": "AssignmentExpression",
+                                      "operator": "=",
+                                      "left": {
+                                        "type": "MemberExpression",
+                                        "computed": false,
+                                        "object": {
+                                          "type": "MemberExpression",
+                                          "computed": false,
+                                          "object": {
+                                            "type": "ThisExpression"
+                                          },
+                                          "property": {
+                                            "type": "Identifier",
+                                            "name": "_runContext"
+                                          }
+                                        },
+                                        "property": {
+                                          "type": "Identifier",
+                                          "name": "done"
+                                        }
+                                      },
+                                      "right": {
+                                        "type": "FunctionExpression",
+                                        "id": null,
+                                        "params": [],
+                                        "defaults": [],
+                                        "body": {
+                                          "type": "BlockStatement",
+                                          "body": [
+                                            {
+                                              "type": "ReturnStatement",
+                                              "argument": {
+                                                "type": "CallExpression",
+                                                "callee": {
+                                                  "type": "MemberExpression",
+                                                  "computed": false,
+                                                  "object": {
+                                                    "type": "MemberExpression",
+                                                    "computed": false,
+                                                    "object": {
+                                                      "type": "Identifier",
+                                                      "name": "_this"
+                                                    },
+                                                    "property": {
+                                                      "type": "Identifier",
+                                                      "name": "_semaphore"
+                                                    }
+                                                  },
+                                                  "property": {
+                                                    "type": "Identifier",
+                                                    "name": "leave"
+                                                  }
+                                                },
+                                                "arguments": []
+                                              }
+                                            }
+                                          ]
+                                        },
+                                        "rest": null,
+                                        "generator": false,
+                                        "expression": false
+                                      }
+                                    }
+                                  }
+                                ]
+                              }
+                            },
+                            {
+                              "type": "SwitchStatement",
+                              "discriminant": {
+                                "type": "MemberExpression",
+                                "computed": false,
+                                "object": {
+                                  "type": "ThisExpression"
+                                },
+                                "property": {
+                                  "type": "Identifier",
+                                  "name": "_returnValue"
+                                }
+                              },
+                              "cases": [
+                                {
+                                  "type": "SwitchCase",
+                                  "test": {
+                                    "type": "MemberExpression",
+                                    "computed": false,
+                                    "object": {
+                                      "type": "Identifier",
+                                      "name": "Config"
+                                    },
+                                    "property": {
+                                      "type": "Identifier",
+                                      "name": "PROMISE"
+                                    }
+                                  },
+                                  "consequent": [
+                                    {
+                                      "type": "ReturnStatement",
+                                      "argument": {
+                                        "type": "MemberExpression",
+                                        "computed": false,
+                                        "object": {
+                                          "type": "Identifier",
+                                          "name": "resolver"
+                                        },
+                                        "property": {
+                                          "type": "Identifier",
+                                          "name": "promise"
+                                        }
+                                      }
+                                    }
+                                  ]
+                                },
+                                {
+                                  "type": "SwitchCase",
+                                  "test": {
+                                    "type": "MemberExpression",
+                                    "computed": false,
+                                    "object": {
+                                      "type": "Identifier",
+                                      "name": "Config"
+                                    },
+                                    "property": {
+                                      "type": "Identifier",
+                                      "name": "THUNK"
+                                    }
+                                  },
+                                  "consequent": [
+                                    {
+                                      "type": "ReturnStatement",
+                                      "argument": {
+                                        "type": "Identifier",
+                                        "name": "thunk"
+                                      }
+                                    }
+                                  ]
+                                },
+                                {
+                                  "type": "SwitchCase",
+                                  "test": {
+                                    "type": "MemberExpression",
+                                    "computed": false,
+                                    "object": {
+                                      "type": "Identifier",
+                                      "name": "Config"
+                                    },
+                                    "property": {
+                                      "type": "Identifier",
+                                      "name": "RESULT"
+                                    }
+                                  },
+                                  "consequent": [
+                                    {
+                                      "type": "ReturnStatement",
+                                      "argument": {
+                                        "type": "CallExpression",
+                                        "callee": {
+                                          "type": "Identifier",
+                                          "name": "await"
+                                        },
+                                        "arguments": [
+                                          {
+                                            "type": "MemberExpression",
+                                            "computed": false,
+                                            "object": {
+                                              "type": "Identifier",
+                                              "name": "resolver"
+                                            },
+                                            "property": {
+                                              "type": "Identifier",
+                                              "name": "promise"
+                                            }
+                                          }
+                                        ]
+                                      }
+                                    }
+                                  ]
+                                },
+                                {
+                                  "type": "SwitchCase",
+                                  "test": {
+                                    "type": "MemberExpression",
+                                    "computed": false,
+                                    "object": {
+                                      "type": "Identifier",
+                                      "name": "Config"
+                                    },
+                                    "property": {
+                                      "type": "Identifier",
+                                      "name": "NONE"
+                                    }
+                                  },
+                                  "consequent": [
+                                    {
+                                      "type": "ReturnStatement",
+                                      "argument": null
+                                    }
+                                  ]
+                                }
+                              ]
+                            }
+                          ]
+                        },
+                        "rest": null,
+                        "generator": false,
+                        "expression": false
+                      }
+                    }
+                  },
+                  {
+                    "type": "ExpressionStatement",
+                    "expression": {
+                      "type": "AssignmentExpression",
+                      "operator": "=",
+                      "left": {
+                        "type": "MemberExpression",
+                        "computed": false,
+                        "object": {
+                          "type": "MemberExpression",
+                          "computed": false,
+                          "object": {
+                            "type": "Identifier",
+                            "name": "AsyncIterator"
+                          },
+                          "property": {
+                            "type": "Identifier",
+                            "name": "prototype"
+                          }
+                        },
+                        "property": {
+                          "type": "Identifier",
+                          "name": "forEach"
+                        }
+                      },
+                      "right": {
+                        "type": "FunctionExpression",
+                        "id": null,
+                        "params": [
+                          {
+                            "type": "Identifier",
+                            "name": "callback"
+                          },
+                          {
+                            "type": "Identifier",
+                            "name": "doneCallback"
+                          }
+                        ],
+                        "defaults": [],
+                        "body": {
+                          "type": "BlockStatement",
+                          "body": [
+                            {
+                              "type": "VariableDeclaration",
+                              "declarations": [
+                                {
+                                  "type": "VariableDeclarator",
+                                  "id": {
+                                    "type": "Identifier",
+                                    "name": "_this"
+                                  },
+                                  "init": {
+                                    "type": "ThisExpression"
+                                  }
+                                }
+                              ],
+                              "kind": "var"
+                            },
+                            {
+                              "type": "VariableDeclaration",
+                              "declarations": [
+                                {
+                                  "type": "VariableDeclarator",
+                                  "id": {
+                                    "type": "Identifier",
+                                    "name": "run"
+                                  },
+                                  "init": null
+                                },
+                                {
+                                  "type": "VariableDeclarator",
+                                  "id": {
+                                    "type": "Identifier",
+                                    "name": "runCtx"
+                                  },
+                                  "init": {
+                                    "type": "MemberExpression",
+                                    "computed": false,
+                                    "object": {
+                                      "type": "ThisExpression"
+                                    },
+                                    "property": {
+                                      "type": "Identifier",
+                                      "name": "_runContext"
+                                    }
+                                  }
+                                }
+                              ],
+                              "kind": "var"
+                            },
+                            {
+                              "type": "IfStatement",
+                              "test": {
+                                "type": "BinaryExpression",
+                                "operator": "===",
+                                "left": {
+                                  "type": "MemberExpression",
+                                  "computed": false,
+                                  "object": {
+                                    "type": "ThisExpression"
+                                  },
+                                  "property": {
+                                    "type": "Identifier",
+                                    "name": "_returnValue"
+                                  }
+                                },
+                                "right": {
+                                  "type": "MemberExpression",
+                                  "computed": false,
+                                  "object": {
+                                    "type": "Identifier",
+                                    "name": "Config"
+                                  },
+                                  "property": {
+                                    "type": "Identifier",
+                                    "name": "RESULT"
+                                  }
+                                }
+                              },
+                              "consequent": {
+                                "type": "ExpressionStatement",
+                                "expression": {
+                                  "type": "AssignmentExpression",
+                                  "operator": "=",
+                                  "left": {
+                                    "type": "Identifier",
+                                    "name": "run"
+                                  },
+                                  "right": {
+                                    "type": "FunctionExpression",
+                                    "id": null,
+                                    "params": [],
+                                    "defaults": [],
+                                    "body": {
+                                      "type": "BlockStatement",
+                                      "body": [
+                                        {
+                                          "type": "ReturnStatement",
+                                          "argument": {
+                                            "type": "CallExpression",
+                                            "callee": {
+                                              "type": "Identifier",
+                                              "name": "stepAwaited"
+                                            },
+                                            "arguments": [
+                                              {
+                                                "type": "FunctionExpression",
+                                                "id": null,
+                                                "params": [],
+                                                "defaults": [],
+                                                "body": {
+                                                  "type": "BlockStatement",
+                                                  "body": [
+                                                    {
+                                                      "type": "ReturnStatement",
+                                                      "argument": {
+                                                        "type": "CallExpression",
+                                                        "callee": {
+                                                          "type": "MemberExpression",
+                                                          "computed": false,
+                                                          "object": {
+                                                            "type": "Identifier",
+                                                            "name": "_this"
+                                                          },
+                                                          "property": {
+                                                            "type": "Identifier",
+                                                            "name": "next"
+                                                          }
+                                                        },
+                                                        "arguments": []
+                                                      }
+                                                    }
+                                                  ]
+                                                },
+                                                "rest": null,
+                                                "generator": false,
+                                                "expression": false
+                                              }
+                                            ]
+                                          }
+                                        }
+                                      ]
+                                    },
+                                    "rest": null,
+                                    "generator": false,
+                                    "expression": false
+                                  }
+                                }
+                              },
+                              "alternate": {
+                                "type": "IfStatement",
+                                "test": {
+                                  "type": "BinaryExpression",
+                                  "operator": "===",
+                                  "left": {
+                                    "type": "MemberExpression",
+                                    "computed": false,
+                                    "object": {
+                                      "type": "ThisExpression"
+                                    },
+                                    "property": {
+                                      "type": "Identifier",
+                                      "name": "_returnValue"
+                                    }
+                                  },
+                                  "right": {
+                                    "type": "MemberExpression",
+                                    "computed": false,
+                                    "object": {
+                                      "type": "Identifier",
+                                      "name": "Config"
+                                    },
+                                    "property": {
+                                      "type": "Identifier",
+                                      "name": "THUNK"
+                                    }
+                                  }
+                                },
+                                "consequent": {
+                                  "type": "ExpressionStatement",
+                                  "expression": {
+                                    "type": "AssignmentExpression",
+                                    "operator": "=",
+                                    "left": {
+                                      "type": "Identifier",
+                                      "name": "run"
+                                    },
+                                    "right": {
+                                      "type": "FunctionExpression",
+                                      "id": null,
+                                      "params": [],
+                                      "defaults": [],
+                                      "body": {
+                                        "type": "BlockStatement",
+                                        "body": [
+                                          {
+                                            "type": "ReturnStatement",
+                                            "argument": {
+                                              "type": "CallExpression",
+                                              "callee": {
+                                                "type": "CallExpression",
+                                                "callee": {
+                                                  "type": "MemberExpression",
+                                                  "computed": false,
+                                                  "object": {
+                                                    "type": "Identifier",
+                                                    "name": "_this"
+                                                  },
+                                                  "property": {
+                                                    "type": "Identifier",
+                                                    "name": "next"
+                                                  }
+                                                },
+                                                "arguments": []
+                                              },
+                                              "arguments": [
+                                                {
+                                                  "type": "Identifier",
+                                                  "name": "stepCallback"
+                                                }
+                                              ]
+                                            }
+                                          }
+                                        ]
+                                      },
+                                      "rest": null,
+                                      "generator": false,
+                                      "expression": false
+                                    }
+                                  }
+                                },
+                                "alternate": {
+                                  "type": "IfStatement",
+                                  "test": {
+                                    "type": "MemberExpression",
+                                    "computed": false,
+                                    "object": {
+                                      "type": "ThisExpression"
+                                    },
+                                    "property": {
+                                      "type": "Identifier",
+                                      "name": "_acceptsCallback"
+                                    }
+                                  },
+                                  "consequent": {
+                                    "type": "ExpressionStatement",
+                                    "expression": {
+                                      "type": "AssignmentExpression",
+                                      "operator": "=",
+                                      "left": {
+                                        "type": "Identifier",
+                                        "name": "run"
+                                      },
+                                      "right": {
+                                        "type": "FunctionExpression",
+                                        "id": null,
+                                        "params": [],
+                                        "defaults": [],
+                                        "body": {
+                                          "type": "BlockStatement",
+                                          "body": [
+                                            {
+                                              "type": "ReturnStatement",
+                                              "argument": {
+                                                "type": "CallExpression",
+                                                "callee": {
+                                                  "type": "MemberExpression",
+                                                  "computed": false,
+                                                  "object": {
+                                                    "type": "Identifier",
+                                                    "name": "_this"
+                                                  },
+                                                  "property": {
+                                                    "type": "Identifier",
+                                                    "name": "next"
+                                                  }
+                                                },
+                                                "arguments": [
+                                                  {
+                                                    "type": "Identifier",
+                                                    "name": "stepCallback"
+                                                  }
+                                                ]
+                                              }
+                                            }
+                                          ]
+                                        },
+                                        "rest": null,
+                                        "generator": false,
+                                        "expression": false
+                                      }
+                                    }
+                                  },
+                                  "alternate": {
+                                    "type": "ExpressionStatement",
+                                    "expression": {
+                                      "type": "AssignmentExpression",
+                                      "operator": "=",
+                                      "left": {
+                                        "type": "Identifier",
+                                        "name": "run"
+                                      },
+                                      "right": {
+                                        "type": "FunctionExpression",
+                                        "id": null,
+                                        "params": [],
+                                        "defaults": [],
+                                        "body": {
+                                          "type": "BlockStatement",
+                                          "body": [
+                                            {
+                                              "type": "ReturnStatement",
+                                              "argument": {
+                                                "type": "CallExpression",
+                                                "callee": {
+                                                  "type": "MemberExpression",
+                                                  "computed": false,
+                                                  "object": {
+                                                    "type": "CallExpression",
+                                                    "callee": {
+                                                      "type": "MemberExpression",
+                                                      "computed": false,
+                                                      "object": {
+                                                        "type": "Identifier",
+                                                        "name": "_this"
+                                                      },
+                                                      "property": {
+                                                        "type": "Identifier",
+                                                        "name": "next"
+                                                      }
+                                                    },
+                                                    "arguments": []
+                                                  },
+                                                  "property": {
+                                                    "type": "Identifier",
+                                                    "name": "then"
+                                                  }
+                                                },
+                                                "arguments": [
+                                                  {
+                                                    "type": "Identifier",
+                                                    "name": "stepResolved"
+                                                  },
+                                                  {
+                                                    "type": "Identifier",
+                                                    "name": "endOfIteration"
+                                                  }
+                                                ]
+                                              }
+                                            }
+                                          ]
+                                        },
+                                        "rest": null,
+                                        "generator": false,
+                                        "expression": false
+                                      }
+                                    }
+                                  }
+                                }
+                              }
+                            },
+                            {
+                              "type": "IfStatement",
+                              "test": {
+                                "type": "LogicalExpression",
+                                "operator": "||",
+                                "left": {
+                                  "type": "BinaryExpression",
+                                  "operator": "===",
+                                  "left": {
+                                    "type": "MemberExpression",
+                                    "computed": false,
+                                    "object": {
+                                      "type": "ThisExpression"
+                                    },
+                                    "property": {
+                                      "type": "Identifier",
+                                      "name": "_returnValue"
+                                    }
+                                  },
+                                  "right": {
+                                    "type": "MemberExpression",
+                                    "computed": false,
+                                    "object": {
+                                      "type": "Identifier",
+                                      "name": "Config"
+                                    },
+                                    "property": {
+                                      "type": "Identifier",
+                                      "name": "PROMISE"
+                                    }
+                                  }
+                                },
+                                "right": {
+                                  "type": "BinaryExpression",
+                                  "operator": "===",
+                                  "left": {
+                                    "type": "MemberExpression",
+                                    "computed": false,
+                                    "object": {
+                                      "type": "ThisExpression"
+                                    },
+                                    "property": {
+                                      "type": "Identifier",
+                                      "name": "_returnValue"
+                                    }
+                                  },
+                                  "right": {
+                                    "type": "MemberExpression",
+                                    "computed": false,
+                                    "object": {
+                                      "type": "Identifier",
+                                      "name": "Config"
+                                    },
+                                    "property": {
+                                      "type": "Identifier",
+                                      "name": "THUNK"
+                                    }
+                                  }
+                                }
+                              },
+                              "consequent": {
+                                "type": "BlockStatement",
+                                "body": [
+                                  {
+                                    "type": "VariableDeclaration",
+                                    "declarations": [
+                                      {
+                                        "type": "VariableDeclarator",
+                                        "id": {
+                                          "type": "Identifier",
+                                          "name": "doneResolver"
+                                        },
+                                        "init": {
+                                          "type": "CallExpression",
+                                          "callee": {
+                                            "type": "Identifier",
+                                            "name": "defer"
+                                          },
+                                          "arguments": []
+                                        }
+                                      }
+                                    ],
+                                    "kind": "var"
+                                  }
+                                ]
+                              },
+                              "alternate": null
+                            },
+                            {
+                              "type": "IfStatement",
+                              "test": {
+                                "type": "UnaryExpression",
+                                "operator": "!",
+                                "argument": {
+                                  "type": "MemberExpression",
+                                  "computed": false,
+                                  "object": {
+                                    "type": "ThisExpression"
+                                  },
+                                  "property": {
+                                    "type": "Identifier",
+                                    "name": "_acceptsCallback"
+                                  }
+                                },
+                                "prefix": true
+                              },
+                              "consequent": {
+                                "type": "ExpressionStatement",
+                                "expression": {
+                                  "type": "AssignmentExpression",
+                                  "operator": "=",
+                                  "left": {
+                                    "type": "Identifier",
+                                    "name": "doneCallback"
+                                  },
+                                  "right": {
+                                    "type": "Literal",
+                                    "value": null
+                                  }
+                                }
+                              },
+                              "alternate": null
+                            },
+                            {
+                              "type": "IfStatement",
+                              "test": {
+                                "type": "BinaryExpression",
+                                "operator": "===",
+                                "left": {
+                                  "type": "MemberExpression",
+                                  "computed": false,
+                                  "object": {
+                                    "type": "ThisExpression"
+                                  },
+                                  "property": {
+                                    "type": "Identifier",
+                                    "name": "_returnValue"
+                                  }
+                                },
+                                "right": {
+                                  "type": "MemberExpression",
+                                  "computed": false,
+                                  "object": {
+                                    "type": "Identifier",
+                                    "name": "Config"
+                                  },
+                                  "property": {
+                                    "type": "Identifier",
+                                    "name": "THUNK"
+                                  }
+                                }
+                              },
+                              "consequent": {
+                                "type": "BlockStatement",
+                                "body": [
+                                  {
+                                    "type": "VariableDeclaration",
+                                    "declarations": [
+                                      {
+                                        "type": "VariableDeclarator",
+                                        "id": {
+                                          "type": "Identifier",
+                                          "name": "thunk"
+                                        },
+                                        "init": {
+                                          "type": "FunctionExpression",
+                                          "id": null,
+                                          "params": [
+                                            {
+                                              "type": "Identifier",
+                                              "name": "done"
+                                            }
+                                          ],
+                                          "defaults": [],
+                                          "body": {
+                                            "type": "BlockStatement",
+                                            "body": [
+                                              {
+                                                "type": "IfStatement",
+                                                "test": {
+                                                  "type": "Identifier",
+                                                  "name": "done"
+                                                },
+                                                "consequent": {
+                                                  "type": "ExpressionStatement",
+                                                  "expression": {
+                                                    "type": "CallExpression",
+                                                    "callee": {
+                                                      "type": "MemberExpression",
+                                                      "computed": false,
+                                                      "object": {
+                                                        "type": "MemberExpression",
+                                                        "computed": false,
+                                                        "object": {
+                                                          "type": "Identifier",
+                                                          "name": "doneResolver"
+                                                        },
+                                                        "property": {
+                                                          "type": "Identifier",
+                                                          "name": "promise"
+                                                        }
+                                                      },
+                                                      "property": {
+                                                        "type": "Identifier",
+                                                        "name": "then"
+                                                      }
+                                                    },
+                                                    "arguments": [
+                                                      {
+                                                        "type": "FunctionExpression",
+                                                        "id": null,
+                                                        "params": [
+                                                          {
+                                                            "type": "Identifier",
+                                                            "name": "val"
+                                                          }
+                                                        ],
+                                                        "defaults": [],
+                                                        "body": {
+                                                          "type": "BlockStatement",
+                                                          "body": [
+                                                            {
+                                                              "type": "ReturnStatement",
+                                                              "argument": {
+                                                                "type": "CallExpression",
+                                                                "callee": {
+                                                                  "type": "Identifier",
+                                                                  "name": "done"
+                                                                },
+                                                                "arguments": [
+                                                                  {
+                                                                    "type": "Literal",
+                                                                    "value": null
+                                                                  },
+                                                                  {
+                                                                    "type": "Identifier",
+                                                                    "name": "val"
+                                                                  }
+                                                                ]
+                                                              }
+                                                            }
+                                                          ]
+                                                        },
+                                                        "rest": null,
+                                                        "generator": false,
+                                                        "expression": false
+                                                      },
+                                                      {
+                                                        "type": "FunctionExpression",
+                                                        "id": null,
+                                                        "params": [
+                                                          {
+                                                            "type": "Identifier",
+                                                            "name": "err"
+                                                          }
+                                                        ],
+                                                        "defaults": [],
+                                                        "body": {
+                                                          "type": "BlockStatement",
+                                                          "body": [
+                                                            {
+                                                              "type": "ReturnStatement",
+                                                              "argument": {
+                                                                "type": "CallExpression",
+                                                                "callee": {
+                                                                  "type": "Identifier",
+                                                                  "name": "done"
+                                                                },
+                                                                "arguments": [
+                                                                  {
+                                                                    "type": "Identifier",
+                                                                    "name": "err"
+                                                                  }
+                                                                ]
+                                                              }
+                                                            }
+                                                          ]
+                                                        },
+                                                        "rest": null,
+                                                        "generator": false,
+                                                        "expression": false
+                                                      }
+                                                    ]
+                                                  }
+                                                },
+                                                "alternate": null
+                                              },
+                                              {
+                                                "type": "ExpressionStatement",
+                                                "expression": {
+                                                  "type": "CallExpression",
+                                                  "callee": {
+                                                    "type": "Identifier",
+                                                    "name": "run"
+                                                  },
+                                                  "arguments": []
+                                                }
+                                              }
+                                            ]
+                                          },
+                                          "rest": null,
+                                          "generator": false,
+                                          "expression": false
+                                        }
+                                      }
+                                    ],
+                                    "kind": "var"
+                                  }
+                                ]
+                              },
+                              "alternate": {
+                                "type": "BlockStatement",
+                                "body": [
+                                  {
+                                    "type": "ExpressionStatement",
+                                    "expression": {
+                                      "type": "CallExpression",
+                                      "callee": {
+                                        "type": "Identifier",
+                                        "name": "run"
+                                      },
+                                      "arguments": []
+                                    }
+                                  }
+                                ]
+                              }
+                            },
+                            {
+                              "type": "SwitchStatement",
+                              "discriminant": {
+                                "type": "MemberExpression",
+                                "computed": false,
+                                "object": {
+                                  "type": "ThisExpression"
+                                },
+                                "property": {
+                                  "type": "Identifier",
+                                  "name": "_returnValue"
+                                }
+                              },
+                              "cases": [
+                                {
+                                  "type": "SwitchCase",
+                                  "test": {
+                                    "type": "MemberExpression",
+                                    "computed": false,
+                                    "object": {
+                                      "type": "Identifier",
+                                      "name": "Config"
+                                    },
+                                    "property": {
+                                      "type": "Identifier",
+                                      "name": "PROMISE"
+                                    }
+                                  },
+                                  "consequent": [
+                                    {
+                                      "type": "ReturnStatement",
+                                      "argument": {
+                                        "type": "MemberExpression",
+                                        "computed": false,
+                                        "object": {
+                                          "type": "Identifier",
+                                          "name": "doneResolver"
+                                        },
+                                        "property": {
+                                          "type": "Identifier",
+                                          "name": "promise"
+                                        }
+                                      }
+                                    }
+                                  ]
+                                },
+                                {
+                                  "type": "SwitchCase",
+                                  "test": {
+                                    "type": "MemberExpression",
+                                    "computed": false,
+                                    "object": {
+                                      "type": "Identifier",
+                                      "name": "Config"
+                                    },
+                                    "property": {
+                                      "type": "Identifier",
+                                      "name": "THUNK"
+                                    }
+                                  },
+                                  "consequent": [
+                                    {
+                                      "type": "ReturnStatement",
+                                      "argument": {
+                                        "type": "Identifier",
+                                        "name": "thunk"
+                                      }
+                                    }
+                                  ]
+                                },
+                                {
+                                  "type": "SwitchCase",
+                                  "test": {
+                                    "type": "MemberExpression",
+                                    "computed": false,
+                                    "object": {
+                                      "type": "Identifier",
+                                      "name": "Config"
+                                    },
+                                    "property": {
+                                      "type": "Identifier",
+                                      "name": "RESULT"
+                                    }
+                                  },
+                                  "consequent": [
+                                    {
+                                      "type": "ReturnStatement",
+                                      "argument": {
+                                        "type": "Identifier",
+                                        "name": "undefined"
+                                      }
+                                    }
+                                  ]
+                                },
+                                {
+                                  "type": "SwitchCase",
+                                  "test": {
+                                    "type": "MemberExpression",
+                                    "computed": false,
+                                    "object": {
+                                      "type": "Identifier",
+                                      "name": "Config"
+                                    },
+                                    "property": {
+                                      "type": "Identifier",
+                                      "name": "NONE"
+                                    }
+                                  },
+                                  "consequent": [
+                                    {
+                                      "type": "ReturnStatement",
+                                      "argument": {
+                                        "type": "Identifier",
+                                        "name": "undefined"
+                                      }
+                                    }
+                                  ]
+                                }
+                              ]
+                            },
+                            {
+                              "type": "FunctionDeclaration",
+                              "id": {
+                                "type": "Identifier",
+                                "name": "stepAwaited"
+                              },
+                              "params": [
+                                {
+                                  "type": "Identifier",
+                                  "name": "next"
+                                }
+                              ],
+                              "defaults": [],
+                              "body": {
+                                "type": "BlockStatement",
+                                "body": [
+                                  {
+                                    "type": "TryStatement",
+                                    "block": {
+                                      "type": "BlockStatement",
+                                      "body": [
+                                        {
+                                          "type": "WhileStatement",
+                                          "test": {
+                                            "type": "Literal",
+                                            "value": true
+                                          },
+                                          "body": {
+                                            "type": "BlockStatement",
+                                            "body": [
+                                              {
+                                                "type": "VariableDeclaration",
+                                                "declarations": [
+                                                  {
+                                                    "type": "VariableDeclarator",
+                                                    "id": {
+                                                      "type": "Identifier",
+                                                      "name": "item"
+                                                    },
+                                                    "init": {
+                                                      "type": "CallExpression",
+                                                      "callee": {
+                                                        "type": "Identifier",
+                                                        "name": "next"
+                                                      },
+                                                      "arguments": []
+                                                    }
+                                                  }
+                                                ],
+                                                "kind": "var"
+                                              },
+                                              {
+                                                "type": "IfStatement",
+                                                "test": {
+                                                  "type": "MemberExpression",
+                                                  "computed": false,
+                                                  "object": {
+                                                    "type": "Identifier",
+                                                    "name": "item"
+                                                  },
+                                                  "property": {
+                                                    "type": "Identifier",
+                                                    "name": "done"
+                                                  }
+                                                },
+                                                "consequent": {
+                                                  "type": "ReturnStatement",
+                                                  "argument": {
+                                                    "type": "CallExpression",
+                                                    "callee": {
+                                                      "type": "Identifier",
+                                                      "name": "endOfIteration"
+                                                    },
+                                                    "arguments": []
+                                                  }
+                                                },
+                                                "alternate": null
+                                              },
+                                              {
+                                                "type": "ExpressionStatement",
+                                                "expression": {
+                                                  "type": "CallExpression",
+                                                  "callee": {
+                                                    "type": "Identifier",
+                                                    "name": "callback"
+                                                  },
+                                                  "arguments": [
+                                                    {
+                                                      "type": "MemberExpression",
+                                                      "computed": false,
+                                                      "object": {
+                                                        "type": "Identifier",
+                                                        "name": "item"
+                                                      },
+                                                      "property": {
+                                                        "type": "Identifier",
+                                                        "name": "value"
+                                                      }
+                                                    }
+                                                  ]
+                                                }
+                                              }
+                                            ]
+                                          }
+                                        }
+                                      ]
+                                    },
+                                    "guardedHandlers": [],
+                                    "handlers": [
+                                      {
+                                        "type": "CatchClause",
+                                        "param": {
+                                          "type": "Identifier",
+                                          "name": "err"
+                                        },
+                                        "body": {
+                                          "type": "BlockStatement",
+                                          "body": [
+                                            {
+                                              "type": "ExpressionStatement",
+                                              "expression": {
+                                                "type": "CallExpression",
+                                                "callee": {
+                                                  "type": "Identifier",
+                                                  "name": "endOfIteration"
+                                                },
+                                                "arguments": [
+                                                  {
+                                                    "type": "Identifier",
+                                                    "name": "err"
+                                                  }
+                                                ]
+                                              }
+                                            },
+                                            {
+                                              "type": "ThrowStatement",
+                                              "argument": {
+                                                "type": "Identifier",
+                                                "name": "err"
+                                              }
+                                            }
+                                          ]
+                                        }
+                                      }
+                                    ],
+                                    "finalizer": null
+                                  }
+                                ]
+                              },
+                              "rest": null,
+                              "generator": false,
+                              "expression": false
+                            },
+                            {
+                              "type": "FunctionDeclaration",
+                              "id": {
+                                "type": "Identifier",
+                                "name": "stepCallback"
+                              },
+                              "params": [
+                                {
+                                  "type": "Identifier",
+                                  "name": "err"
+                                },
+                                {
+                                  "type": "Identifier",
+                                  "name": "result"
+                                }
+                              ],
+                              "defaults": [],
+                              "body": {
+                                "type": "BlockStatement",
+                                "body": [
+                                  {
+                                    "type": "IfStatement",
+                                    "test": {
+                                      "type": "LogicalExpression",
+                                      "operator": "||",
+                                      "left": {
+                                        "type": "Identifier",
+                                        "name": "err"
+                                      },
+                                      "right": {
+                                        "type": "MemberExpression",
+                                        "computed": false,
+                                        "object": {
+                                          "type": "Identifier",
+                                          "name": "result"
+                                        },
+                                        "property": {
+                                          "type": "Identifier",
+                                          "name": "done"
+                                        }
+                                      }
+                                    },
+                                    "consequent": {
+                                      "type": "ReturnStatement",
+                                      "argument": {
+                                        "type": "CallExpression",
+                                        "callee": {
+                                          "type": "Identifier",
+                                          "name": "endOfIteration"
+                                        },
+                                        "arguments": [
+                                          {
+                                            "type": "Identifier",
+                                            "name": "err"
+                                          }
+                                        ]
+                                      }
+                                    },
+                                    "alternate": null
+                                  },
+                                  {
+                                    "type": "ExpressionStatement",
+                                    "expression": {
+                                      "type": "CallExpression",
+                                      "callee": {
+                                        "type": "Identifier",
+                                        "name": "callback"
+                                      },
+                                      "arguments": [
+                                        {
+                                          "type": "MemberExpression",
+                                          "computed": false,
+                                          "object": {
+                                            "type": "Identifier",
+                                            "name": "result"
+                                          },
+                                          "property": {
+                                            "type": "Identifier",
+                                            "name": "value"
+                                          }
+                                        }
+                                      ]
+                                    }
+                                  },
+                                  {
+                                    "type": "ExpressionStatement",
+                                    "expression": {
+                                      "type": "CallExpression",
+                                      "callee": {
+                                        "type": "Identifier",
+                                        "name": "setImmediate"
+                                      },
+                                      "arguments": [
+                                        {
+                                          "type": "Identifier",
+                                          "name": "run"
+                                        }
+                                      ]
+                                    }
+                                  }
+                                ]
+                              },
+                              "rest": null,
+                              "generator": false,
+                              "expression": false
+                            },
+                            {
+                              "type": "FunctionDeclaration",
+                              "id": {
+                                "type": "Identifier",
+                                "name": "stepResolved"
+                              },
+                              "params": [
+                                {
+                                  "type": "Identifier",
+                                  "name": "result"
+                                }
+                              ],
+                              "defaults": [],
+                              "body": {
+                                "type": "BlockStatement",
+                                "body": [
+                                  {
+                                    "type": "IfStatement",
+                                    "test": {
+                                      "type": "MemberExpression",
+                                      "computed": false,
+                                      "object": {
+                                        "type": "Identifier",
+                                        "name": "result"
+                                      },
+                                      "property": {
+                                        "type": "Identifier",
+                                        "name": "done"
+                                      }
+                                    },
+                                    "consequent": {
+                                      "type": "ReturnStatement",
+                                      "argument": {
+                                        "type": "CallExpression",
+                                        "callee": {
+                                          "type": "Identifier",
+                                          "name": "endOfIteration"
+                                        },
+                                        "arguments": []
+                                      }
+                                    },
+                                    "alternate": null
+                                  },
+                                  {
+                                    "type": "ExpressionStatement",
+                                    "expression": {
+                                      "type": "CallExpression",
+                                      "callee": {
+                                        "type": "Identifier",
+                                        "name": "callback"
+                                      },
+                                      "arguments": [
+                                        {
+                                          "type": "MemberExpression",
+                                          "computed": false,
+                                          "object": {
+                                            "type": "Identifier",
+                                            "name": "result"
+                                          },
+                                          "property": {
+                                            "type": "Identifier",
+                                            "name": "value"
+                                          }
+                                        }
+                                      ]
+                                    }
+                                  },
+                                  {
+                                    "type": "ExpressionStatement",
+                                    "expression": {
+                                      "type": "CallExpression",
+                                      "callee": {
+                                        "type": "Identifier",
+                                        "name": "setImmediate"
+                                      },
+                                      "arguments": [
+                                        {
+                                          "type": "Identifier",
+                                          "name": "run"
+                                        }
+                                      ]
+                                    }
+                                  }
+                                ]
+                              },
+                              "rest": null,
+                              "generator": false,
+                              "expression": false
+                            },
+                            {
+                              "type": "FunctionDeclaration",
+                              "id": {
+                                "type": "Identifier",
+                                "name": "endOfIteration"
+                              },
+                              "params": [
+                                {
+                                  "type": "Identifier",
+                                  "name": "err"
+                                }
+                              ],
+                              "defaults": [],
+                              "body": {
+                                "type": "BlockStatement",
+                                "body": [
+                                  {
+                                    "type": "IfStatement",
+                                    "test": {
+                                      "type": "Identifier",
+                                      "name": "doneCallback"
+                                    },
+                                    "consequent": {
+                                      "type": "ExpressionStatement",
+                                      "expression": {
+                                        "type": "ConditionalExpression",
+                                        "test": {
+                                          "type": "Identifier",
+                                          "name": "err"
+                                        },
+                                        "consequent": {
+                                          "type": "CallExpression",
+                                          "callee": {
+                                            "type": "Identifier",
+                                            "name": "doneCallback"
+                                          },
+                                          "arguments": [
+                                            {
+                                              "type": "Identifier",
+                                              "name": "err"
+                                            }
+                                          ]
+                                        },
+                                        "alternate": {
+                                          "type": "CallExpression",
+                                          "callee": {
+                                            "type": "Identifier",
+                                            "name": "doneCallback"
+                                          },
+                                          "arguments": []
+                                        }
+                                      }
+                                    },
+                                    "alternate": null
+                                  },
+                                  {
+                                    "type": "IfStatement",
+                                    "test": {
+                                      "type": "Identifier",
+                                      "name": "doneResolver"
+                                    },
+                                    "consequent": {
+                                      "type": "BlockStatement",
+                                      "body": [
+                                        {
+                                          "type": "IfStatement",
+                                          "test": {
+                                            "type": "CallExpression",
+                                            "callee": {
+                                              "type": "MemberExpression",
+                                              "computed": false,
+                                              "object": {
+                                                "type": "Identifier",
+                                                "name": "FiberMgr"
+                                              },
+                                              "property": {
+                                                "type": "Identifier",
+                                                "name": "isExecutingInFiber"
+                                              }
+                                            },
+                                            "arguments": []
+                                          },
+                                          "consequent": {
+                                            "type": "BlockStatement",
+                                            "body": [
+                                              {
+                                                "type": "ExpressionStatement",
+                                                "expression": {
+                                                  "type": "AssignmentExpression",
+                                                  "operator": "=",
+                                                  "left": {
+                                                    "type": "MemberExpression",
+                                                    "computed": false,
+                                                    "object": {
+                                                      "type": "Identifier",
+                                                      "name": "runCtx"
+                                                    },
+                                                    "property": {
+                                                      "type": "Identifier",
+                                                      "name": "resolver"
+                                                    }
+                                                  },
+                                                  "right": {
+                                                    "type": "Identifier",
+                                                    "name": "doneResolver"
+                                                  }
+                                                }
+                                              }
+                                            ]
+                                          },
+                                          "alternate": {
+                                            "type": "BlockStatement",
+                                            "body": [
+                                              {
+                                                "type": "ExpressionStatement",
+                                                "expression": {
+                                                  "type": "ConditionalExpression",
+                                                  "test": {
+                                                    "type": "Identifier",
+                                                    "name": "err"
+                                                  },
+                                                  "consequent": {
+                                                    "type": "CallExpression",
+                                                    "callee": {
+                                                      "type": "MemberExpression",
+                                                      "computed": false,
+                                                      "object": {
+                                                        "type": "Identifier",
+                                                        "name": "doneResolver"
+                                                      },
+                                                      "property": {
+                                                        "type": "Identifier",
+                                                        "name": "reject"
+                                                      }
+                                                    },
+                                                    "arguments": [
+                                                      {
+                                                        "type": "Identifier",
+                                                        "name": "err"
+                                                      }
+                                                    ]
+                                                  },
+                                                  "alternate": {
+                                                    "type": "CallExpression",
+                                                    "callee": {
+                                                      "type": "MemberExpression",
+                                                      "computed": false,
+                                                      "object": {
+                                                        "type": "Identifier",
+                                                        "name": "doneResolver"
+                                                      },
+                                                      "property": {
+                                                        "type": "Identifier",
+                                                        "name": "resolve"
+                                                      }
+                                                    },
+                                                    "arguments": [
+                                                      {
+                                                        "type": "Literal",
+                                                        "value": null
+                                                      }
+                                                    ]
+                                                  }
+                                                }
+                                              }
+                                            ]
+                                          }
+                                        }
+                                      ]
+                                    },
+                                    "alternate": null
+                                  }
+                                ]
+                              },
+                              "rest": null,
+                              "generator": false,
+                              "expression": false
+                            }
+                          ]
+                        },
+                        "rest": null,
+                        "generator": false,
+                        "expression": false
+                      }
+                    }
+                  },
+                  {
+                    "type": "ExpressionStatement",
+                    "expression": {
+                      "type": "AssignmentExpression",
+                      "operator": "=",
+                      "left": {
+                        "type": "MemberExpression",
+                        "computed": false,
+                        "object": {
+                          "type": "MemberExpression",
+                          "computed": false,
+                          "object": {
+                            "type": "Identifier",
+                            "name": "AsyncIterator"
+                          },
+                          "property": {
+                            "type": "Identifier",
+                            "name": "prototype"
+                          }
+                        },
+                        "property": {
+                          "type": "Identifier",
+                          "name": "destroy"
+                        }
+                      },
+                      "right": {
+                        "type": "FunctionExpression",
+                        "id": null,
+                        "params": [],
+                        "defaults": [],
+                        "body": {
+                          "type": "BlockStatement",
+                          "body": [
+                            {
+                              "type": "ExpressionStatement",
+                              "expression": {
+                                "type": "AssignmentExpression",
+                                "operator": "=",
+                                "left": {
+                                  "type": "MemberExpression",
+                                  "computed": false,
+                                  "object": {
+                                    "type": "ThisExpression"
+                                  },
+                                  "property": {
+                                    "type": "Identifier",
+                                    "name": "_fiber"
+                                  }
+                                },
+                                "right": {
+                                  "type": "Literal",
+                                  "value": null
+                                }
+                              }
+                            }
+                          ]
+                        },
+                        "rest": null,
+                        "generator": false,
+                        "expression": false
+                      }
+                    }
+                  },
+                  {
+                    "type": "ReturnStatement",
+                    "argument": {
+                      "type": "Identifier",
+                      "name": "AsyncIterator"
+                    }
+                  }
+                ]
+              },
+              "rest": null,
+              "generator": false,
+              "expression": false
+            },
+            "arguments": []
+          }
+        }
+      ],
+      "kind": "var"
+    },
+    {
+      "type": "ExpressionStatement",
+      "expression": {
+        "type": "AssignmentExpression",
+        "operator": "=",
+        "left": {
+          "type": "MemberExpression",
+          "computed": false,
+          "object": {
+            "type": "Identifier",
+            "name": "module"
+          },
+          "property": {
+            "type": "Identifier",
+            "name": "exports"
+          }
+        },
+        "right": {
+          "type": "Identifier",
+          "name": "AsyncIterator"
+        }
+      }
+    }
+  ]
+}

@@ -1,0 +1,93 @@
+{
+  "type": "Program",
+  "body": [
+    {
+      "type": "ExpressionStatement",
+      "expression": {
+        "type": "AssignmentExpression",
+        "operator": "=",
+        "left": {
+          "type": "Identifier",
+          "name": "tmp"
+        },
+        "right": {
+          "type": "Literal",
+          "value": 0
+        }
+      }
+    },
+    {
+      "type": "ExpressionStatement",
+      "expression": {
+        "type": "CallExpression",
+        "callee": {
+          "type": "Identifier",
+          "name": "assertTrue"
+        },
+        "arguments": [
+          {
+            "type": "CallExpression",
+            "callee": {
+              "type": "Identifier",
+              "name": "eval"
+            },
+            "arguments": [
+              {
+                "type": "Literal",
+                "value": "delete XXX"
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "type": "ExpressionStatement",
+      "expression": {
+        "type": "CallExpression",
+        "callee": {
+          "type": "Identifier",
+          "name": "assertTrue"
+        },
+        "arguments": [
+          {
+            "type": "CallExpression",
+            "callee": {
+              "type": "Identifier",
+              "name": "eval"
+            },
+            "arguments": [
+              {
+                "type": "Literal",
+                "value": "delete tmp"
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "type": "ExpressionStatement",
+      "expression": {
+        "type": "CallExpression",
+        "callee": {
+          "type": "Identifier",
+          "name": "assertFalse"
+        },
+        "arguments": [
+          {
+            "type": "BinaryExpression",
+            "operator": "in",
+            "left": {
+              "type": "Literal",
+              "value": "tmp"
+            },
+            "right": {
+              "type": "ThisExpression"
+            }
+          }
+        ]
+      }
+    }
+  ]
+}

@@ -1,0 +1,1161 @@
+{
+  "type": "Program",
+  "body": [
+    {
+      "type": "ExpressionStatement",
+      "expression": {
+        "type": "CallExpression",
+        "callee": {
+          "type": "MemberExpression",
+          "computed": false,
+          "object": {
+            "type": "Identifier",
+            "name": "window"
+          },
+          "property": {
+            "type": "Identifier",
+            "name": "addEventListener"
+          }
+        },
+        "arguments": [
+          {
+            "type": "Literal",
+            "value": "load"
+          },
+          {
+            "type": "FunctionExpression",
+            "id": null,
+            "params": [],
+            "defaults": [],
+            "body": {
+              "type": "BlockStatement",
+              "body": [
+                {
+                  "type": "VariableDeclaration",
+                  "declarations": [
+                    {
+                      "type": "VariableDeclarator",
+                      "id": {
+                        "type": "Identifier",
+                        "name": "dev"
+                      },
+                      "init": null
+                    },
+                    {
+                      "type": "VariableDeclarator",
+                      "id": {
+                        "type": "Identifier",
+                        "name": "osc"
+                      },
+                      "init": null
+                    }
+                  ],
+                  "kind": "var"
+                },
+                {
+                  "type": "VariableDeclaration",
+                  "declarations": [
+                    {
+                      "type": "VariableDeclarator",
+                      "id": {
+                        "type": "Identifier",
+                        "name": "frequencies"
+                      },
+                      "init": {
+                        "type": "ObjectExpression",
+                        "properties": []
+                      }
+                    }
+                  ],
+                  "kind": "var"
+                },
+                {
+                  "type": "VariableDeclaration",
+                  "declarations": [
+                    {
+                      "type": "VariableDeclarator",
+                      "id": {
+                        "type": "Identifier",
+                        "name": "noteNames"
+                      },
+                      "init": {
+                        "type": "ArrayExpression",
+                        "elements": [
+                          {
+                            "type": "Literal",
+                            "value": "C"
+                          },
+                          {
+                            "type": "Literal",
+                            "value": "C#"
+                          },
+                          {
+                            "type": "Literal",
+                            "value": "D"
+                          },
+                          {
+                            "type": "Literal",
+                            "value": "D#"
+                          },
+                          {
+                            "type": "Literal",
+                            "value": "E"
+                          },
+                          {
+                            "type": "Literal",
+                            "value": "F"
+                          },
+                          {
+                            "type": "Literal",
+                            "value": "F#"
+                          },
+                          {
+                            "type": "Literal",
+                            "value": "G"
+                          },
+                          {
+                            "type": "Literal",
+                            "value": "G#"
+                          },
+                          {
+                            "type": "Literal",
+                            "value": "A"
+                          },
+                          {
+                            "type": "Literal",
+                            "value": "A#"
+                          },
+                          {
+                            "type": "Literal",
+                            "value": "B"
+                          }
+                        ]
+                      }
+                    }
+                  ],
+                  "kind": "var"
+                },
+                {
+                  "type": "VariableDeclaration",
+                  "declarations": [
+                    {
+                      "type": "VariableDeclarator",
+                      "id": {
+                        "type": "Identifier",
+                        "name": "pitch"
+                      },
+                      "init": {
+                        "type": "Literal",
+                        "value": 440
+                      }
+                    }
+                  ],
+                  "kind": "var"
+                },
+                {
+                  "type": "VariableDeclaration",
+                  "declarations": [
+                    {
+                      "type": "VariableDeclarator",
+                      "id": {
+                        "type": "Identifier",
+                        "name": "content"
+                      },
+                      "init": {
+                        "type": "CallExpression",
+                        "callee": {
+                          "type": "MemberExpression",
+                          "computed": false,
+                          "object": {
+                            "type": "Identifier",
+                            "name": "document"
+                          },
+                          "property": {
+                            "type": "Identifier",
+                            "name": "getElementById"
+                          }
+                        },
+                        "arguments": [
+                          {
+                            "type": "Literal",
+                            "value": "content"
+                          }
+                        ]
+                      }
+                    }
+                  ],
+                  "kind": "var"
+                },
+                {
+                  "type": "VariableDeclaration",
+                  "declarations": [
+                    {
+                      "type": "VariableDeclarator",
+                      "id": {
+                        "type": "Identifier",
+                        "name": "INIT_MIDINUMBER"
+                      },
+                      "init": {
+                        "type": "Literal",
+                        "value": 69
+                      }
+                    }
+                  ],
+                  "kind": "const"
+                },
+                {
+                  "type": "VariableDeclaration",
+                  "declarations": [
+                    {
+                      "type": "VariableDeclarator",
+                      "id": {
+                        "type": "Identifier",
+                        "name": "LOWEST_N"
+                      },
+                      "init": {
+                        "type": "UnaryExpression",
+                        "operator": "-",
+                        "argument": {
+                          "type": "Literal",
+                          "value": 69
+                        },
+                        "prefix": true
+                      }
+                    }
+                  ],
+                  "kind": "const"
+                },
+                {
+                  "type": "VariableDeclaration",
+                  "declarations": [
+                    {
+                      "type": "VariableDeclarator",
+                      "id": {
+                        "type": "Identifier",
+                        "name": "HIGHEST_N"
+                      },
+                      "init": {
+                        "type": "Literal",
+                        "value": 58
+                      }
+                    }
+                  ],
+                  "kind": "const"
+                },
+                {
+                  "type": "VariableDeclaration",
+                  "declarations": [
+                    {
+                      "type": "VariableDeclarator",
+                      "id": {
+                        "type": "Identifier",
+                        "name": "LOWEST_TEMP"
+                      },
+                      "init": {
+                        "type": "Literal",
+                        "value": 415.3
+                      }
+                    }
+                  ],
+                  "kind": "const"
+                },
+                {
+                  "type": "VariableDeclaration",
+                  "declarations": [
+                    {
+                      "type": "VariableDeclarator",
+                      "id": {
+                        "type": "Identifier",
+                        "name": "HIGHEST_TEMP"
+                      },
+                      "init": {
+                        "type": "Literal",
+                        "value": 466.16
+                      }
+                    }
+                  ],
+                  "kind": "const"
+                },
+                {
+                  "type": "FunctionDeclaration",
+                  "id": {
+                    "type": "Identifier",
+                    "name": "shiftIndex"
+                  },
+                  "params": [
+                    {
+                      "type": "Identifier",
+                      "name": "index"
+                    },
+                    {
+                      "type": "Identifier",
+                      "name": "range"
+                    },
+                    {
+                      "type": "Identifier",
+                      "name": "shift"
+                    }
+                  ],
+                  "defaults": [],
+                  "body": {
+                    "type": "BlockStatement",
+                    "body": [
+                      {
+                        "type": "ExpressionStatement",
+                        "expression": {
+                          "type": "AssignmentExpression",
+                          "operator": "=",
+                          "left": {
+                            "type": "Identifier",
+                            "name": "shift"
+                          },
+                          "right": {
+                            "type": "ConditionalExpression",
+                            "test": {
+                              "type": "BinaryExpression",
+                              "operator": ">=",
+                              "left": {
+                                "type": "BinaryExpression",
+                                "operator": "+",
+                                "left": {
+                                  "type": "Identifier",
+                                  "name": "index"
+                                },
+                                "right": {
+                                  "type": "Identifier",
+                                  "name": "shift"
+                                }
+                              },
+                              "right": {
+                                "type": "Identifier",
+                                "name": "range"
+                              }
+                            },
+                            "consequent": {
+                              "type": "BinaryExpression",
+                              "operator": "-",
+                              "left": {
+                                "type": "Identifier",
+                                "name": "shift"
+                              },
+                              "right": {
+                                "type": "Identifier",
+                                "name": "range"
+                              }
+                            },
+                            "alternate": {
+                              "type": "Identifier",
+                              "name": "shift"
+                            }
+                          }
+                        }
+                      },
+                      {
+                        "type": "ReturnStatement",
+                        "argument": {
+                          "type": "BinaryExpression",
+                          "operator": "+",
+                          "left": {
+                            "type": "Identifier",
+                            "name": "index"
+                          },
+                          "right": {
+                            "type": "Identifier",
+                            "name": "shift"
+                          }
+                        }
+                      }
+                    ]
+                  },
+                  "rest": null,
+                  "generator": false,
+                  "expression": false
+                },
+                {
+                  "type": "ForStatement",
+                  "init": {
+                    "type": "VariableDeclaration",
+                    "declarations": [
+                      {
+                        "type": "VariableDeclarator",
+                        "id": {
+                          "type": "Identifier",
+                          "name": "i"
+                        },
+                        "init": {
+                          "type": "Identifier",
+                          "name": "LOWEST_N"
+                        }
+                      }
+                    ],
+                    "kind": "var"
+                  },
+                  "test": {
+                    "type": "BinaryExpression",
+                    "operator": "<",
+                    "left": {
+                      "type": "Identifier",
+                      "name": "i"
+                    },
+                    "right": {
+                      "type": "Identifier",
+                      "name": "HIGHEST_N"
+                    }
+                  },
+                  "update": {
+                    "type": "UpdateExpression",
+                    "operator": "++",
+                    "argument": {
+                      "type": "Identifier",
+                      "name": "i"
+                    },
+                    "prefix": false
+                  },
+                  "body": {
+                    "type": "BlockStatement",
+                    "body": [
+                      {
+                        "type": "VariableDeclaration",
+                        "declarations": [
+                          {
+                            "type": "VariableDeclarator",
+                            "id": {
+                              "type": "Identifier",
+                              "name": "frequency"
+                            },
+                            "init": {
+                              "type": "BinaryExpression",
+                              "operator": "/",
+                              "left": {
+                                "type": "CallExpression",
+                                "callee": {
+                                  "type": "MemberExpression",
+                                  "computed": false,
+                                  "object": {
+                                    "type": "Identifier",
+                                    "name": "Math"
+                                  },
+                                  "property": {
+                                    "type": "Identifier",
+                                    "name": "round"
+                                  }
+                                },
+                                "arguments": [
+                                  {
+                                    "type": "BinaryExpression",
+                                    "operator": "*",
+                                    "left": {
+                                      "type": "BinaryExpression",
+                                      "operator": "*",
+                                      "left": {
+                                        "type": "CallExpression",
+                                        "callee": {
+                                          "type": "MemberExpression",
+                                          "computed": false,
+                                          "object": {
+                                            "type": "Identifier",
+                                            "name": "Math"
+                                          },
+                                          "property": {
+                                            "type": "Identifier",
+                                            "name": "pow"
+                                          }
+                                        },
+                                        "arguments": [
+                                          {
+                                            "type": "Literal",
+                                            "value": 2
+                                          },
+                                          {
+                                            "type": "BinaryExpression",
+                                            "operator": "/",
+                                            "left": {
+                                              "type": "Identifier",
+                                              "name": "i"
+                                            },
+                                            "right": {
+                                              "type": "Literal",
+                                              "value": 12
+                                            }
+                                          }
+                                        ]
+                                      },
+                                      "right": {
+                                        "type": "Identifier",
+                                        "name": "pitch"
+                                      }
+                                    },
+                                    "right": {
+                                      "type": "Literal",
+                                      "value": 100
+                                    }
+                                  }
+                                ]
+                              },
+                              "right": {
+                                "type": "Literal",
+                                "value": 100
+                              }
+                            }
+                          }
+                        ],
+                        "kind": "var"
+                      },
+                      {
+                        "type": "VariableDeclaration",
+                        "declarations": [
+                          {
+                            "type": "VariableDeclarator",
+                            "id": {
+                              "type": "Identifier",
+                              "name": "octave"
+                            },
+                            "init": {
+                              "type": "CallExpression",
+                              "callee": {
+                                "type": "MemberExpression",
+                                "computed": false,
+                                "object": {
+                                  "type": "Identifier",
+                                  "name": "Math"
+                                },
+                                "property": {
+                                  "type": "Identifier",
+                                  "name": "floor"
+                                }
+                              },
+                              "arguments": [
+                                {
+                                  "type": "BinaryExpression",
+                                  "operator": "+",
+                                  "left": {
+                                    "type": "BinaryExpression",
+                                    "operator": "/",
+                                    "left": {
+                                      "type": "BinaryExpression",
+                                      "operator": "-",
+                                      "left": {
+                                        "type": "Identifier",
+                                        "name": "i"
+                                      },
+                                      "right": {
+                                        "type": "Literal",
+                                        "value": 3
+                                      }
+                                    },
+                                    "right": {
+                                      "type": "Literal",
+                                      "value": 12
+                                    }
+                                  },
+                                  "right": {
+                                    "type": "Literal",
+                                    "value": 5
+                                  }
+                                }
+                              ]
+                            }
+                          }
+                        ],
+                        "kind": "var"
+                      },
+                      {
+                        "type": "VariableDeclaration",
+                        "declarations": [
+                          {
+                            "type": "VariableDeclarator",
+                            "id": {
+                              "type": "Identifier",
+                              "name": "noteIndex"
+                            },
+                            "init": {
+                              "type": "BinaryExpression",
+                              "operator": "%",
+                              "left": {
+                                "type": "Identifier",
+                                "name": "i"
+                              },
+                              "right": {
+                                "type": "Literal",
+                                "value": 12
+                              }
+                            }
+                          }
+                        ],
+                        "kind": "var"
+                      },
+                      {
+                        "type": "ExpressionStatement",
+                        "expression": {
+                          "type": "AssignmentExpression",
+                          "operator": "=",
+                          "left": {
+                            "type": "Identifier",
+                            "name": "noteIndex"
+                          },
+                          "right": {
+                            "type": "ConditionalExpression",
+                            "test": {
+                              "type": "BinaryExpression",
+                              "operator": "<",
+                              "left": {
+                                "type": "Identifier",
+                                "name": "noteIndex"
+                              },
+                              "right": {
+                                "type": "Literal",
+                                "value": 0
+                              }
+                            },
+                            "consequent": {
+                              "type": "BinaryExpression",
+                              "operator": "+",
+                              "left": {
+                                "type": "Identifier",
+                                "name": "noteIndex"
+                              },
+                              "right": {
+                                "type": "Literal",
+                                "value": 12
+                              }
+                            },
+                            "alternate": {
+                              "type": "Identifier",
+                              "name": "noteIndex"
+                            }
+                          }
+                        }
+                      },
+                      {
+                        "type": "VariableDeclaration",
+                        "declarations": [
+                          {
+                            "type": "VariableDeclarator",
+                            "id": {
+                              "type": "Identifier",
+                              "name": "shiftedIndex"
+                            },
+                            "init": {
+                              "type": "CallExpression",
+                              "callee": {
+                                "type": "Identifier",
+                                "name": "shiftIndex"
+                              },
+                              "arguments": [
+                                {
+                                  "type": "Identifier",
+                                  "name": "noteIndex"
+                                },
+                                {
+                                  "type": "Literal",
+                                  "value": 12
+                                },
+                                {
+                                  "type": "Literal",
+                                  "value": 9
+                                }
+                              ]
+                            }
+                          }
+                        ],
+                        "kind": "var"
+                      },
+                      {
+                        "type": "VariableDeclaration",
+                        "declarations": [
+                          {
+                            "type": "VariableDeclarator",
+                            "id": {
+                              "type": "Identifier",
+                              "name": "noteName"
+                            },
+                            "init": {
+                              "type": "BinaryExpression",
+                              "operator": "+",
+                              "left": {
+                                "type": "BinaryExpression",
+                                "operator": "+",
+                                "left": {
+                                  "type": "MemberExpression",
+                                  "computed": true,
+                                  "object": {
+                                    "type": "Identifier",
+                                    "name": "noteNames"
+                                  },
+                                  "property": {
+                                    "type": "Identifier",
+                                    "name": "shiftedIndex"
+                                  }
+                                },
+                                "right": {
+                                  "type": "Literal",
+                                  "value": ""
+                                }
+                              },
+                              "right": {
+                                "type": "Identifier",
+                                "name": "octave"
+                              }
+                            }
+                          }
+                        ],
+                        "kind": "var"
+                      },
+                      {
+                        "type": "ExpressionStatement",
+                        "expression": {
+                          "type": "AssignmentExpression",
+                          "operator": "=",
+                          "left": {
+                            "type": "MemberExpression",
+                            "computed": true,
+                            "object": {
+                              "type": "Identifier",
+                              "name": "frequencies"
+                            },
+                            "property": {
+                              "type": "Identifier",
+                              "name": "noteName"
+                            }
+                          },
+                          "right": {
+                            "type": "Identifier",
+                            "name": "frequency"
+                          }
+                        }
+                      }
+                    ]
+                  }
+                },
+                {
+                  "type": "ExpressionStatement",
+                  "expression": {
+                    "type": "AssignmentExpression",
+                    "operator": "=",
+                    "left": {
+                      "type": "Identifier",
+                      "name": "dev"
+                    },
+                    "right": {
+                      "type": "CallExpression",
+                      "callee": {
+                        "type": "MemberExpression",
+                        "computed": false,
+                        "object": {
+                          "type": "Identifier",
+                          "name": "audioLib"
+                        },
+                        "property": {
+                          "type": "Identifier",
+                          "name": "AudioDevice"
+                        }
+                      },
+                      "arguments": [
+                        {
+                          "type": "FunctionExpression",
+                          "id": null,
+                          "params": [
+                            {
+                              "type": "Identifier",
+                              "name": "buffer"
+                            },
+                            {
+                              "type": "Identifier",
+                              "name": "channelCount"
+                            }
+                          ],
+                          "defaults": [],
+                          "body": {
+                            "type": "BlockStatement",
+                            "body": [
+                              {
+                                "type": "IfStatement",
+                                "test": {
+                                  "type": "Identifier",
+                                  "name": "osc"
+                                },
+                                "consequent": {
+                                  "type": "BlockStatement",
+                                  "body": [
+                                    {
+                                      "type": "ExpressionStatement",
+                                      "expression": {
+                                        "type": "CallExpression",
+                                        "callee": {
+                                          "type": "MemberExpression",
+                                          "computed": false,
+                                          "object": {
+                                            "type": "Identifier",
+                                            "name": "osc"
+                                          },
+                                          "property": {
+                                            "type": "Identifier",
+                                            "name": "append"
+                                          }
+                                        },
+                                        "arguments": [
+                                          {
+                                            "type": "Identifier",
+                                            "name": "buffer"
+                                          },
+                                          {
+                                            "type": "Identifier",
+                                            "name": "channelCount"
+                                          }
+                                        ]
+                                      }
+                                    }
+                                  ]
+                                },
+                                "alternate": null
+                              }
+                            ]
+                          },
+                          "rest": null,
+                          "generator": false,
+                          "expression": false
+                        },
+                        {
+                          "type": "Literal",
+                          "value": 2
+                        }
+                      ]
+                    }
+                  }
+                },
+                {
+                  "type": "ExpressionStatement",
+                  "expression": {
+                    "type": "AssignmentExpression",
+                    "operator": "=",
+                    "left": {
+                      "type": "MemberExpression",
+                      "computed": false,
+                      "object": {
+                        "type": "Identifier",
+                        "name": "dev"
+                      },
+                      "property": {
+                        "type": "Identifier",
+                        "name": "sampleRate"
+                      }
+                    },
+                    "right": {
+                      "type": "Literal",
+                      "value": 44100
+                    }
+                  }
+                },
+                {
+                  "type": "ExpressionStatement",
+                  "expression": {
+                    "type": "CallExpression",
+                    "callee": {
+                      "type": "MemberExpression",
+                      "computed": false,
+                      "object": {
+                        "type": "Identifier",
+                        "name": "midiBridge"
+                      },
+                      "property": {
+                        "type": "Identifier",
+                        "name": "init"
+                      }
+                    },
+                    "arguments": [
+                      {
+                        "type": "ObjectExpression",
+                        "properties": [
+                          {
+                            "type": "Property",
+                            "key": {
+                              "type": "Identifier",
+                              "name": "connectAllInputs"
+                            },
+                            "value": {
+                              "type": "Literal",
+                              "value": true
+                            },
+                            "kind": "init"
+                          },
+                          {
+                            "type": "Property",
+                            "key": {
+                              "type": "Identifier",
+                              "name": "ready"
+                            },
+                            "value": {
+                              "type": "FunctionExpression",
+                              "id": null,
+                              "params": [
+                                {
+                                  "type": "Identifier",
+                                  "name": "msg"
+                                }
+                              ],
+                              "defaults": [],
+                              "body": {
+                                "type": "BlockStatement",
+                                "body": [
+                                  {
+                                    "type": "ExpressionStatement",
+                                    "expression": {
+                                      "type": "AssignmentExpression",
+                                      "operator": "=",
+                                      "left": {
+                                        "type": "MemberExpression",
+                                        "computed": false,
+                                        "object": {
+                                          "type": "Identifier",
+                                          "name": "content"
+                                        },
+                                        "property": {
+                                          "type": "Identifier",
+                                          "name": "innerHTML"
+                                        }
+                                      },
+                                      "right": {
+                                        "type": "Literal",
+                                        "value": "<h1>midibridge loaded, play some notes!</h1><br/>(You should have a midi keyboard connected to your computer)"
+                                      }
+                                    }
+                                  }
+                                ]
+                              },
+                              "rest": null,
+                              "generator": false,
+                              "expression": false
+                            },
+                            "kind": "init"
+                          },
+                          {
+                            "type": "Property",
+                            "key": {
+                              "type": "Identifier",
+                              "name": "error"
+                            },
+                            "value": {
+                              "type": "FunctionExpression",
+                              "id": null,
+                              "params": [
+                                {
+                                  "type": "Identifier",
+                                  "name": "msg"
+                                }
+                              ],
+                              "defaults": [],
+                              "body": {
+                                "type": "BlockStatement",
+                                "body": [
+                                  {
+                                    "type": "ExpressionStatement",
+                                    "expression": {
+                                      "type": "CallExpression",
+                                      "callee": {
+                                        "type": "MemberExpression",
+                                        "computed": false,
+                                        "object": {
+                                          "type": "Identifier",
+                                          "name": "console"
+                                        },
+                                        "property": {
+                                          "type": "Identifier",
+                                          "name": "log"
+                                        }
+                                      },
+                                      "arguments": [
+                                        {
+                                          "type": "Identifier",
+                                          "name": "msg"
+                                        }
+                                      ]
+                                    }
+                                  }
+                                ]
+                              },
+                              "rest": null,
+                              "generator": false,
+                              "expression": false
+                            },
+                            "kind": "init"
+                          },
+                          {
+                            "type": "Property",
+                            "key": {
+                              "type": "Identifier",
+                              "name": "data"
+                            },
+                            "value": {
+                              "type": "FunctionExpression",
+                              "id": null,
+                              "params": [
+                                {
+                                  "type": "Identifier",
+                                  "name": "midiEvent"
+                                }
+                              ],
+                              "defaults": [],
+                              "body": {
+                                "type": "BlockStatement",
+                                "body": [
+                                  {
+                                    "type": "VariableDeclaration",
+                                    "declarations": [
+                                      {
+                                        "type": "VariableDeclarator",
+                                        "id": {
+                                          "type": "Identifier",
+                                          "name": "noteName"
+                                        },
+                                        "init": {
+                                          "type": "MemberExpression",
+                                          "computed": false,
+                                          "object": {
+                                            "type": "Identifier",
+                                            "name": "midiEvent"
+                                          },
+                                          "property": {
+                                            "type": "Identifier",
+                                            "name": "noteName"
+                                          }
+                                        }
+                                      }
+                                    ],
+                                    "kind": "var"
+                                  },
+                                  {
+                                    "type": "IfStatement",
+                                    "test": {
+                                      "type": "BinaryExpression",
+                                      "operator": "==",
+                                      "left": {
+                                        "type": "MemberExpression",
+                                        "computed": false,
+                                        "object": {
+                                          "type": "Identifier",
+                                          "name": "midiEvent"
+                                        },
+                                        "property": {
+                                          "type": "Identifier",
+                                          "name": "status"
+                                        }
+                                      },
+                                      "right": {
+                                        "type": "MemberExpression",
+                                        "computed": false,
+                                        "object": {
+                                          "type": "Identifier",
+                                          "name": "midiBridge"
+                                        },
+                                        "property": {
+                                          "type": "Identifier",
+                                          "name": "NOTE_ON"
+                                        }
+                                      }
+                                    },
+                                    "consequent": {
+                                      "type": "BlockStatement",
+                                      "body": [
+                                        {
+                                          "type": "ExpressionStatement",
+                                          "expression": {
+                                            "type": "AssignmentExpression",
+                                            "operator": "=",
+                                            "left": {
+                                              "type": "Identifier",
+                                              "name": "osc"
+                                            },
+                                            "right": {
+                                              "type": "CallExpression",
+                                              "callee": {
+                                                "type": "MemberExpression",
+                                                "computed": false,
+                                                "object": {
+                                                  "type": "Identifier",
+                                                  "name": "audioLib"
+                                                },
+                                                "property": {
+                                                  "type": "Identifier",
+                                                  "name": "Oscillator"
+                                                }
+                                              },
+                                              "arguments": [
+                                                {
+                                                  "type": "MemberExpression",
+                                                  "computed": false,
+                                                  "object": {
+                                                    "type": "Identifier",
+                                                    "name": "dev"
+                                                  },
+                                                  "property": {
+                                                    "type": "Identifier",
+                                                    "name": "sampleRate"
+                                                  }
+                                                },
+                                                {
+                                                  "type": "MemberExpression",
+                                                  "computed": true,
+                                                  "object": {
+                                                    "type": "Identifier",
+                                                    "name": "frequencies"
+                                                  },
+                                                  "property": {
+                                                    "type": "Identifier",
+                                                    "name": "noteName"
+                                                  }
+                                                }
+                                              ]
+                                            }
+                                          }
+                                        }
+                                      ]
+                                    },
+                                    "alternate": {
+                                      "type": "BlockStatement",
+                                      "body": [
+                                        {
+                                          "type": "ExpressionStatement",
+                                          "expression": {
+                                            "type": "AssignmentExpression",
+                                            "operator": "=",
+                                            "left": {
+                                              "type": "Identifier",
+                                              "name": "osc"
+                                            },
+                                            "right": {
+                                              "type": "Literal",
+                                              "value": null
+                                            }
+                                          }
+                                        }
+                                      ]
+                                    }
+                                  }
+                                ]
+                              },
+                              "rest": null,
+                              "generator": false,
+                              "expression": false
+                            },
+                            "kind": "init"
+                          }
+                        ]
+                      }
+                    ]
+                  }
+                }
+              ]
+            },
+            "rest": null,
+            "generator": false,
+            "expression": false
+          },
+          {
+            "type": "Literal",
+            "value": false
+          }
+        ]
+      }
+    }
+  ]
+}

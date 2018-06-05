@@ -1,0 +1,161 @@
+{
+  "type": "Program",
+  "body": [
+    {
+      "type": "VariableDeclaration",
+      "declarations": [
+        {
+          "type": "VariableDeclarator",
+          "id": {
+            "type": "Identifier",
+            "name": "id"
+          },
+          "init": {
+            "type": "Literal",
+            "value": "b3"
+          }
+        }
+      ],
+      "kind": "var"
+    },
+    {
+      "type": "FunctionDeclaration",
+      "id": {
+        "type": "Identifier",
+        "name": "hook"
+      },
+      "params": [
+        {
+          "type": "Identifier",
+          "name": "id"
+        },
+        {
+          "type": "Identifier",
+          "name": "result"
+        },
+        {
+          "type": "Identifier",
+          "name": "message"
+        }
+      ],
+      "defaults": [],
+      "body": {
+        "type": "BlockStatement",
+        "body": []
+      },
+      "rest": null,
+      "generator": false,
+      "expression": false
+    },
+    {
+      "type": "EmptyStatement"
+    },
+    {
+      "type": "IfStatement",
+      "test": {
+        "type": "BinaryExpression",
+        "operator": "===",
+        "left": {
+          "type": "MemberExpression",
+          "computed": false,
+          "object": {
+            "type": "Identifier",
+            "name": "document"
+          },
+          "property": {
+            "type": "Identifier",
+            "name": "title"
+          }
+        },
+        "right": {
+          "type": "Literal",
+          "value": "PASS"
+        }
+      },
+      "consequent": {
+        "type": "ExpressionStatement",
+        "expression": {
+          "type": "CallExpression",
+          "callee": {
+            "type": "Identifier",
+            "name": "hook"
+          },
+          "arguments": [
+            {
+              "type": "Identifier",
+              "name": "id"
+            },
+            {
+              "type": "Literal",
+              "value": "pass"
+            }
+          ]
+        }
+      },
+      "alternate": {
+        "type": "IfStatement",
+        "test": {
+          "type": "BinaryExpression",
+          "operator": "===",
+          "left": {
+            "type": "MemberExpression",
+            "computed": false,
+            "object": {
+              "type": "Identifier",
+              "name": "document"
+            },
+            "property": {
+              "type": "Identifier",
+              "name": "title"
+            }
+          },
+          "right": {
+            "type": "Literal",
+            "value": "FAIL"
+          }
+        },
+        "consequent": {
+          "type": "ExpressionStatement",
+          "expression": {
+            "type": "CallExpression",
+            "callee": {
+              "type": "Identifier",
+              "name": "hook"
+            },
+            "arguments": [
+              {
+                "type": "Identifier",
+                "name": "id"
+              },
+              {
+                "type": "Literal",
+                "value": "fail"
+              },
+              {
+                "type": "BinaryExpression",
+                "operator": "+",
+                "left": {
+                  "type": "BinaryExpression",
+                  "operator": "+",
+                  "left": {
+                    "type": "Literal",
+                    "value": "Test "
+                  },
+                  "right": {
+                    "type": "Identifier",
+                    "name": "id"
+                  }
+                },
+                "right": {
+                  "type": "Literal",
+                  "value": " failed"
+                }
+              }
+            ]
+          }
+        },
+        "alternate": null
+      }
+    }
+  ]
+}

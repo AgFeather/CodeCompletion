@@ -1,0 +1,895 @@
+{
+  "type": "Program",
+  "body": [
+    {
+      "type": "VariableDeclaration",
+      "declarations": [
+        {
+          "type": "VariableDeclarator",
+          "id": {
+            "type": "Identifier",
+            "name": "Canvas"
+          },
+          "init": {
+            "type": "CallExpression",
+            "callee": {
+              "type": "Identifier",
+              "name": "require"
+            },
+            "arguments": [
+              {
+                "type": "Literal",
+                "value": "../"
+              }
+            ]
+          }
+        }
+      ],
+      "kind": "var"
+    },
+    {
+      "type": "VariableDeclaration",
+      "declarations": [
+        {
+          "type": "VariableDeclarator",
+          "id": {
+            "type": "Identifier",
+            "name": "line"
+          },
+          "init": {
+            "type": "CallExpression",
+            "callee": {
+              "type": "Identifier",
+              "name": "require"
+            },
+            "arguments": [
+              {
+                "type": "Literal",
+                "value": "bresenham"
+              }
+            ]
+          }
+        }
+      ],
+      "kind": "var"
+    },
+    {
+      "type": "VariableDeclaration",
+      "declarations": [
+        {
+          "type": "VariableDeclarator",
+          "id": {
+            "type": "Identifier",
+            "name": "c"
+          },
+          "init": {
+            "type": "NewExpression",
+            "callee": {
+              "type": "Identifier",
+              "name": "Canvas"
+            },
+            "arguments": [
+              {
+                "type": "Literal",
+                "value": 160
+              },
+              {
+                "type": "Literal",
+                "value": 160
+              }
+            ]
+          }
+        }
+      ],
+      "kind": "var"
+    },
+    {
+      "type": "FunctionDeclaration",
+      "id": {
+        "type": "Identifier",
+        "name": "draw"
+      },
+      "params": [],
+      "defaults": [],
+      "body": {
+        "type": "BlockStatement",
+        "body": [
+          {
+            "type": "ExpressionStatement",
+            "expression": {
+              "type": "CallExpression",
+              "callee": {
+                "type": "MemberExpression",
+                "computed": false,
+                "object": {
+                  "type": "Identifier",
+                  "name": "c"
+                },
+                "property": {
+                  "type": "Identifier",
+                  "name": "clear"
+                }
+              },
+              "arguments": []
+            }
+          },
+          {
+            "type": "VariableDeclaration",
+            "declarations": [
+              {
+                "type": "VariableDeclarator",
+                "id": {
+                  "type": "Identifier",
+                  "name": "t"
+                },
+                "init": {
+                  "type": "NewExpression",
+                  "callee": {
+                    "type": "Identifier",
+                    "name": "Date"
+                  },
+                  "arguments": []
+                }
+              }
+            ],
+            "kind": "var"
+          },
+          {
+            "type": "VariableDeclaration",
+            "declarations": [
+              {
+                "type": "VariableDeclarator",
+                "id": {
+                  "type": "Identifier",
+                  "name": "sin"
+                },
+                "init": {
+                  "type": "FunctionExpression",
+                  "id": null,
+                  "params": [
+                    {
+                      "type": "Identifier",
+                      "name": "i"
+                    },
+                    {
+                      "type": "Identifier",
+                      "name": "l"
+                    }
+                  ],
+                  "defaults": [],
+                  "body": {
+                    "type": "BlockStatement",
+                    "body": [
+                      {
+                        "type": "ReturnStatement",
+                        "argument": {
+                          "type": "CallExpression",
+                          "callee": {
+                            "type": "MemberExpression",
+                            "computed": false,
+                            "object": {
+                              "type": "Identifier",
+                              "name": "Math"
+                            },
+                            "property": {
+                              "type": "Identifier",
+                              "name": "floor"
+                            }
+                          },
+                          "arguments": [
+                            {
+                              "type": "BinaryExpression",
+                              "operator": "+",
+                              "left": {
+                                "type": "BinaryExpression",
+                                "operator": "*",
+                                "left": {
+                                  "type": "CallExpression",
+                                  "callee": {
+                                    "type": "MemberExpression",
+                                    "computed": false,
+                                    "object": {
+                                      "type": "Identifier",
+                                      "name": "Math"
+                                    },
+                                    "property": {
+                                      "type": "Identifier",
+                                      "name": "sin"
+                                    }
+                                  },
+                                  "arguments": [
+                                    {
+                                      "type": "BinaryExpression",
+                                      "operator": "*",
+                                      "left": {
+                                        "type": "BinaryExpression",
+                                        "operator": "*",
+                                        "left": {
+                                          "type": "Identifier",
+                                          "name": "i"
+                                        },
+                                        "right": {
+                                          "type": "Literal",
+                                          "value": 2
+                                        }
+                                      },
+                                      "right": {
+                                        "type": "MemberExpression",
+                                        "computed": false,
+                                        "object": {
+                                          "type": "Identifier",
+                                          "name": "Math"
+                                        },
+                                        "property": {
+                                          "type": "Identifier",
+                                          "name": "PI"
+                                        }
+                                      }
+                                    }
+                                  ]
+                                },
+                                "right": {
+                                  "type": "Identifier",
+                                  "name": "l"
+                                }
+                              },
+                              "right": {
+                                "type": "Literal",
+                                "value": 80
+                              }
+                            }
+                          ]
+                        }
+                      }
+                    ]
+                  },
+                  "rest": null,
+                  "generator": false,
+                  "expression": false
+                }
+              },
+              {
+                "type": "VariableDeclarator",
+                "id": {
+                  "type": "Identifier",
+                  "name": "cos"
+                },
+                "init": {
+                  "type": "FunctionExpression",
+                  "id": null,
+                  "params": [
+                    {
+                      "type": "Identifier",
+                      "name": "i"
+                    },
+                    {
+                      "type": "Identifier",
+                      "name": "l"
+                    }
+                  ],
+                  "defaults": [],
+                  "body": {
+                    "type": "BlockStatement",
+                    "body": [
+                      {
+                        "type": "ReturnStatement",
+                        "argument": {
+                          "type": "CallExpression",
+                          "callee": {
+                            "type": "MemberExpression",
+                            "computed": false,
+                            "object": {
+                              "type": "Identifier",
+                              "name": "Math"
+                            },
+                            "property": {
+                              "type": "Identifier",
+                              "name": "floor"
+                            }
+                          },
+                          "arguments": [
+                            {
+                              "type": "BinaryExpression",
+                              "operator": "+",
+                              "left": {
+                                "type": "BinaryExpression",
+                                "operator": "*",
+                                "left": {
+                                  "type": "CallExpression",
+                                  "callee": {
+                                    "type": "MemberExpression",
+                                    "computed": false,
+                                    "object": {
+                                      "type": "Identifier",
+                                      "name": "Math"
+                                    },
+                                    "property": {
+                                      "type": "Identifier",
+                                      "name": "cos"
+                                    }
+                                  },
+                                  "arguments": [
+                                    {
+                                      "type": "BinaryExpression",
+                                      "operator": "*",
+                                      "left": {
+                                        "type": "BinaryExpression",
+                                        "operator": "*",
+                                        "left": {
+                                          "type": "Identifier",
+                                          "name": "i"
+                                        },
+                                        "right": {
+                                          "type": "Literal",
+                                          "value": 2
+                                        }
+                                      },
+                                      "right": {
+                                        "type": "MemberExpression",
+                                        "computed": false,
+                                        "object": {
+                                          "type": "Identifier",
+                                          "name": "Math"
+                                        },
+                                        "property": {
+                                          "type": "Identifier",
+                                          "name": "PI"
+                                        }
+                                      }
+                                    }
+                                  ]
+                                },
+                                "right": {
+                                  "type": "Identifier",
+                                  "name": "l"
+                                }
+                              },
+                              "right": {
+                                "type": "Literal",
+                                "value": 80
+                              }
+                            }
+                          ]
+                        }
+                      }
+                    ]
+                  },
+                  "rest": null,
+                  "generator": false,
+                  "expression": false
+                }
+              }
+            ],
+            "kind": "var"
+          },
+          {
+            "type": "ExpressionStatement",
+            "expression": {
+              "type": "CallExpression",
+              "callee": {
+                "type": "Identifier",
+                "name": "line"
+              },
+              "arguments": [
+                {
+                  "type": "Literal",
+                  "value": 80
+                },
+                {
+                  "type": "Literal",
+                  "value": 80
+                },
+                {
+                  "type": "CallExpression",
+                  "callee": {
+                    "type": "Identifier",
+                    "name": "sin"
+                  },
+                  "arguments": [
+                    {
+                      "type": "BinaryExpression",
+                      "operator": "/",
+                      "left": {
+                        "type": "CallExpression",
+                        "callee": {
+                          "type": "MemberExpression",
+                          "computed": false,
+                          "object": {
+                            "type": "Identifier",
+                            "name": "t"
+                          },
+                          "property": {
+                            "type": "Identifier",
+                            "name": "getHours"
+                          }
+                        },
+                        "arguments": []
+                      },
+                      "right": {
+                        "type": "Literal",
+                        "value": 24
+                      }
+                    },
+                    {
+                      "type": "Literal",
+                      "value": 30
+                    }
+                  ]
+                },
+                {
+                  "type": "BinaryExpression",
+                  "operator": "-",
+                  "left": {
+                    "type": "Literal",
+                    "value": 160
+                  },
+                  "right": {
+                    "type": "CallExpression",
+                    "callee": {
+                      "type": "Identifier",
+                      "name": "cos"
+                    },
+                    "arguments": [
+                      {
+                        "type": "BinaryExpression",
+                        "operator": "/",
+                        "left": {
+                          "type": "CallExpression",
+                          "callee": {
+                            "type": "MemberExpression",
+                            "computed": false,
+                            "object": {
+                              "type": "Identifier",
+                              "name": "t"
+                            },
+                            "property": {
+                              "type": "Identifier",
+                              "name": "getHours"
+                            }
+                          },
+                          "arguments": []
+                        },
+                        "right": {
+                          "type": "Literal",
+                          "value": 24
+                        }
+                      },
+                      {
+                        "type": "Literal",
+                        "value": 30
+                      }
+                    ]
+                  }
+                },
+                {
+                  "type": "CallExpression",
+                  "callee": {
+                    "type": "MemberExpression",
+                    "computed": false,
+                    "object": {
+                      "type": "MemberExpression",
+                      "computed": false,
+                      "object": {
+                        "type": "Identifier",
+                        "name": "c"
+                      },
+                      "property": {
+                        "type": "Identifier",
+                        "name": "set"
+                      }
+                    },
+                    "property": {
+                      "type": "Identifier",
+                      "name": "bind"
+                    }
+                  },
+                  "arguments": [
+                    {
+                      "type": "Identifier",
+                      "name": "c"
+                    }
+                  ]
+                }
+              ]
+            }
+          },
+          {
+            "type": "ExpressionStatement",
+            "expression": {
+              "type": "CallExpression",
+              "callee": {
+                "type": "Identifier",
+                "name": "line"
+              },
+              "arguments": [
+                {
+                  "type": "Literal",
+                  "value": 80
+                },
+                {
+                  "type": "Literal",
+                  "value": 80
+                },
+                {
+                  "type": "CallExpression",
+                  "callee": {
+                    "type": "Identifier",
+                    "name": "sin"
+                  },
+                  "arguments": [
+                    {
+                      "type": "BinaryExpression",
+                      "operator": "/",
+                      "left": {
+                        "type": "CallExpression",
+                        "callee": {
+                          "type": "MemberExpression",
+                          "computed": false,
+                          "object": {
+                            "type": "Identifier",
+                            "name": "t"
+                          },
+                          "property": {
+                            "type": "Identifier",
+                            "name": "getMinutes"
+                          }
+                        },
+                        "arguments": []
+                      },
+                      "right": {
+                        "type": "Literal",
+                        "value": 60
+                      }
+                    },
+                    {
+                      "type": "Literal",
+                      "value": 50
+                    }
+                  ]
+                },
+                {
+                  "type": "BinaryExpression",
+                  "operator": "-",
+                  "left": {
+                    "type": "Literal",
+                    "value": 160
+                  },
+                  "right": {
+                    "type": "CallExpression",
+                    "callee": {
+                      "type": "Identifier",
+                      "name": "cos"
+                    },
+                    "arguments": [
+                      {
+                        "type": "BinaryExpression",
+                        "operator": "/",
+                        "left": {
+                          "type": "CallExpression",
+                          "callee": {
+                            "type": "MemberExpression",
+                            "computed": false,
+                            "object": {
+                              "type": "Identifier",
+                              "name": "t"
+                            },
+                            "property": {
+                              "type": "Identifier",
+                              "name": "getMinutes"
+                            }
+                          },
+                          "arguments": []
+                        },
+                        "right": {
+                          "type": "Literal",
+                          "value": 60
+                        }
+                      },
+                      {
+                        "type": "Literal",
+                        "value": 50
+                      }
+                    ]
+                  }
+                },
+                {
+                  "type": "CallExpression",
+                  "callee": {
+                    "type": "MemberExpression",
+                    "computed": false,
+                    "object": {
+                      "type": "MemberExpression",
+                      "computed": false,
+                      "object": {
+                        "type": "Identifier",
+                        "name": "c"
+                      },
+                      "property": {
+                        "type": "Identifier",
+                        "name": "set"
+                      }
+                    },
+                    "property": {
+                      "type": "Identifier",
+                      "name": "bind"
+                    }
+                  },
+                  "arguments": [
+                    {
+                      "type": "Identifier",
+                      "name": "c"
+                    }
+                  ]
+                }
+              ]
+            }
+          },
+          {
+            "type": "ExpressionStatement",
+            "expression": {
+              "type": "CallExpression",
+              "callee": {
+                "type": "Identifier",
+                "name": "line"
+              },
+              "arguments": [
+                {
+                  "type": "Literal",
+                  "value": 80
+                },
+                {
+                  "type": "Literal",
+                  "value": 80
+                },
+                {
+                  "type": "CallExpression",
+                  "callee": {
+                    "type": "Identifier",
+                    "name": "sin"
+                  },
+                  "arguments": [
+                    {
+                      "type": "BinaryExpression",
+                      "operator": "+",
+                      "left": {
+                        "type": "BinaryExpression",
+                        "operator": "/",
+                        "left": {
+                          "type": "CallExpression",
+                          "callee": {
+                            "type": "MemberExpression",
+                            "computed": false,
+                            "object": {
+                              "type": "Identifier",
+                              "name": "t"
+                            },
+                            "property": {
+                              "type": "Identifier",
+                              "name": "getSeconds"
+                            }
+                          },
+                          "arguments": []
+                        },
+                        "right": {
+                          "type": "Literal",
+                          "value": 60
+                        }
+                      },
+                      "right": {
+                        "type": "BinaryExpression",
+                        "operator": "/",
+                        "left": {
+                          "type": "BinaryExpression",
+                          "operator": "%",
+                          "left": {
+                            "type": "UnaryExpression",
+                            "operator": "+",
+                            "argument": {
+                              "type": "Identifier",
+                              "name": "t"
+                            },
+                            "prefix": true
+                          },
+                          "right": {
+                            "type": "Literal",
+                            "value": 1000
+                          }
+                        },
+                        "right": {
+                          "type": "Literal",
+                          "value": 60000
+                        }
+                      }
+                    },
+                    {
+                      "type": "Literal",
+                      "value": 75
+                    }
+                  ]
+                },
+                {
+                  "type": "BinaryExpression",
+                  "operator": "-",
+                  "left": {
+                    "type": "Literal",
+                    "value": 160
+                  },
+                  "right": {
+                    "type": "CallExpression",
+                    "callee": {
+                      "type": "Identifier",
+                      "name": "cos"
+                    },
+                    "arguments": [
+                      {
+                        "type": "BinaryExpression",
+                        "operator": "+",
+                        "left": {
+                          "type": "BinaryExpression",
+                          "operator": "/",
+                          "left": {
+                            "type": "CallExpression",
+                            "callee": {
+                              "type": "MemberExpression",
+                              "computed": false,
+                              "object": {
+                                "type": "Identifier",
+                                "name": "t"
+                              },
+                              "property": {
+                                "type": "Identifier",
+                                "name": "getSeconds"
+                              }
+                            },
+                            "arguments": []
+                          },
+                          "right": {
+                            "type": "Literal",
+                            "value": 60
+                          }
+                        },
+                        "right": {
+                          "type": "BinaryExpression",
+                          "operator": "/",
+                          "left": {
+                            "type": "BinaryExpression",
+                            "operator": "%",
+                            "left": {
+                              "type": "UnaryExpression",
+                              "operator": "+",
+                              "argument": {
+                                "type": "Identifier",
+                                "name": "t"
+                              },
+                              "prefix": true
+                            },
+                            "right": {
+                              "type": "Literal",
+                              "value": 1000
+                            }
+                          },
+                          "right": {
+                            "type": "Literal",
+                            "value": 60000
+                          }
+                        }
+                      },
+                      {
+                        "type": "Literal",
+                        "value": 75
+                      }
+                    ]
+                  }
+                },
+                {
+                  "type": "CallExpression",
+                  "callee": {
+                    "type": "MemberExpression",
+                    "computed": false,
+                    "object": {
+                      "type": "MemberExpression",
+                      "computed": false,
+                      "object": {
+                        "type": "Identifier",
+                        "name": "c"
+                      },
+                      "property": {
+                        "type": "Identifier",
+                        "name": "set"
+                      }
+                    },
+                    "property": {
+                      "type": "Identifier",
+                      "name": "bind"
+                    }
+                  },
+                  "arguments": [
+                    {
+                      "type": "Identifier",
+                      "name": "c"
+                    }
+                  ]
+                }
+              ]
+            }
+          },
+          {
+            "type": "ExpressionStatement",
+            "expression": {
+              "type": "CallExpression",
+              "callee": {
+                "type": "MemberExpression",
+                "computed": false,
+                "object": {
+                  "type": "MemberExpression",
+                  "computed": false,
+                  "object": {
+                    "type": "Identifier",
+                    "name": "process"
+                  },
+                  "property": {
+                    "type": "Identifier",
+                    "name": "stdout"
+                  }
+                },
+                "property": {
+                  "type": "Identifier",
+                  "name": "write"
+                }
+              },
+              "arguments": [
+                {
+                  "type": "CallExpression",
+                  "callee": {
+                    "type": "MemberExpression",
+                    "computed": false,
+                    "object": {
+                      "type": "Identifier",
+                      "name": "c"
+                    },
+                    "property": {
+                      "type": "Identifier",
+                      "name": "frame"
+                    }
+                  },
+                  "arguments": []
+                }
+              ]
+            }
+          }
+        ]
+      },
+      "rest": null,
+      "generator": false,
+      "expression": false
+    },
+    {
+      "type": "ExpressionStatement",
+      "expression": {
+        "type": "CallExpression",
+        "callee": {
+          "type": "Identifier",
+          "name": "setInterval"
+        },
+        "arguments": [
+          {
+            "type": "Identifier",
+            "name": "draw"
+          },
+          {
+            "type": "BinaryExpression",
+            "operator": "/",
+            "left": {
+              "type": "Literal",
+              "value": 1000
+            },
+            "right": {
+              "type": "Literal",
+              "value": 24
+            }
+          }
+        ]
+      }
+    }
+  ]
+}

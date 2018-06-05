@@ -1,0 +1,1775 @@
+{
+  "type": "Program",
+  "body": [
+    {
+      "type": "ExpressionStatement",
+      "expression": {
+        "type": "CallExpression",
+        "callee": {
+          "type": "FunctionExpression",
+          "id": null,
+          "params": [
+            {
+              "type": "Identifier",
+              "name": "$"
+            },
+            {
+              "type": "Identifier",
+              "name": "_win"
+            },
+            {
+              "type": "Identifier",
+              "name": "undefined"
+            }
+          ],
+          "defaults": [],
+          "body": {
+            "type": "BlockStatement",
+            "body": [
+              {
+                "type": "VariableDeclaration",
+                "declarations": [
+                  {
+                    "type": "VariableDeclarator",
+                    "id": {
+                      "type": "Identifier",
+                      "name": "hosts"
+                    },
+                    "init": {
+                      "type": "ObjectExpression",
+                      "properties": []
+                    }
+                  }
+                ],
+                "kind": "var"
+              },
+              {
+                "type": "VariableDeclaration",
+                "declarations": [
+                  {
+                    "type": "VariableDeclarator",
+                    "id": {
+                      "type": "Identifier",
+                      "name": "hostsPath"
+                    },
+                    "init": {
+                      "type": "Literal",
+                      "value": ""
+                    }
+                  }
+                ],
+                "kind": "var"
+              },
+              {
+                "type": "IfStatement",
+                "test": {
+                  "type": "Identifier",
+                  "name": "isWin"
+                },
+                "consequent": {
+                  "type": "ExpressionStatement",
+                  "expression": {
+                    "type": "AssignmentExpression",
+                    "operator": "=",
+                    "left": {
+                      "type": "Identifier",
+                      "name": "hostsPath"
+                    },
+                    "right": {
+                      "type": "Literal",
+                      "value": "C:/Windows/System32/drivers/etc/hosts"
+                    }
+                  }
+                },
+                "alternate": {
+                  "type": "IfStatement",
+                  "test": {
+                    "type": "Identifier",
+                    "name": "isLinux"
+                  },
+                  "consequent": {
+                    "type": "ExpressionStatement",
+                    "expression": {
+                      "type": "AssignmentExpression",
+                      "operator": "=",
+                      "left": {
+                        "type": "Identifier",
+                        "name": "hostsPath"
+                      },
+                      "right": {
+                        "type": "Literal",
+                        "value": "/etc/hosts"
+                      }
+                    }
+                  },
+                  "alternate": {
+                    "type": "IfStatement",
+                    "test": {
+                      "type": "Identifier",
+                      "name": "isMac"
+                    },
+                    "consequent": {
+                      "type": "ExpressionStatement",
+                      "expression": {
+                        "type": "AssignmentExpression",
+                        "operator": "=",
+                        "left": {
+                          "type": "Identifier",
+                          "name": "hostsPath"
+                        },
+                        "right": {
+                          "type": "Literal",
+                          "value": "/etc/hosts"
+                        }
+                      }
+                    },
+                    "alternate": null
+                  }
+                }
+              },
+              {
+                "type": "VariableDeclaration",
+                "declarations": [
+                  {
+                    "type": "VariableDeclarator",
+                    "id": {
+                      "type": "Identifier",
+                      "name": "charset"
+                    },
+                    "init": {
+                      "type": "ConditionalExpression",
+                      "test": {
+                        "type": "CallExpression",
+                        "callee": {
+                          "type": "Identifier",
+                          "name": "isUTF8Bytes"
+                        },
+                        "arguments": [
+                          {
+                            "type": "CallExpression",
+                            "callee": {
+                              "type": "Identifier",
+                              "name": "readFile"
+                            },
+                            "arguments": [
+                              {
+                                "type": "Identifier",
+                                "name": "hostsPath"
+                              }
+                            ]
+                          }
+                        ]
+                      },
+                      "consequent": {
+                        "type": "Literal",
+                        "value": "utf-8"
+                      },
+                      "alternate": {
+                        "type": "Literal",
+                        "value": "ansi"
+                      }
+                    }
+                  }
+                ],
+                "kind": "var"
+              },
+              {
+                "type": "ExpressionStatement",
+                "expression": {
+                  "type": "AssignmentExpression",
+                  "operator": "=",
+                  "left": {
+                    "type": "MemberExpression",
+                    "computed": false,
+                    "object": {
+                      "type": "Identifier",
+                      "name": "hosts"
+                    },
+                    "property": {
+                      "type": "Identifier",
+                      "name": "update"
+                    }
+                  },
+                  "right": {
+                    "type": "FunctionExpression",
+                    "id": null,
+                    "params": [],
+                    "defaults": [],
+                    "body": {
+                      "type": "BlockStatement",
+                      "body": [
+                        {
+                          "type": "VariableDeclaration",
+                          "declarations": [
+                            {
+                              "type": "VariableDeclarator",
+                              "id": {
+                                "type": "Identifier",
+                                "name": "hostsList"
+                              },
+                              "init": {
+                                "type": "CallExpression",
+                                "callee": {
+                                  "type": "MemberExpression",
+                                  "computed": false,
+                                  "object": {
+                                    "type": "Identifier",
+                                    "name": "settings"
+                                  },
+                                  "property": {
+                                    "type": "Identifier",
+                                    "name": "get"
+                                  }
+                                },
+                                "arguments": [
+                                  {
+                                    "type": "Literal",
+                                    "value": "hostsList"
+                                  }
+                                ]
+                              }
+                            },
+                            {
+                              "type": "VariableDeclarator",
+                              "id": {
+                                "type": "Identifier",
+                                "name": "curHost"
+                              },
+                              "init": {
+                                "type": "CallExpression",
+                                "callee": {
+                                  "type": "MemberExpression",
+                                  "computed": false,
+                                  "object": {
+                                    "type": "Identifier",
+                                    "name": "settings"
+                                  },
+                                  "property": {
+                                    "type": "Identifier",
+                                    "name": "get"
+                                  }
+                                },
+                                "arguments": [
+                                  {
+                                    "type": "Literal",
+                                    "value": "curHost"
+                                  }
+                                ]
+                              }
+                            }
+                          ],
+                          "kind": "var"
+                        },
+                        {
+                          "type": "IfStatement",
+                          "test": {
+                            "type": "BinaryExpression",
+                            "operator": "===",
+                            "left": {
+                              "type": "Identifier",
+                              "name": "curHost"
+                            },
+                            "right": {
+                              "type": "UnaryExpression",
+                              "operator": "-",
+                              "argument": {
+                                "type": "Literal",
+                                "value": 1
+                              },
+                              "prefix": true
+                            }
+                          },
+                          "consequent": {
+                            "type": "ReturnStatement",
+                            "argument": null
+                          },
+                          "alternate": null
+                        },
+                        {
+                          "type": "VariableDeclaration",
+                          "declarations": [
+                            {
+                              "type": "VariableDeclarator",
+                              "id": {
+                                "type": "Identifier",
+                                "name": "textHosts"
+                              },
+                              "init": {
+                                "type": "MemberExpression",
+                                "computed": false,
+                                "object": {
+                                  "type": "MemberExpression",
+                                  "computed": true,
+                                  "object": {
+                                    "type": "Identifier",
+                                    "name": "hostsList"
+                                  },
+                                  "property": {
+                                    "type": "Identifier",
+                                    "name": "curHost"
+                                  }
+                                },
+                                "property": {
+                                  "type": "Identifier",
+                                  "name": "content"
+                                }
+                              }
+                            },
+                            {
+                              "type": "VariableDeclarator",
+                              "id": {
+                                "type": "Identifier",
+                                "name": "arrTextHosts"
+                              },
+                              "init": {
+                                "type": "CallExpression",
+                                "callee": {
+                                  "type": "MemberExpression",
+                                  "computed": false,
+                                  "object": {
+                                    "type": "Identifier",
+                                    "name": "textHosts"
+                                  },
+                                  "property": {
+                                    "type": "Identifier",
+                                    "name": "split"
+                                  }
+                                },
+                                "arguments": [
+                                  {
+                                    "type": "Literal",
+                                    "value": {}
+                                  }
+                                ]
+                              }
+                            }
+                          ],
+                          "kind": "var"
+                        },
+                        {
+                          "type": "VariableDeclaration",
+                          "declarations": [
+                            {
+                              "type": "VariableDeclarator",
+                              "id": {
+                                "type": "Identifier",
+                                "name": "arrPingList"
+                              },
+                              "init": {
+                                "type": "ObjectExpression",
+                                "properties": []
+                              }
+                            },
+                            {
+                              "type": "VariableDeclarator",
+                              "id": {
+                                "type": "Identifier",
+                                "name": "domainCount"
+                              },
+                              "init": {
+                                "type": "Literal",
+                                "value": 0
+                              }
+                            },
+                            {
+                              "type": "VariableDeclarator",
+                              "id": {
+                                "type": "Identifier",
+                                "name": "pingCount"
+                              },
+                              "init": {
+                                "type": "Literal",
+                                "value": 0
+                              }
+                            },
+                            {
+                              "type": "VariableDeclarator",
+                              "id": {
+                                "type": "Identifier",
+                                "name": "arrIpList"
+                              },
+                              "init": {
+                                "type": "ObjectExpression",
+                                "properties": []
+                              }
+                            }
+                          ],
+                          "kind": "var"
+                        },
+                        {
+                          "type": "ExpressionStatement",
+                          "expression": {
+                            "type": "CallExpression",
+                            "callee": {
+                              "type": "MemberExpression",
+                              "computed": false,
+                              "object": {
+                                "type": "Identifier",
+                                "name": "arrTextHosts"
+                              },
+                              "property": {
+                                "type": "Identifier",
+                                "name": "forEach"
+                              }
+                            },
+                            "arguments": [
+                              {
+                                "type": "FunctionExpression",
+                                "id": null,
+                                "params": [
+                                  {
+                                    "type": "Identifier",
+                                    "name": "line"
+                                  }
+                                ],
+                                "defaults": [],
+                                "body": {
+                                  "type": "BlockStatement",
+                                  "body": [
+                                    {
+                                      "type": "VariableDeclaration",
+                                      "declarations": [
+                                        {
+                                          "type": "VariableDeclarator",
+                                          "id": {
+                                            "type": "Identifier",
+                                            "name": "match"
+                                          },
+                                          "init": null
+                                        }
+                                      ],
+                                      "kind": "var"
+                                    },
+                                    {
+                                      "type": "ExpressionStatement",
+                                      "expression": {
+                                        "type": "AssignmentExpression",
+                                        "operator": "=",
+                                        "left": {
+                                          "type": "Identifier",
+                                          "name": "match"
+                                        },
+                                        "right": {
+                                          "type": "CallExpression",
+                                          "callee": {
+                                            "type": "MemberExpression",
+                                            "computed": false,
+                                            "object": {
+                                              "type": "Identifier",
+                                              "name": "line"
+                                            },
+                                            "property": {
+                                              "type": "Identifier",
+                                              "name": "match"
+                                            }
+                                          },
+                                          "arguments": [
+                                            {
+                                              "type": "Literal",
+                                              "value": {}
+                                            }
+                                          ]
+                                        }
+                                      }
+                                    },
+                                    {
+                                      "type": "IfStatement",
+                                      "test": {
+                                        "type": "LogicalExpression",
+                                        "operator": "&&",
+                                        "left": {
+                                          "type": "Identifier",
+                                          "name": "match"
+                                        },
+                                        "right": {
+                                          "type": "CallExpression",
+                                          "callee": {
+                                            "type": "Identifier",
+                                            "name": "isIp"
+                                          },
+                                          "arguments": [
+                                            {
+                                              "type": "MemberExpression",
+                                              "computed": true,
+                                              "object": {
+                                                "type": "Identifier",
+                                                "name": "match"
+                                              },
+                                              "property": {
+                                                "type": "Literal",
+                                                "value": 1
+                                              }
+                                            }
+                                          ]
+                                        }
+                                      },
+                                      "consequent": {
+                                        "type": "BlockStatement",
+                                        "body": [
+                                          {
+                                            "type": "ExpressionStatement",
+                                            "expression": {
+                                              "type": "CallExpression",
+                                              "callee": {
+                                                "type": "MemberExpression",
+                                                "computed": false,
+                                                "object": {
+                                                  "type": "CallExpression",
+                                                  "callee": {
+                                                    "type": "MemberExpression",
+                                                    "computed": false,
+                                                    "object": {
+                                                      "type": "CallExpression",
+                                                      "callee": {
+                                                        "type": "MemberExpression",
+                                                        "computed": false,
+                                                        "object": {
+                                                          "type": "MemberExpression",
+                                                          "computed": true,
+                                                          "object": {
+                                                            "type": "Identifier",
+                                                            "name": "match"
+                                                          },
+                                                          "property": {
+                                                            "type": "Literal",
+                                                            "value": 2
+                                                          }
+                                                        },
+                                                        "property": {
+                                                          "type": "Identifier",
+                                                          "name": "trim"
+                                                        }
+                                                      },
+                                                      "arguments": []
+                                                    },
+                                                    "property": {
+                                                      "type": "Identifier",
+                                                      "name": "split"
+                                                    }
+                                                  },
+                                                  "arguments": [
+                                                    {
+                                                      "type": "Literal",
+                                                      "value": {}
+                                                    }
+                                                  ]
+                                                },
+                                                "property": {
+                                                  "type": "Identifier",
+                                                  "name": "forEach"
+                                                }
+                                              },
+                                              "arguments": [
+                                                {
+                                                  "type": "FunctionExpression",
+                                                  "id": null,
+                                                  "params": [
+                                                    {
+                                                      "type": "Identifier",
+                                                      "name": "domain"
+                                                    }
+                                                  ],
+                                                  "defaults": [],
+                                                  "body": {
+                                                    "type": "BlockStatement",
+                                                    "body": [
+                                                      {
+                                                        "type": "ExpressionStatement",
+                                                        "expression": {
+                                                          "type": "AssignmentExpression",
+                                                          "operator": "=",
+                                                          "left": {
+                                                            "type": "MemberExpression",
+                                                            "computed": true,
+                                                            "object": {
+                                                              "type": "Identifier",
+                                                              "name": "arrIpList"
+                                                            },
+                                                            "property": {
+                                                              "type": "CallExpression",
+                                                              "callee": {
+                                                                "type": "MemberExpression",
+                                                                "computed": false,
+                                                                "object": {
+                                                                  "type": "Identifier",
+                                                                  "name": "domain"
+                                                                },
+                                                                "property": {
+                                                                  "type": "Identifier",
+                                                                  "name": "toLowerCase"
+                                                                }
+                                                              },
+                                                              "arguments": []
+                                                            }
+                                                          },
+                                                          "right": {
+                                                            "type": "MemberExpression",
+                                                            "computed": true,
+                                                            "object": {
+                                                              "type": "Identifier",
+                                                              "name": "match"
+                                                            },
+                                                            "property": {
+                                                              "type": "Literal",
+                                                              "value": 1
+                                                            }
+                                                          }
+                                                        }
+                                                      }
+                                                    ]
+                                                  },
+                                                  "rest": null,
+                                                  "generator": false,
+                                                  "expression": false
+                                                }
+                                              ]
+                                            }
+                                          }
+                                        ]
+                                      },
+                                      "alternate": {
+                                        "type": "IfStatement",
+                                        "test": {
+                                          "type": "BinaryExpression",
+                                          "operator": "===",
+                                          "left": {
+                                            "type": "CallExpression",
+                                            "callee": {
+                                              "type": "MemberExpression",
+                                              "computed": false,
+                                              "object": {
+                                                "type": "Literal",
+                                                "value": {}
+                                              },
+                                              "property": {
+                                                "type": "Identifier",
+                                                "name": "test"
+                                              }
+                                            },
+                                            "arguments": [
+                                              {
+                                                "type": "Identifier",
+                                                "name": "line"
+                                              }
+                                            ]
+                                          },
+                                          "right": {
+                                            "type": "Literal",
+                                            "value": false
+                                          }
+                                        },
+                                        "consequent": {
+                                          "type": "BlockStatement",
+                                          "body": [
+                                            {
+                                              "type": "ExpressionStatement",
+                                              "expression": {
+                                                "type": "AssignmentExpression",
+                                                "operator": "=",
+                                                "left": {
+                                                  "type": "Identifier",
+                                                  "name": "match"
+                                                },
+                                                "right": {
+                                                  "type": "CallExpression",
+                                                  "callee": {
+                                                    "type": "MemberExpression",
+                                                    "computed": false,
+                                                    "object": {
+                                                      "type": "Identifier",
+                                                      "name": "line"
+                                                    },
+                                                    "property": {
+                                                      "type": "Identifier",
+                                                      "name": "match"
+                                                    }
+                                                  },
+                                                  "arguments": [
+                                                    {
+                                                      "type": "Literal",
+                                                      "value": {}
+                                                    }
+                                                  ]
+                                                }
+                                              }
+                                            },
+                                            {
+                                              "type": "IfStatement",
+                                              "test": {
+                                                "type": "BinaryExpression",
+                                                "operator": "!==",
+                                                "left": {
+                                                  "type": "Identifier",
+                                                  "name": "match"
+                                                },
+                                                "right": {
+                                                  "type": "Literal",
+                                                  "value": null
+                                                }
+                                              },
+                                              "consequent": {
+                                                "type": "BlockStatement",
+                                                "body": [
+                                                  {
+                                                    "type": "ExpressionStatement",
+                                                    "expression": {
+                                                      "type": "AssignmentExpression",
+                                                      "operator": "=",
+                                                      "left": {
+                                                        "type": "MemberExpression",
+                                                        "computed": true,
+                                                        "object": {
+                                                          "type": "Identifier",
+                                                          "name": "arrPingList"
+                                                        },
+                                                        "property": {
+                                                          "type": "CallExpression",
+                                                          "callee": {
+                                                            "type": "MemberExpression",
+                                                            "computed": false,
+                                                            "object": {
+                                                              "type": "MemberExpression",
+                                                              "computed": true,
+                                                              "object": {
+                                                                "type": "Identifier",
+                                                                "name": "match"
+                                                              },
+                                                              "property": {
+                                                                "type": "Literal",
+                                                                "value": 1
+                                                              }
+                                                            },
+                                                            "property": {
+                                                              "type": "Identifier",
+                                                              "name": "toLowerCase"
+                                                            }
+                                                          },
+                                                          "arguments": []
+                                                        }
+                                                      },
+                                                      "right": {
+                                                        "type": "Literal",
+                                                        "value": true
+                                                      }
+                                                    }
+                                                  }
+                                                ]
+                                              },
+                                              "alternate": null
+                                            }
+                                          ]
+                                        },
+                                        "alternate": null
+                                      }
+                                    }
+                                  ]
+                                },
+                                "rest": null,
+                                "generator": false,
+                                "expression": false
+                              }
+                            ]
+                          }
+                        },
+                        {
+                          "type": "ExpressionStatement",
+                          "expression": {
+                            "type": "AssignmentExpression",
+                            "operator": "=",
+                            "left": {
+                              "type": "Identifier",
+                              "name": "domainCount"
+                            },
+                            "right": {
+                              "type": "MemberExpression",
+                              "computed": false,
+                              "object": {
+                                "type": "CallExpression",
+                                "callee": {
+                                  "type": "MemberExpression",
+                                  "computed": false,
+                                  "object": {
+                                    "type": "Identifier",
+                                    "name": "Object"
+                                  },
+                                  "property": {
+                                    "type": "Identifier",
+                                    "name": "keys"
+                                  }
+                                },
+                                "arguments": [
+                                  {
+                                    "type": "Identifier",
+                                    "name": "arrPingList"
+                                  }
+                                ]
+                              },
+                              "property": {
+                                "type": "Identifier",
+                                "name": "length"
+                              }
+                            }
+                          }
+                        },
+                        {
+                          "type": "IfStatement",
+                          "test": {
+                            "type": "BinaryExpression",
+                            "operator": ">",
+                            "left": {
+                              "type": "Identifier",
+                              "name": "domainCount"
+                            },
+                            "right": {
+                              "type": "Literal",
+                              "value": 0
+                            }
+                          },
+                          "consequent": {
+                            "type": "BlockStatement",
+                            "body": [
+                              {
+                                "type": "ForInStatement",
+                                "left": {
+                                  "type": "Identifier",
+                                  "name": "domain"
+                                },
+                                "right": {
+                                  "type": "Identifier",
+                                  "name": "arrPingList"
+                                },
+                                "body": {
+                                  "type": "BlockStatement",
+                                  "body": [
+                                    {
+                                      "type": "IfStatement",
+                                      "test": {
+                                        "type": "UnaryExpression",
+                                        "operator": "!",
+                                        "argument": {
+                                          "type": "MemberExpression",
+                                          "computed": true,
+                                          "object": {
+                                            "type": "Identifier",
+                                            "name": "arrIpList"
+                                          },
+                                          "property": {
+                                            "type": "Identifier",
+                                            "name": "domain"
+                                          }
+                                        },
+                                        "prefix": true
+                                      },
+                                      "consequent": {
+                                        "type": "BlockStatement",
+                                        "body": [
+                                          {
+                                            "type": "ExpressionStatement",
+                                            "expression": {
+                                              "type": "CallExpression",
+                                              "callee": {
+                                                "type": "Identifier",
+                                                "name": "ping"
+                                              },
+                                              "arguments": [
+                                                {
+                                                  "type": "Identifier",
+                                                  "name": "domain"
+                                                },
+                                                {
+                                                  "type": "FunctionExpression",
+                                                  "id": null,
+                                                  "params": [
+                                                    {
+                                                      "type": "Identifier",
+                                                      "name": "ip"
+                                                    }
+                                                  ],
+                                                  "defaults": [],
+                                                  "body": {
+                                                    "type": "BlockStatement",
+                                                    "body": [
+                                                      {
+                                                        "type": "ExpressionStatement",
+                                                        "expression": {
+                                                          "type": "AssignmentExpression",
+                                                          "operator": "=",
+                                                          "left": {
+                                                            "type": "MemberExpression",
+                                                            "computed": true,
+                                                            "object": {
+                                                              "type": "Identifier",
+                                                              "name": "arrIpList"
+                                                            },
+                                                            "property": {
+                                                              "type": "Identifier",
+                                                              "name": "domain"
+                                                            }
+                                                          },
+                                                          "right": {
+                                                            "type": "Identifier",
+                                                            "name": "ip"
+                                                          }
+                                                        }
+                                                      },
+                                                      {
+                                                        "type": "ExpressionStatement",
+                                                        "expression": {
+                                                          "type": "UpdateExpression",
+                                                          "operator": "++",
+                                                          "argument": {
+                                                            "type": "Identifier",
+                                                            "name": "pingCount"
+                                                          },
+                                                          "prefix": false
+                                                        }
+                                                      },
+                                                      {
+                                                        "type": "IfStatement",
+                                                        "test": {
+                                                          "type": "BinaryExpression",
+                                                          "operator": "===",
+                                                          "left": {
+                                                            "type": "Identifier",
+                                                            "name": "pingCount"
+                                                          },
+                                                          "right": {
+                                                            "type": "Identifier",
+                                                            "name": "domainCount"
+                                                          }
+                                                        },
+                                                        "consequent": {
+                                                          "type": "BlockStatement",
+                                                          "body": [
+                                                            {
+                                                              "type": "ExpressionStatement",
+                                                              "expression": {
+                                                                "type": "CallExpression",
+                                                                "callee": {
+                                                                  "type": "Identifier",
+                                                                  "name": "replaceDomain2Ip"
+                                                                },
+                                                                "arguments": []
+                                                              }
+                                                            }
+                                                          ]
+                                                        },
+                                                        "alternate": null
+                                                      }
+                                                    ]
+                                                  },
+                                                  "rest": null,
+                                                  "generator": false,
+                                                  "expression": false
+                                                }
+                                              ]
+                                            }
+                                          }
+                                        ]
+                                      },
+                                      "alternate": {
+                                        "type": "BlockStatement",
+                                        "body": [
+                                          {
+                                            "type": "ExpressionStatement",
+                                            "expression": {
+                                              "type": "UpdateExpression",
+                                              "operator": "++",
+                                              "argument": {
+                                                "type": "Identifier",
+                                                "name": "pingCount"
+                                              },
+                                              "prefix": false
+                                            }
+                                          },
+                                          {
+                                            "type": "IfStatement",
+                                            "test": {
+                                              "type": "BinaryExpression",
+                                              "operator": "===",
+                                              "left": {
+                                                "type": "Identifier",
+                                                "name": "pingCount"
+                                              },
+                                              "right": {
+                                                "type": "Identifier",
+                                                "name": "domainCount"
+                                              }
+                                            },
+                                            "consequent": {
+                                              "type": "BlockStatement",
+                                              "body": [
+                                                {
+                                                  "type": "ExpressionStatement",
+                                                  "expression": {
+                                                    "type": "CallExpression",
+                                                    "callee": {
+                                                      "type": "Identifier",
+                                                      "name": "replaceDomain2Ip"
+                                                    },
+                                                    "arguments": []
+                                                  }
+                                                }
+                                              ]
+                                            },
+                                            "alternate": null
+                                          }
+                                        ]
+                                      }
+                                    }
+                                  ]
+                                },
+                                "each": false
+                              },
+                              {
+                                "type": "EmptyStatement"
+                              }
+                            ]
+                          },
+                          "alternate": null
+                        },
+                        {
+                          "type": "FunctionDeclaration",
+                          "id": {
+                            "type": "Identifier",
+                            "name": "replaceDomain2Ip"
+                          },
+                          "params": [],
+                          "defaults": [],
+                          "body": {
+                            "type": "BlockStatement",
+                            "body": [
+                              {
+                                "type": "ExpressionStatement",
+                                "expression": {
+                                  "type": "CallExpression",
+                                  "callee": {
+                                    "type": "MemberExpression",
+                                    "computed": false,
+                                    "object": {
+                                      "type": "Identifier",
+                                      "name": "arrTextHosts"
+                                    },
+                                    "property": {
+                                      "type": "Identifier",
+                                      "name": "forEach"
+                                    }
+                                  },
+                                  "arguments": [
+                                    {
+                                      "type": "FunctionExpression",
+                                      "id": null,
+                                      "params": [
+                                        {
+                                          "type": "Identifier",
+                                          "name": "line"
+                                        },
+                                        {
+                                          "type": "Identifier",
+                                          "name": "i"
+                                        }
+                                      ],
+                                      "defaults": [],
+                                      "body": {
+                                        "type": "BlockStatement",
+                                        "body": [
+                                          {
+                                            "type": "IfStatement",
+                                            "test": {
+                                              "type": "LogicalExpression",
+                                              "operator": "&&",
+                                              "left": {
+                                                "type": "BinaryExpression",
+                                                "operator": "===",
+                                                "left": {
+                                                  "type": "CallExpression",
+                                                  "callee": {
+                                                    "type": "MemberExpression",
+                                                    "computed": false,
+                                                    "object": {
+                                                      "type": "Literal",
+                                                      "value": {}
+                                                    },
+                                                    "property": {
+                                                      "type": "Identifier",
+                                                      "name": "test"
+                                                    }
+                                                  },
+                                                  "arguments": [
+                                                    {
+                                                      "type": "Identifier",
+                                                      "name": "line"
+                                                    }
+                                                  ]
+                                                },
+                                                "right": {
+                                                  "type": "Literal",
+                                                  "value": false
+                                                }
+                                              },
+                                              "right": {
+                                                "type": "BinaryExpression",
+                                                "operator": "===",
+                                                "left": {
+                                                  "type": "CallExpression",
+                                                  "callee": {
+                                                    "type": "MemberExpression",
+                                                    "computed": false,
+                                                    "object": {
+                                                      "type": "Literal",
+                                                      "value": {}
+                                                    },
+                                                    "property": {
+                                                      "type": "Identifier",
+                                                      "name": "test"
+                                                    }
+                                                  },
+                                                  "arguments": [
+                                                    {
+                                                      "type": "Identifier",
+                                                      "name": "line"
+                                                    }
+                                                  ]
+                                                },
+                                                "right": {
+                                                  "type": "Literal",
+                                                  "value": false
+                                                }
+                                              }
+                                            },
+                                            "consequent": {
+                                              "type": "BlockStatement",
+                                              "body": [
+                                                {
+                                                  "type": "ExpressionStatement",
+                                                  "expression": {
+                                                    "type": "AssignmentExpression",
+                                                    "operator": "=",
+                                                    "left": {
+                                                      "type": "Identifier",
+                                                      "name": "line"
+                                                    },
+                                                    "right": {
+                                                      "type": "CallExpression",
+                                                      "callee": {
+                                                        "type": "MemberExpression",
+                                                        "computed": false,
+                                                        "object": {
+                                                          "type": "Identifier",
+                                                          "name": "line"
+                                                        },
+                                                        "property": {
+                                                          "type": "Identifier",
+                                                          "name": "replace"
+                                                        }
+                                                      },
+                                                      "arguments": [
+                                                        {
+                                                          "type": "Literal",
+                                                          "value": {}
+                                                        },
+                                                        {
+                                                          "type": "FunctionExpression",
+                                                          "id": null,
+                                                          "params": [
+                                                            {
+                                                              "type": "Identifier",
+                                                              "name": "all"
+                                                            },
+                                                            {
+                                                              "type": "Identifier",
+                                                              "name": "left"
+                                                            },
+                                                            {
+                                                              "type": "Identifier",
+                                                              "name": "domain"
+                                                            },
+                                                            {
+                                                              "type": "Identifier",
+                                                              "name": "right"
+                                                            }
+                                                          ],
+                                                          "defaults": [],
+                                                          "body": {
+                                                            "type": "BlockStatement",
+                                                            "body": [
+                                                              {
+                                                                "type": "VariableDeclaration",
+                                                                "declarations": [
+                                                                  {
+                                                                    "type": "VariableDeclarator",
+                                                                    "id": {
+                                                                      "type": "Identifier",
+                                                                      "name": "ip"
+                                                                    },
+                                                                    "init": {
+                                                                      "type": "MemberExpression",
+                                                                      "computed": true,
+                                                                      "object": {
+                                                                        "type": "Identifier",
+                                                                        "name": "arrIpList"
+                                                                      },
+                                                                      "property": {
+                                                                        "type": "CallExpression",
+                                                                        "callee": {
+                                                                          "type": "MemberExpression",
+                                                                          "computed": false,
+                                                                          "object": {
+                                                                            "type": "Identifier",
+                                                                            "name": "domain"
+                                                                          },
+                                                                          "property": {
+                                                                            "type": "Identifier",
+                                                                            "name": "toLowerCase"
+                                                                          }
+                                                                        },
+                                                                        "arguments": []
+                                                                      }
+                                                                    }
+                                                                  }
+                                                                ],
+                                                                "kind": "var"
+                                                              },
+                                                              {
+                                                                "type": "IfStatement",
+                                                                "test": {
+                                                                  "type": "Identifier",
+                                                                  "name": "ip"
+                                                                },
+                                                                "consequent": {
+                                                                  "type": "ExpressionStatement",
+                                                                  "expression": {
+                                                                    "type": "AssignmentExpression",
+                                                                    "operator": "=",
+                                                                    "left": {
+                                                                      "type": "Identifier",
+                                                                      "name": "domain"
+                                                                    },
+                                                                    "right": {
+                                                                      "type": "Identifier",
+                                                                      "name": "ip"
+                                                                    }
+                                                                  }
+                                                                },
+                                                                "alternate": null
+                                                              },
+                                                              {
+                                                                "type": "ReturnStatement",
+                                                                "argument": {
+                                                                  "type": "BinaryExpression",
+                                                                  "operator": "+",
+                                                                  "left": {
+                                                                    "type": "BinaryExpression",
+                                                                    "operator": "+",
+                                                                    "left": {
+                                                                      "type": "Identifier",
+                                                                      "name": "left"
+                                                                    },
+                                                                    "right": {
+                                                                      "type": "Identifier",
+                                                                      "name": "domain"
+                                                                    }
+                                                                  },
+                                                                  "right": {
+                                                                    "type": "Identifier",
+                                                                    "name": "right"
+                                                                  }
+                                                                }
+                                                              }
+                                                            ]
+                                                          },
+                                                          "rest": null,
+                                                          "generator": false,
+                                                          "expression": false
+                                                        }
+                                                      ]
+                                                    }
+                                                  }
+                                                },
+                                                {
+                                                  "type": "ExpressionStatement",
+                                                  "expression": {
+                                                    "type": "AssignmentExpression",
+                                                    "operator": "=",
+                                                    "left": {
+                                                      "type": "MemberExpression",
+                                                      "computed": true,
+                                                      "object": {
+                                                        "type": "Identifier",
+                                                        "name": "arrTextHosts"
+                                                      },
+                                                      "property": {
+                                                        "type": "Identifier",
+                                                        "name": "i"
+                                                      }
+                                                    },
+                                                    "right": {
+                                                      "type": "Identifier",
+                                                      "name": "line"
+                                                    }
+                                                  }
+                                                }
+                                              ]
+                                            },
+                                            "alternate": null
+                                          }
+                                        ]
+                                      },
+                                      "rest": null,
+                                      "generator": false,
+                                      "expression": false
+                                    }
+                                  ]
+                                }
+                              },
+                              {
+                                "type": "ExpressionStatement",
+                                "expression": {
+                                  "type": "CallExpression",
+                                  "callee": {
+                                    "type": "MemberExpression",
+                                    "computed": false,
+                                    "object": {
+                                      "type": "Identifier",
+                                      "name": "hosts"
+                                    },
+                                    "property": {
+                                      "type": "Identifier",
+                                      "name": "save"
+                                    }
+                                  },
+                                  "arguments": [
+                                    {
+                                      "type": "CallExpression",
+                                      "callee": {
+                                        "type": "MemberExpression",
+                                        "computed": false,
+                                        "object": {
+                                          "type": "Identifier",
+                                          "name": "arrTextHosts"
+                                        },
+                                        "property": {
+                                          "type": "Identifier",
+                                          "name": "join"
+                                        }
+                                      },
+                                      "arguments": [
+                                        {
+                                          "type": "Literal",
+                                          "value": "\r\n"
+                                        }
+                                      ]
+                                    }
+                                  ]
+                                }
+                              }
+                            ]
+                          },
+                          "rest": null,
+                          "generator": false,
+                          "expression": false
+                        }
+                      ]
+                    },
+                    "rest": null,
+                    "generator": false,
+                    "expression": false
+                  }
+                }
+              },
+              {
+                "type": "ExpressionStatement",
+                "expression": {
+                  "type": "AssignmentExpression",
+                  "operator": "=",
+                  "left": {
+                    "type": "MemberExpression",
+                    "computed": false,
+                    "object": {
+                      "type": "Identifier",
+                      "name": "hosts"
+                    },
+                    "property": {
+                      "type": "Identifier",
+                      "name": "save"
+                    }
+                  },
+                  "right": {
+                    "type": "FunctionExpression",
+                    "id": null,
+                    "params": [
+                      {
+                        "type": "Identifier",
+                        "name": "content"
+                      }
+                    ],
+                    "defaults": [],
+                    "body": {
+                      "type": "BlockStatement",
+                      "body": [
+                        {
+                          "type": "VariableDeclaration",
+                          "declarations": [
+                            {
+                              "type": "VariableDeclarator",
+                              "id": {
+                                "type": "Identifier",
+                                "name": "sysHosts"
+                              },
+                              "init": {
+                                "type": "CallExpression",
+                                "callee": {
+                                  "type": "MemberExpression",
+                                  "computed": false,
+                                  "object": {
+                                    "type": "Identifier",
+                                    "name": "hosts"
+                                  },
+                                  "property": {
+                                    "type": "Identifier",
+                                    "name": "load"
+                                  }
+                                },
+                                "arguments": []
+                              }
+                            }
+                          ],
+                          "kind": "var"
+                        },
+                        {
+                          "type": "IfStatement",
+                          "test": {
+                            "type": "BinaryExpression",
+                            "operator": "!==",
+                            "left": {
+                              "type": "Identifier",
+                              "name": "content"
+                            },
+                            "right": {
+                              "type": "Identifier",
+                              "name": "sysHosts"
+                            }
+                          },
+                          "consequent": {
+                            "type": "BlockStatement",
+                            "body": [
+                              {
+                                "type": "TryStatement",
+                                "block": {
+                                  "type": "BlockStatement",
+                                  "body": [
+                                    {
+                                      "type": "ExpressionStatement",
+                                      "expression": {
+                                        "type": "CallExpression",
+                                        "callee": {
+                                          "type": "Identifier",
+                                          "name": "writeFile"
+                                        },
+                                        "arguments": [
+                                          {
+                                            "type": "Identifier",
+                                            "name": "hostsPath"
+                                          },
+                                          {
+                                            "type": "Identifier",
+                                            "name": "content"
+                                          },
+                                          {
+                                            "type": "Identifier",
+                                            "name": "charset"
+                                          }
+                                        ]
+                                      }
+                                    }
+                                  ]
+                                },
+                                "guardedHandlers": [],
+                                "handlers": [
+                                  {
+                                    "type": "CatchClause",
+                                    "param": {
+                                      "type": "Identifier",
+                                      "name": "e"
+                                    },
+                                    "body": {
+                                      "type": "BlockStatement",
+                                      "body": [
+                                        {
+                                          "type": "VariableDeclaration",
+                                          "declarations": [
+                                            {
+                                              "type": "VariableDeclarator",
+                                              "id": {
+                                                "type": "Identifier",
+                                                "name": "isShowHelp"
+                                              },
+                                              "init": {
+                                                "type": "CallExpression",
+                                                "callee": {
+                                                  "type": "Identifier",
+                                                  "name": "confirm"
+                                                },
+                                                "arguments": [
+                                                  {
+                                                    "type": "Literal",
+                                                    "value": "hosts写入失败, 需要查看帮助信息吗？"
+                                                  }
+                                                ]
+                                              }
+                                            }
+                                          ],
+                                          "kind": "var"
+                                        },
+                                        {
+                                          "type": "IfStatement",
+                                          "test": {
+                                            "type": "Identifier",
+                                            "name": "isShowHelp"
+                                          },
+                                          "consequent": {
+                                            "type": "BlockStatement",
+                                            "body": [
+                                              {
+                                                "type": "ExpressionStatement",
+                                                "expression": {
+                                                  "type": "CallExpression",
+                                                  "callee": {
+                                                    "type": "Identifier",
+                                                    "name": "navigateToURL"
+                                                  },
+                                                  "arguments": [
+                                                    {
+                                                      "type": "Literal",
+                                                      "value": "https://github.com/yaniswang/hostsPlus/wiki/access"
+                                                    }
+                                                  ]
+                                                }
+                                              }
+                                            ]
+                                          },
+                                          "alternate": null
+                                        }
+                                      ]
+                                    }
+                                  }
+                                ],
+                                "finalizer": null
+                              },
+                              {
+                                "type": "ExpressionStatement",
+                                "expression": {
+                                  "type": "CallExpression",
+                                  "callee": {
+                                    "type": "Identifier",
+                                    "name": "clearSysDns"
+                                  },
+                                  "arguments": []
+                                }
+                              }
+                            ]
+                          },
+                          "alternate": null
+                        }
+                      ]
+                    },
+                    "rest": null,
+                    "generator": false,
+                    "expression": false
+                  }
+                }
+              },
+              {
+                "type": "ExpressionStatement",
+                "expression": {
+                  "type": "AssignmentExpression",
+                  "operator": "=",
+                  "left": {
+                    "type": "MemberExpression",
+                    "computed": false,
+                    "object": {
+                      "type": "Identifier",
+                      "name": "hosts"
+                    },
+                    "property": {
+                      "type": "Identifier",
+                      "name": "load"
+                    }
+                  },
+                  "right": {
+                    "type": "FunctionExpression",
+                    "id": null,
+                    "params": [],
+                    "defaults": [],
+                    "body": {
+                      "type": "BlockStatement",
+                      "body": [
+                        {
+                          "type": "ReturnStatement",
+                          "argument": {
+                            "type": "CallExpression",
+                            "callee": {
+                              "type": "Identifier",
+                              "name": "readFile"
+                            },
+                            "arguments": [
+                              {
+                                "type": "Identifier",
+                                "name": "hostsPath"
+                              },
+                              {
+                                "type": "Literal",
+                                "value": true
+                              },
+                              {
+                                "type": "Identifier",
+                                "name": "charset"
+                              }
+                            ]
+                          }
+                        }
+                      ]
+                    },
+                    "rest": null,
+                    "generator": false,
+                    "expression": false
+                  }
+                }
+              },
+              {
+                "type": "IfStatement",
+                "test": {
+                  "type": "Identifier",
+                  "name": "isWin"
+                },
+                "consequent": {
+                  "type": "BlockStatement",
+                  "body": [
+                    {
+                      "type": "ExpressionStatement",
+                      "expression": {
+                        "type": "CallExpression",
+                        "callee": {
+                          "type": "Identifier",
+                          "name": "setInterval"
+                        },
+                        "arguments": [
+                          {
+                            "type": "MemberExpression",
+                            "computed": false,
+                            "object": {
+                              "type": "Identifier",
+                              "name": "hosts"
+                            },
+                            "property": {
+                              "type": "Identifier",
+                              "name": "update"
+                            }
+                          },
+                          {
+                            "type": "BinaryExpression",
+                            "operator": "*",
+                            "left": {
+                              "type": "CallExpression",
+                              "callee": {
+                                "type": "MemberExpression",
+                                "computed": false,
+                                "object": {
+                                  "type": "Identifier",
+                                  "name": "settings"
+                                },
+                                "property": {
+                                  "type": "Identifier",
+                                  "name": "get"
+                                }
+                              },
+                              "arguments": [
+                                {
+                                  "type": "Literal",
+                                  "value": "updateInterval"
+                                }
+                              ]
+                            },
+                            "right": {
+                              "type": "Literal",
+                              "value": 1000
+                            }
+                          }
+                        ]
+                      }
+                    },
+                    {
+                      "type": "ExpressionStatement",
+                      "expression": {
+                        "type": "CallExpression",
+                        "callee": {
+                          "type": "Identifier",
+                          "name": "setTimeout"
+                        },
+                        "arguments": [
+                          {
+                            "type": "MemberExpression",
+                            "computed": false,
+                            "object": {
+                              "type": "Identifier",
+                              "name": "hosts"
+                            },
+                            "property": {
+                              "type": "Identifier",
+                              "name": "update"
+                            }
+                          },
+                          {
+                            "type": "Literal",
+                            "value": 100
+                          }
+                        ]
+                      }
+                    }
+                  ]
+                },
+                "alternate": null
+              },
+              {
+                "type": "ExpressionStatement",
+                "expression": {
+                  "type": "AssignmentExpression",
+                  "operator": "=",
+                  "left": {
+                    "type": "MemberExpression",
+                    "computed": false,
+                    "object": {
+                      "type": "Identifier",
+                      "name": "_win"
+                    },
+                    "property": {
+                      "type": "Identifier",
+                      "name": "hosts"
+                    }
+                  },
+                  "right": {
+                    "type": "Identifier",
+                    "name": "hosts"
+                  }
+                }
+              }
+            ]
+          },
+          "rest": null,
+          "generator": false,
+          "expression": false
+        },
+        "arguments": [
+          {
+            "type": "Identifier",
+            "name": "jQuery"
+          },
+          {
+            "type": "Identifier",
+            "name": "window"
+          }
+        ]
+      }
+    }
+  ]
+}

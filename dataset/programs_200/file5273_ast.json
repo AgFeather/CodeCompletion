@@ -1,0 +1,717 @@
+{
+  "type": "Program",
+  "body": [
+    {
+      "type": "VariableDeclaration",
+      "declarations": [
+        {
+          "type": "VariableDeclarator",
+          "id": {
+            "type": "Identifier",
+            "name": "game"
+          },
+          "init": {
+            "type": "NewExpression",
+            "callee": {
+              "type": "MemberExpression",
+              "computed": false,
+              "object": {
+                "type": "Identifier",
+                "name": "Phaser"
+              },
+              "property": {
+                "type": "Identifier",
+                "name": "Game"
+              }
+            },
+            "arguments": [
+              {
+                "type": "Literal",
+                "value": 800
+              },
+              {
+                "type": "Literal",
+                "value": 600
+              },
+              {
+                "type": "MemberExpression",
+                "computed": false,
+                "object": {
+                  "type": "Identifier",
+                  "name": "Phaser"
+                },
+                "property": {
+                  "type": "Identifier",
+                  "name": "AUTO"
+                }
+              },
+              {
+                "type": "Literal",
+                "value": "phaser-example"
+              },
+              {
+                "type": "ObjectExpression",
+                "properties": [
+                  {
+                    "type": "Property",
+                    "key": {
+                      "type": "Identifier",
+                      "name": "create"
+                    },
+                    "value": {
+                      "type": "Identifier",
+                      "name": "create"
+                    },
+                    "kind": "init"
+                  },
+                  {
+                    "type": "Property",
+                    "key": {
+                      "type": "Identifier",
+                      "name": "update"
+                    },
+                    "value": {
+                      "type": "Identifier",
+                      "name": "update"
+                    },
+                    "kind": "init"
+                  }
+                ]
+              }
+            ]
+          }
+        }
+      ],
+      "kind": "var"
+    },
+    {
+      "type": "VariableDeclaration",
+      "declarations": [
+        {
+          "type": "VariableDeclarator",
+          "id": {
+            "type": "Identifier",
+            "name": "filter"
+          },
+          "init": null
+        }
+      ],
+      "kind": "var"
+    },
+    {
+      "type": "VariableDeclaration",
+      "declarations": [
+        {
+          "type": "VariableDeclarator",
+          "id": {
+            "type": "Identifier",
+            "name": "sprite"
+          },
+          "init": null
+        }
+      ],
+      "kind": "var"
+    },
+    {
+      "type": "FunctionDeclaration",
+      "id": {
+        "type": "Identifier",
+        "name": "create"
+      },
+      "params": [],
+      "defaults": [],
+      "body": {
+        "type": "BlockStatement",
+        "body": [
+          {
+            "type": "VariableDeclaration",
+            "declarations": [
+              {
+                "type": "VariableDeclarator",
+                "id": {
+                  "type": "Identifier",
+                  "name": "fragmentSrc"
+                },
+                "init": {
+                  "type": "ArrayExpression",
+                  "elements": [
+                    {
+                      "type": "Literal",
+                      "value": "precision mediump float;"
+                    },
+                    {
+                      "type": "Literal",
+                      "value": "uniform float     time;"
+                    },
+                    {
+                      "type": "Literal",
+                      "value": "uniform vec2      resolution;"
+                    },
+                    {
+                      "type": "Literal",
+                      "value": "uniform vec2      mouse;"
+                    },
+                    {
+                      "type": "Literal",
+                      "value": "// Posted by Trisomie21"
+                    },
+                    {
+                      "type": "Literal",
+                      "value": "// modified by @hintz"
+                    },
+                    {
+                      "type": "Literal",
+                      "value": "// from http://glsl.heroku.com/e#5248.0"
+                    },
+                    {
+                      "type": "Literal",
+                      "value": "#define BLADES 6.0"
+                    },
+                    {
+                      "type": "Literal",
+                      "value": "#define BIAS 0.1"
+                    },
+                    {
+                      "type": "Literal",
+                      "value": "#define SHARPNESS 3.0"
+                    },
+                    {
+                      "type": "Literal",
+                      "value": "vec3 star(vec2 position, float t)"
+                    },
+                    {
+                      "type": "Literal",
+                      "value": "{"
+                    },
+                    {
+                      "type": "Literal",
+                      "value": "float d2D = 4.0 / length(position) + t * 5.0;"
+                    },
+                    {
+                      "type": "Literal",
+                      "value": "float a2D = atan(position.y, position.x);"
+                    },
+                    {
+                      "type": "Literal",
+                      "value": "float qq = d2D * 0.1 + sin(d2D) * 0.2 * cos(a2D * 3.0) + sin(d2D * 0.2) * 0.3 * cos(a2D * 8.0)"
+                    },
+                    {
+                      "type": "Literal",
+                      "value": "+ max(0.0, sin(d2D * 0.1 + 10.0) - 0.5) * cos(a2D * 20.0 + sin(d2D * 0.2) * 5.0)"
+                    },
+                    {
+                      "type": "Literal",
+                      "value": "+ max(0.0, sin(d2D * 0.03 + 18.0) - 0.5) * cos(a2D * 5.0 + sin(d2D * 0.2) * 5.0);"
+                    },
+                    {
+                      "type": "Literal",
+                      "value": "vec3 color = vec3(sin(qq * 2.0), sin(qq * 3.0), sin(qq * 5.0));"
+                    },
+                    {
+                      "type": "Literal",
+                      "value": "color = color * 0.2;"
+                    },
+                    {
+                      "type": "Literal",
+                      "value": "float blade = clamp(pow(sin(atan(position.y,position.x )*BLADES)+BIAS, SHARPNESS), 0.0, 1.0);"
+                    },
+                    {
+                      "type": "Literal",
+                      "value": "color += mix(vec3(-0.34, -0.5, -1.0), vec3(0.0, -0.5, -1.0), (position.y + 1.0) * 0.25);"
+                    },
+                    {
+                      "type": "Literal",
+                      "value": "color += (vec3(0.95, 0.65, 0.30) * 1.0 / distance(vec2(0.0), position) * 0.075);"
+                    },
+                    {
+                      "type": "Literal",
+                      "value": "color += vec3(0.95, 0.45, 0.30) * min(1.0, blade *0.7) * (1.0 / distance(vec2(0.0, 0.0), position)*0.075);"
+                    },
+                    {
+                      "type": "Literal",
+                      "value": "return color;"
+                    },
+                    {
+                      "type": "Literal",
+                      "value": "}"
+                    },
+                    {
+                      "type": "Literal",
+                      "value": "// Tweaked from http://glsl.heroku.com/e#4982.0"
+                    },
+                    {
+                      "type": "Literal",
+                      "value": "float hash(float n) { return fract(sin(n)*43758.5453); }"
+                    },
+                    {
+                      "type": "Literal",
+                      "value": "float noise(in vec2 x)"
+                    },
+                    {
+                      "type": "Literal",
+                      "value": "{"
+                    },
+                    {
+                      "type": "Literal",
+                      "value": "vec2 p = floor(x);"
+                    },
+                    {
+                      "type": "Literal",
+                      "value": "vec2 f = fract(x);"
+                    },
+                    {
+                      "type": "Literal",
+                      "value": "f = f*f*(3.0-2.0*f);"
+                    },
+                    {
+                      "type": "Literal",
+                      "value": "float n = p.x + p.y*57.0;"
+                    },
+                    {
+                      "type": "Literal",
+                      "value": "float res = mix(mix(hash(n+0.0), hash(n+1.0),f.x), mix(hash(n+57.0), hash(n+58.0),f.x),f.y);"
+                    },
+                    {
+                      "type": "Literal",
+                      "value": "return res;"
+                    },
+                    {
+                      "type": "Literal",
+                      "value": "}"
+                    },
+                    {
+                      "type": "Literal",
+                      "value": "vec3 cloud(vec2 p)"
+                    },
+                    {
+                      "type": "Literal",
+                      "value": "{"
+                    },
+                    {
+                      "type": "Literal",
+                      "value": "float f = 0.0;"
+                    },
+                    {
+                      "type": "Literal",
+                      "value": "f += 0.50000*noise(p*1.0*10.0);"
+                    },
+                    {
+                      "type": "Literal",
+                      "value": "f += 0.25000*noise(p*2.0*10.0);"
+                    },
+                    {
+                      "type": "Literal",
+                      "value": "f += 0.12500*noise(p*4.0*10.0);"
+                    },
+                    {
+                      "type": "Literal",
+                      "value": "f += 0.06250*noise(p*8.0*10.0);"
+                    },
+                    {
+                      "type": "Literal",
+                      "value": "f *= f;"
+                    },
+                    {
+                      "type": "Literal",
+                      "value": "return vec3(f*.65, f*.45, f)*.6;"
+                    },
+                    {
+                      "type": "Literal",
+                      "value": "}"
+                    },
+                    {
+                      "type": "Literal",
+                      "value": "const float LAYERS = 7.0;"
+                    },
+                    {
+                      "type": "Literal",
+                      "value": "const float SPEED  = 0.005;"
+                    },
+                    {
+                      "type": "Literal",
+                      "value": "const float SCALE  = 8.0;"
+                    },
+                    {
+                      "type": "Literal",
+                      "value": "const float DENSITY    = 0.5;"
+                    },
+                    {
+                      "type": "Literal",
+                      "value": "const float BRIGHTNESS = 2.0;"
+                    },
+                    {
+                      "type": "Literal",
+                      "value": "vec2 ORIGIN    = resolution.xy*.5;"
+                    },
+                    {
+                      "type": "Literal",
+                      "value": "float rand(vec2 co){ return fract(sin(dot(co.xy ,vec2(12.9898,78.233))) * 43758.5453); }"
+                    },
+                    {
+                      "type": "Literal",
+                      "value": "void main(void)"
+                    },
+                    {
+                      "type": "Literal",
+                      "value": "{"
+                    },
+                    {
+                      "type": "Literal",
+                      "value": "vec2   pos = gl_FragCoord.xy - ORIGIN;"
+                    },
+                    {
+                      "type": "Literal",
+                      "value": "float dist = length(pos) / resolution.y;"
+                    },
+                    {
+                      "type": "Literal",
+                      "value": "vec2 coord = vec2(pow(dist, 0.1), atan(pos.x, pos.y) / (3.1415926*2.0));"
+                    },
+                    {
+                      "type": "Literal",
+                      "value": "// Nebulous cloud"
+                    },
+                    {
+                      "type": "Literal",
+                      "value": "vec3 color = cloud(pos/resolution);"
+                    },
+                    {
+                      "type": "Literal",
+                      "value": "// Background stars"
+                    },
+                    {
+                      "type": "Literal",
+                      "value": "float a = pow((1.0-dist), 20.0);"
+                    },
+                    {
+                      "type": "Literal",
+                      "value": "float t = time*-0.05;"
+                    },
+                    {
+                      "type": "Literal",
+                      "value": "float r = coord.x - (t*SPEED);"
+                    },
+                    {
+                      "type": "Literal",
+                      "value": "float c = fract(a+coord.y + 0.0*0.543);"
+                    },
+                    {
+                      "type": "Literal",
+                      "value": "vec2  p = vec2(r, c*0.5)*4000.0;"
+                    },
+                    {
+                      "type": "Literal",
+                      "value": "vec2 uv = fract(p)*2.0-1.0;"
+                    },
+                    {
+                      "type": "Literal",
+                      "value": "float m = clamp((rand(floor(p))-0.9)*BRIGHTNESS, 0.0, 1.0);"
+                    },
+                    {
+                      "type": "Literal",
+                      "value": "color +=  clamp((1.0-length(uv*2.0))*m*dist, 0.0, 1.0);"
+                    },
+                    {
+                      "type": "Literal",
+                      "value": "// Flying stars into black hole"
+                    },
+                    {
+                      "type": "Literal",
+                      "value": "for (float i = 1.0; i < (LAYERS+1.0); ++i)"
+                    },
+                    {
+                      "type": "Literal",
+                      "value": "{"
+                    },
+                    {
+                      "type": "Literal",
+                      "value": "float a = pow((1.0-dist),20.0);"
+                    },
+                    {
+                      "type": "Literal",
+                      "value": "float t = i*10.0 + time*i*i;"
+                    },
+                    {
+                      "type": "Literal",
+                      "value": "float r = coord.x - (t*SPEED);"
+                    },
+                    {
+                      "type": "Literal",
+                      "value": "float c = fract(a+coord.y + i*.543);"
+                    },
+                    {
+                      "type": "Literal",
+                      "value": "vec2  p = vec2(r, c*.5)*SCALE*(LAYERS/(i*i));"
+                    },
+                    {
+                      "type": "Literal",
+                      "value": "vec2 uv = fract(p)*2.0-1.0;"
+                    },
+                    {
+                      "type": "Literal",
+                      "value": "float m = clamp((rand(floor(p))-DENSITY/i)*BRIGHTNESS, 0.0, 1.0);"
+                    },
+                    {
+                      "type": "Literal",
+                      "value": "color +=  clamp(star(uv*0.5, time+i*10.0)*m*dist, 0.0, 1.0);"
+                    },
+                    {
+                      "type": "Literal",
+                      "value": "}"
+                    },
+                    {
+                      "type": "Literal",
+                      "value": "gl_FragColor = vec4(color, 1.0);"
+                    },
+                    {
+                      "type": "Literal",
+                      "value": "}"
+                    }
+                  ]
+                }
+              }
+            ],
+            "kind": "var"
+          },
+          {
+            "type": "ExpressionStatement",
+            "expression": {
+              "type": "AssignmentExpression",
+              "operator": "=",
+              "left": {
+                "type": "Identifier",
+                "name": "filter"
+              },
+              "right": {
+                "type": "NewExpression",
+                "callee": {
+                  "type": "MemberExpression",
+                  "computed": false,
+                  "object": {
+                    "type": "Identifier",
+                    "name": "Phaser"
+                  },
+                  "property": {
+                    "type": "Identifier",
+                    "name": "Filter"
+                  }
+                },
+                "arguments": [
+                  {
+                    "type": "Identifier",
+                    "name": "game"
+                  },
+                  {
+                    "type": "Literal",
+                    "value": null
+                  },
+                  {
+                    "type": "Identifier",
+                    "name": "fragmentSrc"
+                  }
+                ]
+              }
+            }
+          },
+          {
+            "type": "ExpressionStatement",
+            "expression": {
+              "type": "CallExpression",
+              "callee": {
+                "type": "MemberExpression",
+                "computed": false,
+                "object": {
+                  "type": "Identifier",
+                  "name": "filter"
+                },
+                "property": {
+                  "type": "Identifier",
+                  "name": "setResolution"
+                }
+              },
+              "arguments": [
+                {
+                  "type": "Literal",
+                  "value": 800
+                },
+                {
+                  "type": "Literal",
+                  "value": 600
+                }
+              ]
+            }
+          },
+          {
+            "type": "ExpressionStatement",
+            "expression": {
+              "type": "AssignmentExpression",
+              "operator": "=",
+              "left": {
+                "type": "Identifier",
+                "name": "sprite"
+              },
+              "right": {
+                "type": "CallExpression",
+                "callee": {
+                  "type": "MemberExpression",
+                  "computed": false,
+                  "object": {
+                    "type": "MemberExpression",
+                    "computed": false,
+                    "object": {
+                      "type": "Identifier",
+                      "name": "game"
+                    },
+                    "property": {
+                      "type": "Identifier",
+                      "name": "add"
+                    }
+                  },
+                  "property": {
+                    "type": "Identifier",
+                    "name": "sprite"
+                  }
+                },
+                "arguments": []
+              }
+            }
+          },
+          {
+            "type": "ExpressionStatement",
+            "expression": {
+              "type": "AssignmentExpression",
+              "operator": "=",
+              "left": {
+                "type": "MemberExpression",
+                "computed": false,
+                "object": {
+                  "type": "Identifier",
+                  "name": "sprite"
+                },
+                "property": {
+                  "type": "Identifier",
+                  "name": "width"
+                }
+              },
+              "right": {
+                "type": "Literal",
+                "value": 800
+              }
+            }
+          },
+          {
+            "type": "ExpressionStatement",
+            "expression": {
+              "type": "AssignmentExpression",
+              "operator": "=",
+              "left": {
+                "type": "MemberExpression",
+                "computed": false,
+                "object": {
+                  "type": "Identifier",
+                  "name": "sprite"
+                },
+                "property": {
+                  "type": "Identifier",
+                  "name": "height"
+                }
+              },
+              "right": {
+                "type": "Literal",
+                "value": 600
+              }
+            }
+          },
+          {
+            "type": "ExpressionStatement",
+            "expression": {
+              "type": "AssignmentExpression",
+              "operator": "=",
+              "left": {
+                "type": "MemberExpression",
+                "computed": false,
+                "object": {
+                  "type": "Identifier",
+                  "name": "sprite"
+                },
+                "property": {
+                  "type": "Identifier",
+                  "name": "filters"
+                }
+              },
+              "right": {
+                "type": "ArrayExpression",
+                "elements": [
+                  {
+                    "type": "Identifier",
+                    "name": "filter"
+                  }
+                ]
+              }
+            }
+          }
+        ]
+      },
+      "rest": null,
+      "generator": false,
+      "expression": false
+    },
+    {
+      "type": "FunctionDeclaration",
+      "id": {
+        "type": "Identifier",
+        "name": "update"
+      },
+      "params": [],
+      "defaults": [],
+      "body": {
+        "type": "BlockStatement",
+        "body": [
+          {
+            "type": "ExpressionStatement",
+            "expression": {
+              "type": "CallExpression",
+              "callee": {
+                "type": "MemberExpression",
+                "computed": false,
+                "object": {
+                  "type": "Identifier",
+                  "name": "filter"
+                },
+                "property": {
+                  "type": "Identifier",
+                  "name": "update"
+                }
+              },
+              "arguments": [
+                {
+                  "type": "MemberExpression",
+                  "computed": false,
+                  "object": {
+                    "type": "MemberExpression",
+                    "computed": false,
+                    "object": {
+                      "type": "Identifier",
+                      "name": "game"
+                    },
+                    "property": {
+                      "type": "Identifier",
+                      "name": "input"
+                    }
+                  },
+                  "property": {
+                    "type": "Identifier",
+                    "name": "mousePointer"
+                  }
+                }
+              ]
+            }
+          }
+        ]
+      },
+      "rest": null,
+      "generator": false,
+      "expression": false
+    }
+  ]
+}
