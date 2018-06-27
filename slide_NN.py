@@ -22,46 +22,6 @@ class Code_Completion_Model:
             data_utils.load_data_with_pickle('mapping_dict.p')
         self.num_token = len(token_set)
 
-    # def init_with_original_data(self, token_lists):
-    #     '''
-    #     Initialize ML model with training data
-    #     token_lists: [[{type:.., value:..},{..},{..}], [..], [..]]
-    #     '''
-    #     self.token_lists = token_lists
-    #     self.tokens_set = set()
-    #     for token_sequence in token_lists:
-    #         for token in token_sequence:
-    #             self.tokens_set.add(self.token_to_string(token))
-    #     self.tokens_list = list(self.tokens_set)
-    #     self.tokens_list.sort()
-    #     self.tokens_num = len(self.tokens_set)  # 213
-    #     self.index_to_string = {i: s for i, s in enumerate(self.tokens_list)}
-    #     self.string_to_index = {s: i for i, s in enumerate(self.tokens_list)}
-    #
-    # # data processing functions
-    # def token_to_string(self, token):
-    #     return token['type'] + '~$$~' + token['value']
-    #
-    # def string_to_token(self, string):
-    #     tokens = string.split('~$$~')
-    #     return {'type': tokens[0], 'value': tokens[1]}
-    #
-    # # encoding token sequence as one_hot_encoding
-    # def one_hot_encoding(self, string):
-    #     vector = [0] * self.tokens_num
-    #     vector[self.string_to_index[string]] = 1
-    #     return vector
-    #
-    # # generate X_train data and y_label for ML model
-    # def data_processing(self):
-    #     token_list = []
-    #     for token_sequence in self.token_lists:  # token_sequence of each source code
-    #         for index, token in enumerate(token_sequence):  # each token(type_value) in source code
-    #             token = self.token_to_string(token)
-    #             token_vec = self.one_hot_encoding(token)
-    #             token_list.append(token_vec)
-    #
-    #     return token_list
 
     def split_with_windows(self, token_list, window_size):
         # 给定train_x, train_y list，元素由

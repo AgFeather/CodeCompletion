@@ -132,12 +132,12 @@ class Code_Completion_Model:
         correct_token_list = []
         incorrect_token_list = []
 
-        token_set = set()
-        for token_sequence in query_test_data:
-            data_utils.get_token_set(token_sequence)
-            token_set.update()
-
-        print(len(token_set))
+        # token_set = set()
+        # for token_sequence in query_test_data:
+        #     data_utils.get_token_set(token_sequence)
+        #     token_set.update()
+        #
+        # print(len(token_set))
 
         for tokens in query_test_data:
             prefix, expection, suffix = data_utils.create_hole(tokens)
