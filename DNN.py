@@ -3,8 +3,15 @@ import numpy as np
 import tflearn
 import random
 
-
 import data_utils
+
+
+
+'''
+使用tflearn构建的基本神经网络模型对token进行预测
+'''
+
+
 
 
 train_dir = 'dataset/programs_800/'
@@ -64,14 +71,13 @@ class Code_Completion_Model:
         构造x_data and y_data
         :param dataset:
         :return:
-        todo：修改x_data和y_data的index
         '''
         x_data = []
         y_data = []
         for index, token in enumerate(dataset):
             if index > 0:
-                x_data.append(dataset[index])
-                y_data.append(token)
+                x_data.append(token)
+                y_data.append(dataset[index-1])
         return x_data, y_data
 
 

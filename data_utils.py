@@ -177,6 +177,8 @@ def create_hole(tokens, hole_size = 1):
 def token_equals(token1, token2):
     '''
     Determining whether input two tokens are equal or not
+    token1: a token list
+    token2: a token list
     '''
     if len(token1) != len(token2):
         return False
