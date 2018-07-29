@@ -13,10 +13,10 @@ import data_utils
 
 
 
-
 train_dir = 'dataset/programs_800/'
 query_dir = 'dataset/programs_200/'
 model_dir = 'saved_model/model_parameter'
+tensorboard_path = 'tensorboard_data/tflearn'
 
 
 class Code_Completion_Model:
@@ -89,7 +89,7 @@ class Code_Completion_Model:
         self.nn = tflearn.fully_connected(self.nn, 128)
         self.nn = tflearn.fully_connected(self.nn, self.num_token, activation='softmax')
         self.nn = tflearn.regression(self.nn)
-        self.model = tflearn.DNN(self.nn)
+        self.model = tflearn.DNN(self.nn, tensorboard_verbose=0, tensorboard_dir=tensorboard_path)
 
     # load trained model into object
     def load_model(self, model_file):
@@ -103,7 +103,7 @@ class Code_Completion_Model:
             self.init_with_orig_data(train_data)
             x_data, y_data = self.data_processing()
             self.create_NN()
-            self.model.fit(x_data, y_data, n_epoch=1, batch_size=500, show_metric=True)
+            self.model.fit(x_data, y_data, n_epoch=3, batch_size=64, show_metric=True)
         else:
             x_data, y_data = self.vector_data_process(train_data)
             self.create_NN()

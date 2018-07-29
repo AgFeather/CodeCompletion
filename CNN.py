@@ -22,13 +22,13 @@ x_train_data_path = 'processed_data/x_train_data.p'
 y_train_data_path = 'processed_data/y_train_data.p'
 train_data_parameter = 'processed_data/x_y_parameter.p'
 
-tensorboard_data_path = './tensorboard_data/model2'
+tensorboard_data_path = './tensorboard_data/'
 
 query_dir = 'dataset/programs_200/'
 
-epoch_num = 3
-batch_size = 128
-learning_rate = 0.0001
+epoch_num = 1
+batch_size = 64
+learning_rate = 0.001
 test_epoch = 3
 
 
@@ -41,7 +41,6 @@ class Code_Completion_Model:
         self.string_to_index = string2int
         self.tokens_set = token_set
         self.tokens_size = len(token_set)
-        self.data_size = len(self.x_data)
 
     # neural network functions
     def create_NN(self):
@@ -49,21 +48,7 @@ class Code_Completion_Model:
         self.input_x = tf.placeholder(dtype=tf.float32, shape=[None, self.tokens_size], name='input_x')
         self.output_y = tf.placeholder(dtype=tf.float32, shape=[None, self.tokens_size], name='output_y')
         self.keep_prob = tf.placeholder(dtype=tf.float32, name='keep_prob')
-        self.nn = tf.layers.dense(inputs=self.input_x, units=128, activation=tf.nn.relu, name='hidden_1')
-    #    self.nn = tf.layers.dropout(inputs=self.nn, rate=self.keep_prob)
-        self.nn = tf.layers.dense(inputs=self.nn, units=128, activation=tf.nn.relu, name='hidden_2')
-        self.output = tf.layers.dense(inputs=self.nn, units=self.tokens_size, activation=None, name='prediction')
-        self.prediction_index = tf.argmax(self.output, 1)
-        # ToDo: loss error?
-        self.loss = tf.nn.softmax_cross_entropy_with_logits_v2(logits=self.output, labels=self.output_y, name='loss')
-        self.loss = tf.reduce_sum(self.loss)
-        tf.summary.scalar('loss', self.loss)
-        self.optimizer = tf.train.AdamOptimizer(0.01).minimize(self.loss)
-        self.equal = tf.equal(tf.argmax(self.output_y, 1), tf.argmax(self.output, 1))
-        self.accuarcy = tf.reduce_mean(tf.cast(self.equal, tf.float32), name='accuracy')
-        tf.summary.scalar('accuracy', self.accuarcy)
-        self.merged = tf.summary.merge_all()
-        #ToDo:accuracy error?
+
 
 
     def train(self):
@@ -73,12 +58,12 @@ class Code_Completion_Model:
         time_begin = time.time()
         self.sess.run(tf.global_variables_initializer())
         for epoch in range(epoch_num):
-            for i in range(0, self.data_size, batch_size):
+            for i in range(0, len(self.x_data), batch_size):
                 batch_x = self.x_data[i:i + batch_size]
                 batch_y = self.y_data[i:i + batch_size]
                 feed = {self.input_x: batch_x, self.output_y: batch_y, self.keep_prob: 0.5}
                 _, summary_str = self.sess.run([self.optimizer, self.merged], feed_dict=feed)
-                writer.add_summary(summary_str, epoch*self.data_size + i)
+                writer.add_summary(summary_str, i)
                 writer.flush()
                 if (i // batch_size) % 2000 == 0:
                     show_loss, show_acc = self.sess.run([self.loss, self.accuarcy], feed_dict=feed)
