@@ -16,8 +16,6 @@ import data_utils
 
 
 
-
-
 x_train_data_path = 'processed_data/x_train_data.p'
 y_train_data_path = 'processed_data/y_train_data.p'
 train_data_parameter = 'processed_data/x_y_parameter.p'
@@ -30,7 +28,10 @@ epoch_num = 1
 batch_size = 64
 learning_rate = 0.001
 test_epoch = 3
-
+embed_dim = 32
+sliding_window = [2,3,4,5]
+filter_num = 4
+hidden_size = 128
 
 class Code_Completion_Model:
 
@@ -48,6 +49,35 @@ class Code_Completion_Model:
         self.input_x = tf.placeholder(dtype=tf.float32, shape=[None, self.tokens_size], name='input_x')
         self.output_y = tf.placeholder(dtype=tf.float32, shape=[None, self.tokens_size], name='output_y')
         self.keep_prob = tf.placeholder(dtype=tf.float32, name='keep_prob')
+
+        self.embedding_matrix = tf.Variable(tf.truncated_normal(
+            [self.tokens_size, embed_dim]), name='embedding_matrix')
+        self.embedding_represent = tf.nn.embedding_lookup(self.embedding_matrix, self.input_x, name='embedding_represent')
+       # self.embedding_represent = tf.expend_dims(self.embedding_represent, -1)
+
+        conv_layers_list = []
+        weights = {}
+        biases = {}
+        for window in sliding_window:
+            with tf.name_scope('convolution_layer_{}'.format(window)):
+                conv_weight = tf.Variable(tf.truncated_normal(
+                    shape=[window, embed_dim, 1, filter_num]), name='conv_weight')
+                conv_bias = tf.Variable(tf.truncated_normal(
+                    shape=[window, embed_dim, 1, filter_num]), name='conv_bias')
+                weights['conv%d' % window] = conv_weight
+                biases['conv%d' % window] = conv_bias
+                conv_layer = tf.nn.conv2d(
+                    self.embedding_represent, conv_weight, strides=[1,1,1,1],padding='SAME', name='conv_layer_1')
+                conv_layer = tf.nn.relu(conv_layer, name='relu_layer')
+                avgpool_layer = tf.nn.avg_pool(
+                    conv_layer, [1, 2, 2, 1], [1,1,1,1], padding='VALID', name='avgpool_layer')
+                # maxpooling or avgpooling? parameter adjust？
+                conv_layers_list.append(avgpool_layer)
+
+        represent_layer = tf.concat(conv_layers_list, 3, name='concat_conv_layers')
+        weights['h1'] = tf.Variable(tf.truncated_normal(
+            shape=[]), name='h1_weight')
+        biases['h1'] = tf.Variable(tf.constant(value=0.1, dtype=tf.float32, shape=[hidden_size]))
 
 
 
@@ -84,9 +114,6 @@ class Code_Completion_Model:
         pre_token_x = data_utils.one_hot_encoding(prev_token_string, self.string_to_index)
         feed = {self.input_x: [pre_token_x], self.keep_prob:1}
         prediction = self.sess.run(self.prediction_index, feed)[0]
-        #         if type(prediction) is np.ndarray:
-        #             prediction = prediction.tolist()
-        #         best_number = prediction.index(max(prediction))
         best_string = self.index_to_string[prediction]
         best_token = data_utils.string_to_token(best_string)
         return [best_token]
@@ -98,15 +125,11 @@ class Code_Completion_Model:
         for token_sequence in query_test_data:
             prefix, expection, suffix = data_utils.create_hole(token_sequence)
             prediction = self.query_test(prefix, suffix)[0]
-            #             print(type(prediction))
-            #             print(type(expection[0]))
             if data_utils.token_equals([prediction], expection):
                 correct += 1
                 correct_token_list.append({'expection': expection, 'prediction': prediction})
             else:
                 incorrect_token_list.append({'expection': expection, 'prediction': prediction})
-        #         print(correct_token_list)
-        #         print(incorrect_token_list)
         accuracy = correct / len(query_test_data)
         return accuracy
 

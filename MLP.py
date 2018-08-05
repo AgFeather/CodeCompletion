@@ -1,87 +1,43 @@
-import json
-import random
+
 import tensorflow as tf
 import numpy as np
-import tflearn
-import os
-import pickle
 import time
-import data_utils
-
 from sklearn.model_selection import train_test_split
 
-'''
-使用TensorFlow自带的layers构建基本的神经网络对token进行预测，
-可以声明使用多少个context tokens 进行预测
-
-多个previous token输入神经网络的方法有两种想法：
-1. 将每个token的representation vector相连，合成一个大的vector输入到神经网络，
-    所以说神经网络的输入层大小应为：每个token vector length * number of previous token
-2. 应为目前表示每个token 使用的方法为one hot encoding，也就是说对每个token都是有且仅有一位为1，其余位为0，
-    所以可以考虑直接将所有的previous token相加，这样做的好处是NN输入层大小永远等于vector length。缺点是没有理论依据，不知道效果是否会更好
-
-
-1. concatenate the representations of previous tokens to a huge vector representation
-2. add the representations of previous tokens together
+import data_utils
 
 
 '''
-
-
-
-
-
-
+使用TensorFlow自带的layers构建基本的神经网络对token进行预测，预测只使用前一个token
+'''
 x_train_data_path = 'processed_data/x_train_data.p'
 y_train_data_path = 'processed_data/y_train_data.p'
 train_data_parameter = 'processed_data/x_y_parameter.p'
+
+tensorboard_data_path = './logs/MLP'
+
 query_dir = 'dataset/programs_200/'
 
 epoch_num = 1
-batch_size = 64
-learning_rate = 0.002
-previous_token_num = 2
+batch_size = 128
+learning_rate = 0.005
+test_epoch = 3
+hidden_size = 128
 
-'''
-使用TensorFlow自带的layers构建基本的神经网络对token进行预测，
-可以声明使用多少个context tokens 进行预测
-
-多个previous token输入神经网络的方法有两种想法：
-1. 将每个token的representation vector相连，合成一个大的vector输入到神经网络，
-    所以说神经网络的输入层大小应为：每个token vector length * number of previous token
-2. 应为目前表示每个token 使用的方法为one hot encoding，也就是说对每个token都是有且仅有一位为1，其余位为0，
-    所以可以考虑直接将所有的previous token相加，这样做的好处是NN输入层大小永远等于vector length。缺点是没有理论依据，不知道效果是否会更好
-
-
-1. concatenate the representations of previous tokens to a huge vector representation
-2. add the representations of previous tokens together
-
-
-'''
-
-x_train_data_path = 'processed_data/x_train_data.p'
-y_train_data_path = 'processed_data/y_train_data.p'
-train_data_parameter = 'processed_data/x_y_parameter.p'
-query_dir = 'dataset/programs_200/'
-
-tensorboard_data_path = './logs/MultiContext'
-
-epoch_num = 1
-batch_size = 64
-learning_rate = 0.002
-previous_token_num = 2
 
 
 class Code_Completion_Model:
 
     def __init__(self, x_data, y_data, token_set, string2int, int2string):
-        batch_num = len(x_data) // batch_size
+        self.x_data = x_data
+        self.y_data = y_data
         self.x_data, self.valid_x, self.y_data, self.valid_y = \
-            train_test_split(x_data[:batch_num * batch_size], y_data[:batch_num * batch_size], train_size=0.9)
+                train_test_split(x_data, y_data, train_size=0.9, random_state=100)
         self.index_to_string = int2string
         self.string_to_index = string2int
         self.tokens_set = token_set
         self.tokens_size = len(token_set)
+        self.data_size = len(self.x_data)
 
     # neural network functions
     def create_NN(self):
@@ -119,57 +75,49 @@ class Code_Completion_Model:
 
         self.merged = tf.summary.merge_all()
 
-    def get_batch(self, context_size=previous_token_num):
-
-        x_data = np.array(self.x_data)
-        for i in range(0, len(self.x_data), batch_size):
-            batch_x = np.zeros((batch_size, self.tokens_size))
-            for j in range(context_size):
-                if i >= j:
-                    temp = x_data[i - j:i - j + batch_size].reshape(-1, self.tokens_size)
-                    if temp.shape == (0, 86): break;
-                    batch_x += temp
-            batch_y = self.y_data[i:i + batch_size]
-            yield batch_x, batch_y
 
     def train(self):
         self.create_NN()
         self.sess = tf.Session()
+        writer = tf.summary.FileWriter(tensorboard_data_path, self.sess.graph)
         time_begin = time.time()
         self.sess.run(tf.global_variables_initializer())
-        batch_generator = self.get_batch()
         for epoch in range(epoch_num):
-            for i in range(0, len(self.x_data), batch_size):
-                batch_x, batch_y = next(batch_generator)
+            for i in range(0, self.data_size, batch_size):
+                batch_x = self.x_data[i:i + batch_size]
+                batch_y = self.y_data[i:i + batch_size]
                 feed = {self.input_x: batch_x, self.output_y: batch_y}
-                self.sess.run(self.optimizer, feed_dict=feed)
+                _, summary_str = self.sess.run([self.optimizer_op, self.merged], feed_dict=feed)
+                writer.add_summary(summary_str, epoch*self.data_size + i)
+                writer.flush()
                 if (i // batch_size) % 2000 == 0:
-                    show_loss, show_acc = self.sess.run([self.loss, self.accuarcy], feed_dict=feed)
-                    print('epoch: %d, training_step: %d, loss: %.2f, accuracy:%.3f' % (epoch, i, show_loss, show_acc))
+                    valid_feed = {self.input_x:self.valid_x, self.output_y:self.valid_y}
+                    valid_loss, valid_acc = self.sess.run([self.loss, self.accuracy], feed_dict=valid_feed)
+                    show_loss, show_acc = self.sess.run([self.loss, self.accuracy], feed_dict=feed)
+                    print('epoch: %d, training_step: %d, train_loss: %.2f, train_accuracy:%.3f'
+                          % (epoch, i, show_loss, show_acc))
+                    print('epoch: %d, training_step: %d, valid_loss: %.2f, valid_accuracy:%.3f'
+                          %(epoch, i, valid_loss, valid_acc))
         time_end = time.time()
-        print('training time cost: %.3f s' % (time_end - time_begin))
+
+        print('training time cost: %.3f ms' %(time_end - time_begin))
 
     # query test
     def query_test(self, prefix, suffix):
         '''
         Input: all tokens before the hole token(prefix) and all tokens after the hole token,
-        ML model will predict the most probable token in the hole. In this function, use only one token before hole token to predict
+        ML model will predict the most probable token in the hole
+        In this function, use only one token before hole token to predict
+        return: the most probable token
         '''
-        previous_token_list = prefix[-previous_token_num:]
-        context_representation = np.zeros(self.tokens_size)
-
-        for token in previous_token_list:
-            prev_token_string = data_utils.token_to_string(token)
-            pre_token_x = data_utils.one_hot_encoding(prev_token_string, self.string_to_index)
-            context_representation += np.array(pre_token_x)
-
-        feed = {self.input_x: [context_representation]}
-        prediction = self.sess.run(self.prediction_index, feed)[0]
+        prev_token_string = data_utils.token_to_string(prefix[-1])
+        pre_token_x = data_utils.one_hot_encoding(prev_token_string, self.string_to_index)
+        feed = {self.input_x: [pre_token_x]}
+        prediction = self.sess.run(self.prediction, feed)[0]
         best_string = self.index_to_string[prediction]
         best_token = data_utils.string_to_token(best_string)
         return [best_token]
 
-    # test model
     def test_model(self, query_test_data):
         correct = 0.0
         correct_token_list = []
@@ -187,20 +135,19 @@ class Code_Completion_Model:
 
 
 if __name__ == '__main__':
-
-    x_train_data_path = 'processed_data/x_train_data.p'
-    y_train_data_path = 'processed_data/y_train_data.p'
-    train_data_parameter = 'processed_data/x_y_parameter.p'
     x_data = data_utils.load_data_with_pickle(x_train_data_path)
     y_data = data_utils.load_data_with_pickle(y_train_data_path)
     token_set, string2int, int2string = data_utils.load_data_with_pickle(train_data_parameter)
 
-
-    #model train
+    # model train
     model = Code_Completion_Model(x_data, y_data, token_set, string2int, int2string)
     model.train()
 
     # test model
     query_test_data = data_utils.load_data_with_file(query_dir)
-    accuracy = model.test_model(query_test_data)
-    print('query test accuracy: ', accuracy)
+    test_accuracy = 0.0
+    for i in range(test_epoch):
+        accuracy = model.test_model(query_test_data)
+        print('test epoch: %d, query test accuracy: %.3f' % (i, accuracy))
+        test_accuracy += accuracy
+    print('total test accuracy: %.3f' % (test_accuracy / test_epoch))
