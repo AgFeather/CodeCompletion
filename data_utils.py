@@ -13,10 +13,12 @@ model_dir = 'saved_model/model_parameter'
 str_processed_train_data_path = 'processed_data/str_train_data.p'
 vec_processed_train_data_path = 'processed_data/vec_train_data.p'
 train_data_parameter_path = 'processed_data/train_parameter.p'
+numerical_train_data_path = 'processed_data/num_train_data.p'
 
 str_processed_test_data_path = 'processed_data/str_test_data.p'
 vec_processed_test_data_path = 'processed_data/vec_test_data.p'
 test_data_parameter_path = 'processed_data/test_parameter.p'
+numerical_test_data_path = 'porcessed_data/num_test_data.p'
 
 num_train_token = 86 #在训练集中token的种类
 num_test_token = 74 #测试集中token的种类
@@ -151,6 +153,25 @@ def data_process_save(is_training_data=True):
         pickle.dump((string2int, int2string, token_set), open(test_data_parameter_path, 'wb'))
 
 
+def save_data_without_onehot(is_training_data=True):
+    token_list = load_tokens(is_training_data)
+    numerical_token_list = []
+    token_set = list(get_token_set(token_list))
+    string2int = {token:i for i, token in enumerate(token_set)}
+    int2string = {i:token for i, token in enumerate(token_set)}
+    for token in token_list:
+        string_token = token_to_string(token)
+        numerical_token = string2int[string_token]
+        numerical_token_list.append(string_token)
+
+    print(len(numerical_token_list))#1713662
+    if is_training_data:
+        pickle.dump(numerical_token_list, open(numerical_train_data_path, 'wb'))
+    #    pickle.dump((string2int, int2string, token_set), open(train_data_parameter_path, 'wb'))
+    else:
+        pickle.dump(numerical_token_list, open(numerical_test_data_path, 'wb'))
+
+
 
 
 
@@ -223,9 +244,9 @@ if __name__ == '__main__':
     # dataset = load_tokens(False, True)
     # print(len(get_token_set(dataset)))
    # data_process_save(is_training_data=True)
-    save_x_y_train_data()
+  #  save_x_y_train_data()
 
-
+    save_data_without_onehot()
 
     pass
 

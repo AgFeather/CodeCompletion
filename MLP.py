@@ -13,7 +13,7 @@ x_train_data_path = 'processed_data/x_train_data.p'
 y_train_data_path = 'processed_data/y_train_data.p'
 train_data_parameter = 'processed_data/x_y_parameter.p'
 
-tensorboard_data_path = './logs/MLP'
+tensorboard_log_path = './logs/MLP'
 
 query_dir = 'dataset/programs_200/'
 
@@ -78,7 +78,7 @@ class Code_Completion_Model:
     def train(self):
         self.create_NN()
         self.sess = tf.Session()
-        writer = tf.summary.FileWriter(tensorboard_data_path, self.sess.graph)
+        writer = tf.summary.FileWriter(tensorboard_log_path, self.sess.graph)
         time_begin = time.time()
         self.sess.run(tf.global_variables_initializer())
         for epoch in range(epoch_num):
