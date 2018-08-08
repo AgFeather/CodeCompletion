@@ -7,17 +7,17 @@ import data_utils
 
 
 '''
-使用TensorFlow自带的layers构建基本的神经网络对token进行预测，预测只使用前一个token
+Using multiply layers perceptrons to predict token
 '''
 x_train_data_path = 'processed_data/x_train_data.p'
 y_train_data_path = 'processed_data/y_train_data.p'
 train_data_parameter = 'processed_data/x_y_parameter.p'
 
-tensorboard_log_path = './logs/MLP'
+tensorboard_log_path = './logs/MLP/'
 
 query_dir = 'dataset/programs_200/'
 
-epoch_num = 1
+epoch_num = 2
 batch_size = 128
 learning_rate = 0.005
 test_epoch = 3

@@ -5,13 +5,14 @@ import data_utils
 
 
 '''
-使用基本的RNN对token进行预测
+Using MultiRNN to pridect token. with LSTM cell
 '''
 
 
 
 processed_data_path = 'processed_data/vec_train_data.p'
 data_parameter_path = 'processed_data/train_parameter.p'
+tensorboard_log_path = 'logs/MultiRNN'
 
 time_step = 1
 unit_num = 128

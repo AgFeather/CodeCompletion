@@ -30,10 +30,10 @@ y_train_data_path = 'processed_data/y_train_data.p'
 train_data_parameter = 'processed_data/x_y_parameter.p'
 query_dir = 'dataset/programs_200/'
 
-tensorboard_data_path = './logs/MultiContext'
+tensorboard_data_path = './logs/MultiContext/'
 
-epoch_num = 1
-batch_size = 64
+epoch_num = 2
+batch_size = 128
 learning_rate = 0.002
 context_size = 10
 hidden_size = 128
@@ -46,6 +46,7 @@ class Code_Completion_Model:
         self.reshape_data(x_data, y_data)
         self.x_data, self.valid_x, self.y_data, self.valid_y = \
             train_test_split(x_data, y_data, train_size=0.9)
+        self.data_size = len(self.x_data)
         self.index_to_string = int2string
         self.string_to_index = string2int
         self.tokens_set = token_set
@@ -105,6 +106,7 @@ class Code_Completion_Model:
     def train(self):
         self.create_NN()
         self.sess = tf.Session()
+        writer = tf.summary.FileWriter(tensorboard_data_path, self.sess.graph)
         time_begin = time.time()
         self.sess.run(tf.global_variables_initializer())
         for epoch in range(epoch_num):
@@ -112,7 +114,9 @@ class Code_Completion_Model:
             for i in range(0, len(self.x_data), batch_size):
                 batch_x, batch_y = next(batch_generator)
                 feed = {self.input_x: batch_x, self.output_y: batch_y}
-                self.sess.run(self.optimizer_op, feed_dict=feed)
+                _, summary_str = self.sess.run([self.optimizer_op, self.merged], feed_dict=feed)
+                writer.add_summary(summary_str, epoch*self.data_size + i)
+                writer.flush()
                 if (i // batch_size) % 2000 == 0:
                     show_loss, show_acc = self.sess.run([self.loss, self.accuracy], feed_dict=feed)
                     print('epoch: %d, training_step: %d, loss: %.2f, accuracy:%.3f' % (epoch, i, show_loss, show_acc))
@@ -125,7 +129,7 @@ class Code_Completion_Model:
         Input: all tokens before the hole token(prefix) and all tokens after the hole token,
         ML model will predict the most probable token in the hole. In this function, use only one token before hole token to predict
         '''
-        previous_token_list = prefix[-previous_token_num:]
+        previous_token_list = prefix[-context_size:]
         context_representation = np.zeros(self.tokens_size)
 
         for token in previous_token_list:
@@ -134,7 +138,7 @@ class Code_Completion_Model:
             context_representation += np.array(pre_token_x)
 
         feed = {self.input_x: [context_representation]}
-        prediction = self.sess.run(self.prediction_index, feed)[0]
+        prediction = self.sess.run(self.prediction, feed)[0]
         best_string = self.index_to_string[prediction]
         best_token = data_utils.string_to_token(best_string)
         return [best_token]

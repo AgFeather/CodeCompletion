@@ -2,9 +2,6 @@ import json
 import random
 import tensorflow as tf
 import numpy as np
-import tflearn
-import os
-import pickle
 import time
 import data_utils
 
@@ -16,7 +13,7 @@ Using CNN with sliding windows to predict token.
 
 
 
-x_train_data_path = 'processed_data/x_train_data.p'
+x_train_data_path = 'processed_data/num_train_data.p'
 y_train_data_path = 'processed_data/y_train_data.p'
 train_data_parameter = 'processed_data/x_y_parameter.p'
 
@@ -32,21 +29,43 @@ embed_dim = 32
 sliding_window = [2,3,4,5]
 filter_num = 4
 hidden_size = 128
+context_size = 5
+
+rnn_num_layers = 1
+rnn_num_nuits = 128
 
 class Code_Completion_Model:
 
     def __init__(self, x_data, y_data, token_set, string2int, int2string):
-        self.x_data = x_data
-        self.y_data = y_data
+        '''
+        :param x_data: a numerical representation of token sequence,  mapping dict is int2string
+        :param y_data: a one_hot encoding representation of label y
+        :param token_set: set(token)
+        :param string2int: mapping dict
+        :param int2string: mapping dict
+        '''
+        self.x_data, self.y_data = self.reshape_data(x_data, y_data)
+        self.data_size = len(self.x_data)
         self.index_to_string = int2string
         self.string_to_index = string2int
         self.tokens_set = token_set
         self.tokens_size = len(token_set)
 
+    def reshape_data(self, x_data, y_data):
+        x = []
+        y = []
+        for index, token in enumerate(x_data):
+            if index >= context_size-1:
+                tokens = x_data[index-context_size+1:index+1]
+                x.append(tokens)
+                y.append(y_data[index])
+        return x, y
+
+
     # neural network functions
-    def create_NN(self):
+    def create_CNN(self):
         tf.reset_default_graph()
-        self.input_x = tf.placeholder(dtype=tf.float32, shape=[None, self.tokens_size], name='input_x')
+        self.input_x = tf.placeholder(dtype=tf.float32, shape=[None, context_size], name='input_x')
         self.output_y = tf.placeholder(dtype=tf.float32, shape=[None, self.tokens_size], name='output_y')
         self.keep_prob = tf.placeholder(dtype=tf.float32, name='keep_prob')
 
@@ -74,23 +93,37 @@ class Code_Completion_Model:
                 # maxpooling or avgpooling? parameter adjust？
                 conv_layers_list.append(avgpool_layer)
 
-        represent_layer = tf.concat(conv_layers_list, 3, name='concat_conv_layers')
+        representation_layer = tf.concat(conv_layers_list, 3, name='concat_conv_layers')
         weights['h1'] = tf.Variable(tf.truncated_normal(
             shape=[]), name='h1_weight')
         biases['h1'] = tf.Variable(tf.constant(value=0.1, dtype=tf.float32, shape=[hidden_size]))
+        self.representation_layer = tf.matmul(weights['h1'], representation_layer) + biases['h1']
 
+
+    def create_RNN(self):
+        lstm_cell = tf.contrib.rnn.BasicLSTMCell(rnn_num_nuits, forget_bias=1.0, state_is_tuple=True)
+        drop = tf.contrib.rnn.DropoutWrapper(lstm_cell, output_keep_prob=self.keep_prob)
+        cells = tf.contrib.rnn.MultiRNNCell([drop] * rnn_num_layers)
+        init_state = lstm_cell.zero_state(batch_size, dtype=tf.float32)
+
+        outputs, final_state = tf.nn.dynamic_rnn(
+            lstm_cell, self.representation_layer, initial_state=init_state, time_major=False)
+        output_weight = tf.Variable(tf.random_uniform(shape=[], dtype=tf.float32))
+        output_bias = tf.Variable(tf.constant([0.1], dtype=tf.float32, shape=[self.tokens_size]))
+        self.prediction = outputs * output_weight + output_bias
 
 
     def train(self):
-        self.create_NN()
+        self.create_CNN()
+        self.create_RNN()
         self.sess = tf.Session()
-        writer = tf.summary.FileWriter(tensorboard_data_path, self.sess.graph)
+        writer = tf.summary.FileWriter(tensorboard_log_path, self.sess.graph)
         time_begin = time.time()
         self.sess.run(tf.global_variables_initializer())
         for epoch in range(epoch_num):
+            batch_generator = self.get_batch()
             for i in range(0, len(self.x_data), batch_size):
-                batch_x = self.x_data[i:i + batch_size]
-                batch_y = self.y_data[i:i + batch_size]
+                batch_x, batch_y = next(batch_generator)
                 feed = {self.input_x: batch_x, self.output_y: batch_y, self.keep_prob: 0.5}
                 _, summary_str = self.sess.run([self.optimizer, self.merged], feed_dict=feed)
                 writer.add_summary(summary_str, i)
@@ -101,6 +134,18 @@ class Code_Completion_Model:
         time_end = time.time()
 
         print('training time cost: %.3f ms' %(time_end - time_begin))
+
+
+    def get_batch(self):
+        for i in range(0, self.data_size, batch_size):
+            if i >= context_size-1:
+                batch_x = np.zeros(shape=[batch_size, context_size], dtype=np.int32)
+                batch_y = np.array(self.y_data[i:i+batch_size])
+                for b in range(batch_size):
+                    batch_x[i] = self.x_data[i+b:i+b+context_size]
+                yield batch_x, batch_y
+
+
 
     # query test
     def query_test(self, prefix, suffix):
@@ -141,7 +186,6 @@ if __name__ == '__main__':
     x_data = data_utils.load_data_with_pickle(x_train_data_path)
     y_data = data_utils.load_data_with_pickle(y_train_data_path)
     token_set, string2int, int2string = data_utils.load_data_with_pickle(train_data_parameter)
-
 
     #model train
     model = Code_Completion_Model(x_data, y_data, token_set, string2int, int2string)
