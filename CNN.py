@@ -44,22 +44,13 @@ class Code_Completion_Model:
         :param string2int: mapping dict
         :param int2string: mapping dict
         '''
-        self.x_data, self.y_data = self.reshape_data(x_data, y_data)
+        self.x_data, self.y_data = x_data, y_data
         self.data_size = len(self.x_data)
         self.index_to_string = int2string
         self.string_to_index = string2int
         self.tokens_set = token_set
         self.tokens_size = len(token_set)
 
-    def reshape_data(self, x_data, y_data):
-        x = []
-        y = []
-        for index, token in enumerate(x_data):
-            if index >= context_size-1:
-                tokens = x_data[index-context_size+1:index+1]
-                x.append(tokens)
-                y.append(y_data[index])
-        return x, y
 
 
     # neural network functions
@@ -107,7 +98,7 @@ class Code_Completion_Model:
         init_state = lstm_cell.zero_state(batch_size, dtype=tf.float32)
 
         outputs, final_state = tf.nn.dynamic_rnn(
-            lstm_cell, self.representation_layer, initial_state=init_state, time_major=False)
+            cells, self.representation_layer, initial_state=init_state, time_major=False)
         output_weight = tf.Variable(tf.random_uniform(shape=[], dtype=tf.float32))
         output_bias = tf.Variable(tf.constant([0.1], dtype=tf.float32, shape=[self.tokens_size]))
         self.prediction = outputs * output_weight + output_bias
