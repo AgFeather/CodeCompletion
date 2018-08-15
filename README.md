@@ -18,5 +18,10 @@ A small JavaScript source code dataset.
 ## DNN
 Implementation a MLP model to compare the performance.
 
+## CNN+LSTM
+This is the main structure of this system. Using CNN to extract the feature of a sequence of tokens(just like a sentence in NLP),
+the output of CNN is a featrue representation vector of several contious tokens.
+Then input this representation vector to a MultiRNN(with LSTM cell).
+RNN could use this time-sequence feature to predict the missing token. 
 
  
