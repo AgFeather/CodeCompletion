@@ -29,10 +29,10 @@ embed_dim = 32
 sliding_window = [2,3,4,5]
 filter_num = 4
 hidden_size = 128
-context_size = 5
-
+context_size = 15
+rnn_time_step = 1
 rnn_num_layers = 1
-rnn_num_nuits = 128
+rnn_num_units = 128
 
 class Code_Completion_Model:
 
@@ -50,20 +50,21 @@ class Code_Completion_Model:
         self.string_to_index = string2int
         self.tokens_set = token_set
         self.tokens_size = len(token_set)
-
-
+        self.representation_shape = len(sliding_window) * filter_num * embed_dim
 
     # neural network functions
     def create_CNN(self):
         tf.reset_default_graph()
-        self.input_x = tf.placeholder(dtype=tf.float32, shape=[None, context_size], name='input_x')
+        self.input_x = tf.placeholder(dtype=tf.int32, shape=[None, context_size], name='input_x')
         self.output_y = tf.placeholder(dtype=tf.float32, shape=[None, self.tokens_size], name='output_y')
         self.keep_prob = tf.placeholder(dtype=tf.float32, name='keep_prob')
 
         self.embedding_matrix = tf.Variable(tf.truncated_normal(
             [self.tokens_size, embed_dim]), name='embedding_matrix')
-        self.embedding_represent = tf.nn.embedding_lookup(self.embedding_matrix, self.input_x, name='embedding_represent')
-       # self.embedding_represent = tf.expend_dims(self.embedding_represent, -1)
+        self.embedding_represent = tf.nn.embedding_lookup(self.embedding_matrix, self.input_x,
+                                                          name='embedding_represent')
+        self.embedding_represent = tf.expand_dims(self.embedding_represent, -1)
+        # print(self.embedding_represent.get_shape()) # (None, 5, 32, 1)
 
         conv_layers_list = []
         weights = {}
@@ -77,32 +78,38 @@ class Code_Completion_Model:
                 weights['conv%d' % window] = conv_weight
                 biases['conv%d' % window] = conv_bias
                 conv_layer = tf.nn.conv2d(
-                    self.embedding_represent, conv_weight, strides=[1,1,1,1],padding='SAME', name='conv_layer_1')
-                conv_layer = tf.nn.relu(conv_layer, name='relu_layer')
+                    self.embedding_represent, conv_weight, strides=[1, 1, 1, 1], padding='SAME', name='conv_layer_1')
+                relu_layer = tf.nn.relu(conv_layer, name='relu_layer')
                 avgpool_layer = tf.nn.avg_pool(
-                    conv_layer, [1, 2, 2, 1], [1,1,1,1], padding='VALID', name='avgpool_layer')
+                    relu_layer, [1, context_size, 1, 1], [1, 1, 1, 1], padding='VALID', name='avgpool_layer')
                 # maxpooling or avgpooling? parameter adjust？
-                conv_layers_list.append(avgpool_layer)
+                conv_layers_list.append(avgpool_layer)  # (?, 1, 32, 4)
+                # print(avgpool_layer.get_shape())
 
-        representation_layer = tf.concat(conv_layers_list, 3, name='concat_conv_layers')
+        with tf.name_scope('dropout_layer'):
+            dropout_layer = tf.concat(conv_layers_list, 3, name='concat_conv_layers')
+            dropout_layer = tf.reshape(dropout_layer, [-1, self.representation_shape])
+            dropout_layer = tf.nn.dropout(dropout_layer, self.keep_prob, name='dropout_layer')
+            # print(dropout_layer.get_shape()) #(?, 512)
         weights['h1'] = tf.Variable(tf.truncated_normal(
-            shape=[]), name='h1_weight')
+            shape=[self.representation_shape, hidden_size]), name='h1_weight')
         biases['h1'] = tf.Variable(tf.constant(value=0.1, dtype=tf.float32, shape=[hidden_size]))
-        self.representation_layer = tf.matmul(weights['h1'], representation_layer) + biases['h1']
-
+        self.representation_layer = tf.matmul(dropout_layer, weights['h1']) + biases['h1']
 
     def create_RNN(self):
-        lstm_cell = tf.contrib.rnn.BasicLSTMCell(rnn_num_nuits, forget_bias=1.0, state_is_tuple=True)
+        lstm_cell = tf.contrib.rnn.BasicLSTMCell(rnn_num_units, forget_bias=1.0, state_is_tuple=True)
         drop = tf.contrib.rnn.DropoutWrapper(lstm_cell, output_keep_prob=self.keep_prob)
         cells = tf.contrib.rnn.MultiRNNCell([drop] * rnn_num_layers)
-        init_state = lstm_cell.zero_state(batch_size, dtype=tf.float32)
-
+        init_state = cells.zero_state(batch_size, dtype=tf.float32)
+        self.representation_layer = tf.reshape(
+            self.representation_layer, [-1, rnn_time_step, self.representation_shape])
         outputs, final_state = tf.nn.dynamic_rnn(
             cells, self.representation_layer, initial_state=init_state, time_major=False)
-        output_weight = tf.Variable(tf.random_uniform(shape=[], dtype=tf.float32))
+        outputs = tf.reshape(outputs, [-1, rnn_num_units])
+        output_weight = tf.Variable(tf.random_uniform(
+            shape=[rnn_num_units, self.tokens_size], dtype=tf.float32))
         output_bias = tf.Variable(tf.constant([0.1], dtype=tf.float32, shape=[self.tokens_size]))
-        self.prediction = outputs * output_weight + output_bias
-
+        self.prediction = tf.matmul(outputs, output_weight) + output_bias
 
     def train(self):
         self.create_CNN()
@@ -124,16 +131,15 @@ class Code_Completion_Model:
                     print('epoch: %d, training_step: %d, loss: %.2f, accuracy:%.3f' % (epoch, i, show_loss, show_acc))
         time_end = time.time()
 
-        print('training time cost: %.3f ms' %(time_end - time_begin))
-
+        print('training time cost: %.3f ms' % (time_end - time_begin))
 
     def get_batch(self):
         for i in range(0, self.data_size, batch_size):
-            if i >= context_size-1:
+            if i >= context_size - 1:
                 batch_x = np.zeros(shape=[batch_size, context_size], dtype=np.int32)
-                batch_y = np.array(self.y_data[i:i+batch_size])
+                batch_y = np.array(self.y_data[i:i + batch_size])
                 for b in range(batch_size):
-                    batch_x[i] = self.x_data[i+b:i+b+context_size]
+                    batch_x[i] = self.x_data[i + b:i + b + context_size]
                 yield batch_x, batch_y
 
 
