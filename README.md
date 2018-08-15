@@ -22,6 +22,16 @@ Implementation a MLP model to compare the performance.
 This is the main structure of this system. Using CNN to extract the feature of a sequence of tokens(just like a sentence in NLP),
 the output of CNN is a featrue representation vector of several contious tokens.
 Then input this representation vector to a MultiRNN(with LSTM cell).
-RNN could use this time-sequence feature to predict the missing token. 
+RNN could use this time-sequence feature to predict the missing token.
+
+
+## Performance
+1. The accuracy of banchmark is 35.3%
+2. The accuracy of DNN is 52.4%
+3. The accuracy of C-LSTM is 67.8%
+
+## Future Work
+1. modify the arguments of model
+2. Try Seq2Seq
 
  
