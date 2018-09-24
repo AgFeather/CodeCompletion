@@ -89,11 +89,6 @@ class RNN_model(object):
 
 
 
-
-
-
-
-
     # query test
     def query_test(self, prefix, suffix):
         '''

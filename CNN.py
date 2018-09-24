@@ -1,26 +1,17 @@
 import tensorflow as tf
 import numpy as np
+import pickle
 import time
 import data_utils
 
 from sklearn.model_selection import train_test_split
-from sklearn.utils import shuffle
 
 
 
 '''
-使用TensorFlow自带的layers构建基本的神经网络对token进行预测，
-可以声明使用多少个context tokens 进行预测
-
-多个previous token输入神经网络的方法有两种想法：
-1. 将每个token的representation vector相连，合成一个大的vector输入到神经网络，
-    所以说神经网络的输入层大小应为：每个token vector length * number of previous token
-2. 应为目前表示每个token 使用的方法为one hot encoding，也就是说对每个token都是有且仅有一位为1，其余位为0，
-    所以可以考虑直接将所有的previous token相加，这样做的好处是NN输入层大小永远等于vector length。缺点是没有理论依据，不知道效果是否会更好
 
 
-1. concatenate the representations of previous tokens to a huge vector representation
-2. add the representations of previous tokens together
+1. convolutional neural netowrk without embedding layers
 
 
 '''
@@ -30,14 +21,13 @@ y_train_data_path = 'processed_data/y_train_data.p'
 train_data_parameter = 'processed_data/x_y_parameter.p'
 query_dir = 'dataset/programs_200/'
 
-tensorboard_data_path = './logs/MultiContext/5_previous'
+tensorboard_data_path = './logs/CNN/'
 
-epoch_num = 5
-batch_size = 64
+epoch_num = 2
+batch_size = 128
 learning_rate = 0.002
-context_size = 5
-hidden_size = 64
-
+context_size = 10
+hidden_size = 128
 
 class Code_Completion_Model:
 
@@ -68,22 +58,30 @@ class Code_Completion_Model:
         tf.reset_default_graph()
         self.input_x = tf.placeholder(dtype=tf.float32, shape=[None, self.tokens_size], name='input_x')
         self.output_y = tf.placeholder(dtype=tf.float32, shape=[None, self.tokens_size], name='output_y')
+        self.re_input_x = tf.reshape(self.input_x, [-1, self.tokens_size, 1, 1])
+        self.re_output_y = tf.reshape(self.output_y, [-1, self.tokens_size, 1, 1])
+
         weights = {'h1': tf.Variable(tf.truncated_normal(shape=[self.tokens_size, hidden_size])),
                    'h2': tf.Variable(tf.truncated_normal(shape=[hidden_size, hidden_size])),
-                   'h3': tf.Variable(tf.truncated_normal(shape=[hidden_size, hidden_size])),
                    'output': tf.Variable(tf.truncated_normal(shape=[hidden_size, self.tokens_size]))}
         biases = {'h1': tf.Variable(tf.constant(0.1, shape=[hidden_size], dtype=tf.float32)),
                   'h2': tf.Variable(tf.constant(0.1, shape=[hidden_size], dtype=tf.float32)),
-                  'h3': tf.Variable(tf.constant(0.1, shape=[hidden_size], dtype=tf.float32)),
                   'output': tf.Variable(tf.constant(0.1, shape=[self.tokens_size], dtype=tf.float32))}
 
-        h1_layer = tf.matmul(self.input_x, weights['h1']) + biases['h1']
+        conv1_layer = tf.nn.conv2d(self.re_input_x, weights['conv1'], strides=[1,1,1,1], padding='SAME')
+        pool1_layer = tf.nn.avg_pool(conv1_layer, [2,2], strides=[1,1,1,1],padding='VALID')
+        relu1_layer = tf.nn.relu(pool1_layer)
+
+        conv2_layer = tf.nn.conv2d(relu1_layer, weights['conv2'], strides=[1,1,1,1], padding='SAME')
+        pool2_layer = tf.nn.avg_pool(conv2_layer, ksize=[2,2], strides=[1,1,1,1], padding='VALID')
+        relu2_layer = tf.nn.relu(pool2_layer)
+
+        h1_layer = tf.matmul(relu2_layer, weights['h1']) + biases['h1']
         h1_layer = tf.nn.relu(h1_layer)
         h2_layer = tf.matmul(h1_layer, weights['h2']) + biases['h2']
         h2_layer = tf.nn.relu(h2_layer)
-        h3_layer = tf.matmul(h2_layer, weights['h3']) + biases['h3']
-        h3_layer = tf.nn.relu(h3_layer)
-        output_layer = tf.matmul(h3_layer, weights['output']) + biases['output']
+        output_layer = tf.matmul(h2_layer, weights['output']) + biases['output']
+
         self.prediction = tf.argmax(output_layer, 1)
         loss = tf.nn.softmax_cross_entropy_with_logits_v2(logits=output_layer, labels=self.output_y)
         self.loss = tf.reduce_mean(loss)
@@ -91,9 +89,6 @@ class Code_Completion_Model:
         equal = tf.equal(tf.argmax(output_layer, 1), tf.argmax(self.output_y, 1))
         accuracy = tf.cast(equal, tf.float32)
         self.accuracy = tf.reduce_mean(accuracy)
-
-        #         self.valid_loss = tf.reduce_mean(loss)
-        #         self.valid_accuracy = tf.reduce_mean(accuracy)
 
         tf.summary.histogram('weight1', weights['h1'])
         tf.summary.histogram('weight2', weights['h2'])
@@ -103,7 +98,6 @@ class Code_Completion_Model:
         tf.summary.histogram('output_bias', biases['output'])
         tf.summary.scalar('train_loss', self.loss)
         tf.summary.scalar('train_accuracy', self.accuracy)
-
         self.merged = tf.summary.merge_all()
 
     def get_batch(self):
@@ -115,33 +109,20 @@ class Code_Completion_Model:
     def train(self):
         self.create_NN()
         self.sess = tf.Session()
-        valid_accu_list = np.zeros(10, dtype=np.float32)
-        train_accu_list = np.zeros(10, dtye=np.float32)
-        valid_list_index = 0
-        train_list_index = 0
         writer = tf.summary.FileWriter(tensorboard_data_path, self.sess.graph)
         time_begin = time.time()
         self.sess.run(tf.global_variables_initializer())
         for epoch in range(epoch_num):
-            #  self.x_data, self.y_data = shuffle(self.x_data, self.y_data)
             batch_generator = self.get_batch()
             for i in range(0, len(self.x_data), batch_size):
                 batch_x, batch_y = next(batch_generator)
                 feed = {self.input_x: batch_x, self.output_y: batch_y}
                 _, summary_str = self.sess.run([self.optimizer_op, self.merged], feed_dict=feed)
-                writer.add_summary(summary_str, epoch * self.data_size + i)
+                writer.add_summary(summary_str, epoch*self.data_size + i)
                 writer.flush()
                 if (i // batch_size) % 2000 == 0:
-                    print('epoch: %d, step: %d' % (epoch, i))
-                    train_loss, train_accu = self.sess.run([self.loss, self.accuracy], feed_dict=feed)
-                    train_accu_list[train_list_index % 10] = train_accu
-                    print('train loss: %.2f, train accuracy:%.3f' % (train_loss, train_accu))
-                    print('average train accuracy: %.4f' % (np.mean(train_accu_list)))
-                    valid_feed = {self.input_x: self.valid_x, self.output_y: self.valid_y}
-                    valid_loss, valid_acc = self.sess.run([self.loss, self.accuracy], feed_dict=valid_feed)
-                    valid_accu_list[valid_list_index % 10] = valid_acc
-                    print('valid loss: %.2f, valid accuracy:%.3f' % (valid_loss, valid_acc))
-                    print('average valid accuracy: %.4f' % (np.mean(valid_accu_list)))
+                    show_loss, show_acc = self.sess.run([self.loss, self.accuracy], feed_dict=feed)
+                    print('epoch: %d, training_step: %d, loss: %.2f, accuracy:%.3f' % (epoch, i, show_loss, show_acc))
         time_end = time.time()
         print('training time cost: %.3f s' % (time_end - time_begin))
 
@@ -180,8 +161,6 @@ class Code_Completion_Model:
                 incorrect_token_list.append({'expection': expection, 'prediction': prediction})
         accuracy = correct / len(query_test_data)
         return accuracy
-
-
 
 
 if __name__ == '__main__':
