@@ -44,7 +44,7 @@ class Code_Completion_Model:
     def __init__(self, x_data, y_data, token_set, string2int, int2string):
         batch_num = len(x_data) // batch_size
         x_data, y_data = np.array(x_data[:batch_num * batch_size]), np.array(y_data[:batch_num * batch_size])
-        self.reshape_data(x_data, y_data)
+        x_data, y_data = self.reshape_data(x_data, y_data)
         self.x_data, self.valid_x, self.y_data, self.valid_y = \
             train_test_split(x_data, y_data, train_size=0.9)
         self.data_size = len(self.x_data)
@@ -61,7 +61,7 @@ class Code_Completion_Model:
                 tempTokens = np.sum(x_data[index - context_size + 1:index + 1, :], axis=0)
                 x.append(tempTokens)
                 y.append(y_data[index])
-        return x, y;
+        return x, y
 
     # neural network functions
     def create_NN(self):
@@ -116,7 +116,7 @@ class Code_Completion_Model:
         self.create_NN()
         self.sess = tf.Session()
         valid_accu_list = np.zeros(10, dtype=np.float32)
-        train_accu_list = np.zeros(10, dtye=np.float32)
+        train_accu_list = np.zeros(10, dtype=np.float32)
         valid_list_index = 0
         train_list_index = 0
         writer = tf.summary.FileWriter(tensorboard_data_path, self.sess.graph)
