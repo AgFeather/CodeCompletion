@@ -39,7 +39,7 @@ context_size = 5
 hidden_size = 64
 
 
-class Code_Completion_Model:
+class Code_Completion_Model(object):
 
     def __init__(self, x_data, y_data, token_set, string2int, int2string):
         batch_num = len(x_data) // batch_size
