@@ -149,10 +149,6 @@ class LSTM_Model(object):
         return loss
 
     def bulid_optimizer(self, loss):
-        # tvars = tf.trainable_variables()
-        # grads, _ = tf.clip_by_global_norm(tf.gradients(loss, tvars), self.grad_clip)
-        # optimizer = tf.train.AdamOptimizer(self.learning_rate)
-        # optimizer = optimizer.apply_gradients(zip(grads, tvars))
         optimizer = tf.train.AdamOptimizer(self.learning_rate)
         gradient_pairs = optimizer.compute_gradients(loss)
         clip_gradient_pairs = []
@@ -234,11 +230,9 @@ class LSTM_Model(object):
 class TestModel(object):
     def __init__(self, token_set, string2int, int2string):
         self.model = LSTM_Model(token_set, is_training=False)
-        print(self.model.time_steps)
-        print(self.model.batch_size)
-        print(self.model.input_x.get_shape())
         self.string2int = string2int
         self.int2string = int2string
+        self.last_chackpoints = tf.train.latest_checkpoint(checkpoint_dir=checkpoint_dir)
 
     # query test
     def query_test(self, prefix, suffix):
@@ -246,23 +240,20 @@ class TestModel(object):
         Input: all tokens before the hole token(prefix) and all tokens after the hole token,
         ML model will predict the most probable token in the hole
         '''
-        last_chackpoints = tf.train.latest_checkpoint(checkpoint_dir=checkpoint_dir)
         saver = tf.train.Saver()
         with tf.Session() as sess:
-            saver.restore(sess, last_chackpoints)
+            saver.restore(sess, self.last_chackpoints)
             new_state = sess.run(self.model.init_state)
             prediction = None
             for i, token in enumerate(prefix):
-                x = np.zeros((1, 1))
+                x = np.zeros((1, 1), dtype=np.int32)
                 x[0, 0] = token
-                feed = {model.input_x: x,
-                        model.keep_prob: 1.,
-                        model.init_state: new_state}
-                new_state = sess.run(model.final_state, feed_dict=feed)
-                if i == len(pre_tokens) - 1:
-                    prediction = sess.run(model.softmax_output, feed_dict=feed)
-        prediction = self.int2string(np.argmax(prediction))
-        print(prediction)
+                feed = {self.model.input_x: x,
+                        self.model.keep_prob: 1.,
+                        self.model.init_state: new_state}
+                prediction, new_state = sess.run(
+                    [self.model.softmax_output, self.model.final_state], feed_dict=feed)
+        prediction = self.int2string[np.argmax(prediction)]
         return prediction
 
     def test(self, query_test_data):
@@ -272,8 +263,8 @@ class TestModel(object):
         for token_sequence in query_test_data:
             prefix, expection, suffix = data_utils.create_hole(token_sequence)
             prefix = self.token_to_int(prefix)
-            expection = self.token_to_int(expection)
-            prediction = self.query_test(prefix, suffix)[0]
+            prediction = self.query_test(prefix, suffix)
+            prediction = data_utils.string_to_token(prediction)
             if data_utils.token_equals([prediction], expection):
                 correct += 1
                 correct_token_list.append({'expection': expection, 'prediction': prediction})
@@ -300,4 +291,5 @@ if __name__ == '__main__':
 
     test_data = data_utils.load_data_with_file(test_dir)
     test_model = TestModel(token_set, string2int, int2string)
-    test_model.test(test_data)
+    accuracy = test_model.test(test_data)
+    print(accuracy) # 0.615

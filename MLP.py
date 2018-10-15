@@ -25,7 +25,7 @@ hidden_size = 128
 
 
 
-class Code_Completion_Model:
+class Code_Completion_Model(object):
 
     def __init__(self, x_data, y_data, token_set, string2int, int2string):
         self.x_data = x_data

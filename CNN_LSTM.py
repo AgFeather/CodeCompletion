@@ -34,7 +34,7 @@ rnn_time_step = 1
 rnn_num_layers = 1
 rnn_num_units = 128
 
-class Code_Completion_Model:
+class Code_Completion_Model(object):
 
     def __init__(self, x_data, y_data, token_set, string2int, int2string):
         '''

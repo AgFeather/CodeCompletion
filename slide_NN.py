@@ -16,7 +16,7 @@ learning_rate = 0.001
 batch_size = 256
 
 
-class Code_Completion_Model:
+class Code_Completion_Model(object):
     def __init__(self):
         self.string_to_index, self.index_to_string, token_set = \
             data_utils.load_data_with_pickle('mapping_dict.p')
