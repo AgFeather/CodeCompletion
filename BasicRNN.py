@@ -18,11 +18,11 @@ tensorboard_log_path = 'logs/MultiRNN'
 
 train_dir = 'dataset/programs_800'
 test_dir = 'dataset/programs_200'
-checkpoint_dir = 'rnn/checkpoints'
+checkpoint_dir = 'checkpoints/'
 
-num_epoches = 1
-show_every_n = 50
-save_every_n = 200
+
+show_every_n = 100
+save_every_n = 1000
 
 
 
@@ -35,7 +35,6 @@ def load_tokens(train_flag=True, is_simplify=True):
     for f in os.listdir(token_dir):
         file_path = os.path.join(token_dir, f)
         if os.path.isfile(file_path) and f.endswith('_tokens.json'):
-            #print(file_path)
             token_seq = json.load(open(file_path, encoding='utf-8'))
             token_list.extend(token_seq)
     string_token_list = []
@@ -45,19 +44,12 @@ def load_tokens(train_flag=True, is_simplify=True):
         string_token = data_utils.token_to_string(token)
         string_token_list.append(string_token)
     token_set = list(set(string_token_list))
-    #print(string_token_list[:10])
     string2int = {c:i for i,c in enumerate(token_set)}
     int2string = {i:c for i,c in enumerate(token_set)}
     int_token_list = [string2int[c] for c in string_token_list]
-    #print(int_token_list[:10])
     pickle.dump((int_token_list), open(processed_data_path, 'wb'))
     pickle.dump((string2int, int2string, token_set), open(data_parameter_path, 'wb'))
 
-
-
-'''
-Using MultiRNN to pridect token. with LSTM cell
-'''
 
 '''
 Using MultiRNN to pridect token. with LSTM cell
@@ -73,7 +65,7 @@ class LSTM_Model(object):
                  learning_rate=0.003,
                  grad_clip=5,
                  keep_prob=0.5,
-                 num_epoches=5,
+                 num_epoches=20,
                  is_training=True):
 
         if is_training:
@@ -159,9 +151,6 @@ class LSTM_Model(object):
         return optimizer
 
     def build_accuracy(self, logits, targets):
-        #         print(logits.get_shape())
-        #         print(targets.get_shape())
-        sess = tf.Session()
         self.show_logits = tf.argmax(logits, axis=1)
         show_targets = tf.one_hot(targets, self.num_classes)
         show_targets = tf.reshape(show_targets, logits.get_shape())
@@ -186,6 +175,10 @@ class LSTM_Model(object):
         self.loss = self.bulid_loss(logits, self.target_y)
         self.accuracy = self.build_accuracy(self.softmax_output, self.target_y)
         self.optimizer = self.bulid_optimizer(self.loss)
+        
+        tf.summary.scalar('train_loss', self.loss)
+        tf.summary.scalar('train_accu', self.accuracy)
+        self.merged_op = tf.summary.merge_all()
 
     def train(self, data, string2int, int2string):
         print('training begin...')
@@ -195,6 +188,7 @@ class LSTM_Model(object):
         keep_prob = 0.5
         with tf.Session() as sess:
             sess.run(tf.global_variables_initializer())
+            writer = tf.summary.FileWriter(tensorboard_log_path, sess.graph)
             global_step = 0
             for epoch in range(self.num_epoches):
                 new_state = sess.run(self.init_state)
@@ -208,13 +202,11 @@ class LSTM_Model(object):
                             self.target_y: y,
                             self.keep_prob: keep_prob,
                             self.init_state: new_state}
-                    show_accu, show_loss, new_state, _ = sess.run(
-                        [self.accuracy, self.loss, self.final_state, self.optimizer], feed_dict=feed)
+                    show_accu, show_loss, new_state, summary_str, _= sess.run(
+                        [self.accuracy, self.loss, self.final_state, self.merged_op, self.optimizer], feed_dict=feed)
                     end_time = time.time()
-                    if global_step % show_every_n == 0:
-                        a, b, c = sess.run([self.show_logits, self.show_targets, self.aaa], feed)
-                        print(a[:10])
-                        print(b[:10])
+                    writer.add_summary(summary_str, global_step)
+                    writer.flush()
                     if global_step % show_every_n == 0:
                         print('epoch: {}/{}..'.format(epoch + 1, self.num_epoches),
                               'global_step: {}..'.format(global_step),
@@ -233,6 +225,9 @@ class TestModel(object):
         self.string2int = string2int
         self.int2string = int2string
         self.last_chackpoints = tf.train.latest_checkpoint(checkpoint_dir=checkpoint_dir)
+        self.sess = tf.Session()
+        saver = tf.train.Saver()
+        saver.restore(self.sess, self.last_chackpoints)
 
     # query test
     def query_test(self, prefix, suffix):
@@ -240,26 +235,26 @@ class TestModel(object):
         Input: all tokens before the hole token(prefix) and all tokens after the hole token,
         ML model will predict the most probable token in the hole
         '''
-        saver = tf.train.Saver()
-        with tf.Session() as sess:
-            saver.restore(sess, self.last_chackpoints)
-            new_state = sess.run(self.model.init_state)
-            prediction = None
-            for i, token in enumerate(prefix):
-                x = np.zeros((1, 1), dtype=np.int32)
-                x[0, 0] = token
-                feed = {self.model.input_x: x,
-                        self.model.keep_prob: 1.,
-                        self.model.init_state: new_state}
-                prediction, new_state = sess.run(
-                    [self.model.softmax_output, self.model.final_state], feed_dict=feed)
+        # saver = tf.train.Saver()
+        # with tf.Session() as sess:
+        #     saver.restore(sess, self.last_chackpoints)
+        new_state = self.sess.run(self.model.init_state)
+        prediction = None
+        for i, token in enumerate(prefix):
+            x = np.zeros((1, 1), dtype=np.int32)
+            x[0, 0] = token
+            feed = {self.model.input_x: x,
+                    self.model.keep_prob: 1.,
+                    self.model.init_state: new_state}
+            prediction, new_state = self.sess.run(
+                [self.model.softmax_output, self.model.final_state], feed_dict=feed)
         prediction = self.int2string[np.argmax(prediction)]
         return prediction
 
     def test(self, query_test_data):
+        print('test step is beginning..')
+        start_time = time.time()
         correct = 0.0
-        correct_token_list = []
-        incorrect_token_list = []
         for token_sequence in query_test_data:
             prefix, expection, suffix = data_utils.create_hole(token_sequence)
             prefix = self.token_to_int(prefix)
@@ -267,10 +262,10 @@ class TestModel(object):
             prediction = data_utils.string_to_token(prediction)
             if data_utils.token_equals([prediction], expection):
                 correct += 1
-                correct_token_list.append({'expection': expection, 'prediction': prediction})
-            else:
-                incorrect_token_list.append({'expection': expection, 'prediction': prediction})
         accuracy = correct / len(query_test_data)
+        end_time =time.time()
+        print('test finished, time cost:{:.2f}..'.format(end_time-start_time))
+
         return accuracy
 
     def token_to_int(self, token_seq):
@@ -283,13 +278,17 @@ class TestModel(object):
 
 
 if __name__ == '__main__':
-    train_data = data_utils.load_data_with_pickle(processed_data_path)
+    # train_data = data_utils.load_data_with_pickle(processed_data_path)
     string2int, int2string, token_set = data_utils.load_data_with_pickle(data_parameter_path)
 
-    model = LSTM_Model(token_set)
-    model.train(train_data, string2int, int2string)
+    # model = LSTM_Model(token_set)
+    # model.train(train_data, string2int, int2string)
 
     test_data = data_utils.load_data_with_file(test_dir)
+    accuracy = 0.0
+    test_epoches = 1
     test_model = TestModel(token_set, string2int, int2string)
-    accuracy = test_model.test(test_data)
-    print(accuracy) # 0.615
+    for epoch in range(test_epoches):
+        accuracy += test_model.test(test_data)
+    accuracy /= test_epoches
+    print(accuracy) # 0.615  -> 0.68
