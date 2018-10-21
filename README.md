@@ -18,6 +18,9 @@ A small JavaScript source code dataset.
 ## DNN
 Implementation a MLP model to compare the performance.
 
+## RNN
+sequence of token dataset is a time-sequence structure, so the basic idea is input the embedding token sequence to a RNN model.
+
 ## CNN+LSTM
 This is the main structure of this system. Using CNN to extract the feature of a sequence of tokens(just like a sentence in NLP),
 the output of CNN is a featrue representation vector of several contious tokens.

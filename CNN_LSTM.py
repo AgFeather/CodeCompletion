@@ -1,6 +1,7 @@
 import tensorflow as tf
 import numpy as np
 import time
+
 import data_utils
 
 
@@ -11,16 +12,13 @@ decoder is a LSTM which can predict the next token in time sequence.
 '''
 
 
-
-
 x_train_data_path = 'processed_data/num_train_data.p'
 y_train_data_path = 'processed_data/y_train_data.p'
 train_data_parameter = 'processed_data/x_y_parameter.p'
 
-tensorboard_log_path = './logs/CNN_LSTM'
+tensorboard_log_path = 'logs/CNN_LSTM'
 model_save_dir = 'checkpoints/cnn_lstm/'
 query_dir = 'dataset/programs_200/'
-
 
 
 

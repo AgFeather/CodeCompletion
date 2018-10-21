@@ -291,4 +291,4 @@ if __name__ == '__main__':
     for epoch in range(test_epoches):
         accuracy += test_model.test(test_data)
     accuracy /= test_epoches
-    print(accuracy) # 0.615  -> 0.68
+    print(accuracy) # 0.615  -> 0.69
