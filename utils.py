@@ -4,18 +4,25 @@ import pickle
 import json
 from collections import Counter
 
+
 js_test_data_dir = 'js_dataset/js_programs_eval.json'
 js_train_data_dir = 'js_dataset/js_programs_training.json'
+data_parameter_dir = 'split_js_data/parameter.p'
+train_subset_dir = 'split_js_data/train_data/'
+test_subset_dir = 'split_js_data/eval_data/'
+
+most_common_termial_num = 30000
+
 
 def dataset_split(is_training=True, subset_size=5000):
     if is_training:
         data_path = js_train_data_dir
         total_size = 100000
-        saved_to_path = 'split_js_data/train_data/'
+        saved_to_path = train_subset_dir
     else:
         data_path = js_test_data_dir
         total_size = 50000
-        saved_to_path = 'split_js_data/eval_data/'
+        saved_to_path = test_subset_dir
 
     file = open(data_path, 'r')
     subset_list = []
@@ -24,16 +31,20 @@ def dataset_split(is_training=True, subset_size=5000):
         try:
             line = file.readline()
             line = json.loads(line)
+            nt_seq = ast_to_seq(line)
         except:
             error_count += 1
            # print('UTF-8 error: {}/{}'.format(error_count, i))
-        subset_list.append(line)
+        subset_list.append(nt_seq)
         if i % subset_size == 0:
             sub_path = saved_to_path + 'part{}'.format(i // subset_size) + '.json'
             save_file = open(sub_path, 'wb')
             pickle.dump(subset_list, save_file)
             subset_list = []
-    print('data seperating finished..., utf-8 error:{}'.format(error_count))
+
+    get_string_int_dict()
+    print('data seperating finished...')
+    print(f'encoding information has been save in {data_parameter_dir}')
 
 
 
@@ -41,7 +52,6 @@ def load_data_with_pickle(path='split_js_data/train_data/part1.json'):
     file = open(path, 'rb')
     data = pickle.load(file)
     return data
-
 
 
 def add_two_bits_info(node, brother_map):
@@ -106,68 +116,80 @@ def get_test_ast():
     return ast_example
 
 
-output = []
-token2int = {}
-int2token = {}
+
+
 terminalCountMap = Counter()
 nonTerminalSet = set()
 
 
-def node_to_string(node):
-    if node == 'EMPTY':
-        string_node = 'EMPTY'
-    elif node['isTerminal']:  # 如果node为terminal
-        string_node = str(node['type']) + '=$$=' + str(node['value'])  ## + '==' + str(node['id'])
-        terminalCountMap[string_node] += 1
-    else:  # 如果是non-terminal
-        string_node = str(node['type']) + '=$$=' + \
-                      str(node['hasSibling']) + '=$$=' + \
-                      str(node['isTerminal'])  # + '==' +str(node['id'])
-        if 'value' in node.keys():  # 注意，有些non-terminal也包含value，需要加入
-            string_node += '$$' + str(node['value'])
-        nonTerminalSet.add(string_node)
-    return string_node
 
-
-def in_order_traversal(data, index):
-    node = data[index]
-    if 'left' in node.keys():
-        in_order_traversal(data, node['left'])
-#    print(node)
-    # 如果该节点为non-terminal，则构建NT-pair并加入到sequence中。
-    if 'isTerminal' in node.keys() and node['isTerminal'] == False:
-        '''如果该node是non-terminal
-        如果该non-terminal包含一个terminal 子节点，则和该子节点组成NT_pair保存在output中
-        否则将NT_pair的T设为字符串EMPTY'''
-        N_pair = node_to_string(node)
-        T_pair = None
-        if data[node['left']]['isTerminal'] == True:
-            assert data[node['left']]['id'] == node['left']
-            T_pair = node_to_string(data[node['left']])
-        else:
-            T_pair = node_to_string('EMPTY')
-        NT_pair = (N_pair, T_pair)
-        output.append(NT_pair)
-    else:
-        node_to_string(node)
-
-    # 遍历right side
-    if node['right'] != -1:
-        in_order_traversal(data, node['right'])
-
-
-
-
-
-def AST_to_seq(data):
+def ast_to_seq(data):
     bi_tree = bulid_binary_tree(data)
-    #    print(bi_tree)
-    in_order_traversal(bi_tree, 0)
 
+    def node_to_string(node):
+        if node == 'EMPTY':
+            string_node = 'EMPTY'
+        elif node['isTerminal']:  # 如果node为terminal
+            string_node = str(node['type']) + '=$$=' + str(node['value'])  ## + '==' + str(node['id'])
+            terminalCountMap[string_node] += 1
+        else:  # 如果是non-terminal
+            string_node = str(node['type']) + '=$$=' + \
+                          str(node['hasSibling']) + '=$$=' + \
+                          str(node['isTerminal'])  # + '==' +str(node['id'])
+            if 'value' in node.keys():  # 注意，有些non-terminal也包含value，需要加入
+                string_node += '=$$=' + str(node['value'])
+            nonTerminalSet.add(string_node)
+        return string_node
+
+    def in_order_traversal(data, index):
+        node = data[index]
+        if 'left' in node.keys():
+            in_order_traversal(data, node['left'])
+        # 如果该节点为non-terminal，则构建NT-pair并加入到sequence中。
+        if 'isTerminal' in node.keys() and node['isTerminal'] == False:
+            '''如果该node是non-terminal
+            如果该non-terminal包含一个terminal 子节点，则和该子节点组成NT_pair保存在output中
+            否则将NT_pair的T设为字符串EMPTY'''
+            N_pair = node_to_string(node)
+            T_pair = None
+            if data[node['left']]['isTerminal'] == True:
+                assert data[node['left']]['id'] == node['left']
+                T_pair = node_to_string(data[node['left']])
+            else:
+                T_pair = node_to_string('EMPTY')
+            NT_pair = (N_pair, T_pair)
+            output.append(NT_pair)
+        else:
+            node_to_string(node)
+        # 遍历right side
+        if node['right'] != -1:
+            in_order_traversal(data, node['right'])
+
+    output = []
+    in_order_traversal(bi_tree, 0)
+    return output
+
+
+def get_string_int_dict():
+    terminalToken2int = {}
+    terminalInt2token = {}
+    nonTerminalToken2int = {}
+    nonTerminalInt2token = {}
+
+    most_common_tuple = terminalCountMap.most_common(most_common_termial_num)
+    for index, (token, times) in enumerate(most_common_tuple):
+        terminalToken2int[token] = index
+        terminalInt2token[index] = token
+    for index, token in enumerate(list(nonTerminalSet)):
+        nonTerminalToken2int[token] = index
+        nonTerminalInt2token[index] = token
+    file = open(data_parameter_dir, 'wb')
+    pickle.dump([terminalToken2int, terminalInt2token, nonTerminalToken2int, nonTerminalInt2token], file)
+    return terminalToken2int, terminalInt2token, nonTerminalToken2int, nonTerminalInt2token
 
 
 
 if __name__ == '__main__':
-
-    AST_to_seq(get_test_ast())
+    dataset_split()
+    #ast_to_seq(get_test_ast())
 #    print(output)
