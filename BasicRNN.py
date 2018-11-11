@@ -151,12 +151,12 @@ class LSTM_Model(object):
         return optimizer
 
     def build_accuracy(self, logits, targets):
-        self.show_logits = tf.argmax(logits, axis=1)
+        show_logits = tf.argmax(logits, axis=1)
         show_targets = tf.one_hot(targets, self.num_classes)
         show_targets = tf.reshape(show_targets, logits.get_shape())
-        self.show_targets = tf.argmax(show_targets, axis=1)
-        self.aaa = tf.equal(self.show_logits, self.show_targets)
-        accu = tf.cast(self.aaa, tf.float32)
+        show_targets = tf.argmax(show_targets, axis=1)
+        equal = tf.equal(show_logits, show_targets)
+        accu = tf.cast(equal, tf.float32)
         accu = tf.reduce_mean(accu)
         return accu
 

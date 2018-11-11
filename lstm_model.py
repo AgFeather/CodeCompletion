@@ -1,7 +1,11 @@
 import tensorflow as tf
 import pickle
 
+import utils
 
+
+num_subset_train_data = 20
+subset_data_dir = 'split_js_data/train_data/'
 
 
 class LSTM_Model(object):
@@ -100,12 +104,39 @@ class LSTM_Model(object):
         self.accu = self.bulid_accuracy(softmax_output, self.target)
         self.optimizer = self.bulid_optimizer(self.loss)
 
-    def get_batch(self, train_x, train_y):
+    def get_batch(self, data):
         pass
 
     def train(self):
         print('model training...')
         saver = tf.train.Saver()
+        session = tf.Session()
+        global_step = 0
+        for epoch in range(self.num_epoches):
+            subset_generator = get_subset_data()
+            for data in get_subset_data():
+                batch_generator = self.get_batch(data)
+                for batch_x, batch_y in batch_generator:
+                    global_step += 1
+
+        session.close()
 
 
 
+
+
+def get_subset_data():
+    for i in range(1, num_subset_train_data+1):
+        data_path = subset_data_dir + f'part{i}.json'
+        file = open(data_path, 'rb')
+        data = pickle.load(file)
+        yield data
+
+
+
+if __name__ == '__main__':
+    terminalToken2int, terminalInt2token, nonTerminalToken2int, nonTerminalInt2token = utils.load_dict_parameter()
+    num_ntoken = len(nonTerminalInt2token)
+    num_ttoken = len(terminalInt2token)
+    model = LSTM_Model(num_ntoken, num_ttoken)
+    model.train()

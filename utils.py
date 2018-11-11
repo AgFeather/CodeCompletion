@@ -42,7 +42,7 @@ def dataset_split(is_training=True, subset_size=5000):
             pickle.dump(subset_list, save_file)
             subset_list = []
 
-    get_string_int_dict()
+    save_string_int_dict()
     print('data seperating finished...')
     print(f'encoding information has been save in {data_parameter_dir}')
 
@@ -170,7 +170,7 @@ def ast_to_seq(data):
     return output
 
 
-def get_string_int_dict():
+def save_string_int_dict():
     terminalToken2int = {}
     terminalInt2token = {}
     nonTerminalToken2int = {}
@@ -187,7 +187,10 @@ def get_string_int_dict():
     pickle.dump([terminalToken2int, terminalInt2token, nonTerminalToken2int, nonTerminalInt2token], file)
     return terminalToken2int, terminalInt2token, nonTerminalToken2int, nonTerminalInt2token
 
-
+def load_dict_parameter():
+    file = open(data_parameter_dir, 'rb')
+    terminalToken2int, terminalInt2token, nonTerminalToken2int, nonTerminalInt2token = pickle.load(file)
+    return terminalToken2int, terminalInt2token, nonTerminalToken2int, nonTerminalInt2token
 
 if __name__ == '__main__':
     dataset_split()
