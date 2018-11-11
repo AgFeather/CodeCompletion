@@ -2,10 +2,10 @@ import numpy as np
 import pandas as pd
 import pickle
 import json
+from collections import Counter
 
 js_test_data_dir = 'js_dataset/js_programs_eval.json'
 js_train_data_dir = 'js_dataset/js_programs_training.json'
-
 
 def dataset_split(is_training=True, subset_size=5000):
     if is_training:
@@ -26,7 +26,7 @@ def dataset_split(is_training=True, subset_size=5000):
             line = json.loads(line)
         except:
             error_count += 1
-        # print('UTF-8 error: {}/{}'.format(error_count, i))
+           # print('UTF-8 error: {}/{}'.format(error_count, i))
         subset_list.append(line)
         if i % subset_size == 0:
             sub_path = saved_to_path + 'part{}'.format(i // subset_size) + '.json'
@@ -36,17 +36,13 @@ def dataset_split(is_training=True, subset_size=5000):
     print('data seperating finished..., utf-8 error:{}'.format(error_count))
 
 
-file = open(js_test_data_dir)
-line = file.readline()
-# line = json.loads(line)
-print(line)
-
-# dataset_split()
 
 def load_data_with_pickle(path='split_js_data/train_data/part1.json'):
     file = open(path, 'rb')
     data = pickle.load(file)
     return data
+
+
 
 def add_two_bits_info(node, brother_map):
     # 向每个节点添加两bit的额外信息：isTerminal和hasSibling
@@ -57,7 +53,7 @@ def add_two_bits_info(node, brother_map):
     if brother_map.get(node['id'], -1) == -1:
         node['hasSibling'] = False
     else:
-        node['hasSilbing'] = True
+        node['hasSibling'] = True
 
 
 def bulid_binary_tree(data):
@@ -85,29 +81,30 @@ def bulid_binary_tree(data):
     return data
 
 
-ast_example = [{'id': 0, 'type': 'Program', 'children': [1]},
-               {'id': 1, 'type': 'ExpressionStatement', 'children': [2]},
-               {'id': 2, 'type': 'CallExpression', 'children': [3, 8, 9, 10]},
-               {'id': 3, 'type': 'MemberExpression', 'children': [4, 7]},
-               {'id': 4, 'type': 'MemberExpression', 'children': [5, 6]},
-               {'id': 5, 'type': 'Identifier', 'value': 'CKEDITOR'},
-               {'id': 6, 'type': 'Property', 'value': 'plugins'},
-               {'id': 7, 'type': 'Property', 'value': 'setLang'},
-               {'id': 8, 'type': 'LiteralString', 'value': 'iframe'},
-               {'id': 9, 'type': 'LiteralString', 'value': 'ka'},
-               {'id': 10, 'type': 'ObjectExpression', 'children': [11, 13, 15, 17, 19]},
-               {'id': 11, 'type': 'Property', 'value': 'border', 'children': [12]},
-               {'id': 12, 'type': 'LiteralString', 'value': 'ჩარჩოს გამოჩენა'},
-               {'id': 13, 'type': 'Property', 'value': 'noUrl', 'children': [14]},
-               {'id': 14, 'type': 'LiteralString', 'value': 'აკრიფეთ iframe-ის URL'},
-               {'id': 15, 'type': 'Property', 'value': 'scrolling', 'children': [16]},
-               {'id': 16, 'type': 'LiteralString', 'value': 'გადახვევის ზოლების დაშვება'},
-               {'id': 17, 'type': 'Property', 'value': 'title', 'children': [18]},
-               {'id': 18, 'type': 'LiteralString', 'value': 'IFrame-ის პარამეტრები'},
-               {'id': 19, 'type': 'Property', 'value': 'toolbar', 'children': [20]},
-               {'id': 20, 'type': 'LiteralString', 'value': 'IFrame'}, 0]
+def get_test_ast():
+    ast_example = [{'id': 0, 'type': 'Program', 'children': [1]},
+                   {'id': 1, 'type': 'ExpressionStatement', 'children': [2]},
+                   {'id': 2, 'type': 'CallExpression', 'children': [3, 8, 9, 10]},
+                   {'id': 3, 'type': 'MemberExpression', 'children': [4, 7]},
+                   {'id': 4, 'type': 'MemberExpression', 'children': [5, 6]},
+                   {'id': 5, 'type': 'Identifier', 'value': 'CKEDITOR'},
+                   {'id': 6, 'type': 'Property', 'value': 'plugins'},
+                   {'id': 7, 'type': 'Property', 'value': 'setLang'},
+                   {'id': 8, 'type': 'LiteralString', 'value': 'iframe'},
+                   {'id': 9, 'type': 'LiteralString', 'value': 'ka'},
+                   {'id': 10, 'type': 'ObjectExpression', 'children': [11, 13, 15, 17, 19]},
+                   {'id': 11, 'type': 'Property', 'value': 'border', 'children': [12]},
+                   {'id': 12, 'type': 'LiteralString', 'value': 'ჩარჩოს გამოჩენა'},
+                   {'id': 13, 'type': 'Property', 'value': 'noUrl', 'children': [14]},
+                   {'id': 14, 'type': 'LiteralString', 'value': 'აკრიფეთ iframe-ის URL'},
+                   {'id': 15, 'type': 'Property', 'value': 'scrolling', 'children': [16]},
+                   {'id': 16, 'type': 'LiteralString', 'value': 'გადახვევის ზოლების დაშვება'},
+                   {'id': 17, 'type': 'Property', 'value': 'title', 'children': [18]},
+                   {'id': 18, 'type': 'LiteralString', 'value': 'IFrame-ის პარამეტრები'},
+                   {'id': 19, 'type': 'Property', 'value': 'toolbar', 'children': [20]},
+                   {'id': 20, 'type': 'LiteralString', 'value': 'IFrame'}, 0]
+    return ast_example
 
-from collections import Counter
 
 output = []
 token2int = {}
@@ -117,25 +114,15 @@ nonTerminalSet = set()
 
 
 def node_to_string(node):
-    '''transform a node to a string representation'''
     if node == 'EMPTY':
         string_node = 'EMPTY'
-
-    # 如果node为terminal，将其加入Counter中统计出现频率
-    if node['isTerminal']:
-        string_node = str(node['type']) + '$$' + str(node['value'])
+    elif node['isTerminal']:  # 如果node为terminal
+        string_node = str(node['type']) + '=$$=' + str(node['value'])  ## + '==' + str(node['id'])
         terminalCountMap[string_node] += 1
-
-    # 如果是non-terminal，将其加入non-terminal set中，统计种类个数
-    else:
-        try:
-            string_node = str(node['type']) + '$$' + \
-                          str(node['hasSibling']) + '$$' + \
-                          str(node['isTerminal'])  # 重新考察两bit信息
-        except:
-            print('ERROR')
-            print(len(nonTerminalSet))
-            print(node)
+    else:  # 如果是non-terminal
+        string_node = str(node['type']) + '=$$=' + \
+                      str(node['hasSibling']) + '=$$=' + \
+                      str(node['isTerminal'])  # + '==' +str(node['id'])
         if 'value' in node.keys():  # 注意，有些non-terminal也包含value，需要加入
             string_node += '$$' + str(node['value'])
         nonTerminalSet.add(string_node)
@@ -146,7 +133,7 @@ def in_order_traversal(data, index):
     node = data[index]
     if 'left' in node.keys():
         in_order_traversal(data, node['left'])
-    print(node)
+#    print(node)
     # 如果该节点为non-terminal，则构建NT-pair并加入到sequence中。
     if 'isTerminal' in node.keys() and node['isTerminal'] == False:
         '''如果该node是non-terminal
@@ -163,9 +150,13 @@ def in_order_traversal(data, index):
         output.append(NT_pair)
     else:
         node_to_string(node)
+
     # 遍历right side
     if node['right'] != -1:
         in_order_traversal(data, node['right'])
+
+
+
 
 
 def AST_to_seq(data):
@@ -178,5 +169,5 @@ def AST_to_seq(data):
 
 if __name__ == '__main__':
 
-    AST_to_seq(ast_example)
-    print(output)
+    AST_to_seq(get_test_ast())
+#    print(output)
