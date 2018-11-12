@@ -6,7 +6,9 @@ import utils
 
 num_subset_train_data = 20
 subset_data_dir = 'split_js_data/train_data/'
-
+model_save_dir = 'lstm_model/'
+show_every_n = 200
+save_every_n = 1000
 
 class LSTM_Model(object):
     def __init__(self,
@@ -113,11 +115,27 @@ class LSTM_Model(object):
         session = tf.Session()
         global_step = 0
         for epoch in range(self.num_epoches):
+            batch_step = 0
             subset_generator = get_subset_data()
-            for data in get_subset_data():
+            for data in subset_generator:
                 batch_generator = self.get_batch(data)
-                for batch_x, batch_y in batch_generator:
+                for b_ntoken, b_ttoken, b_target in batch_generator:
+                    batch_step += 1
                     global_step += 1
+                    feed = {self.t_input: b_ttoken,
+                            self.n_input:b_ntoken,
+                            self.target:b_target,
+                            self.keep_prob:0.5}
+                    show_loss, show_accu, _ = session.run(
+                        [self.loss, self.accu, self.optimizer],feed_dict=feed)
+
+                if global_step % show_every_n == 0:
+                    print(f'epoch: {epoch}/{self.num_epoches}...',
+                          f'global_step: {global_step}',
+                          f'loss: {show_loss}...',
+                          f'accuracy: {show_accu}...')
+                if global_step % save_every_n == 0:
+                    saver.save(session, model_save_dir + f'e{epoch}' + f'b{batch_step}.ckpt')
 
         session.close()
 
