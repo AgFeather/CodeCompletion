@@ -136,8 +136,8 @@ def ast_to_seq(data):
             string_node = str(node['type']) + '=$$=' + \
                           str(node['hasSibling']) + '=$$=' + \
                           str(node['isTerminal'])  # + '==' +str(node['id'])
-            if 'value' in node.keys():  # 注意，有些non-terminal也包含value，需要加入
-                string_node += '=$$=' + str(node['value'])
+            # if 'value' in node.keys():  # 注意，有些non-terminal也包含value，需要加入
+            #     string_node += '=$$=' + str(node['value'])
             nonTerminalSet.add(string_node)
         return string_node
 

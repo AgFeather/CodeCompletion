@@ -1,5 +1,6 @@
 import tensorflow as tf
 import pickle
+import numpy as np
 
 import utils
 
@@ -9,6 +10,7 @@ subset_data_dir = 'split_js_data/train_data/'
 model_save_dir = 'lstm_model/'
 show_every_n = 200
 save_every_n = 1000
+num_terminal = 30000
 
 class LSTM_Model(object):
     def __init__(self,
@@ -37,9 +39,10 @@ class LSTM_Model(object):
     def build_input(self):
         n_input = tf.placeholder(tf.float32, [self.batch_size, self.time_steps], name='n_input')
         t_input = tf.placeholder(tf.float32, [self.batch_size, self.time_steps], name='t_input')
-        target = tf.placeholder(tf.float32, [self.batch_size, 1])
+        n_target = tf.placeholder(tf.float32, [self.batch_size, self.time_steps], name='n_target')
+        t_target = tf.placeholder(tf.float32, [self.batch_size, self.time_steps], name='t_target')
         keep_prob = tf.placeholder(tf.float32, name='keep_prob')
-        return n_input, t_input, target, keep_prob
+        return n_input, t_input, n_target, t_target, keep_prob
 
     def build_input_embed(self, n_input, t_input):
         n_embed_matrix = tf.Variable(tf.truncated_normal(
@@ -60,29 +63,46 @@ class LSTM_Model(object):
         init_state = cells.zero_state(self.batch_size, dtype=tf.float32)
         return cells, init_state
 
-    def build_output(self, lstm_output):
+    def build_n_output(self, lstm_output):
         # 将lstm_output的形状由[batch_size, time_steps, n_units] 转换为 [batch_size*time_steps, n_units]
         seq_output = tf.concat(lstm_output, axis=1)
         seq_output = tf.reshape(seq_output, [-1, self.num_hidden_units])
 
-        with tf.variable_scope('softmax'):
-            softmax_w = tf.Variable(tf.truncated_normal([self.num_hidden_units, self.num_ntoken], stddev=0.1))
-            softmax_b = tf.Variable(tf.zeros(self.num_ntoken))
+        with tf.variable_scope('non_terminal_softmax'):
+            nt_weight = tf.Variable(tf.truncated_normal([self.num_hidden_units, self.num_ntoken], stddev=0.1))
+            nt_bias = tf.Variable(tf.zeros(self.num_ntoken))
 
-        logits = tf.matmul(seq_output, softmax_w) + softmax_b
-        softmax_output = tf.nn.softmax(logits=logits, name='softmax_output')
-        return softmax_output, logits
+        nonterminal_logits = tf.matmul(seq_output, nt_weight) + nt_bias
+        nonterminal_output = tf.nn.softmax(logits=nonterminal_logits, name='nonterminal_output')
+        return nonterminal_logits, nonterminal_output
 
-    def build_loss(self, logits, targets):
-        loss = tf.nn.softmax_cross_entropy_with_logits_v2(logits=logits, labels=targets)
+    def build_t_output(self, lstm_output):
+        # 将lstm_output的形状由[batch_size, time_steps, n_units] 转换为 [batch_size*time_steps, n_units]
+        seq_output = tf.concat(lstm_output, axis=1)
+        seq_output = tf.reshape(seq_output, [-1, self.num_hidden_units])
+        with tf.variable_scope('terminal_softmax'):
+            t_weight = tf.Variable(tf.truncated_normal([self.num_ntoken, self.num_ttoken], stddev=0.1))
+            t_bias = tf.Variable(tf.zeros(self.num_ttoken))
+
+        terminal_logits = tf.matmul(seq_output, t_weight) + t_bias
+        termnial_output = tf.nn.softmax(logits=terminal_logits, name='terminal_output')
+        return terminal_logits, termnial_output
+
+
+
+    def build_loss(self, n_logits, n_target, t_logits, t_target):
+        n_loss = tf.nn.softmax_cross_entropy_with_logits_v2(logits=n_logits, labels=n_target)
+        t_loss = tf.nn.softmax_cross_entropy_with_logits_v2(logits=t_logits, labels=t_target)
+        loss = tf.add(n_loss, t_loss)
         loss = tf.reduce_mean(loss)
-        return loss
+        return loss, n_loss, t_loss
 
-    def bulid_accuracy(self, softmax_output, targets):
-        equal = tf.equal(tf.argmax(softmax_output, axis=1), tf.argmax(targets, axis=1))
-        accuracy = tf.cast(equal, tf.float32)
-        accuracy = tf.reduce_mean(accuracy)
-        return accuracy
+    def bulid_accuracy(self, n_output, n_target, t_output, t_target):
+        n_equal = tf.equal(tf.argmax(n_output, axis=1), tf.argmax(n_target, axis=1))
+        t_equal = tf.equal(tf.argmax(t_output, axis=1), tf.argmax(t_target, axis=1))
+        n_accuracy = tf.reduce_mean(tf.cast(n_equal, tf.float32))
+        t_accuracy = tf.reduce_mean(tf.cast(t_equal, tf.float32))
+        return n_accuracy, t_accuracy
 
     def bulid_optimizer(self, loss):
         optimizer = tf.train.AdamOptimizer(self.learning_rate)
@@ -96,18 +116,39 @@ class LSTM_Model(object):
 
     def build_model(self):
         tf.reset_default_graph()
-        self.n_input, self.t_input, self.target, self.keep_prob = self.build_input()
+        self.n_input, self.t_input, self.n_target, self.t_target, self.keep_prob = self.build_input()
         n_input_embedding, t_input_embedding = self.build_input_embed(self.n_input, self.t_input)
         lstm_input = tf.concat(n_input_embedding, t_input_embedding)
         cells, self.init_state = self.build_lstm(self.keep_prob)
         lstm_output, self.final_state = tf.nn.dynamic_rnn(cells, lstm_input, initial_state=self.init_state)
-        softmax_output, logits = self.build_output(lstm_output)
-        self.loss = self.build_loss(logits, self.target)
-        self.accu = self.bulid_accuracy(softmax_output, self.target)
+        t_logits, t_output = self.build_t_output(lstm_output)
+        n_logits, n_output = self. build_n_output(lstm_output)
+        self.loss, self.n_loss, self.t_loss = self.build_loss(n_logits, self.n_target, t_logits, self.t_target)
+        self.n_accu, self.t_accu = self.bulid_accuracy(n_output, self.n_target, t_output, self.t_target)
         self.optimizer = self.bulid_optimizer(self.loss)
 
-    def get_batch(self, data):
-        pass
+    def get_batch(self, data_seq):
+        '''
+        self.batch_size, self.time_steps
+        :param n_seq: 一个batch中序列的个数
+        :param n_steps: 单个序列中包含字符的个数
+        '''
+        data_seq = np.array(data_seq)
+        total_length = self.time_steps * self.batch_size
+        n_batches = len(data_seq) // total_length
+        data_seq = data_seq[:total_length * n_batches]  # 仅保留完整的batch，舍去末尾
+        data_seq = data_seq.reshape((self.batch_size, -1))
+        for n in range(0, data_seq.shape[1], self.time_steps):
+            x = data_seq[:, n:n + self.time_steps]
+            y = np.zeros_like(x)
+            y[:, :-1], y[:, -1] = x[:, 1:], x[:, 0]
+
+    def get_subset_data(self):
+        for i in range(1, num_subset_train_data + 1):
+            data_path = subset_data_dir + f'part{i}.json'
+            file = open(data_path, 'rb')
+            data = pickle.load(file)
+            yield data
 
     def train(self):
         print('model training...')
@@ -116,7 +157,7 @@ class LSTM_Model(object):
         global_step = 0
         for epoch in range(self.num_epoches):
             batch_step = 0
-            subset_generator = get_subset_data()
+            subset_generator = self.get_subset_data()
             for data in subset_generator:
                 batch_generator = self.get_batch(data)
                 for b_ntoken, b_ttoken, b_target in batch_generator:
@@ -143,12 +184,6 @@ class LSTM_Model(object):
 
 
 
-def get_subset_data():
-    for i in range(1, num_subset_train_data+1):
-        data_path = subset_data_dir + f'part{i}.json'
-        file = open(data_path, 'rb')
-        data = pickle.load(file)
-        yield data
 
 
 
