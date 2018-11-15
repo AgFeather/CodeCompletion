@@ -136,7 +136,7 @@ def ast_to_seq(data):
             string_node = str(node['type']) + '=$$=' + \
                           str(node['hasSibling']) + '=$$=' + \
                           str(node['isTerminal'])  # + '==' +str(node['id'])
-            # if 'value' in node.keys():  # 注意，有些non-terminal也包含value，需要加入
+            # if 'value' in node.keys():
             #     string_node += '=$$=' + str(node['value'])
             nonTerminalSet.add(string_node)
         return string_node
@@ -171,6 +171,11 @@ def ast_to_seq(data):
 
 
 def save_string_int_dict():
+    '''
+    将nonterminal和terminal对应的映射字典保存并返回
+    其中，对于terminal只选用most frequent的30000个token
+    :return:
+    '''
     terminalToken2int = {}
     terminalInt2token = {}
     nonTerminalToken2int = {}
@@ -183,14 +188,66 @@ def save_string_int_dict():
     for index, token in enumerate(list(nonTerminalSet)):
         nonTerminalToken2int[token] = index
         nonTerminalInt2token[index] = token
-    file = open(data_parameter_dir, 'wb')
-    pickle.dump([terminalToken2int, terminalInt2token, nonTerminalToken2int, nonTerminalInt2token], file)
+    # terminal中添加UNK
+    terminalInt2token[len(terminalInt2token)] = 'UNK'
+    terminalToken2int['UNK'] = len(terminalToken2int)
+    # 保存到本地
+    with open(data_parameter_dir, 'wb') as file:
+        pickle.dump([terminalToken2int, terminalInt2token, nonTerminalToken2int, nonTerminalInt2token], file)
     return terminalToken2int, terminalInt2token, nonTerminalToken2int, nonTerminalInt2token
 
 def load_dict_parameter():
+    '''加载terminal和nonterminal对应的映射字典'''
     file = open(data_parameter_dir, 'rb')
     terminalToken2int, terminalInt2token, nonTerminalToken2int, nonTerminalInt2token = pickle.load(file)
     return terminalToken2int, terminalInt2token, nonTerminalToken2int, nonTerminalInt2token
+
+
+def process_nt_seq(time_steps=50):
+    '''
+    对已经处理好的NT seq进行进一步的处理，
+    首先将每个token转换为number，然后截取各个seq成50的倍数，（50为time-steps大小）
+    然后将每个AST都拼接到一起，
+    '''
+    terminalToken2int, terminalInt2token, nonTerminalToken2int, nonTerminalInt2token = load_dict_parameter()
+    num_subset_train_data = 20
+    subset_data_dir = 'split_js_data/train_data/'
+    total_num_nt_pair = 0
+
+    def get_subset_data():  # 对每个part的nt_sequence读取并返回，等待进行处理
+        for i in range(1, num_subset_train_data + 1):
+            data_path = subset_data_dir + f'part{i}.json'
+            file = open(data_path, 'rb')
+            data = pickle.load(file)
+            yield (i, data)
+
+    subset_generator = get_subset_data()
+    for index, data in subset_generator:
+        #        data = pickle.load(open(subset_data_dir+'part1.json', 'rb'))
+        data_seq = []
+        for one_ast in data:  # 将每个nt_seq进行截取，并encode成integer，然后保存
+            num_steps = len(one_ast) // time_steps  # 将每个nt seq都切割成time steps的整数倍
+            if num_steps == 0:  # 该ast大小不足time step 舍去
+                continue
+            one_ast = one_ast[:num_steps * time_steps]
+            nt_int_seq = [(nonTerminalToken2int[n], terminalToken2int.get(t, terminalToken2int['UNK']))
+                          for n, t in one_ast]
+            data_seq.extend(nt_int_seq)
+        print(len(data_seq))
+        total_num_nt_pair += len(data_seq)
+        with open(subset_data_dir + f'int_format/part{index}.json', 'wb') as file:
+            pickle.dump(data_seq, file)
+            print(f'part{index} of nt_seq data has been encoded into integer and saved...')
+    print(f'There are {total_num_nt_pair} of nt_pair in train data set...')  # total == 6970900
+
+
+
+
+
+
+
+
+
 
 if __name__ == '__main__':
     dataset_split()

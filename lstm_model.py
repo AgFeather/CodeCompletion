@@ -128,20 +128,16 @@ class LSTM_Model(object):
         self.optimizer = self.bulid_optimizer(self.loss)
 
     def get_batch(self, data_seq):
-        '''
-        self.batch_size, self.time_steps
-        :param n_seq: 一个batch中序列的个数
-        :param n_steps: 单个序列中包含字符的个数
-        '''
         data_seq = np.array(data_seq)
         total_length = self.time_steps * self.batch_size
         n_batches = len(data_seq) // total_length
-        data_seq = data_seq[:total_length * n_batches]  # 仅保留完整的batch，舍去末尾
+        data_seq = data_seq[:total_length * n_batches]
         data_seq = data_seq.reshape((self.batch_size, -1))
         for n in range(0, data_seq.shape[1], self.time_steps):
             x = data_seq[:, n:n + self.time_steps]
             y = np.zeros_like(x)
             y[:, :-1], y[:, -1] = x[:, 1:], x[:, 0]
+            yield x, y
 
     def get_subset_data(self):
         for i in range(1, num_subset_train_data + 1):
