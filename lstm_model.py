@@ -6,7 +6,7 @@ import utils
 
 
 num_subset_train_data = 20
-subset_data_dir = 'split_js_data/train_data/'
+subset_int_data_dir = 'split_js_data/train_data/int_format/'
 model_save_dir = 'lstm_model/'
 show_every_n = 200
 save_every_n = 1000
@@ -37,10 +37,10 @@ class LSTM_Model(object):
         self.build_model()
 
     def build_input(self):
-        n_input = tf.placeholder(tf.float32, [self.batch_size, self.time_steps], name='n_input')
-        t_input = tf.placeholder(tf.float32, [self.batch_size, self.time_steps], name='t_input')
-        n_target = tf.placeholder(tf.float32, [self.batch_size, self.time_steps], name='n_target')
-        t_target = tf.placeholder(tf.float32, [self.batch_size, self.time_steps], name='t_target')
+        n_input = tf.placeholder(tf.int32, [self.batch_size, self.time_steps], name='n_input')
+        t_input = tf.placeholder(tf.int32, [self.batch_size, self.time_steps], name='t_input')
+        n_target = tf.placeholder(tf.int32, [self.batch_size, self.time_steps], name='n_target')
+        t_target = tf.placeholder(tf.int32, [self.batch_size, self.time_steps], name='t_target')
         keep_prob = tf.placeholder(tf.float32, name='keep_prob')
         return n_input, t_input, n_target, t_target, keep_prob
 
@@ -48,14 +48,14 @@ class LSTM_Model(object):
         n_embed_matrix = tf.Variable(tf.truncated_normal(
             [self.num_ntoken, self.n_embed_dim]), name='n_embed_matrix')
         t_embed_matrix = tf.Variable(tf.truncated_normal(
-            [self.num_ttoken, self.n_embed_dim]), name='t_embed_matrix')
+            [self.num_ttoken, self.t_embed_dim]), name='t_embed_matrix')
         n_input_embedding = tf.nn.embedding_lookup(n_embed_matrix, n_input)
         t_input_embedding = tf.nn.embedding_lookup(t_embed_matrix, t_input)
         return n_input_embedding, t_input_embedding
 
     def build_lstm(self, keep_prob):
         def lstm_cell():
-            cell = tf.contrib.rnn.BasicLSTM(self.num_hidden_units)
+            cell = tf.contrib.rnn.BasicLSTMCell(self.num_hidden_units)
             cell = tf.contrib.rnn.DropoutWrapper(cell, output_keep_prob=keep_prob)
             return cell
         cell_list = [lstm_cell() for _ in range(self.num_hidden_layers)]
@@ -81,7 +81,7 @@ class LSTM_Model(object):
         seq_output = tf.concat(lstm_output, axis=1)
         seq_output = tf.reshape(seq_output, [-1, self.num_hidden_units])
         with tf.variable_scope('terminal_softmax'):
-            t_weight = tf.Variable(tf.truncated_normal([self.num_ntoken, self.num_ttoken], stddev=0.1))
+            t_weight = tf.Variable(tf.truncated_normal([self.num_hidden_units, self.num_ttoken], stddev=0.1))
             t_bias = tf.Variable(tf.zeros(self.num_ttoken))
 
         terminal_logits = tf.matmul(seq_output, t_weight) + t_bias
@@ -114,17 +114,33 @@ class LSTM_Model(object):
         optimizer = optimizer.apply_gradients(clip_gradient_pair)
         return optimizer
 
+    def bulid_onehot_target(self, n_target, t_target, n_shape, t_shape):
+        onehot_n_target = tf.one_hot(n_target, self.num_ntoken)
+        onehot_n_target = tf.reshape(onehot_n_target, n_shape)
+        onehot_t_target = tf.one_hot(t_target, self.num_ttoken)
+        onehot_t_target = tf.reshape(onehot_t_target, t_shape)
+        return onehot_n_target, onehot_t_target
+
     def build_model(self):
         tf.reset_default_graph()
         self.n_input, self.t_input, self.n_target, self.t_target, self.keep_prob = self.build_input()
         n_input_embedding, t_input_embedding = self.build_input_embed(self.n_input, self.t_input)
-        lstm_input = tf.concat(n_input_embedding, t_input_embedding)
+        # print(n_input_embedding.get_shape()) # (64, 50, 64)
+        # print(t_input_embedding.get_shape()) # (64, 50, 200)
+        lstm_input = tf.concat([n_input_embedding, t_input_embedding], 2)
+        # print(lstm_input.get_shape()) # (64, 50, 264)
         cells, self.init_state = self.build_lstm(self.keep_prob)
         lstm_output, self.final_state = tf.nn.dynamic_rnn(cells, lstm_input, initial_state=self.init_state)
         t_logits, t_output = self.build_t_output(lstm_output)
         n_logits, n_output = self. build_n_output(lstm_output)
-        self.loss, self.n_loss, self.t_loss = self.build_loss(n_logits, self.n_target, t_logits, self.t_target)
-        self.n_accu, self.t_accu = self.bulid_accuracy(n_output, self.n_target, t_output, self.t_target)
+
+        onehot_n_target, onehot_t_target = self.bulid_onehot_target(
+            self.n_target, self.t_target, n_logits.get_shape(), t_logits.get_shape())
+
+        self.loss, self.n_loss, self.t_loss = self.build_loss(
+            n_logits, onehot_n_target, t_logits, onehot_t_target)
+        self.n_accu, self.t_accu = self.bulid_accuracy(
+            n_output, onehot_n_target, t_output, onehot_t_target)
         self.optimizer = self.bulid_optimizer(self.loss)
 
     def get_batch(self, data_seq):
@@ -137,11 +153,19 @@ class LSTM_Model(object):
             x = data_seq[:, n:n + self.time_steps]
             y = np.zeros_like(x)
             y[:, :-1], y[:, -1] = x[:, 1:], x[:, 0]
-            yield x, y
+            print(x.shape) # (64, 50)
+            print(y.shape) # (64, 50)
+
+            # todo: 分别得到nt t
+            nt_x = x[0]
+            t_x = x[1]
+            nt_y = y[0]
+            t_y = y[1]
+            yield nt_x, nt_y, t_x, t_y
 
     def get_subset_data(self):
         for i in range(1, num_subset_train_data + 1):
-            data_path = subset_data_dir + f'part{i}.json'
+            data_path = subset_int_data_dir + f'part{i}.json'
             file = open(data_path, 'rb')
             data = pickle.load(file)
             yield data
@@ -156,23 +180,24 @@ class LSTM_Model(object):
             subset_generator = self.get_subset_data()
             for data in subset_generator:
                 batch_generator = self.get_batch(data)
-                for b_ntoken, b_ttoken, b_target in batch_generator:
+                for b_nt_x, b_nt_y, b_t_x, b_t_y in batch_generator:
                     batch_step += 1
                     global_step += 1
-                    feed = {self.t_input: b_ttoken,
-                            self.n_input:b_ntoken,
-                            self.target:b_target,
+                    feed = {self.t_input: b_t_x,
+                            self.n_input:b_nt_x,
+                            self.n_target:b_nt_y,
+                            self.t_target:b_t_y,
                             self.keep_prob:0.5}
-                    show_loss, show_accu, _ = session.run(
-                        [self.loss, self.accu, self.optimizer],feed_dict=feed)
-
-                if global_step % show_every_n == 0:
-                    print(f'epoch: {epoch}/{self.num_epoches}...',
-                          f'global_step: {global_step}',
-                          f'loss: {show_loss}...',
-                          f'accuracy: {show_accu}...')
-                if global_step % save_every_n == 0:
-                    saver.save(session, model_save_dir + f'e{epoch}' + f'b{batch_step}.ckpt')
+                    show_loss, show_n_accu, show_t_accu, _ = session.run(
+                        [self.loss, self.n_accu, self.t_accu, self.optimizer],feed_dict=feed)
+                    if global_step % show_every_n == 0:
+                        print(f'epoch: {epoch}/{self.num_epoches}...',
+                              f'global_step: {global_step}',
+                              f'loss: {show_loss}...',
+                              f'non-terminal accuracy: {show_n_accu}...',
+                              f'terminal accuracy: {show_t_accu}...')
+                    if global_step % save_every_n == 0:
+                        saver.save(session, model_save_dir + f'e{epoch}' + f'b{batch_step}.ckpt')
 
         session.close()
 

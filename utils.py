@@ -203,7 +203,7 @@ def load_dict_parameter():
     return terminalToken2int, terminalInt2token, nonTerminalToken2int, nonTerminalInt2token
 
 
-def process_nt_seq(time_steps=50):
+def process_nt_sequence(time_steps=50):
     '''
     对已经处理好的NT seq进行进一步的处理，
     首先将每个token转换为number，然后截取各个seq成50的倍数，（50为time-steps大小）
@@ -251,5 +251,4 @@ def process_nt_seq(time_steps=50):
 
 if __name__ == '__main__':
     dataset_split()
-    #ast_to_seq(get_test_ast())
-#    print(output)
+    process_nt_sequence()
