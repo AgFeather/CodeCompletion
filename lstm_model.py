@@ -8,7 +8,7 @@ import utils
 num_subset_train_data = 20
 subset_int_data_dir = 'split_js_data/train_data/int_format/'
 model_save_dir = 'lstm_model/'
-show_every_n = 200
+show_every_n = 10
 save_every_n = 1000
 num_terminal = 30000
 
@@ -91,6 +91,7 @@ class LSTM_Model(object):
 
 
     def build_loss(self, n_logits, n_target, t_logits, t_target):
+        # todo: 使用负采样方法进行训练加快训练速度？
         n_loss = tf.nn.softmax_cross_entropy_with_logits_v2(logits=n_logits, labels=n_target)
         t_loss = tf.nn.softmax_cross_entropy_with_logits_v2(logits=t_logits, labels=t_target)
         loss = tf.add(n_loss, t_loss)
@@ -144,24 +145,42 @@ class LSTM_Model(object):
         self.optimizer = self.bulid_optimizer(self.loss)
 
     def get_batch(self, data_seq):
-        data_seq = np.array(data_seq)
+        data_seq = np.array(data_seq) # 是否可以注释掉节省时间
         total_length = self.time_steps * self.batch_size
         n_batches = len(data_seq) // total_length
         data_seq = data_seq[:total_length * n_batches]
+        print(data_seq.shape)
+        nt_x = data_seq[:, 0]
+        tt_x = data_seq[:, 1]
+        nt_y = np.zeros_like(nt_x)
+        tt_y = np.zeros_like(tt_x)
+        nt_y[:-1], nt_y[-1] = nt_x[1:], nt_x[0]
+        tt_y[:-1], tt_y[-1] = tt_x[1:], tt_x[0]
+
+
+        nt_x = nt_x.reshape((self.batch_size, -1))
+        tt_x = tt_x.reshape((self.batch_size, -1))
+        nt_y = nt_y.reshape((self.batch_size, -1))
+        tt_y = tt_y.reshape((self.batch_size, -1))
         data_seq = data_seq.reshape((self.batch_size, -1))
         for n in range(0, data_seq.shape[1], self.time_steps):
-            x = data_seq[:, n:n + self.time_steps]
-            y = np.zeros_like(x)
-            y[:, :-1], y[:, -1] = x[:, 1:], x[:, 0]
-            print(x.shape) # (64, 50)
-            print(y.shape) # (64, 50)
-
-            # todo: 分别得到nt t
-            nt_x = x[0]
-            t_x = x[1]
-            nt_y = y[0]
-            t_y = y[1]
-            yield nt_x, nt_y, t_x, t_y
+            batch_nt_x = nt_x[:, n:n + self.time_steps]
+            batch_tt_x = tt_x[:, n:n + self.time_steps]
+            batch_nt_y = nt_y[:, n:n + self.time_steps]
+            batch_tt_y = tt_y[:, n:n + self.time_steps]
+            yield batch_nt_x, batch_nt_y, batch_tt_x, batch_tt_y
+            # nt_x = data_seq[:, n:n + self.time_steps]
+            # nt_y = data_seq[:, n:n + self.time_steps]
+            # y = np.zeros_like(x)
+            # y[:, :-1], y[:, -1] = x[:, 1:], x[:, 0]
+            # print(x.shape) # (64, 50)
+            # print(y.shape) # (64, 50)
+            #
+            # nt_x = x[:,:,0]
+            # t_x = x[:,:,1]
+            # nt_y = y[:,:,0]
+            # t_y = y[:,:,1]
+            # yield nt_x, nt_y, t_x, t_y
 
     def get_subset_data(self):
         for i in range(1, num_subset_train_data + 1):
@@ -174,6 +193,7 @@ class LSTM_Model(object):
         print('model training...')
         saver = tf.train.Saver()
         session = tf.Session()
+        session.run(tf.global_variables_initializer())
         global_step = 0
         for epoch in range(self.num_epoches):
             batch_step = 0
@@ -193,9 +213,9 @@ class LSTM_Model(object):
                     if global_step % show_every_n == 0:
                         print(f'epoch: {epoch}/{self.num_epoches}...',
                               f'global_step: {global_step}',
-                              f'loss: {show_loss}...',
-                              f'non-terminal accuracy: {show_n_accu}...',
-                              f'terminal accuracy: {show_t_accu}...')
+                              f'loss: {show_loss:.4f}...',
+                              f'non-terminal accuracy: {show_n_accu:.4f}...',
+                              f'terminal accuracy: {show_t_accu:.4f}...')
                     if global_step % save_every_n == 0:
                         saver.save(session, model_save_dir + f'e{epoch}' + f'b{batch_step}.ckpt')
 
