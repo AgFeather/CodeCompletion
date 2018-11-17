@@ -11,7 +11,8 @@ num_subset_train_data = 20
 subset_int_data_dir = 'split_js_data/train_data/int_format/'
 model_save_dir = 'lstm_model/'
 tensorboard_log_dir = 'tensorboard_log/lstm/'
-show_every_n = 10
+training_log_dir = 'training_log/lstm_log.txt'
+show_every_n = 200
 save_every_n = 1000
 num_terminal = 30000
 
@@ -24,7 +25,7 @@ class LSTM_Model(object):
                  num_hidden_units=256,
                  num_hidden_layers=2,
                  learning_rate=0.001,
-                 num_epoches=3,
+                 num_epoches=20,
                  time_steps=50, ):
         self.time_steps = time_steps
         self.batch_size = batch_size
@@ -196,6 +197,7 @@ class LSTM_Model(object):
         saver = tf.train.Saver()
         session = tf.Session()
         tb_writer = tf.summary.FileWriter(tensorboard_log_dir, session.graph)
+        log_file = open(training_log_dir, 'w')
         global_step = 0
 
         session.run(tf.global_variables_initializer())
@@ -220,19 +222,23 @@ class LSTM_Model(object):
                     tb_writer.flush()
                     batch_end_time = time.time()
 
-                    if global_step % show_every_n == 0:
-                        print('epoch: {}/{}...'.format(epoch+1, self.num_epoches),
-                              'global_step: {}'.format(global_step),
-                              'loss: {:.4f}...'.format(show_loss),
-                              'nt accuracy: {:.4f}...'.format(show_n_accu),
-                              't accuracy: {:.4f}...'.format(show_t_accu),
-                              'time cost each batch: {:.4f}/s'.format(batch_end_time - batch_start_time))
+                    if global_step % 2 == 0:
+                        log_info = 'epoch:{}/{}  '.format(epoch+1, self.num_epoches) + \
+                              'global_step:{}  '.format(global_step) + \
+                              'loss:{:.2f}  '.format(show_loss) + \
+                              'nt_accu: {:.2f}%  '.format(show_n_accu*100) + \
+                              'tt_accu: {:.2f}%  '.format(show_t_accu*100) + \
+                              'time cost per batch: {:.2f}/s'.format(batch_end_time - batch_start_time)
+                        print(log_info)
+                        log_file.write(log_info)
+                        log_file.write('\n')
                     if global_step % save_every_n == 0:
                         saver.save(session, model_save_dir + 'e{}_b{}.ckpt'.format(epoch, batch_step))
             epoch_end_time = time.time()
             print('time cost this epoch: {}/s'.format(epoch_end_time - epoch_start_time))
         saver.save(session, model_save_dir + 'lastest_model.ckpt')
         session.close()
+        log_file.close()
         print('model training finished...')
 
 
