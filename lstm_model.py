@@ -2,6 +2,7 @@ import tensorflow as tf
 import pickle
 import numpy as np
 import time
+import random
 
 import utils
 
@@ -16,14 +17,14 @@ num_terminal = 30000
 
 class LSTM_Model(object):
     def __init__(self,
-                 num_ntoken, num_ttoken,
+                 num_ntoken, num_ttoken, is_training=True,
                  batch_size=64,
                  n_embed_dim=64,
                  t_embed_dim=200,
                  num_hidden_units=256,
                  num_hidden_layers=2,
                  learning_rate=0.001,
-                 num_epoches=1,
+                 num_epoches=3,
                  time_steps=50, ):
         self.time_steps = time_steps
         self.batch_size = batch_size
@@ -35,6 +36,10 @@ class LSTM_Model(object):
         self.num_hidden_layers = num_hidden_layers
         self.learning_rate = learning_rate
         self.num_epoches = num_epoches
+
+        if is_training == False:
+            self.batch_size = 1
+            self.time_steps = 1
 
         self.build_model()
 
@@ -134,8 +139,8 @@ class LSTM_Model(object):
         # print(lstm_input.get_shape()) # (64, 50, 264)
         cells, self.init_state = self.build_lstm(self.keep_prob)
         lstm_output, self.final_state = tf.nn.dynamic_rnn(cells, lstm_input, initial_state=self.init_state)
-        t_logits, t_output = self.build_t_output(lstm_output)
-        n_logits, n_output = self. build_n_output(lstm_output)
+        t_logits, self.t_output = self.build_t_output(lstm_output)
+        n_logits, self.n_output = self. build_n_output(lstm_output)
 
         onehot_n_target, onehot_t_target = self.bulid_onehot_target(
             self.n_target, self.t_target, n_logits.get_shape(), t_logits.get_shape())
@@ -143,7 +148,7 @@ class LSTM_Model(object):
         self.loss, self.n_loss, self.t_loss = self.build_loss(
             n_logits, onehot_n_target, t_logits, onehot_t_target)
         self.n_accu, self.t_accu = self.bulid_accuracy(
-            n_output, onehot_n_target, t_output, onehot_t_target)
+            self.n_output, onehot_n_target, self.t_output, onehot_t_target)
         self.optimizer = self.bulid_optimizer(self.loss)
 
         tf.summary.scalar('train_loss', self.loss)
@@ -158,7 +163,6 @@ class LSTM_Model(object):
         total_length = self.time_steps * self.batch_size
         n_batches = len(data_seq) // total_length
         data_seq = data_seq[:total_length * n_batches]
-    #    print(data_seq.shape)
         nt_x = data_seq[:, 0]
         tt_x = data_seq[:, 1]
         nt_y = np.zeros_like(nt_x)
@@ -176,6 +180,8 @@ class LSTM_Model(object):
             batch_tt_x = tt_x[:, n:n + self.time_steps]
             batch_nt_y = nt_y[:, n:n + self.time_steps]
             batch_tt_y = tt_y[:, n:n + self.time_steps]
+            if batch_nt_x.shape[1] == 0:
+                break
             yield batch_nt_x, batch_nt_y, batch_tt_x, batch_tt_y
 
     def get_subset_data(self):
@@ -194,6 +200,7 @@ class LSTM_Model(object):
 
         session.run(tf.global_variables_initializer())
         for epoch in range(self.num_epoches):
+            epoch_start_time = time.time()
             batch_step = 0
             subset_generator = self.get_subset_data()
             for data in subset_generator:
@@ -206,30 +213,99 @@ class LSTM_Model(object):
                             self.n_target:b_nt_y,
                             self.t_target:b_t_y,
                             self.keep_prob:0.5}
-                    start_time = time.time()
+                    batch_start_time = time.time()
                     show_loss, show_n_accu, show_t_accu, _, summary_str = session.run(
                         [self.loss, self.n_accu, self.t_accu, self.optimizer, self.merged_op],feed_dict=feed)
                     tb_writer.add_summary(summary_str, global_step)
                     tb_writer.flush()
-                    end_time = time.time()
+                    batch_end_time = time.time()
 
                     if global_step % show_every_n == 0:
-                        print('epoch: {}/{}...'.format(epoch, self.num_epoches),
+                        print('epoch: {}/{}...'.format(epoch+1, self.num_epoches),
                               'global_step: {}'.format(global_step),
                               'loss: {:.4f}...'.format(show_loss),
                               'nt accuracy: {:.4f}...'.format(show_n_accu),
                               't accuracy: {:.4f}...'.format(show_t_accu),
-                              'time cost each batch: {:.4f}/s'.format(end_time - start_time))
+                              'time cost each batch: {:.4f}/s'.format(batch_end_time - batch_start_time))
                     if global_step % save_every_n == 0:
                         saver.save(session, model_save_dir + 'e{}_b{}.ckpt'.format(epoch, batch_step))
+            epoch_end_time = time.time()
+            print('time cost this epoch: {}/s'.format(epoch_end_time - epoch_start_time))
         saver.save(session, model_save_dir + 'lastest_model.ckpt')
-
         session.close()
+        print('model training finished...')
 
 
 
 
 
+class CodeCompletion(object):
+    def __init__(self,
+                 num_ntoken,
+                 num_ttoken):
+        self.model = LSTM_Model(num_ntoken, num_ttoken, is_training=False)
+        self.last_chackpoints = tf.train.latest_checkpoint(checkpoint_dir=model_save_dir)
+        self.sess = tf.Session()
+        saver = tf.train.Saver()
+        saver.restore(self.sess, self.last_chackpoints)
+
+    # query test
+    def query_test(self, prefix, suffix):
+        '''
+        Input: all tokens before the hole token(prefix) and all tokens after the hole token,
+        ML model will predict the most probable token in the hole
+        '''
+        new_state = self.sess.run(self.model.init_state)
+        n_prediction = None
+        t_prediction = None
+        for i, (nt_token, tt_token) in enumerate(prefix):
+            nt_x = np.zeros((1, 1), dtype=np.int32)
+            tt_x = np.zeros((1, 1), dtype=np.int32)
+            nt_x[0, 0] = nt_token
+            tt_x[0, 0] = tt_token
+            feed = {self.model.n_input: nt_x,
+                    self.model.t_input: tt_x,
+                    self.model.keep_prob: 1.,
+                    self.model.init_state: new_state}
+            n_prediction, t_prediction, new_state = self.sess.run(
+                [self.model.n_output, self.model.t_output, self.model.final_state], feed_dict=feed)
+
+        assert n_prediction is not None and t_prediction is not None
+        n_prediction = np.argmax(n_prediction)
+        t_prediction = np.argmax(t_prediction)
+        return n_prediction, t_prediction
+
+    def test(self, query_test_data):
+        print('test step is beginning..')
+        start_time = time.time()
+        t_correct = 0.0
+        n_correct = 0.0
+        for token_sequence in query_test_data:
+            prefix, expection, suffix = self.create_hole(token_sequence)
+            n_prediction, t_prediction = self.query_test(prefix, suffix)
+            n_expection, t_expection = expection
+            if self.token_equal(n_prediction, n_expection):
+                n_correct += 1
+            if self.token_equal(t_prediction, t_expection):
+                t_correct += 1
+        n_accuracy = n_correct / len(query_test_data)
+        t_accuracy = t_correct / len(query_test_data)
+        end_time =time.time()
+        print('test finished, time cost:{:.2f}..'.format(end_time-start_time))
+
+        return n_accuracy, t_accuracy
+
+    def token_equal(self, prediction, expection):
+        # todo: implement
+        return False
+
+    def create_hole(self, nt_token_seq, hole_size=1):
+        hole_start_index = random.randint(len(nt_token_seq) // 2, len(nt_token_seq) - hole_size)
+        hole_end_index = hole_start_index + hole_size
+        prefix = nt_token_seq[0:hole_start_index]
+        expection = nt_token_seq[hole_start_index:hole_end_index]
+        suffix = nt_token_seq[hole_end_index:-1]
+        return prefix, expection, suffix
 
 
 

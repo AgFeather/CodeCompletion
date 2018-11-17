@@ -44,7 +44,7 @@ def dataset_split(is_training=True, subset_size=5000):
 
     save_string_int_dict()
     print('data seperating finished...')
-    print(f'encoding information has been save in {data_parameter_dir}')
+    print('encoding information has been save in {}'.format(data_parameter_dir))
 
 
 
@@ -216,7 +216,7 @@ def process_nt_sequence(time_steps=50):
 
     def get_subset_data():  # 对每个part的nt_sequence读取并返回，等待进行处理
         for i in range(1, num_subset_train_data + 1):
-            data_path = subset_data_dir + f'part{i}.json'
+            data_path = subset_data_dir + 'part{}.json'.format(i)
             file = open(data_path, 'rb')
             data = pickle.load(file)
             yield (i, data)
@@ -235,10 +235,10 @@ def process_nt_sequence(time_steps=50):
             data_seq.extend(nt_int_seq)
         print(len(data_seq))
         total_num_nt_pair += len(data_seq)
-        with open(subset_data_dir + f'int_format/part{index}.json', 'wb') as file:
+        with open(subset_data_dir + 'int_format/part{}.json'.format(index), 'wb') as file:
             pickle.dump(data_seq, file)
-            print(f'part{index} of nt_seq data has been encoded into integer and saved...')
-    print(f'There are {total_num_nt_pair} of nt_pair in train data set...')  # total == 6970900
+            print('part{} of nt_seq data has been encoded into integer and saved...'.format(index))
+    print('There are {} of nt_pair in train data set...'.format(total_num_nt_pair))  # total == 6970900
 
 
 
