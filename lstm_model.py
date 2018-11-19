@@ -18,7 +18,7 @@ num_terminal = 30000
 
 class LSTM_Model(object):
     def __init__(self,
-                 num_ntoken, num_ttoken, is_training=True,
+                 num_ntoken, num_ttoken, is_training=True, tb_log=True,
                  batch_size=64,
                  n_embed_dim=64,
                  t_embed_dim=200,
@@ -37,6 +37,7 @@ class LSTM_Model(object):
         self.num_hidden_layers = num_hidden_layers
         self.learning_rate = learning_rate
         self.num_epoches = num_epoches
+        self.tb_log = tb_log
 
         if is_training == False:
             self.batch_size = 1
@@ -193,17 +194,21 @@ class LSTM_Model(object):
             yield data
 
     def train(self):
-        print('model training...')
         saver = tf.train.Saver()
         session = tf.Session()
         tb_writer = tf.summary.FileWriter(tensorboard_log_dir, session.graph)
         log_file = open(training_log_dir, 'w')
         global_step = 0
+        self.print_and_log('model training...', log_file)
 
         session.run(tf.global_variables_initializer())
         for epoch in range(self.num_epoches):
             epoch_start_time = time.time()
             batch_step = 0
+            loss_per_epoch = 0.0
+            n_accu_per_epoch = 0.0
+            t_accu_per_epoch = 0.0
+
             subset_generator = self.get_subset_data()
             for data in subset_generator:
                 batch_generator = self.get_batch(data)
@@ -220,28 +225,41 @@ class LSTM_Model(object):
                         [self.loss, self.n_accu, self.t_accu, self.optimizer, self.merged_op],feed_dict=feed)
                     tb_writer.add_summary(summary_str, global_step)
                     tb_writer.flush()
+                    loss_per_epoch += show_loss
+                    n_accu_per_epoch += show_n_accu
+                    t_accu_per_epoch += show_t_accu
                     batch_end_time = time.time()
 
-                    if global_step % 2 == 0:
+                    if global_step % show_every_n == 0:
                         log_info = 'epoch:{}/{}  '.format(epoch+1, self.num_epoches) + \
                               'global_step:{}  '.format(global_step) + \
                               'loss:{:.2f}  '.format(show_loss) + \
-                              'nt_accu: {:.2f}%  '.format(show_n_accu*100) + \
-                              'tt_accu: {:.2f}%  '.format(show_t_accu*100) + \
+                              'nt_accu:{:.2f}%  '.format(show_n_accu*100) + \
+                              'tt_accu:{:.2f}%  '.format(show_t_accu*100) + \
                               'time cost per batch: {:.2f}/s'.format(batch_end_time - batch_start_time)
-                        print(log_info)
-                        log_file.write(log_info)
-                        log_file.write('\n')
+                        self.print_and_log(log_info, log_file)
+
                     if global_step % save_every_n == 0:
                         saver.save(session, model_save_dir + 'e{}_b{}.ckpt'.format(epoch, batch_step))
             epoch_end_time = time.time()
-            print('time cost this epoch: {}/s'.format(epoch_end_time - epoch_start_time))
+            epoch_cost_time = epoch_end_time - epoch_start_time
+            epoch_log = 'EPOCH:{}/{}  '.format(epoch+1, self.num_epoches) + \
+                        'time cost this epoch: {}/s'.format(epoch_cost_time) + \
+                        'epoch average loss: {:.2f}  '.format(loss_per_epoch / batch_step) + \
+                        'epoch average nt_accu:{:.2f}  '.format(n_accu_per_epoch / batch_step) + \
+                        'epoch average tt_accu:{:.2f}  \n'.format(t_accu_per_epoch / batch_step)
+            self.print_and_log(epoch_log, log_file)
+
         saver.save(session, model_save_dir + 'lastest_model.ckpt')
+        self.print_and_log('model training finished...', log_file)
         session.close()
         log_file.close()
-        print('model training finished...')
 
 
+    def print_and_log(self, info, file):
+        file.write(info)
+        file.write('\n')
+        print(info)
 
 
 
