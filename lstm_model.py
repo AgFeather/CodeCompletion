@@ -12,20 +12,20 @@ subset_int_data_dir = 'split_js_data/train_data/int_format/'
 model_save_dir = 'lstm_model/'
 tensorboard_log_dir = 'tensorboard_log/lstm/'
 training_log_dir = 'training_log/lstm_log.txt'
-show_every_n = 200
-save_every_n = 1000
+show_every_n = 100
+save_every_n = 2000
 num_terminal = 30000
 
 class LSTM_Model(object):
     def __init__(self,
-                 num_ntoken, num_ttoken, is_training=True, tb_log=True,
+                 num_ntoken, num_ttoken, is_training=True, is_log=False,
                  batch_size=64,
                  n_embed_dim=64,
                  t_embed_dim=200,
                  num_hidden_units=256,
                  num_hidden_layers=2,
                  learning_rate=0.001,
-                 num_epoches=20,
+                 num_epoches=12,
                  time_steps=50, ):
         self.time_steps = time_steps
         self.batch_size = batch_size
@@ -37,7 +37,7 @@ class LSTM_Model(object):
         self.num_hidden_layers = num_hidden_layers
         self.learning_rate = learning_rate
         self.num_epoches = num_epoches
-        self.tb_log = tb_log
+        self.is_log = is_log
 
         if is_training == False:
             self.batch_size = 1
@@ -223,8 +223,9 @@ class LSTM_Model(object):
                     batch_start_time = time.time()
                     show_loss, show_n_accu, show_t_accu, _, summary_str = session.run(
                         [self.loss, self.n_accu, self.t_accu, self.optimizer, self.merged_op],feed_dict=feed)
-                    tb_writer.add_summary(summary_str, global_step)
-                    tb_writer.flush()
+                    if self.is_log:
+                        tb_writer.add_summary(summary_str, global_step)
+                        tb_writer.flush()
                     loss_per_epoch += show_loss
                     n_accu_per_epoch += show_n_accu
                     t_accu_per_epoch += show_t_accu
@@ -257,8 +258,9 @@ class LSTM_Model(object):
 
 
     def print_and_log(self, info, file):
-        file.write(info)
-        file.write('\n')
+        if self.is_log:
+            file.write(info)
+            file.write('\n')
         print(info)
 
 
