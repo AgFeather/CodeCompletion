@@ -7,6 +7,7 @@ from collections import Counter
 
 js_test_data_dir = 'js_dataset/js_programs_eval.json'
 js_train_data_dir = 'js_dataset/js_programs_training.json'
+
 data_parameter_dir = 'split_js_data/parameter.p'
 train_subset_dir = 'split_js_data/train_data/'
 test_subset_dir = 'split_js_data/eval_data/'
@@ -34,17 +35,22 @@ def dataset_split(is_training=True, subset_size=5000):
             nt_seq = ast_to_seq(line)
         except:
             error_count += 1
-           # print('UTF-8 error: {}/{}'.format(error_count, i))
+
         subset_list.append(nt_seq)
         if i % subset_size == 0:
             sub_path = saved_to_path + 'part{}'.format(i // subset_size) + '.json'
             save_file = open(sub_path, 'wb')
             pickle.dump(subset_list, save_file)
             subset_list = []
+            print('nt_sequence part{} has been saved...'.format(i // subset_size))
 
-    save_string_int_dict()
-    print('data seperating finished...')
-    print('encoding information has been save in {}'.format(data_parameter_dir))
+    if is_training: # 当处理训练数据集时，需要保存映射map
+        save_string_int_dict()
+        print('training data seperating finished...')
+        print('encoding information has been save in {}'.format(data_parameter_dir))
+    else:
+        print('testing data seperating finished...')
+
 
 
 
@@ -235,14 +241,48 @@ def process_nt_sequence(time_steps=50):
             data_seq.extend(nt_int_seq)
         print(len(data_seq))
         total_num_nt_pair += len(data_seq)
-        with open(subset_data_dir + 'int_format/part{}.json'.format(index), 'wb') as file:
+        with open(subset_data_dir + 'int_format/int_part{}.json'.format(index), 'wb') as file:
             pickle.dump(data_seq, file)
             print('part{} of nt_seq data has been encoded into integer and saved...'.format(index))
     print('There are {} of nt_pair in train data set...'.format(total_num_nt_pair))  # total == 6970900
 
 
 
+def test_nt_seq_to_int():
+    '''
+    读入已经被分割并处理成nt sequence的test data，
+    然后根据处理training数据时生成的token2int映射字典将其转换成对应的int sequence
+    :return:
+    '''
+    # todo: jupyter notebook检查代码生成的是否int_nt_seq 是否正确
+    terminalToken2int, terminalInt2token, nonTerminalToken2int, nonTerminalInt2token = load_dict_parameter()
+    num_subset_train_data = 10
+    subset_data_dir = 'split_js_data/eval_data/'
+    total_num_nt_pair = 0
 
+    def get_subset_data():  # 对每个part的nt_sequence读取并返回，等待进行处理
+        for i in range(1, num_subset_train_data + 1):
+            data_path = subset_data_dir + 'part{}.json'.format(i)
+            file = open(data_path, 'rb')
+            data = pickle.load(file)
+            yield (i, data)
+
+    subset_generator = get_subset_data()
+    for index, data in subset_generator:
+        data_seq = []
+        num_nt_pair = 0
+        for one_ast in data:  # 将每个由token组成的nt_seq，并encode成integer，然后保存
+            nt_int_seq = [(nonTerminalToken2int[n], terminalToken2int.get(t, terminalToken2int['UNK']))
+                          for n, t in one_ast]
+            data_seq.append(nt_int_seq)
+            num_nt_pair += len(nt_int_seq)
+        print('the number of nt_pair in this part-set data is {}'.format(num_nt_pair))
+        total_num_nt_pair += num_nt_pair
+
+        with open(subset_data_dir + 'int_format/int_part{}.json'.format(index), 'wb') as file:
+            pickle.dump(data_seq, file)
+            print('part{} of nt_seq data has been encoded into integer and saved...'.format(index))
+    print('There are {} of nt_pair in test data set...'.format(total_num_nt_pair)) # 4706813
 
 
 
@@ -250,5 +290,10 @@ def process_nt_sequence(time_steps=50):
 
 
 if __name__ == '__main__':
-    dataset_split()
-    process_nt_sequence()
+    training_data_process = False
+    if training_data_process:
+        dataset_split(is_training=True)
+        process_nt_sequence()
+    else:
+    #    dataset_split(is_training=False)
+        test_nt_seq_to_int()

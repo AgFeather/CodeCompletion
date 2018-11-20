@@ -9,11 +9,11 @@ import utils
 
 num_subset_train_data = 20
 subset_int_data_dir = 'split_js_data/train_data/int_format/'
-model_save_dir = 'lstm_model/'
+model_save_dir = 'trained_model/lstm_model/'
 tensorboard_log_dir = 'tensorboard_log/lstm/'
 training_log_dir = 'training_log/lstm_log.txt'
 show_every_n = 100
-save_every_n = 2000
+save_every_n = 1500
 num_terminal = 30000
 
 class LSTM_Model(object):
@@ -340,4 +340,7 @@ if __name__ == '__main__':
     num_ntoken = len(nonTerminalInt2token)
     num_ttoken = len(terminalInt2token)
     model = LSTM_Model(num_ntoken, num_ttoken)
-    model.train()
+ #   model.train()
+
+    # test step
+    test_model = CodeCompletion(num_ntoken, num_ttoken)
