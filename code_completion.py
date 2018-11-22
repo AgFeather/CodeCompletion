@@ -4,14 +4,14 @@ import time
 import random
 
 import utils
-from lstm_model import LSTM_Model
+from lstm_model import RnnModel
 
 
 subset_int_data_dir = 'split_js_data/train_data/int_format/'
 model_save_dir = 'trained_model/lstm_model/'
 tensorboard_log_dir = 'tensorboard_log/lstm/'
 curr_time = time.strftime('_%Y_%M_%d_%H', time.localtime())
-training_log_dir = 'training_log/lstm_log'+str(curr_time) + '.txt'
+training_log_dir = 'training_log/lstm_log' + str(curr_time) + '.txt'
 
 num_subset_train_data = 20
 num_subset_test_data = 10
@@ -20,14 +20,13 @@ save_every_n = 1500
 num_terminal = 30000
 
 
-
-
 class CodeCompletion(object):
     def __init__(self,
                  num_ntoken,
                  num_ttoken):
-        self.model = LSTM_Model(num_ntoken, num_ttoken, is_training=False)
-        self.last_chackpoints = tf.train.latest_checkpoint(checkpoint_dir=model_save_dir)
+        self.model = RnnModel(num_ntoken, num_ttoken, is_training=False)
+        self.last_chackpoints = tf.train.latest_checkpoint(
+            checkpoint_dir=model_save_dir)
         self.sess = tf.Session()
         saver = tf.train.Saver()
         saver.restore(self.sess, self.last_chackpoints)
@@ -73,8 +72,11 @@ class CodeCompletion(object):
                 t_correct += 1
         n_accuracy = n_correct / len(query_test_data)
         t_accuracy = t_correct / len(query_test_data)
-        end_time =time.time()
-        print('test finished, time cost:{:.2f}..'.format(end_time-start_time))
+        end_time = time.time()
+        print(
+            'test finished, time cost:{:.2f}..'.format(
+                end_time -
+                start_time))
 
         return n_accuracy, t_accuracy
 
@@ -83,14 +85,14 @@ class CodeCompletion(object):
         return False
 
     def create_hole(self, nt_token_seq, hole_size=1):
-        hole_start_index = random.randint(len(nt_token_seq) // 2, len(nt_token_seq) - hole_size)
+        hole_start_index = random.randint(
+            len(nt_token_seq) // 2,
+            len(nt_token_seq) - hole_size)
         hole_end_index = hole_start_index + hole_size
         prefix = nt_token_seq[0:hole_start_index]
         expection = nt_token_seq[hole_start_index:hole_end_index]
         suffix = nt_token_seq[hole_end_index:-1]
         return prefix, expection, suffix
-
-
 
 
 if __name__ == '__main__':

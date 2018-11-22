@@ -6,18 +6,18 @@ import time
 import utils
 
 
-
 subset_int_data_dir = 'split_js_data/train_data/int_format/'
 model_save_dir = 'trained_model/lstm_model/'
 tensorboard_log_dir = 'tensorboard_log/lstm/'
 curr_time = time.strftime('_%Y_%M_%d_%H', time.localtime())
-training_log_dir = 'training_log/lstm_log'+str(curr_time) + '.txt'
+training_log_dir = 'training_log/lstm_log' + str(curr_time) + '.txt'
 
 num_subset_train_data = 20
 num_subset_test_data = 10
 show_every_n = 100
 save_every_n = 1500
 num_terminal = 30000
+
 
 class CNN_LSTM(object):
     def __init__(self,
@@ -42,17 +42,25 @@ class CNN_LSTM(object):
         self.num_epoches = num_epoches
         self.is_log = is_log
 
-        if is_training == False:
+        if not is_training:
             self.batch_size = 1
             self.time_steps = 1
 
         self.build_model()
 
     def build_input(self):
-        n_input = tf.placeholder(tf.int32, [self.batch_size, self.time_steps], name='n_input')
-        t_input = tf.placeholder(tf.int32, [self.batch_size, self.time_steps], name='t_input')
-        n_target = tf.placeholder(tf.int32, [self.batch_size, self.time_steps], name='n_target')
-        t_target = tf.placeholder(tf.int32, [self.batch_size, self.time_steps], name='t_target')
+        n_input = tf.placeholder(
+            tf.int32, [
+                self.batch_size, self.time_steps], name='n_input')
+        t_input = tf.placeholder(
+            tf.int32, [
+                self.batch_size, self.time_steps], name='t_input')
+        n_target = tf.placeholder(
+            tf.int32, [
+                self.batch_size, self.time_steps], name='n_target')
+        t_target = tf.placeholder(
+            tf.int32, [
+                self.batch_size, self.time_steps], name='t_target')
         keep_prob = tf.placeholder(tf.float32, name='keep_prob')
         return n_input, t_input, n_target, t_target, keep_prob
 
@@ -71,7 +79,8 @@ class CNN_LSTM(object):
     def build_lstm(self, keep_prob):
         def lstm_cell():
             cell = tf.contrib.rnn.BasicLSTMCell(self.num_hidden_units)
-            cell = tf.contrib.rnn.DropoutWrapper(cell, output_keep_prob=keep_prob)
+            cell = tf.contrib.rnn.DropoutWrapper(
+                cell, output_keep_prob=keep_prob)
             return cell
         cell_list = [lstm_cell() for _ in range(self.num_hidden_layers)]
         cells = tf.contrib.rnn.MultiRNNCell(cell_list)
@@ -79,43 +88,56 @@ class CNN_LSTM(object):
         return cells, init_state
 
     def build_n_output(self, lstm_output):
-        # 将lstm_output的形状由[batch_size, time_steps, n_units] 转换为 [batch_size*time_steps, n_units]
+        # 将lstm_output的形状由[batch_size, time_steps, n_units] 转换为
+        # [batch_size*time_steps, n_units]
         seq_output = tf.concat(lstm_output, axis=1)
         seq_output = tf.reshape(seq_output, [-1, self.num_hidden_units])
 
         with tf.variable_scope('non_terminal_softmax'):
-            nt_weight = tf.Variable(tf.truncated_normal([self.num_hidden_units, self.num_ntoken], stddev=0.1))
+            nt_weight = tf.Variable(tf.truncated_normal(
+                [self.num_hidden_units, self.num_ntoken], stddev=0.1))
             nt_bias = tf.Variable(tf.zeros(self.num_ntoken))
 
         nonterminal_logits = tf.matmul(seq_output, nt_weight) + nt_bias
-        nonterminal_output = tf.nn.softmax(logits=nonterminal_logits, name='nonterminal_output')
+        nonterminal_output = tf.nn.softmax(
+            logits=nonterminal_logits,
+            name='nonterminal_output')
         return nonterminal_logits, nonterminal_output
 
     def build_t_output(self, lstm_output):
-        # 将lstm_output的形状由[batch_size, time_steps, n_units] 转换为 [batch_size*time_steps, n_units]
+        # 将lstm_output的形状由[batch_size, time_steps, n_units] 转换为
+        # [batch_size*time_steps, n_units]
         seq_output = tf.concat(lstm_output, axis=1)
         seq_output = tf.reshape(seq_output, [-1, self.num_hidden_units])
         with tf.variable_scope('terminal_softmax'):
-            t_weight = tf.Variable(tf.truncated_normal([self.num_hidden_units, self.num_ttoken], stddev=0.1))
+            t_weight = tf.Variable(tf.truncated_normal(
+                [self.num_hidden_units, self.num_ttoken], stddev=0.1))
             t_bias = tf.Variable(tf.zeros(self.num_ttoken))
 
         terminal_logits = tf.matmul(seq_output, t_weight) + t_bias
-        termnial_output = tf.nn.softmax(logits=terminal_logits, name='terminal_output')
+        termnial_output = tf.nn.softmax(
+            logits=terminal_logits, name='terminal_output')
         return terminal_logits, termnial_output
-
-
 
     def build_loss(self, n_logits, n_target, t_logits, t_target):
         # todo: 使用负采样方法进行训练加快训练速度？
-        n_loss = tf.nn.softmax_cross_entropy_with_logits_v2(logits=n_logits, labels=n_target)
-        t_loss = tf.nn.softmax_cross_entropy_with_logits_v2(logits=t_logits, labels=t_target)
+        n_loss = tf.nn.softmax_cross_entropy_with_logits_v2(
+            logits=n_logits, labels=n_target)
+        t_loss = tf.nn.softmax_cross_entropy_with_logits_v2(
+            logits=t_logits, labels=t_target)
         loss = tf.add(n_loss, t_loss)
         loss = tf.reduce_mean(loss)
         return loss, n_loss, t_loss
 
     def bulid_accuracy(self, n_output, n_target, t_output, t_target):
-        n_equal = tf.equal(tf.argmax(n_output, axis=1), tf.argmax(n_target, axis=1))
-        t_equal = tf.equal(tf.argmax(t_output, axis=1), tf.argmax(t_target, axis=1))
+        n_equal = tf.equal(
+            tf.argmax(
+                n_output, axis=1), tf.argmax(
+                n_target, axis=1))
+        t_equal = tf.equal(
+            tf.argmax(
+                t_output, axis=1), tf.argmax(
+                t_target, axis=1))
         n_accuracy = tf.reduce_mean(tf.cast(n_equal, tf.float32))
         t_accuracy = tf.reduce_mean(tf.cast(t_equal, tf.float32))
         return n_accuracy, t_accuracy
@@ -140,13 +162,15 @@ class CNN_LSTM(object):
     def build_model(self):
         tf.reset_default_graph()
         self.n_input, self.t_input, self.n_target, self.t_target, self.keep_prob = self.build_input()
-        n_input_embedding, t_input_embedding = self.build_input_embed(self.n_input, self.t_input)
+        n_input_embedding, t_input_embedding = self.build_input_embed(
+            self.n_input, self.t_input)
         # print(n_input_embedding.get_shape()) # (64, 50, 64)
         # print(t_input_embedding.get_shape()) # (64, 50, 200)
         lstm_input = tf.concat([n_input_embedding, t_input_embedding], 2)
         # print(lstm_input.get_shape()) # (64, 50, 264)
         cells, self.init_state = self.build_lstm(self.keep_prob)
-        lstm_output, self.final_state = tf.nn.dynamic_rnn(cells, lstm_input, initial_state=self.init_state)
+        lstm_output, self.final_state = tf.nn.dynamic_rnn(
+            cells, lstm_input, initial_state=self.init_state)
         t_logits, self.t_output = self.build_t_output(lstm_output)
         n_logits, self.n_output = self. build_n_output(lstm_output)
 
@@ -167,7 +191,7 @@ class CNN_LSTM(object):
         print('lstm model has been created...')
 
     def get_batch(self, data_seq):
-        data_seq = np.array(data_seq) # 是否可以注释掉节省时间
+        data_seq = np.array(data_seq)  # 是否可以注释掉节省时间
         total_length = self.time_steps * self.batch_size
         n_batches = len(data_seq) // total_length
         data_seq = data_seq[:total_length * n_batches]
@@ -222,13 +246,13 @@ class CNN_LSTM(object):
                     batch_step += 1
                     global_step += 1
                     feed = {self.t_input: b_t_x,
-                            self.n_input:b_nt_x,
-                            self.n_target:b_nt_y,
-                            self.t_target:b_t_y,
-                            self.keep_prob:0.5}
+                            self.n_input: b_nt_x,
+                            self.n_target: b_nt_y,
+                            self.t_target: b_t_y,
+                            self.keep_prob: 0.5}
                     batch_start_time = time.time()
                     show_loss, show_n_accu, show_t_accu, _, summary_str = session.run(
-                        [self.loss, self.n_accu, self.t_accu, self.optimizer, self.merged_op],feed_dict=feed)
+                        [self.loss, self.n_accu, self.t_accu, self.optimizer, self.merged_op], feed_dict=feed)
                     if self.is_log:
                         tb_writer.add_summary(summary_str, global_step)
                         tb_writer.flush()
@@ -238,19 +262,24 @@ class CNN_LSTM(object):
                     batch_end_time = time.time()
 
                     if global_step % show_every_n == 0:
-                        log_info = 'epoch:{}/{}  '.format(epoch+1, self.num_epoches) + \
-                              'global_step:{}  '.format(global_step) + \
-                              'loss:{:.2f}  '.format(show_loss) + \
-                              'nt_accu:{:.2f}%  '.format(show_n_accu*100) + \
-                              'tt_accu:{:.2f}%  '.format(show_t_accu*100) + \
-                              'time cost per batch: {:.2f}/s'.format(batch_end_time - batch_start_time)
+                        log_info = 'epoch:{}/{}  '.format(epoch + 1, self.num_epoches) + \
+                            'global_step:{}  '.format(global_step) + \
+                            'loss:{:.2f}  '.format(show_loss) + \
+                            'nt_accu:{:.2f}%  '.format(show_n_accu * 100) + \
+                            'tt_accu:{:.2f}%  '.format(show_t_accu * 100) + \
+                            'time cost per batch: {:.2f}/s'.format(batch_end_time - batch_start_time)
                         self.print_and_log(log_info, log_file)
 
                     if global_step % save_every_n == 0:
-                        saver.save(session, model_save_dir + 'e{}_b{}.ckpt'.format(epoch, batch_step))
+                        saver.save(
+                            session,
+                            model_save_dir +
+                            'e{}_b{}.ckpt'.format(
+                                epoch,
+                                batch_step))
             epoch_end_time = time.time()
             epoch_cost_time = epoch_end_time - epoch_start_time
-            epoch_log = 'EPOCH:{}/{}  '.format(epoch+1, self.num_epoches) + \
+            epoch_log = 'EPOCH:{}/{}  '.format(epoch + 1, self.num_epoches) + \
                         'time cost this epoch: {}/s'.format(epoch_cost_time) + \
                         'epoch average loss: {:.2f}  '.format(loss_per_epoch / batch_step) + \
                         'epoch average nt_accu:{:.2f}  '.format(n_accu_per_epoch / batch_step) + \
@@ -261,7 +290,6 @@ class CNN_LSTM(object):
         self.print_and_log('model training finished...', log_file)
         session.close()
         log_file.close()
-
 
     def print_and_log(self, info, file):
         file.write(info)
