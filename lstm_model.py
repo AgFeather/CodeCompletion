@@ -4,19 +4,20 @@ import numpy as np
 import time
 
 import utils
+from setting import Setting
 
 
-subset_int_data_dir = 'split_js_data/train_data/int_format/'
-model_save_dir = 'trained_model/lstm_model/'
-tensorboard_log_dir = 'tensorboard_log/lstm/'
-curr_time = time.strftime('_%Y_%H_%d_%M', time.localtime())
-training_log_dir = 'training_log/lstm_log' + str(curr_time) + '.txt'
+base_setting = Setting()
+subset_int_data_dir = base_setting.sub_int_train_dir
+model_save_dir = base_setting.lstm_model_save_dir
+tensorboard_log_dir = base_setting.lstm_tb_log_dir
+training_log_dir = base_setting.lstm_train_log_dir
 
-num_subset_train_data = 20
-num_subset_test_data = 10
-show_every_n = 1
-save_every_n = 1500
-num_terminal = 30000
+num_subset_train_data = base_setting.num_sub_train_data
+num_subset_test_data = base_setting.num_sub_test_data
+show_every_n = base_setting.show_every_n
+save_every_n = base_setting.save_every_n
+num_terminal = base_setting.num_terminal
 
 
 class RnnModel(object):
