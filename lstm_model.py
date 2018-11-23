@@ -216,9 +216,9 @@ class RnnModel(object):
     def get_subset_data(self):
         for i in range(1, num_subset_train_data + 1):
             data_path = subset_int_data_dir + 'part{}.json'.format(i)
-            file = open(data_path, 'rb')
-            data = pickle.load(file)
-            yield data
+            with open(data_path, 'rb') as file:
+                data = pickle.load(file)
+                yield data
 
     def train(self):
         saver = tf.train.Saver()

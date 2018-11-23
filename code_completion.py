@@ -2,21 +2,20 @@ import tensorflow as tf
 import numpy as np
 import time
 import random
+import pickle
 
 import utils
 from lstm_model import RnnModel
 
 
-subset_int_data_dir = 'split_js_data/train_data/int_format/'
+test_subset_data_dir = 'split_js_data/eval_data/int_format/'
 model_save_dir = 'trained_model/lstm_model/'
-tensorboard_log_dir = 'tensorboard_log/lstm/'
 curr_time = time.strftime('_%Y_%M_%d_%H', time.localtime())
-training_log_dir = 'training_log/lstm_log' + str(curr_time) + '.txt'
+test_log_dir = 'test_log/lstm_log' + str(curr_time) + '.txt'
 
-num_subset_train_data = 20
+
 num_subset_test_data = 10
-show_every_n = 100
-save_every_n = 1500
+seq_per_subset = 5000
 num_terminal = 30000
 
 
@@ -30,9 +29,10 @@ class CodeCompletion(object):
         self.sess = tf.Session()
         saver = tf.train.Saver()
         saver.restore(self.sess, self.last_chackpoints)
+        self.log_file = open(test_log_dir, 'w')
 
     # query test
-    def query_test(self, prefix, suffix):
+    def query(self, prefix, suffix):
         '''
         Input: all tokens before the hole token(prefix) and all tokens after the hole token,
         ML model will predict the most probable token in the hole
@@ -57,31 +57,57 @@ class CodeCompletion(object):
         t_prediction = np.argmax(t_prediction)
         return n_prediction, t_prediction
 
-    def test(self, query_test_data):
-        print('test step is beginning..')
-        start_time = time.time()
-        t_correct = 0.0
-        n_correct = 0.0
-        for token_sequence in query_test_data:
-            prefix, expection, suffix = self.create_hole(token_sequence)
-            n_prediction, t_prediction = self.query_test(prefix, suffix)
-            n_expection, t_expection = expection
-            if self.token_equal(n_prediction, n_expection):
-                n_correct += 1
-            if self.token_equal(t_prediction, t_expection):
-                t_correct += 1
-        n_accuracy = n_correct / len(query_test_data)
-        t_accuracy = t_correct / len(query_test_data)
-        end_time = time.time()
-        print(
-            'test finished, time cost:{:.2f}..'.format(
-                end_time -
-                start_time))
+    def subset_generator(self):
+        for index in range(1, num_subset_test_data+1):
+            with open(test_subset_data_dir + 'int_part{}.json'.format(index), 'rb') as file:
+                subset_data = pickle.load(file)
+                yield index, subset_data
 
-        return n_accuracy, t_accuracy
+    def test_model(self):
+        self.test_log('test step is beginning..')
+        start_time = time.time()
+        total_tt_accuracy = 0.0
+        total_nt_accuracy = 0.0
+        subdata_generator = self.subset_generator()
+        for index, subset_test_data in subdata_generator:  # 遍历每个sub test dataset
+            sub_tt_correct = 0.0
+            sub_nt_correct = 0.0
+
+            for token_sequence in subset_test_data:  # 遍历该subset中每个nt token sequence
+                n_expection, t_expection = expection
+                prefix, expection, suffix = self.create_hole(token_sequence)  # 随机在sequence中创建一个hole
+                n_prediction, t_prediction = self.query(prefix, suffix)
+
+                if self.token_equal(n_prediction, n_expection):
+                    sub_nt_correct += 1
+                if self.token_equal(t_prediction, t_expection):
+                    sub_tt_correct += 1
+
+            sub_nt_accuracy = sub_nt_correct / len(subset_test_data)
+            sub_tt_accuracy = sub_tt_correct / len(subset_test_data)
+            total_nt_accuracy += sub_nt_accuracy
+            total_tt_accuracy += sub_tt_accuracy
+            end_time = time.time()
+            log_info = '{}th subset of test data  '.format(index) + \
+                'average time cost per case: {:.2f}  '.format((end_time-start_time)/seq_per_subset) + \
+                'accuracy of non-terminal token: {:.2f}  '.format(sub_nt_accuracy*100) + \
+                'accuracy of terminal token: {:.2f}  '.format(sub_tt_accuracy*100)
+            self.test_log(log_info)
+
+        total_nt_accuracy /= num_subset_test_data
+        total_tt_accuracy /= num_subset_test_data
+        log_info = 'test finished  ' + \
+            'accuracy of non-terminal token: {:.2f}  '.format(total_nt_accuracy) + \
+            'accuracy of terminal token: {:.2f}  '.format(total_tt_accuracy)
+        self.test_log(log_info)
+        return total_nt_accuracy, total_tt_accuracy
 
     def token_equal(self, prediction, expection):
-        # todo: implement
+        if type(prediction) is not int or type(expection) is not int:
+            print('ERROR: the format of token is not int')
+            return False
+        elif(prediction == expection):
+            return True
         return False
 
     def create_hole(self, nt_token_seq, hole_size=1):
@@ -94,6 +120,11 @@ class CodeCompletion(object):
         suffix = nt_token_seq[hole_end_index:-1]
         return prefix, expection, suffix
 
+    def test_log(self, log_info):
+        self.log_file.write(log_info)
+        self.log_file.write('\n')
+        print(log_info)
+
 
 if __name__ == '__main__':
     # test step
@@ -101,3 +132,4 @@ if __name__ == '__main__':
     num_ntoken = len(nonTerminalInt2token)
     num_ttoken = len(terminalInt2token)
     test_model = CodeCompletion(num_ntoken, num_ttoken)
+    nt_accuracy, tt_accuracy = test_model.test_model()
