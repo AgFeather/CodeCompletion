@@ -6,17 +6,19 @@ import pickle
 
 import utils
 from lstm_model import RnnModel
+from setting import Setting
 
 
-test_subset_data_dir = 'split_js_data/eval_data/int_format/'
-model_save_dir = 'trained_model/lstm_model/'
-curr_time = time.strftime('_%Y_%M_%d_%H', time.localtime())
-test_log_dir = 'test_log/lstm_log' + str(curr_time) + '.txt'
+test_setting = Setting()
+test_subset_data_dir = test_setting.sub_int_test_dir
+model_save_dir = test_setting.lstm_model_save_dir
+test_log_dir = test_setting.lstm_test_log_dir
 
 
-num_subset_test_data = 10
+num_subset_test_data = test_setting.num_sub_test_data
 seq_per_subset = 5000
-num_terminal = 30000
+show_every_n = test_setting.show_every_n
+num_terminal = test_setting.num_terminal
 
 
 class CodeCompletion(object):
@@ -72,10 +74,11 @@ class CodeCompletion(object):
         for index, subset_test_data in subdata_generator:  # 遍历每个sub test dataset
             sub_tt_correct = 0.0
             sub_nt_correct = 0.0
-
+            subset_step = 0
             for token_sequence in subset_test_data:  # 遍历该subset中每个nt token sequence
-                n_expection, t_expection = expection
+                subset_step += 1
                 prefix, expection, suffix = self.create_hole(token_sequence)  # 随机在sequence中创建一个hole
+                n_expection, t_expection = expection[0]
                 n_prediction, t_prediction = self.query(prefix, suffix)
 
                 if self.token_equal(n_prediction, n_expection):
@@ -83,15 +86,25 @@ class CodeCompletion(object):
                 if self.token_equal(t_prediction, t_expection):
                     sub_tt_correct += 1
 
+                if subset_step % show_every_n == 0:
+                    sub_nt_accuracy = sub_nt_correct / subset_step
+                    sub_tt_accuracy = sub_tt_correct / subset_step
+                    print('test step:{}  '.format(subset_step) + \
+                          'nt_accuracy:{:.2f}  '.format(sub_nt_accuracy) + \
+                          'tt_accuracy:{:.2f}  '.format(sub_tt_accuracy))
+
             sub_nt_accuracy = sub_nt_correct / len(subset_test_data)
             sub_tt_accuracy = sub_tt_correct / len(subset_test_data)
             total_nt_accuracy += sub_nt_accuracy
             total_tt_accuracy += sub_tt_accuracy
+
             end_time = time.time()
             log_info = '{}th subset of test data  '.format(index) + \
-                'average time cost per case: {:.2f}  '.format((end_time-start_time)/seq_per_subset) + \
-                'accuracy of non-terminal token: {:.2f}  '.format(sub_nt_accuracy*100) + \
-                'accuracy of terminal token: {:.2f}  '.format(sub_tt_accuracy*100)
+                'there are {} nt_sequence to test  '.format(len(subset_test_data)) + \
+                'total time cost of this subset: {:.2f}s  '.format(end_time - start_time) + \
+                'average time cost per case: {:.2f}s  '.format((end_time-start_time)/seq_per_subset) + \
+                'accuracy of non-terminal token: {:.2f}%  '.format(sub_nt_accuracy*100) + \
+                'accuracy of terminal token: {:.2f}%  '.format(sub_tt_accuracy*100)
             self.test_log(log_info)
 
         total_nt_accuracy /= num_subset_test_data
@@ -103,10 +116,7 @@ class CodeCompletion(object):
         return total_nt_accuracy, total_tt_accuracy
 
     def token_equal(self, prediction, expection):
-        if type(prediction) is not int or type(expection) is not int:
-            print('ERROR: the format of token is not int')
-            return False
-        elif(prediction == expection):
+        if(prediction == expection):
             return True
         return False
 

@@ -16,10 +16,14 @@ class Setting(object):
         self.sub_int_train_dir = 'split_js_data/train_data/int_format/'
         self.sub_int_test_dir = 'split_js_data/eval_data/int_format/'
 
+        # 模型训练时相关变量
         self.lstm_model_save_dir = 'trained_model/lstm_model/'
         self.lstm_tb_log_dir = 'tensorboard_log/lstm/'
         curr_time = time.strftime('_%Y_%H_%d_%M', time.localtime())
         self.lstm_train_log_dir = 'training_log/lstm_log' + str(curr_time) + '.txt'
+
+        # 模型测试时相关变量
+        self.lstm_test_log_dir = 'test_log/lstm_test_log' + str(curr_time) + '.txt'
 
         self.num_sub_train_data = 20
         self.num_sub_test_data = 10
@@ -27,5 +31,5 @@ class Setting(object):
         self.num_terminal = 30000
 
         # 模型相关
-        self.show_every_n = 1
+        self.show_every_n = 200
         self.save_every_n = 1500
