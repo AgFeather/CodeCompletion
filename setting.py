@@ -23,7 +23,7 @@ class Setting(object):
 
         # 模型log相关路径
         curr_time = time.strftime('_%Y_%m_%d_%H_%M', time.localtime())  # 年月日时分
-        self.lstm_model_save_dir = 'trained_model/lstm_model' + str(curr_time) + '/'  # 训练好的模型的保存路径
+        self.lstm_model_save_dir = 'trained_model/lstm_model/'  # 训练好的模型的保存路径
         self.lstm_tb_log_dir = 'tensorboard_log/lstm' + str(curr_time) + '/'  # 训练时tensorboard的log
         self.lstm_train_log_dir = 'training_log/lstm_log' + str(curr_time) + '.txt'  # 模型训练时的log
         self.lstm_test_log_dir = 'test_log/lstm_test_log' + str(curr_time) + '.txt'  # 模型测试时的log
