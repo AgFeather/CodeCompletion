@@ -22,7 +22,7 @@ num_terminal = base_setting.num_terminal
 
 class RnnModel(object):
     def __init__(self,
-                 num_ntoken, num_ttoken, is_training=True, is_log=False,
+                 num_ntoken, num_ttoken, is_training=True, tb_log=False,
                  batch_size=64,
                  n_embed_dim=64,
                  t_embed_dim=200,
@@ -30,7 +30,7 @@ class RnnModel(object):
                  num_hidden_layers=2,
                  learning_rate=0.001,
                  num_epoches=12,
-                 time_steps=50, ):
+                 time_steps=50,):
         self.time_steps = time_steps
         self.batch_size = batch_size
         self.n_embed_dim = n_embed_dim
@@ -41,7 +41,7 @@ class RnnModel(object):
         self.num_hidden_layers = num_hidden_layers
         self.learning_rate = learning_rate
         self.num_epoches = num_epoches
-        self.is_log = is_log
+        self.tb_log = tb_log
 
         if not is_training:
             self.batch_size = 1
@@ -51,17 +51,13 @@ class RnnModel(object):
 
     def build_input(self):
         n_input = tf.placeholder(
-            tf.int32, [
-                self.batch_size, self.time_steps], name='n_input')
+            tf.int32, [self.batch_size, self.time_steps], name='n_input')
         t_input = tf.placeholder(
-            tf.int32, [
-                self.batch_size, self.time_steps], name='t_input')
+            tf.int32, [self.batch_size, self.time_steps], name='t_input')
         n_target = tf.placeholder(
-            tf.int32, [
-                self.batch_size, self.time_steps], name='n_target')
+            tf.int32, [self.batch_size, self.time_steps], name='n_target')
         t_target = tf.placeholder(
-            tf.int32, [
-                self.batch_size, self.time_steps], name='t_target')
+            tf.int32, [self.batch_size, self.time_steps], name='t_target')
         keep_prob = tf.placeholder(tf.float32, name='keep_prob')
         return n_input, t_input, n_target, t_target, keep_prob
 
@@ -77,8 +73,7 @@ class RnnModel(object):
     def build_lstm(self, keep_prob):
         def lstm_cell():
             cell = tf.contrib.rnn.BasicLSTMCell(self.num_hidden_units)
-            cell = tf.contrib.rnn.DropoutWrapper(
-                cell, output_keep_prob=keep_prob)
+            cell = tf.contrib.rnn.DropoutWrapper(cell, output_keep_prob=keep_prob)
             return cell
         cell_list = [lstm_cell() for _ in range(self.num_hidden_layers)]
         cells = tf.contrib.rnn.MultiRNNCell(cell_list)
@@ -97,9 +92,7 @@ class RnnModel(object):
             nt_bias = tf.Variable(tf.zeros(self.num_ntoken))
 
         nonterminal_logits = tf.matmul(seq_output, nt_weight) + nt_bias
-        nonterminal_output = tf.nn.softmax(
-            logits=nonterminal_logits,
-            name='nonterminal_output')
+        nonterminal_output = tf.nn.softmax(logits=nonterminal_logits, name='nonterminal_output')
         return nonterminal_logits, nonterminal_output
 
     def build_t_output(self, lstm_output):
@@ -108,8 +101,7 @@ class RnnModel(object):
         seq_output = tf.concat(lstm_output, axis=1)
         seq_output = tf.reshape(seq_output, [-1, self.num_hidden_units])
         with tf.variable_scope('terminal_softmax'):
-            t_weight = tf.Variable(tf.truncated_normal(
-                [self.num_hidden_units, self.num_ttoken], stddev=0.1))
+            t_weight = tf.Variable(tf.truncated_normal([self.num_hidden_units, self.num_ttoken], stddev=0.1))
             t_bias = tf.Variable(tf.zeros(self.num_ttoken))
 
         terminal_logits = tf.matmul(seq_output, t_weight) + t_bias
@@ -129,13 +121,9 @@ class RnnModel(object):
 
     def bulid_accuracy(self, n_output, n_target, t_output, t_target):
         n_equal = tf.equal(
-            tf.argmax(
-                n_output, axis=1), tf.argmax(
-                n_target, axis=1))
+            tf.argmax(n_output, axis=1), tf.argmax(n_target, axis=1))
         t_equal = tf.equal(
-            tf.argmax(
-                t_output, axis=1), tf.argmax(
-                t_target, axis=1))
+            tf.argmax(t_output, axis=1), tf.argmax(t_target, axis=1))
         n_accuracy = tf.reduce_mean(tf.cast(n_equal, tf.float32))
         t_accuracy = tf.reduce_mean(tf.cast(t_equal, tf.float32))
         return n_accuracy, t_accuracy
@@ -162,10 +150,8 @@ class RnnModel(object):
         self.n_input, self.t_input, self.n_target, self.t_target, self.keep_prob = self.build_input()
         n_input_embedding, t_input_embedding = self.build_input_embed(
             self.n_input, self.t_input)
-        # print(n_input_embedding.get_shape()) # (64, 50, 64)
-        # print(t_input_embedding.get_shape()) # (64, 50, 200)
-        lstm_input = tf.concat([n_input_embedding, t_input_embedding], 2)
-        # print(lstm_input.get_shape()) # (64, 50, 264)
+        # n_embedding shape = (64, 50, 64)  t_embedding shape = (64, 50, 200)
+        lstm_input = tf.concat([n_input_embedding, t_input_embedding], 2)  # shape = (64, 50, 264)
         cells, self.init_state = self.build_lstm(self.keep_prob)
         lstm_output, self.final_state = tf.nn.dynamic_rnn(
             cells, lstm_input, initial_state=self.init_state)
@@ -250,9 +236,10 @@ class RnnModel(object):
                     batch_start_time = time.time()
                     show_loss, show_n_accu, show_t_accu, _, summary_str = session.run(
                         [self.loss, self.n_accu, self.t_accu, self.optimizer, self.merged_op], feed_dict=feed)
-                    if self.is_log:
+                    if self.tb_log:
                         tb_writer.add_summary(summary_str, global_step)
                         tb_writer.flush()
+
                     loss_per_epoch += show_loss
                     n_accu_per_epoch += show_n_accu
                     t_accu_per_epoch += show_t_accu
@@ -269,20 +256,14 @@ class RnnModel(object):
                         self.print_and_log(log_info)
 
                     if global_step % save_every_n == 0:
-                        saver.save(
-                            session,
-                            model_save_dir +
-                            'e{}_b{}.ckpt'.format(
-                                epoch,
-                                batch_step))
+                        saver.save(session, model_save_dir + 'e{}_b{}.ckpt'.format(epoch, batch_step))
             epoch_end_time = time.time()
             epoch_cost_time = epoch_end_time - epoch_start_time
             epoch_log = 'EPOCH:{}/{}  '.format(epoch + 1, self.num_epoches) + \
-                        'time cost this epoch: {}/s'.format(epoch_cost_time) + \
-                        'epoch average loss: {:.2f}  '.format(loss_per_epoch / batch_step) + \
-                        'epoch average nt_accu:{:.2f}  '.format(n_accu_per_epoch / batch_step) + \
-                        'epoch average tt_accu:{:.2f}  \n'.format(
-                            t_accu_per_epoch / batch_step)
+                        'time cost this epoch:{}/s  '.format(epoch_cost_time) + \
+                        'epoch average loss:{:.2f}  '.format(loss_per_epoch / batch_step) + \
+                        'epoch average nt_accu:{:.2f}%  '.format(100*n_accu_per_epoch / batch_step) + \
+                        'epoch average tt_accu:{:.2f}%  '.format(100*t_accu_per_epoch / batch_step)
             self.print_and_log(epoch_log)
 
         saver.save(session, model_save_dir + 'lastest_model.ckpt')
@@ -290,14 +271,13 @@ class RnnModel(object):
         session.close()
 
     def print_and_log(self, info):
-        if self.is_log:
-            try:
-                self.log_file.write(info)
-                self.log_file.write('\n')
-            except BaseException:
-                self.log_file = open(training_log_dir, 'w')
-                self.log_file.write(info)
-                self.log_file.write('\n')
+        try:
+            self.log_file.write(info)
+            self.log_file.write('\n')
+        except BaseException:
+            self.log_file = open(training_log_dir, 'w')
+            self.log_file.write(info)
+            self.log_file.write('\n')
         print(info)
 
 
@@ -305,5 +285,5 @@ if __name__ == '__main__':
     terminalToken2int, terminalInt2token, nonTerminalToken2int, nonTerminalInt2token = utils.load_dict_parameter()
     n_ntoken = len(nonTerminalInt2token)
     n_ttoken = len(terminalInt2token)
-    model = RnnModel(n_ntoken, n_ttoken, is_log=True)
+    model = RnnModel(n_ntoken, n_ttoken, tb_log=True)
     model.train()

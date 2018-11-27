@@ -14,12 +14,13 @@ train_subset_dir = base_setting.sub_train_data_dir
 sub_test_data_dir = base_setting.sub_test_data_dir
 sub_train_data_dir = base_setting.sub_train_data_dir
 sub_int_train_dir = base_setting.sub_int_train_dir
-sub_int_test_dir = base_setting.sub_test_data_dir
+sub_int_test_dir = base_setting.sub_int_test_dir
 
 most_common_termial_num = base_setting.num_terminal
 unknown_token = base_setting.unknown_token
 num_sub_train_data = base_setting.num_sub_train_data
 num_subset_train_data = base_setting.num_sub_test_data
+time_steps = base_setting.time_steps
 
 
 def dataset_split(is_training=True, subset_size=5000):
@@ -114,7 +115,7 @@ def pickle_save(path, data):
     """使用pickle将给定数据保存到给定路径中"""
     file = open(path, 'wb')
     pickle.dump(data, file)
-    print(path + 'has been saved...')
+    print(path + ' has been saved...')
 
 
 def pickle_load(path):
@@ -143,7 +144,6 @@ def bulid_binary_tree(data):
                     break
                 brother_map[bro] = child_list[i + 1]
             node.pop('children')
-
     return data
 
 
@@ -180,7 +180,6 @@ def save_string_int_dict():
 
     pickle_save(data_parameter_dir,
                 [tt_token_to_int, tt_int_to_token, nt_token_to_int, nt_int_to_token])  # 将映射字典保存到本地
-
     return tt_token_to_int, tt_int_to_token, nt_token_to_int, nt_int_to_token
 
 
@@ -219,7 +218,7 @@ def train_nt_seq_to_int(time_steps=50):
         one_sub_train_int_data_dir = sub_int_train_dir + 'int_part{}.json'.format(index)
         pickle_save(one_sub_train_int_data_dir, data_seq)
 
-    print('There are {} nt_pair in train dataset...'.format(total_num_nt_pair))  # total == 6970900
+    print('There are {} nt_pair in train dataset...'.format(total_num_nt_pair))  # total == 6,970,900
 
 
 def test_nt_seq_to_int():
@@ -236,10 +235,14 @@ def test_nt_seq_to_int():
             yield (i, data)
 
     subset_generator = get_subset_data()
-    for index, data in subset_generator:
+    short_count = 0
+    for index, nt_data in subset_generator:
         data_seq = []
         num_nt_pair = 0
-        for one_ast in data:  # 将每个由token组成的nt_seq，并encode成integer，然后保存
+        for one_ast in nt_data:  # 将每个由token组成的nt_seq，并encode成integer，然后保存
+            if len(one_ast) < time_steps:  # 对于长度小于50的ast，直接舍去
+                short_count += 1
+                continue
             nt_int_seq = [(nt_token_to_int[n],
                            tt_token_to_int.get(t, tt_token_to_int[unknown_token])) for n, t in one_ast]
             data_seq.append(nt_int_seq)
@@ -249,7 +252,8 @@ def test_nt_seq_to_int():
         one_sub_train_int_data_dir = sub_int_test_dir + 'int_part{}.json'.format(index)
         pickle_save(one_sub_train_int_data_dir, data_seq)
 
-    print('There are {} nt_pair in test data set...'.format(total_num_nt_pair))  # 4706813
+    print('There are {} nt_sequence which length is shorter than {}'.format(short_count, time_steps))
+    print('There are {} nt_pair in test data set...'.format(total_num_nt_pair))  # 4,706,813
 
 
 if __name__ == '__main__':
@@ -258,27 +262,7 @@ if __name__ == '__main__':
         dataset_split(is_training=True)
         train_nt_seq_to_int()
     else:
-        dataset_split(is_training=False)
+    #    dataset_split(is_training=False)
         test_nt_seq_to_int()
         
-    ast_example = [{'id': 0, 'type': 'Program', 'children': [1]},
-                   {'id': 1, 'type': 'ExpressionStatement', 'children': [2]},
-                   {'id': 2, 'type': 'CallExpression', 'children': [3, 8, 9, 10]},
-                   {'id': 3, 'type': 'MemberExpression', 'children': [4, 7]},
-                   {'id': 4, 'type': 'MemberExpression', 'children': [5, 6]},
-                   {'id': 5, 'type': 'Identifier', 'value': 'CKEDITOR'},
-                   {'id': 6, 'type': 'Property', 'value': 'plugins'},
-                   {'id': 7, 'type': 'Property', 'value': 'setLang'},
-                   {'id': 8, 'type': 'LiteralString', 'value': 'iframe'},
-                   {'id': 9, 'type': 'LiteralString', 'value': 'ka'},
-                   {'id': 10, 'type': 'ObjectExpression', 'children': [11, 13, 15, 17, 19]},
-                   {'id': 11, 'type': 'Property', 'value': 'border', 'children': [12]},
-                   {'id': 12, 'type': 'LiteralString', 'value': 'ჩარჩოს გამოჩენა'},
-                   {'id': 13, 'type': 'Property', 'value': 'noUrl', 'children': [14]},
-                   {'id': 14, 'type': 'LiteralString', 'value': 'აკრიფეთ iframe-ის URL'},
-                   {'id': 15, 'type': 'Property', 'value': 'scrolling', 'children': [16]},
-                   {'id': 16, 'type': 'LiteralString', 'value': 'გადახვევის ზოლების დაშვება'},
-                   {'id': 17, 'type': 'Property', 'value': 'title', 'children': [18]},
-                   {'id': 18, 'type': 'LiteralString', 'value': 'IFrame-ის პარამეტრები'},
-                   {'id': 19, 'type': 'Property', 'value': 'toolbar', 'children': [20]},
-                   {'id': 20, 'type': 'LiteralString', 'value': 'IFrame'}, 0]
+

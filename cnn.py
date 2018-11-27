@@ -17,7 +17,7 @@ num_subset_test_data = 10
 show_every_n = 100
 save_every_n = 1500
 num_terminal = 30000
-sliding_windows = [4,5,6,7]
+sliding_windows = [4, 5, 6, 7]
 
 
 class CnnModel(object):
