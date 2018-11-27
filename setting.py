@@ -18,7 +18,7 @@ class Setting(object):
 
         # 按照映射字典转换成int值的seq表示
         self.sub_int_train_dir = 'split_js_data/train_data/int_format/'
-        self.sub_int_valid_dir = 'split_js_data/valid_data/int_format'
+        self.sub_int_valid_dir = 'split_js_data/valid_data/int_format/'
         self.sub_int_test_dir = 'split_js_data/eval_data/int_format/'
 
         # 模型log相关路径
@@ -29,8 +29,9 @@ class Setting(object):
         self.lstm_test_log_dir = 'test_log/lstm_test_log' + str(curr_time) + '.txt'  # 模型测试时的log
 
         self.num_sub_train_data = 26
-        self.num_valid_valid_data = 2
+        self.num_sub_valid_data = 2
         self.num_sub_test_data = 2
+
         self.unknown_token = 'UNK'
         self.num_terminal = 30000
 

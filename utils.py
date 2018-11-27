@@ -1,5 +1,6 @@
 import pickle
 import json
+import sys
 from collections import Counter
 
 from setting import Setting
@@ -10,16 +11,21 @@ js_test_data_dir = base_setting.origin_test_data_dir
 js_train_data_dir = base_setting.origin_train_data_dir
 
 data_parameter_dir = base_setting.data_parameter_dir
-train_subset_dir = base_setting.sub_train_data_dir
-sub_test_data_dir = base_setting.sub_test_data_dir
+
 sub_train_data_dir = base_setting.sub_train_data_dir
+sub_valid_data_dir = base_setting.sub_valid_data_dir
+sub_test_data_dir = base_setting.sub_test_data_dir
+
 sub_int_train_dir = base_setting.sub_int_train_dir
+sub_int_valid_dir = base_setting.sub_int_valid_dir
 sub_int_test_dir = base_setting.sub_int_test_dir
+
+num_sub_valid_data = base_setting.num_sub_valid_data
+num_sub_train_data = base_setting.num_sub_train_data
+num_sub_test_data = base_setting.num_sub_test_data
 
 most_common_termial_num = base_setting.num_terminal
 unknown_token = base_setting.unknown_token
-num_sub_train_data = base_setting.num_sub_train_data
-num_subset_train_data = base_setting.num_sub_test_data
 time_steps = base_setting.time_steps
 
 
@@ -29,7 +35,7 @@ def dataset_split(is_training=True, subset_size=5000):
     if is_training:  # 对training数据集进行分割
         data_path = js_train_data_dir
         total_size = 100000
-        saved_to_path = train_subset_dir
+        saved_to_path = sub_train_data_dir
     else:  # 对test数据集进行分割
         data_path = js_test_data_dir
         total_size = 50000
@@ -190,15 +196,26 @@ def load_dict_parameter():
     return tt_token_to_int, tt_int_to_token, nt_token_to_int, nt_int_to_token
 
 
-def train_nt_seq_to_int(time_steps=50):
+def train_nt_seq_to_int(time_steps=50, train_or_valid='TRAIN'):
     # 对NT seq进行进一步的处理，首先将每个token转换为number，
     # 然后截取各个seq成time step的倍数，然后将所有AST都拼接到一起.
     tt_token_to_int, tt_int_to_token, nt_token_to_int, nt_int_to_token = load_dict_parameter()
     total_num_nt_pair = 0
+    if train_or_valid == 'TRAIN':
+        sub_data_dir = sub_train_data_dir
+        num_sub_data = num_sub_train_data
+        sub_int_data_dir = sub_int_train_dir
+    elif train_or_valid == 'VALID':
+        sub_data_dir = sub_valid_data_dir
+        num_sub_data = num_sub_valid_data
+        sub_int_data_dir = sub_int_valid_dir
+    else:
+        print('ERROR! Unknown commend!!')
+        sys.exit(1)
 
     def get_subset_data():  # 对每个part的nt_sequence读取并返回，等待进行处理
-        for i in range(1, num_sub_train_data + 1):
-            data_path = sub_train_data_dir + 'part{}.json'.format(i)
+        for i in range(1, num_sub_data + 1):
+            data_path = sub_data_dir + 'part{}.json'.format(i)
             data = pickle_load(data_path)
             yield (i, data)
 
@@ -215,10 +232,10 @@ def train_nt_seq_to_int(time_steps=50):
             data_seq.extend(nt_int_seq)
 
         total_num_nt_pair += len(data_seq)
-        one_sub_train_int_data_dir = sub_int_train_dir + 'int_part{}.json'.format(index)
-        pickle_save(one_sub_train_int_data_dir, data_seq)
+        one_sub_int_data_dir = sub_int_data_dir + 'int_part{}.json'.format(index)
+        pickle_save(one_sub_int_data_dir, data_seq)
 
-    print('There are {} nt_pair in train dataset...'.format(total_num_nt_pair))  # total == 6,970,900
+    print('There are {} nt_pair in {} dataset...'.format(total_num_nt_pair, train_or_valid))  # total == 6,970,900
 
 
 def test_nt_seq_to_int():
@@ -228,7 +245,7 @@ def test_nt_seq_to_int():
     total_num_nt_pair = 0
 
     def get_subset_data():  # 对每个part的nt_sequence读取并返回，等待进行处理
-        for i in range(1, num_subset_train_data + 1):
+        for i in range(1, num_sub_test_data + 1):
             data_path = sub_test_data_dir + 'part{}.json'.format(i)
             file = open(data_path, 'rb')
             data = pickle.load(file)
@@ -257,12 +274,16 @@ def test_nt_seq_to_int():
 
 
 if __name__ == '__main__':
-    training_data_process = False
-    if training_data_process:
-        dataset_split(is_training=True)
-        train_nt_seq_to_int()
-    else:
-    #    dataset_split(is_training=False)
+
+    data_process = 'TRAIN'
+
+    if data_process == 'TRAIN':
+        #dataset_split(is_training=True)
+        train_nt_seq_to_int(train_or_valid='TRAIN')
+    elif data_process == 'TEST':
+        #dataset_split(is_training=False)
         test_nt_seq_to_int()
+    elif data_process == 'VALID':
+        train_nt_seq_to_int(train_or_valid='VALID')
         
 

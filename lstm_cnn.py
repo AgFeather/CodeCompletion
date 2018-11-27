@@ -18,6 +18,7 @@ num_subset_test_data = base_setting.num_sub_test_data
 show_every_n = base_setting.show_every_n
 save_every_n = base_setting.save_every_n
 num_terminal = base_setting.num_terminal
+sliding_windows = [4, 5, 6, 7]
 
 
 class LstmCnnModel(object):
@@ -30,7 +31,7 @@ class LstmCnnModel(object):
                  num_hidden_layers=2,
                  learning_rate=0.001,
                  num_epoches=12,
-                 time_steps=50, ):
+                 time_steps=50,):
         self.time_steps = time_steps
         self.batch_size = batch_size
         self.n_embed_dim = n_embed_dim
@@ -80,11 +81,38 @@ class LstmCnnModel(object):
         init_state = cells.zero_state(self.batch_size, dtype=tf.float32)
         return cells, init_state
 
+    def build_cnn(self, cnn_input):
+        output_channel = 4
+        conv_list = []
+        for window in sliding_windows:
+            conv_weight = tf.Variable(tf.truncated_normal([window, self.num_hidden_units, 1, output_channel]))
+            conv_bias = tf.Variable(tf.constant(0.1, shape=[output_channel]))
+            conv_layer = tf.nn.conv2d(cnn_input, filter=conv_weight, strides=[1, 2, 2, 1], padding='VALID')
+            conv_layer = tf.nn.bias_add(conv_layer, conv_bias)
+            conv_layer = tf.nn.relu(conv_layer)
+            conv_layer = tf.nn.max_pool(conv_layer, [1, 2, 2, 1])
+            conv_list.append(conv_layer)
+        conv_list = np.array(conv_list)
+        conv_flat = np.reshape(conv_list, [self.batch_size, -1])
+        return conv_flat
 
+    def build_nt_softmax(self, cnn_output):
+        nt_weight = tf.Variable(tf.truncated_normal([cnn_output.shape()[1], self.num_ntoken]))
+        nt_bias = tf.Variable(tf.constant(0.1, shape=[self.num_ntoken]))
+        nt_logits = tf.matmul(cnn_output, nt_weight) + nt_bias
+        nt_softmax_output = tf.nn.softmax(nt_logits)
+        return nt_logits, nt_softmax_output
 
+    def build_tt_softmax(self, cnn_output):
+        tt_weight = tf.Variable(tf.truncated_normal([cnn_output.shape()[1], self.num_ttoken]))
+        tt_bias = tf.Variable(tf.constant(0.1, shape=[self.num_ttoken]))
+        tt_logits = tf.matmul(cnn_output, tt_weight) + tt_bias
+        tt_softmax_output = tf.nn.softmax(tt_logits)
+        return tt_logits, tt_softmax_output
 
     def build_loss(self, n_logits, n_target, t_logits, t_target):
         # todo: 使用负采样方法进行训练加快训练速度？
+        # todo: 重写
         n_loss = tf.nn.softmax_cross_entropy_with_logits_v2(
             logits=n_logits, labels=n_target)
         t_loss = tf.nn.softmax_cross_entropy_with_logits_v2(
@@ -94,6 +122,7 @@ class LstmCnnModel(object):
         return loss, n_loss, t_loss
 
     def bulid_accuracy(self, n_output, n_target, t_output, t_target):
+        # TODO： 重写
         n_equal = tf.equal(
             tf.argmax(n_output, axis=1), tf.argmax(n_target, axis=1))
         t_equal = tf.equal(
@@ -130,10 +159,9 @@ class LstmCnnModel(object):
         lstm_output, self.final_state = tf.nn.dynamic_rnn(
             cells, lstm_input, initial_state=self.init_state)
 
-        cnn_output = self.build_cnn(lstm_output)
-
-        t_logits, self.t_output = self.build_t_output(lstm_output)
-        n_logits, self.n_output = self. build_n_output(lstm_output)
+        conv_flat = self.build_cnn(lstm_output)
+        t_logits, self.t_output = self.build_tt_softmax(conv_flat)
+        n_logits, self.n_output = self. build_nt_softmax(conv_flat)
 
         onehot_n_target, onehot_t_target = self.bulid_onehot_target(
             self.n_target, self.t_target, n_logits.get_shape(), t_logits.get_shape())
@@ -152,6 +180,7 @@ class LstmCnnModel(object):
         self.print_and_log('lstm model has been created...')
 
     def get_batch(self, data_seq):
+        # todo: 修改该函数，尤其是对label的处理，只去最后一个nt_pair 作为label
         data_seq = np.array(data_seq)  # 是否可以注释掉节省时间
         total_length = self.time_steps * self.batch_size
         n_batches = len(data_seq) // total_length

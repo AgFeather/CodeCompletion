@@ -110,8 +110,8 @@ class CodeCompletion(object):
         total_nt_accuracy /= num_subset_test_data
         total_tt_accuracy /= num_subset_test_data
         log_info = 'test finished  ' + \
-            'accuracy of non-terminal token: {:.2f}  '.format(total_nt_accuracy) + \
-            'accuracy of terminal token: {:.2f}  '.format(total_tt_accuracy)
+            'accuracy of non-terminal token: {:.2f}%  '.format(total_nt_accuracy * 100) + \
+            'accuracy of terminal token: {:.2f}%  '.format(total_tt_accuracy * 100)
         self.test_log(log_info)
         return total_nt_accuracy, total_tt_accuracy
 
