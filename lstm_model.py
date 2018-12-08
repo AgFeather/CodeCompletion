@@ -22,7 +22,7 @@ num_terminal = base_setting.num_terminal
 
 class RnnModel(object):
     def __init__(self,
-                 num_ntoken, num_ttoken, is_training=True, tb_log=False,
+                 num_ntoken, num_ttoken, is_training=True, saved_model=False,
                  batch_size=64,
                  n_embed_dim=64,
                  t_embed_dim=200,
@@ -30,7 +30,8 @@ class RnnModel(object):
                  num_hidden_layers=2,
                  learning_rate=0.001,
                  num_epoches=12,
-                 time_steps=50,):
+                 time_steps=50,
+                 grad_clip=2,):
         self.time_steps = time_steps
         self.batch_size = batch_size
         self.n_embed_dim = n_embed_dim
@@ -41,7 +42,8 @@ class RnnModel(object):
         self.num_hidden_layers = num_hidden_layers
         self.learning_rate = learning_rate
         self.num_epoches = num_epoches
-        self.tb_log = tb_log
+        self.grad_clip = grad_clip
+        self.saved_model = saved_model
 
         if not is_training:
             self.batch_size = 1
@@ -133,7 +135,7 @@ class RnnModel(object):
         gradient_pair = optimizer.compute_gradients(loss)
         clip_gradient_pair = []
         for grad, var in gradient_pair:
-            grad = tf.clip_by_value(grad, -2, 2)
+            grad = tf.clip_by_value(grad, -self.grad_clip, self.grad_clip)
             clip_gradient_pair.append((grad, var))
         optimizer = optimizer.apply_gradients(clip_gradient_pair)
         return optimizer
@@ -208,13 +210,13 @@ class RnnModel(object):
                 yield data
 
     def train(self):
+        self.print_and_log('model training...')
         saver = tf.train.Saver()
         session = tf.Session()
         tb_writer = tf.summary.FileWriter(tensorboard_log_dir, session.graph)
         global_step = 0
-        self.print_and_log('model training...')
-
         session.run(tf.global_variables_initializer())
+
         for epoch in range(self.num_epoches):
             epoch_start_time = time.time()
             batch_step = 0
@@ -236,9 +238,9 @@ class RnnModel(object):
                     batch_start_time = time.time()
                     show_loss, show_n_accu, show_t_accu, _, summary_str = session.run(
                         [self.loss, self.n_accu, self.t_accu, self.optimizer, self.merged_op], feed_dict=feed)
-                    if self.tb_log:
-                        tb_writer.add_summary(summary_str, global_step)
-                        tb_writer.flush()
+
+                    tb_writer.add_summary(summary_str, global_step)
+                    tb_writer.flush()
 
                     loss_per_epoch += show_loss
                     n_accu_per_epoch += show_n_accu
@@ -255,18 +257,19 @@ class RnnModel(object):
                             batch_end_time - batch_start_time)
                         self.print_and_log(log_info)
 
-                    if global_step % save_every_n == 0:
+                    if global_step % save_every_n and self.saved_model== 0:
                         saver.save(session, model_save_dir + 'e{}_b{}.ckpt'.format(epoch, batch_step))
             epoch_end_time = time.time()
             epoch_cost_time = epoch_end_time - epoch_start_time
             epoch_log = 'EPOCH:{}/{}  '.format(epoch + 1, self.num_epoches) + \
-                        'time cost this epoch:{}/s  '.format(epoch_cost_time) + \
+                        'time cost this epoch:{:.2f}/s  '.format(epoch_cost_time) + \
                         'epoch average loss:{:.2f}  '.format(loss_per_epoch / batch_step) + \
                         'epoch average nt_accu:{:.2f}%  '.format(100*n_accu_per_epoch / batch_step) + \
                         'epoch average tt_accu:{:.2f}%  '.format(100*t_accu_per_epoch / batch_step)
             self.print_and_log(epoch_log)
 
-        saver.save(session, model_save_dir + 'lastest_model.ckpt')
+        if self.saved_model:
+            saver.save(session, model_save_dir + 'lastest_model.ckpt')
         self.print_and_log('model training finished...')
         session.close()
 
@@ -282,8 +285,8 @@ class RnnModel(object):
 
 
 if __name__ == '__main__':
-    terminalToken2int, terminalInt2token, nonTerminalToken2int, nonTerminalInt2token = utils.load_dict_parameter()
-    n_ntoken = len(nonTerminalInt2token)
-    n_ttoken = len(terminalInt2token)
+    tt_token_to_int, tt_int_to_token, nt_token_to_int, nt_int_to_token = utils.load_dict_parameter()
+    n_ntoken = len(nt_int_to_token)
+    n_ttoken = len(tt_int_to_token)
     model = RnnModel(n_ntoken, n_ttoken, tb_log=True)
     model.train()

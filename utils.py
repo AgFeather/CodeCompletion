@@ -43,12 +43,14 @@ def dataset_split(is_training=True, subset_size=5000):
 
     file = open(data_path, 'r')
     subset_list = []
+    nt_seq = None
     error_count = 0
     for i in range(1, total_size + 1):
         try:
             line = file.readline()  # 从文件中读取一个AST
-            line = json.loads(line)  # 将string类型转换成为json
-            nt_seq = ast_to_seq(line)  # 将一个AST按照规则转换成nt_sequence
+            ast = json.loads(line)  # 将string类型转换成为json的ast
+            binary_tree = bulid_binary_tree(ast)  # AST转换为二叉树
+            nt_seq = ast_to_seq(binary_tree)  # 将一个AST按照规则转换成nt_sequence
         except BaseException:
             error_count += 1
         subset_list.append(nt_seq)  # 将生成的nt sequence加入到list中
@@ -67,11 +69,45 @@ def dataset_split(is_training=True, subset_size=5000):
         print('testing data seperating finished...')
 
 
+def bulid_binary_tree(ast):
+    """transform the AST(one node may have several childNodes) to
+    Left-Child-Right-Sibling(LCRS) binary tree."""
+    brother_map = {0: -1}
+    for index, node in enumerate(ast):  # 顺序遍历每个AST中的node
+
+        if not isinstance(node, dict) and node == 0:  # AST中最后添加一个'EOF’标识
+            ast[index] = 'EOF'
+            break  # return data
+        if 'children' in node.keys():  # 说明是non-terminal节点
+            add_two_bits_info(node, brother_map)  # 向每个节点添加两bit的额外信息
+        node['right'] = brother_map.get(node['id'], -1)
+
+        if 'children' in node.keys():  # 表示该node为non-terminal
+            child_list = node['children']
+            node['left'] = child_list[0]  # 构建该node的left node
+            for i, bro in enumerate(child_list):  # 为该node的所有children构建right sibling
+                if i == len(child_list) - 1:
+                    break
+                brother_map[bro] = child_list[i + 1]
+            node.pop('children')
+    return ast
+
+
+def add_two_bits_info(node, brother_map):
+    # 向每个节点添加两bit的额外信息：isTerminal和hasSibling
+    if 'children' in node.keys():
+        node['isTerminal'] = False
+    else:
+        node['isTerminal'] = True
+    if brother_map.get(node['id'], -1) == -1:
+        node['hasSibling'] = False
+    else:
+        node['hasSibling'] = True
+
+
 terminal_count = Counter()  # 统计每个terminal token的出现次数
 non_termial_set = set()  # 统计non_termial token 种类
-
-
-def ast_to_seq(ast):
+def ast_to_seq(binary_tree):
     # 将一个ast首先转换成二叉树，然后对该二叉树进行中序遍历，得到nt_sequence
     def node_to_string(node):
         # 将一个node转换为string
@@ -112,7 +148,6 @@ def ast_to_seq(ast):
             in_order_traversal(data, node['right'])
 
     output = []
-    binary_tree = bulid_binary_tree(ast)  # AST转换为二叉树
     in_order_traversal(binary_tree, 0)
     return output
 
@@ -128,41 +163,6 @@ def pickle_load(path):
     file = open(path, 'rb')
     data = pickle.load(file)
     return data
-
-
-def bulid_binary_tree(data):
-    """transform the AST(one node may have several childNodes) to
-    Left-Child-Right-Sibling(LCRS) binary tree."""
-    brother_map = {0: -1}
-    for index, node in enumerate(data):  # 顺序遍历每个AST中的node
-
-        if not isinstance(node, dict) and node == 0:  # AST中最后添加一个'EOF’标识
-            data[index] = 'EOF'
-            break  # return data
-        add_two_bits_info(node, brother_map)  # 向每个节点添加两bit的额外信息
-        node['right'] = brother_map.get(node['id'], -1)
-
-        if 'children' in node.keys():  # 表示该node为non-terminal
-            child_list = node['children']
-            node['left'] = child_list[0]  # 构建该node的left node
-            for i, bro in enumerate(child_list):  # 为该node的所有children构建right sibling
-                if i == len(child_list) - 1:
-                    break
-                brother_map[bro] = child_list[i + 1]
-            node.pop('children')
-    return data
-
-
-def add_two_bits_info(node, brother_map):
-    # 向每个节点添加两bit的额外信息：isTerminal和hasSibling
-    if 'children' in node.keys():
-        node['isTerminal'] = False
-    else:
-        node['isTerminal'] = True
-    if brother_map.get(node['id'], -1) == -1:
-        node['hasSibling'] = False
-    else:
-        node['hasSibling'] = True
 
 
 def save_string_int_dict():

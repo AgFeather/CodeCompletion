@@ -4,33 +4,33 @@ import numpy as np
 import time
 
 import utils
+from setting import Setting
 
 
-subset_int_data_dir = 'split_js_data/train_data/int_format/'
-model_save_dir = 'trained_model/cnn_model/'
-tensorboard_log_dir = 'tensorboard_log/cnn/'
-curr_time = time.strftime('_%Y_%M_%d_%H', time.localtime())
-training_log_dir = 'training_log/cnn_log' + str(curr_time) + '.txt'
+base_setting = Setting()
+subset_int_data_dir = base_setting.sub_int_train_dir
+model_save_dir = base_setting.lstm_model_save_dir
+tensorboard_log_dir = base_setting.lstm_tb_log_dir
+training_log_dir = base_setting.lstm_train_log_dir
 
-num_subset_train_data = 20
-num_subset_test_data = 10
-show_every_n = 100
-save_every_n = 1500
-num_terminal = 30000
-sliding_windows = [4, 5, 6, 7]
+num_subset_train_data = base_setting.num_sub_train_data
+num_subset_test_data = base_setting.num_sub_test_data
+show_every_n = base_setting.show_every_n
+save_every_n = base_setting.save_every_n
+num_terminal = base_setting.num_terminal
 
 
-class CnnModel(object):
+class RnnModel(object):
     def __init__(self,
-                 num_ntoken, num_ttoken, is_training=True, is_log=False,
-                 batch_size=64,
+                 num_ntoken, num_ttoken, is_training=True, saved_model=False,
+                 batch_size=80,
                  n_embed_dim=64,
                  t_embed_dim=200,
-                 num_hidden_units=256,
-                 num_hidden_layers=2,
+                 num_hidden_units=1500,
                  learning_rate=0.001,
                  num_epoches=12,
-                 time_steps=50,):
+                 time_steps=50,
+                 grad_clip=5,):
         self.time_steps = time_steps
         self.batch_size = batch_size
         self.n_embed_dim = n_embed_dim
@@ -38,10 +38,10 @@ class CnnModel(object):
         self.num_ttoken = num_ttoken
         self.t_embed_dim = t_embed_dim
         self.num_hidden_units = num_hidden_units
-        self.num_hidden_layers = num_hidden_layers
         self.learning_rate = learning_rate
         self.num_epoches = num_epoches
-        self.is_log = is_log
+        self.grad_clip = grad_clip
+        self.saved_model = saved_model
 
         if not is_training:
             self.batch_size = 1
@@ -70,39 +70,11 @@ class CnnModel(object):
         t_input_embedding = tf.nn.embedding_lookup(t_embed_matrix, t_input)
         return n_input_embedding, t_input_embedding
 
-    def build_cnn(self, cnn_input):
-        def get_filter(window_size, in_channel, out_channel):
-            cnn_filter = tf.Variable(tf.truncated_normal(
-                shape=[window_size, cnn_input.get_shape()[2], in_channel, out_channel]))
-            return cnn_filter
-        def get_bias(size):
-            return tf.Variable(tf.constant(0.1, shape=size))
-
-        conv_list = []
-        for index, window in enumerate(sliding_windows):
-            with tf.name_scope('cnn_window{}'.format(window)):
-                filter1 = get_filter(window, 1, 4)
-                conv1 = tf.nn.conv2d(cnn_input, filter1, strides=[1,1,1,1], padding='VALID')
-                conv1 = tf.nn.relu(conv1) + get_bias(4)
-                pool1 = tf.nn.max_pool(conv1, strides=[1, 2, 2, 1])
-
-                filter2 = get_filter(window, 4, 8)
-                conv2 = tf.nn.conv2d(pool1, filter2, strides=[1,1,1,1], padding='VALID')
-                conv2 = tf.nn.relu(conv2) + get_bias(8)
-                pool2 = tf.nn.max_pool(conv2, strides=[1, 2, 2, 1])
-
-                filter3 = get_filter(window, 8, 16)
-                conv3 = tf.nn.conv2d(pool2, filter3, strides=[1,1,1,1], padding='VALID')
-                conv3 = tf.nn.relu(conv3) + get_bias(16)
-                pool3 = tf.nn.max_pool(conv3, strides=[1, 2, 2, 1])
-
-                conv_list.append(pool3)
-
-        conv_layers = np.array(conv_list).reshape(self.batch_size, -1)
-        return conv_layers
-
-    def bulid_fc_layer(self, fc_input):
-        pass
+    def build_lstm(self, keep_prob):
+        cell = tf.contrib.rnn.BasicLSTMCell(self.num_hidden_units)
+        cell = tf.contrib.rnn.DropoutWrapper(cell, output_keep_prob=keep_prob)
+        init_state = cell.zero_state(self.batch_size, dtype=tf.float32)
+        return cell, init_state
 
     def build_n_output(self, lstm_output):
         # 将lstm_output的形状由[batch_size, time_steps, n_units] 转换为
@@ -116,9 +88,7 @@ class CnnModel(object):
             nt_bias = tf.Variable(tf.zeros(self.num_ntoken))
 
         nonterminal_logits = tf.matmul(seq_output, nt_weight) + nt_bias
-        nonterminal_output = tf.nn.softmax(
-            logits=nonterminal_logits,
-            name='nonterminal_output')
+        nonterminal_output = tf.nn.softmax(logits=nonterminal_logits, name='nonterminal_output')
         return nonterminal_logits, nonterminal_output
 
     def build_t_output(self, lstm_output):
@@ -127,8 +97,7 @@ class CnnModel(object):
         seq_output = tf.concat(lstm_output, axis=1)
         seq_output = tf.reshape(seq_output, [-1, self.num_hidden_units])
         with tf.variable_scope('terminal_softmax'):
-            t_weight = tf.Variable(tf.truncated_normal(
-                [self.num_hidden_units, self.num_ttoken], stddev=0.1))
+            t_weight = tf.Variable(tf.truncated_normal([self.num_hidden_units, self.num_ttoken], stddev=0.1))
             t_bias = tf.Variable(tf.zeros(self.num_ttoken))
 
         terminal_logits = tf.matmul(seq_output, t_weight) + t_bias
@@ -148,13 +117,9 @@ class CnnModel(object):
 
     def bulid_accuracy(self, n_output, n_target, t_output, t_target):
         n_equal = tf.equal(
-            tf.argmax(
-                n_output, axis=1), tf.argmax(
-                n_target, axis=1))
+            tf.argmax(n_output, axis=1), tf.argmax(n_target, axis=1))
         t_equal = tf.equal(
-            tf.argmax(
-                t_output, axis=1), tf.argmax(
-                t_target, axis=1))
+            tf.argmax(t_output, axis=1), tf.argmax(t_target, axis=1))
         n_accuracy = tf.reduce_mean(tf.cast(n_equal, tf.float32))
         t_accuracy = tf.reduce_mean(tf.cast(t_equal, tf.float32))
         return n_accuracy, t_accuracy
@@ -164,7 +129,7 @@ class CnnModel(object):
         gradient_pair = optimizer.compute_gradients(loss)
         clip_gradient_pair = []
         for grad, var in gradient_pair:
-            grad = tf.clip_by_value(grad, -2, 2)
+            grad = tf.clip_by_value(grad, -self.grad_clip, self.grad_clip)
             clip_gradient_pair.append((grad, var))
         optimizer = optimizer.apply_gradients(clip_gradient_pair)
         return optimizer
@@ -181,12 +146,13 @@ class CnnModel(object):
         self.n_input, self.t_input, self.n_target, self.t_target, self.keep_prob = self.build_input()
         n_input_embedding, t_input_embedding = self.build_input_embed(
             self.n_input, self.t_input)
-        # n_input_embedding shape == (64, 50, 64)  # t_input_embedding shape == (64, 50, 200)
-        cnn_input = tf.concat([n_input_embedding, t_input_embedding], 2)  # (64, 50, 264)
-        cnn_output = self.build_cnn(cnn_input)
-        fc_output = self.bulid_fc_layer(cnn_output)
-        t_logits, self.t_output = self.build_t_output(fc_output)
-        n_logits, self.n_output = self. build_n_output(fc_output)
+        # n_embedding shape = (64, 50, 64)  t_embedding shape = (64, 50, 200)
+        lstm_input = tf.concat([n_input_embedding, t_input_embedding], 2)  # shape = (64, 50, 264)
+        cells, self.init_state = self.build_lstm(self.keep_prob)
+        lstm_output, self.final_state = tf.nn.dynamic_rnn(
+            cells, lstm_input, initial_state=self.init_state)
+        t_logits, self.t_output = self.build_t_output(lstm_output)
+        n_logits, self.n_output = self. build_n_output(lstm_output)
 
         onehot_n_target, onehot_t_target = self.bulid_onehot_target(
             self.n_target, self.t_target, n_logits.get_shape(), t_logits.get_shape())
@@ -202,7 +168,7 @@ class CnnModel(object):
         tf.summary.scalar('t_accuracy', self.t_accu)
         self.merged_op = tf.summary.merge_all()
 
-        print('cnn with sliding windows model has been created...')
+        self.print_and_log('lstm model has been created...')
 
     def get_batch(self, data_seq):
         data_seq = np.array(data_seq)  # 是否可以注释掉节省时间
@@ -233,19 +199,18 @@ class CnnModel(object):
     def get_subset_data(self):
         for i in range(1, num_subset_train_data + 1):
             data_path = subset_int_data_dir + 'part{}.json'.format(i)
-            file = open(data_path, 'rb')
-            data = pickle.load(file)
-            yield data
+            with open(data_path, 'rb') as file:
+                data = pickle.load(file)
+                yield data
 
     def train(self):
+        self.print_and_log('model training...')
         saver = tf.train.Saver()
         session = tf.Session()
         tb_writer = tf.summary.FileWriter(tensorboard_log_dir, session.graph)
-        log_file = open(training_log_dir, 'w')
         global_step = 0
-        self.print_and_log('model training...', log_file)
-
         session.run(tf.global_variables_initializer())
+
         for epoch in range(self.num_epoches):
             epoch_start_time = time.time()
             batch_step = 0
@@ -267,9 +232,10 @@ class CnnModel(object):
                     batch_start_time = time.time()
                     show_loss, show_n_accu, show_t_accu, _, summary_str = session.run(
                         [self.loss, self.n_accu, self.t_accu, self.optimizer, self.merged_op], feed_dict=feed)
-                    if self.is_log:
-                        tb_writer.add_summary(summary_str, global_step)
-                        tb_writer.flush()
+
+                    tb_writer.add_summary(summary_str, global_step)
+                    tb_writer.flush()
+
                     loss_per_epoch += show_loss
                     n_accu_per_epoch += show_n_accu
                     t_accu_per_epoch += show_t_accu
@@ -281,39 +247,40 @@ class CnnModel(object):
                             'loss:{:.2f}  '.format(show_loss) + \
                             'nt_accu:{:.2f}%  '.format(show_n_accu * 100) + \
                             'tt_accu:{:.2f}%  '.format(show_t_accu * 100) + \
-                            'time cost per batch: {:.2f}/s'.format(batch_end_time - batch_start_time)
-                        self.print_and_log(log_info, log_file)
+                            'time cost per batch: {:.2f}/s'.format(
+                            batch_end_time - batch_start_time)
+                        self.print_and_log(log_info)
 
-                    if global_step % save_every_n == 0:
-                        saver.save(
-                            session,
-                            model_save_dir +
-                            'e{}_b{}.ckpt'.format(
-                                epoch,
-                                batch_step))
+                    if global_step % save_every_n and self.saved_model== 0:
+                        saver.save(session, model_save_dir + 'e{}_b{}.ckpt'.format(epoch, batch_step))
             epoch_end_time = time.time()
             epoch_cost_time = epoch_end_time - epoch_start_time
             epoch_log = 'EPOCH:{}/{}  '.format(epoch + 1, self.num_epoches) + \
-                        'time cost this epoch: {}/s'.format(epoch_cost_time) + \
-                        'epoch average loss: {:.2f}  '.format(loss_per_epoch / batch_step) + \
-                        'epoch average nt_accu:{:.2f}  '.format(n_accu_per_epoch / batch_step) + \
-                        'epoch average tt_accu:{:.2f}  \n'.format(t_accu_per_epoch / batch_step)
-            self.print_and_log(epoch_log, log_file)
+                        'time cost this epoch:{:.2f}/s  '.format(epoch_cost_time) + \
+                        'epoch average loss:{:.2f}  '.format(loss_per_epoch / batch_step) + \
+                        'epoch average nt_accu:{:.2f}%  '.format(100*n_accu_per_epoch / batch_step) + \
+                        'epoch average tt_accu:{:.2f}%  '.format(100*t_accu_per_epoch / batch_step)
+            self.print_and_log(epoch_log)
 
-        saver.save(session, model_save_dir + 'lastest_model.ckpt')
-        self.print_and_log('model training finished...', log_file)
+        if self.saved_model:
+            saver.save(session, model_save_dir + 'lastest_model.ckpt')
+        self.print_and_log('model training finished...')
         session.close()
-        log_file.close()
 
-    def print_and_log(self, info, file):
-        file.write(info)
-        file.write('\n')
+    def print_and_log(self, info):
+        try:
+            self.log_file.write(info)
+            self.log_file.write('\n')
+        except BaseException:
+            self.log_file = open(training_log_dir, 'w')
+            self.log_file.write(info)
+            self.log_file.write('\n')
         print(info)
 
 
-
 if __name__ == '__main__':
-    terminalToken2int, terminalInt2token, nonTerminalToken2int, nonTerminalInt2token = utils.load_dict_parameter()
-    num_ntoken = len(nonTerminalInt2token)
-    num_ttoken = len(terminalInt2token)
-    test_model = CnnModel(num_ntoken, num_ttoken)
+    tt_token_to_int, tt_int_to_token, nt_token_to_int, nt_int_to_token = utils.load_dict_parameter()
+    n_ntoken = len(nt_int_to_token)
+    n_ttoken = len(tt_int_to_token)
+    model = RnnModel(n_ntoken, n_ttoken, tb_log=True)
+    model.train()

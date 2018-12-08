@@ -89,9 +89,10 @@ class CodeCompletion(object):
                 if subset_step % show_every_n == 0:
                     sub_nt_accuracy = sub_nt_correct / subset_step
                     sub_tt_accuracy = sub_tt_correct / subset_step
-                    print('test step:{}  '.format(subset_step) + \
-                          'nt_accuracy:{:.2f}  '.format(sub_nt_accuracy) + \
-                          'tt_accuracy:{:.2f}  '.format(sub_tt_accuracy))
+                    log_info = 'test step:{}  '.format(subset_step) + \
+                          'nt_accuracy:{:.2f}%  '.format(sub_nt_accuracy * 100) + \
+                          'tt_accuracy:{:.2f}%  '.format(sub_tt_accuracy * 100)
+                    self.test_log(log_info)
 
             sub_nt_accuracy = sub_nt_correct / len(subset_test_data)
             sub_tt_accuracy = sub_tt_correct / len(subset_test_data)
