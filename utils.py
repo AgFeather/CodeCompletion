@@ -78,27 +78,30 @@ def bulid_binary_tree(ast):
         if not isinstance(node, dict) and node == 0:  # AST中最后添加一个'EOF’标识
             ast[index] = 'EOF'
             break  # return data
-        if 'children' in node.keys():  # 说明是non-terminal节点
-            add_two_bits_info(node, brother_map)  # 向每个节点添加两bit的额外信息
+
         node['right'] = brother_map.get(node['id'], -1)
 
         if 'children' in node.keys():  # 表示该node为non-terminal
+            node['isTerminal'] = False
+            add_two_bits_info(ast, node, brother_map)  # 向每个节点添加两bit的额外信息
             child_list = node['children']
             node['left'] = child_list[0]  # 构建该node的left node
             for i, bro in enumerate(child_list):  # 为该node的所有children构建right sibling
                 if i == len(child_list) - 1:
                     break
                 brother_map[bro] = child_list[i + 1]
-            node.pop('children')
+        else:
+            node['isTerminal'] = True
     return ast
 
 
-def add_two_bits_info(node, brother_map):
-    # 向每个节点添加两bit的额外信息：isTerminal和hasSibling
-    if 'children' in node.keys():
-        node['isTerminal'] = False
-    else:
-        node['isTerminal'] = True
+def add_two_bits_info(ast, node, brother_map):
+    # 向每个节点添加两bit的额外信息：hasNonTerminalChild和hasSibling
+    node['hasNonTerminalChild'] = False
+    for child_index in node['children']:
+        if 'children' in ast[child_index]:
+            node['hasNonTerminalChild'] = True
+            break
     if brother_map.get(node['id'], -1) == -1:
         node['hasSibling'] = False
     else:
@@ -107,6 +110,8 @@ def add_two_bits_info(node, brother_map):
 
 terminal_count = Counter()  # 统计每个terminal token的出现次数
 non_termial_set = set()  # 统计non_termial token 种类
+
+
 def ast_to_seq(binary_tree):
     # 将一个ast首先转换成二叉树，然后对该二叉树进行中序遍历，得到nt_sequence
     def node_to_string(node):
@@ -120,32 +125,33 @@ def ast_to_seq(binary_tree):
         else:  # 如果是non-terminal
             string_node = str(node['type']) + '=$$=' + \
                 str(node['hasSibling']) + '=$$=' + \
-                str(node['isTerminal'])  # 有些non-terminal包含value，探索该value的意义？（value种类非常多）
+                str(node['hasNonTerminalChild'])  # 有些non-terminal包含value，探索该value的意义？（value种类非常多）
             non_termial_set.add(string_node)
         return string_node
 
-    def in_order_traversal(data, index):
+    def in_order_traversal(bin_tree, index):
         # 对给定的二叉树进行中序遍历，并在中序遍历的时候，生成nt_pair
-        node = data[index]
+        node = bin_tree[index]
         if 'left' in node.keys():
-            in_order_traversal(data, node['left'])
+            in_order_traversal(bin_tree, node['left'])
 
         if 'isTerminal' in node.keys() and node['isTerminal'] is False:
             # 如果该node是non-terminal，并且包含一个terminal 子节点，则和该子节点组成nt_pair保存在output中
             # 否则将nt_pair的T设为字符串EMPTY
             n_pair = node_to_string(node)
-            if data[node['left']]['isTerminal']:
-                assert data[node['left']]['id'] == node['left']
-                t_pair = node_to_string(data[node['left']])
-            else:
-                t_pair = node_to_string('EMPTY')
-            nt_pair = (n_pair, t_pair)
-            output.append(nt_pair)
+            for child_index in node['children']:  # 遍历该Nterminal的所有child，分别用所有child构建NT-pair
+                if bin_tree[child_index]['isTerminal']:
+                    t_pair = node_to_string(bin_tree[child_index])
+                else:
+                    t_pair = node_to_string('EMPTY')
+                nt_pair = (n_pair, t_pair)
+                output.append(nt_pair)
+
         else:  # 该token是terminal，只将其记录到counter中
             node_to_string(node)
 
         if node['right'] != -1:  # 遍历right side
-            in_order_traversal(data, node['right'])
+            in_order_traversal(bin_tree, node['right'])
 
     output = []
     in_order_traversal(binary_tree, 0)
@@ -278,12 +284,10 @@ if __name__ == '__main__':
     data_process = 'TRAIN'
 
     if data_process == 'TRAIN':
-        #dataset_split(is_training=True)
+        # dataset_split(is_training=True)
         train_nt_seq_to_int(train_or_valid='TRAIN')
     elif data_process == 'TEST':
-        #dataset_split(is_training=False)
+        # dataset_split(is_training=False)
         test_nt_seq_to_int()
     elif data_process == 'VALID':
         train_nt_seq_to_int(train_or_valid='VALID')
-        
-
