@@ -131,7 +131,9 @@ class RnnModel(object):
         return n_accuracy, t_accuracy
 
     def bulid_optimizer(self, loss):
-        optimizer = tf.train.AdamOptimizer(self.learning_rate)
+        self.global_step = tf.Variable(0, trainable=False)
+        learning_rate = tf.train.exponential_decay(self.learning_rate, self.global_step, 1000, 0.9)
+        optimizer = tf.train.AdamOptimizer(learning_rate)
         gradient_pair = optimizer.compute_gradients(loss)
         clip_gradient_pair = []
         for grad, var in gradient_pair:
@@ -204,7 +206,7 @@ class RnnModel(object):
 
     def get_subset_data(self):
         for i in range(1, num_subset_train_data + 1):
-            data_path = subset_int_data_dir + 'part{}.json'.format(i)
+            data_path = subset_int_data_dir + 'int_part{}.json'.format(i)
             with open(data_path, 'rb') as file:
                 data = pickle.load(file)
                 yield data
@@ -234,7 +236,8 @@ class RnnModel(object):
                             self.n_input: b_nt_x,
                             self.n_target: b_nt_y,
                             self.t_target: b_t_y,
-                            self.keep_prob: 0.5}
+                            self.keep_prob: 0.5,
+                            self.global_step:global_step}
                     batch_start_time = time.time()
                     show_loss, show_n_accu, show_t_accu, _, summary_str = session.run(
                         [self.loss, self.n_accu, self.t_accu, self.optimizer, self.merged_op], feed_dict=feed)
@@ -257,7 +260,7 @@ class RnnModel(object):
                             batch_end_time - batch_start_time)
                         self.print_and_log(log_info)
 
-                    if global_step % save_every_n and self.saved_model== 0:
+                    if self.saved_model and global_step % save_every_n == 0:
                         saver.save(session, model_save_dir + 'e{}_b{}.ckpt'.format(epoch, batch_step))
             epoch_end_time = time.time()
             epoch_cost_time = epoch_end_time - epoch_start_time
@@ -288,5 +291,5 @@ if __name__ == '__main__':
     tt_token_to_int, tt_int_to_token, nt_token_to_int, nt_int_to_token = utils.load_dict_parameter()
     n_ntoken = len(nt_int_to_token)
     n_ttoken = len(tt_int_to_token)
-    model = RnnModel(n_ntoken, n_ttoken, tb_log=True)
+    model = RnnModel(n_ntoken, n_ttoken, saved_model=True)
     model.train()

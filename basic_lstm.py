@@ -24,11 +24,11 @@ class RnnModel(object):
     def __init__(self,
                  num_ntoken, num_ttoken, is_training=True, saved_model=False,
                  batch_size=80,
-                 n_embed_dim=64,
-                 t_embed_dim=200,
+                 n_embed_dim=1500,
+                 t_embed_dim=1500,
                  num_hidden_units=1500,
                  learning_rate=0.001,
-                 num_epoches=12,
+                 num_epoches=15,
                  time_steps=50,
                  grad_clip=5,):
         self.time_steps = time_steps
@@ -62,10 +62,10 @@ class RnnModel(object):
         return n_input, t_input, n_target, t_target, keep_prob
 
     def build_input_embed(self, n_input, t_input):
-        n_embed_matrix = tf.Variable(tf.truncated_normal(
-            [self.num_ntoken, self.n_embed_dim]), name='n_embed_matrix')
-        t_embed_matrix = tf.Variable(tf.truncated_normal(
-            [self.num_ttoken, self.t_embed_dim]), name='t_embed_matrix')
+        n_embed_matrix = tf.Variable(tf.random_uniform(
+            [self.num_ntoken, self.n_embed_dim], minval=-0.05, maxval=0.05),  name='n_embed_matrix')
+        t_embed_matrix = tf.Variable(tf.random_uniform(
+            [self.num_ttoken, self.t_embed_dim], minval=-0.05, maxval=0.05), name='t_embed_matrix')
         n_input_embedding = tf.nn.embedding_lookup(n_embed_matrix, n_input)
         t_input_embedding = tf.nn.embedding_lookup(t_embed_matrix, t_input)
         return n_input_embedding, t_input_embedding
@@ -83,8 +83,8 @@ class RnnModel(object):
         seq_output = tf.reshape(seq_output, [-1, self.num_hidden_units])
 
         with tf.variable_scope('non_terminal_softmax'):
-            nt_weight = tf.Variable(tf.truncated_normal(
-                [self.num_hidden_units, self.num_ntoken], stddev=0.1))
+            nt_weight = tf.Variable(tf.random_uniform(
+                [self.num_hidden_units, self.num_ntoken], minval=-0.05, maxval=0.05))
             nt_bias = tf.Variable(tf.zeros(self.num_ntoken))
 
         nonterminal_logits = tf.matmul(seq_output, nt_weight) + nt_bias
@@ -97,7 +97,8 @@ class RnnModel(object):
         seq_output = tf.concat(lstm_output, axis=1)
         seq_output = tf.reshape(seq_output, [-1, self.num_hidden_units])
         with tf.variable_scope('terminal_softmax'):
-            t_weight = tf.Variable(tf.truncated_normal([self.num_hidden_units, self.num_ttoken], stddev=0.1))
+            t_weight = tf.Variable(tf.random_uniform(
+                [self.num_hidden_units, self.num_ttoken], minval=-0.05, maxval=0.05))
             t_bias = tf.Variable(tf.zeros(self.num_ttoken))
 
         terminal_logits = tf.matmul(seq_output, t_weight) + t_bias
@@ -125,7 +126,9 @@ class RnnModel(object):
         return n_accuracy, t_accuracy
 
     def bulid_optimizer(self, loss):
-        optimizer = tf.train.AdamOptimizer(self.learning_rate)
+        self.global_step = tf.Variable(0, trainable=False)
+        learning_rate = tf.train.exponential_decay(self.learning_rate, self.global_step, 1000, 0.9)
+        optimizer = tf.train.AdamOptimizer(learning_rate)
         gradient_pair = optimizer.compute_gradients(loss)
         clip_gradient_pair = []
         for grad, var in gradient_pair:
@@ -146,8 +149,8 @@ class RnnModel(object):
         self.n_input, self.t_input, self.n_target, self.t_target, self.keep_prob = self.build_input()
         n_input_embedding, t_input_embedding = self.build_input_embed(
             self.n_input, self.t_input)
-        # n_embedding shape = (64, 50, 64)  t_embedding shape = (64, 50, 200)
-        lstm_input = tf.concat([n_input_embedding, t_input_embedding], 2)  # shape = (64, 50, 264)
+        # n_embedding shape = (64, 50, 1500)  t_embedding shape = (64, 50, 1500)
+        lstm_input = tf.add(n_input_embedding, t_input_embedding)  # shape = (64, 50, 1500)
         cells, self.init_state = self.build_lstm(self.keep_prob)
         lstm_output, self.final_state = tf.nn.dynamic_rnn(
             cells, lstm_input, initial_state=self.init_state)
@@ -198,7 +201,7 @@ class RnnModel(object):
 
     def get_subset_data(self):
         for i in range(1, num_subset_train_data + 1):
-            data_path = subset_int_data_dir + 'part{}.json'.format(i)
+            data_path = subset_int_data_dir + 'int_part{}.json'.format(i)
             with open(data_path, 'rb') as file:
                 data = pickle.load(file)
                 yield data
@@ -228,7 +231,8 @@ class RnnModel(object):
                             self.n_input: b_nt_x,
                             self.n_target: b_nt_y,
                             self.t_target: b_t_y,
-                            self.keep_prob: 0.5}
+                            self.keep_prob: 0.5,
+                            self.global_step: global_step}
                     batch_start_time = time.time()
                     show_loss, show_n_accu, show_t_accu, _, summary_str = session.run(
                         [self.loss, self.n_accu, self.t_accu, self.optimizer, self.merged_op], feed_dict=feed)
@@ -251,7 +255,7 @@ class RnnModel(object):
                             batch_end_time - batch_start_time)
                         self.print_and_log(log_info)
 
-                    if global_step % save_every_n and self.saved_model== 0:
+                    if self.saved_model and global_step % save_every_n == 0:
                         saver.save(session, model_save_dir + 'e{}_b{}.ckpt'.format(epoch, batch_step))
             epoch_end_time = time.time()
             epoch_cost_time = epoch_end_time - epoch_start_time
@@ -282,5 +286,5 @@ if __name__ == '__main__':
     tt_token_to_int, tt_int_to_token, nt_token_to_int, nt_int_to_token = utils.load_dict_parameter()
     n_ntoken = len(nt_int_to_token)
     n_ttoken = len(tt_int_to_token)
-    model = RnnModel(n_ntoken, n_ttoken, tb_log=True)
+    model = RnnModel(n_ntoken, n_ttoken, saved_model=True)
     model.train()

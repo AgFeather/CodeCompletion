@@ -220,7 +220,7 @@ def train_nt_seq_to_int(time_steps=50, train_or_valid='TRAIN'):
         sys.exit(1)
 
     def get_subset_data():  # 对每个part的nt_sequence读取并返回，等待进行处理
-        for i in range(1, num_sub_data + 1):
+        for i in range(1, 20 + 1):
             data_path = sub_data_dir + 'part{}.json'.format(i)
             data = pickle_load(data_path)
             yield (i, data)
@@ -241,7 +241,7 @@ def train_nt_seq_to_int(time_steps=50, train_or_valid='TRAIN'):
         one_sub_int_data_dir = sub_int_data_dir + 'int_part{}.json'.format(index)
         pickle_save(one_sub_int_data_dir, data_seq)
 
-    print('There are {} nt_pair in {} dataset...'.format(total_num_nt_pair, train_or_valid))  # total == 6,970,900
+    print('There are {} nt_pair in {} dataset...'.format(total_num_nt_pair, train_or_valid))  # total == 6,970,900  14,976,250
 
 
 def test_nt_seq_to_int():
@@ -276,7 +276,7 @@ def test_nt_seq_to_int():
         pickle_save(one_sub_train_int_data_dir, data_seq)
 
     print('There are {} nt_sequence which length is shorter than {}'.format(short_count, time_steps))
-    print('There are {} nt_pair in test data set...'.format(total_num_nt_pair))  # 4,706,813
+    print('There are {} nt_pair in test data set...'.format(total_num_nt_pair))  # new: 1,557,285
 
 
 if __name__ == '__main__':
