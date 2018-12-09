@@ -8,7 +8,9 @@ from setting import Setting
 
 
 base_setting = Setting()
-subset_int_data_dir = base_setting.sub_int_train_dir
+sub_int_train_dir = base_setting.sub_int_train_dir
+sub_int_valid_dir = base_setting.sub_int_valid_dir
+
 model_save_dir = base_setting.lstm_model_save_dir
 tensorboard_log_dir = base_setting.lstm_tb_log_dir
 training_log_dir = base_setting.lstm_train_log_dir
@@ -26,10 +28,10 @@ class RnnModel(object):
                  batch_size=64,
                  n_embed_dim=64,
                  t_embed_dim=200,
-                 num_hidden_units=256,
+                 num_hidden_units=600,
                  num_hidden_layers=2,
                  learning_rate=0.001,
-                 num_epoches=12,
+                 num_epoches=10,
                  time_steps=50,
                  grad_clip=2,):
         self.time_steps = time_steps
@@ -206,7 +208,7 @@ class RnnModel(object):
 
     def get_subset_data(self):
         for i in range(1, num_subset_train_data + 1):
-            data_path = subset_int_data_dir + 'int_part{}.json'.format(i)
+            data_path = sub_int_train_dir + 'int_part{}.json'.format(i)
             with open(data_path, 'rb') as file:
                 data = pickle.load(file)
                 yield data
@@ -275,6 +277,37 @@ class RnnModel(object):
             saver.save(session, model_save_dir + 'lastest_model.ckpt')
         self.print_and_log('model training finished...')
         session.close()
+
+    def valid(self, session, epoch, global_step):
+        valid_dir = sub_int_valid_dir + 'int_part1.json'
+        with open(valid_dir, 'rb') as f:
+            valid_data = pickle.load(f)
+        batch_generator = self.get_batch(valid_data)
+        valid_step = 0
+        valid_n_accuracy = 0.0
+        valid_t_accuracy = 0.0
+        valid_start_time = time.time()
+        for b_nt_x, b_nt_y, b_t_x, b_t_y in batch_generator:
+            valid_step += 1
+            feed = {self.t_input: b_t_x,
+                    self.n_input: b_nt_x,
+                    self.n_target: b_nt_y,
+                    self.t_target: b_t_y,
+                    self.keep_prob: 0.5,
+                    self.global_step: global_step}
+            n_accuracy, t_accuracy = session.run([self.n_accu, self.t_accu], feed)
+            valid_n_accuracy += n_accuracy
+            valid_t_accuracy += t_accuracy
+
+        valid_n_accuracy /= valid_step
+        valid_t_accuracy /= valid_step
+        valid_end_time = time.time()
+        valid_log = "VALID epoch:{}/{}  ".format(epoch, self.num_epoches) + \
+                    "global step:{}  ".format(global_step) + \
+                    "valid_nt_accu:{:.2f}%  ".format(valid_n_accuracy * 100) + \
+                    "valid_tt_accu:{:.2f}%  ".format(valid_t_accuracy * 100) + \
+                    "valid time cost:{:.2f}s".format(valid_end_time - valid_start_time)
+        self.print_and_log(valid_log)
 
     def print_and_log(self, info):
         try:

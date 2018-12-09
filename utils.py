@@ -281,7 +281,8 @@ def test_nt_seq_to_int():
 
 if __name__ == '__main__':
 
-    data_process = 'TRAIN'
+    operation_list = ['TRAIN', 'TEST', 'VALID']
+    data_process = operation_list[0]
 
     if data_process == 'TRAIN':
         # dataset_split(is_training=True)

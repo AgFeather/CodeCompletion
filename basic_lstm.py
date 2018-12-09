@@ -8,7 +8,9 @@ from setting import Setting
 
 
 base_setting = Setting()
-subset_int_data_dir = base_setting.sub_int_train_dir
+sub_int_train_dir = base_setting.sub_int_train_dir
+sub_int_valid_dir = base_setting.sub_int_valid_dir
+
 model_save_dir = base_setting.lstm_model_save_dir
 tensorboard_log_dir = base_setting.lstm_tb_log_dir
 training_log_dir = base_setting.lstm_train_log_dir
@@ -16,6 +18,7 @@ training_log_dir = base_setting.lstm_train_log_dir
 num_subset_train_data = base_setting.num_sub_train_data
 num_subset_test_data = base_setting.num_sub_test_data
 show_every_n = base_setting.show_every_n
+valid_every_n = base_setting.valid_every_n
 save_every_n = base_setting.save_every_n
 num_terminal = base_setting.num_terminal
 
@@ -23,12 +26,12 @@ num_terminal = base_setting.num_terminal
 class RnnModel(object):
     def __init__(self,
                  num_ntoken, num_ttoken, is_training=True, saved_model=False,
-                 batch_size=80,
+                 batch_size=64,
                  n_embed_dim=1500,
                  t_embed_dim=1500,
                  num_hidden_units=1500,
                  learning_rate=0.001,
-                 num_epoches=15,
+                 num_epoches=10,
                  time_steps=50,
                  grad_clip=5,):
         self.time_steps = time_steps
@@ -51,13 +54,13 @@ class RnnModel(object):
 
     def build_input(self):
         n_input = tf.placeholder(
-            tf.int32, [self.batch_size, self.time_steps], name='n_input')
+            tf.int32, [None, self.time_steps], name='n_input')
         t_input = tf.placeholder(
-            tf.int32, [self.batch_size, self.time_steps], name='t_input')
+            tf.int32, [None, self.time_steps], name='t_input')
         n_target = tf.placeholder(
-            tf.int32, [self.batch_size, self.time_steps], name='n_target')
+            tf.int32, [None, self.time_steps], name='n_target')
         t_target = tf.placeholder(
-            tf.int32, [self.batch_size, self.time_steps], name='t_target')
+            tf.int32, [None, self.time_steps], name='t_target')
         keep_prob = tf.placeholder(tf.float32, name='keep_prob')
         return n_input, t_input, n_target, t_target, keep_prob
 
@@ -114,6 +117,8 @@ class RnnModel(object):
             logits=t_logits, labels=t_target)
         loss = tf.add(n_loss, t_loss)
         loss = tf.reduce_mean(loss)
+        n_loss = tf.reduce_mean(n_loss)
+        t_loss = tf.reduce_mean(t_loss)
         return loss, n_loss, t_loss
 
     def bulid_accuracy(self, n_output, n_target, t_output, t_target):
@@ -166,7 +171,9 @@ class RnnModel(object):
             self.n_output, onehot_n_target, self.t_output, onehot_t_target)
         self.optimizer = self.bulid_optimizer(self.loss)
 
-        tf.summary.scalar('train_loss', self.loss)
+        tf.summary.scalar('train loss', self.loss)
+        tf.summary.scalar('non-terminal loss', self.n_loss)
+        tf.summary.scalar('terminal loss', self.t_loss)
         tf.summary.scalar('n_accuracy', self.n_accu)
         tf.summary.scalar('t_accuracy', self.t_accu)
         self.merged_op = tf.summary.merge_all()
@@ -201,7 +208,7 @@ class RnnModel(object):
 
     def get_subset_data(self):
         for i in range(1, num_subset_train_data + 1):
-            data_path = subset_int_data_dir + 'int_part{}.json'.format(i)
+            data_path = sub_int_train_dir + 'int_part{}.json'.format(i)
             with open(data_path, 'rb') as file:
                 data = pickle.load(file)
                 yield data
@@ -234,26 +241,28 @@ class RnnModel(object):
                             self.keep_prob: 0.5,
                             self.global_step: global_step}
                     batch_start_time = time.time()
-                    show_loss, show_n_accu, show_t_accu, _, summary_str = session.run(
-                        [self.loss, self.n_accu, self.t_accu, self.optimizer, self.merged_op], feed_dict=feed)
+                    loss, n_loss, t_loss,n_accu, t_accu, _, summary_str = session.run(
+                        [self.loss, self.n_loss, self.t_loss, self.n_accu, self.t_accu, self.optimizer, self.merged_op], feed_dict=feed)
 
                     tb_writer.add_summary(summary_str, global_step)
                     tb_writer.flush()
 
-                    loss_per_epoch += show_loss
-                    n_accu_per_epoch += show_n_accu
-                    t_accu_per_epoch += show_t_accu
+                    loss_per_epoch += loss
+                    n_accu_per_epoch += n_accu
+                    t_accu_per_epoch += t_accu
                     batch_end_time = time.time()
 
                     if global_step % show_every_n == 0:
                         log_info = 'epoch:{}/{}  '.format(epoch + 1, self.num_epoches) + \
                             'global_step:{}  '.format(global_step) + \
-                            'loss:{:.2f}  '.format(show_loss) + \
-                            'nt_accu:{:.2f}%  '.format(show_n_accu * 100) + \
-                            'tt_accu:{:.2f}%  '.format(show_t_accu * 100) + \
-                            'time cost per batch: {:.2f}/s'.format(
-                            batch_end_time - batch_start_time)
+                            'loss:{:.2f}(n_loss:{:.2f} + t_loss:{:.2f})  '.format(loss, n_loss, t_loss) + \
+                            'nt_accu:{:.2f}%  '.format(n_accu * 100) + \
+                            'tt_accu:{:.2f}%  '.format(t_accu * 100) + \
+                            'time cost per batch: {:.2f}/s'.format(batch_end_time - batch_start_time)
                         self.print_and_log(log_info)
+
+                    if global_step % valid_every_n == 0:
+                        self.valid(session, epoch, global_step)  # 进行valid验证
 
                     if self.saved_model and global_step % save_every_n == 0:
                         saver.save(session, model_save_dir + 'e{}_b{}.ckpt'.format(epoch, batch_step))
@@ -271,6 +280,40 @@ class RnnModel(object):
         self.print_and_log('model training finished...')
         session.close()
 
+    def valid(self, session, epoch, global_step):
+        valid_dir = sub_int_valid_dir + 'int_part1.json'
+        with open(valid_dir, 'rb') as f:
+            valid_data = pickle.load(f)
+        batch_generator = self.get_batch(valid_data)
+        valid_step = 0
+        valid_n_accuracy = 0.0
+        valid_t_accuracy = 0.0
+        valid_start_time = time.time()
+        for b_nt_x, b_nt_y, b_t_x, b_t_y in batch_generator:
+            valid_step += 1
+            feed = {self.t_input: b_t_x,
+                    self.n_input: b_nt_x,
+                    self.n_target: b_nt_y,
+                    self.t_target: b_t_y,
+                    self.keep_prob: 0.5,
+                    self.global_step: global_step}
+            n_accuracy, t_accuracy = session.run([self.n_accu, self.t_accu], feed)
+            valid_n_accuracy += n_accuracy
+            valid_t_accuracy += t_accuracy
+
+        valid_n_accuracy /= valid_step
+        valid_t_accuracy /= valid_step
+        valid_end_time = time.time()
+        valid_log = "VALID epoch:{}/{}  ".format(epoch, self.num_epoches) + \
+                    "global step:{}  ".format(global_step) + \
+                    "valid_nt_accu:{:.2f}%  ".format(valid_n_accuracy * 100) + \
+                    "valid_tt_accu:{:.2f}%  ".format(valid_t_accuracy * 100) + \
+                    "valid time cost:{:.2f}s".format(valid_end_time - valid_start_time)
+        self.print_and_log(valid_log)
+
+
+
+
     def print_and_log(self, info):
         try:
             self.log_file.write(info)
@@ -286,5 +329,5 @@ if __name__ == '__main__':
     tt_token_to_int, tt_int_to_token, nt_token_to_int, nt_int_to_token = utils.load_dict_parameter()
     n_ntoken = len(nt_int_to_token)
     n_ttoken = len(tt_int_to_token)
-    model = RnnModel(n_ntoken, n_ttoken, saved_model=True)
+    model = RnnModel(n_ntoken, n_ttoken, saved_model=False)
     model.train()

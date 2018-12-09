@@ -13,7 +13,8 @@ from setting import Setting
 
 
 base_setting = Setting()
-subset_int_data_dir = base_setting.sub_int_train_dir
+sub_int_train_dir = base_setting.sub_int_train_dir
+sub_int_valid_dir = base_setting.sub_int_valid_dir
 model_save_dir = base_setting.lstm_model_save_dir
 tensorboard_log_dir = base_setting.lstm_tb_log_dir
 training_log_dir = base_setting.lstm_train_log_dir
@@ -150,9 +151,142 @@ class BiRnnModel(object):
         self.category_optimizer = self.build_category_optimizer(self.category_loss)
         non_terminal_output, terminal_output = self.build_token_output(category_output, token_lstm_output)
 
-    def train(self):
-        pass
+    def get_subset_data(self):
+        for i in range(1, num_subset_train_data + 1):
+            data_path = sub_int_train_dir + 'int_part{}.json'.format(i)
+            with open(data_path, 'rb') as file:
+                data = pickle.load(file)
+                yield data
 
+    def get_batch(self, data_seq):
+        data_seq = np.array(data_seq)  # 是否可以注释掉节省时间
+        total_length = self.time_steps * self.batch_size
+        n_batches = len(data_seq) // total_length
+        data_seq = data_seq[:total_length * n_batches]
+        nt_x = data_seq[:, 0]
+        tt_x = data_seq[:, 1]
+        nt_y = np.zeros_like(nt_x)
+        tt_y = np.zeros_like(tt_x)
+        nt_y[:-1], nt_y[-1] = nt_x[1:], nt_x[0]
+        tt_y[:-1], tt_y[-1] = tt_x[1:], tt_x[0]
+
+        nt_x = nt_x.reshape((self.batch_size, -1))
+        tt_x = tt_x.reshape((self.batch_size, -1))
+        nt_y = nt_y.reshape((self.batch_size, -1))
+        tt_y = tt_y.reshape((self.batch_size, -1))
+        data_seq = data_seq.reshape((self.batch_size, -1))
+        for n in range(0, data_seq.shape[1], self.time_steps):
+            batch_nt_x = nt_x[:, n:n + self.time_steps]
+            batch_tt_x = tt_x[:, n:n + self.time_steps]
+            batch_nt_y = nt_y[:, n:n + self.time_steps]
+            batch_tt_y = tt_y[:, n:n + self.time_steps]
+            if batch_nt_x.shape[1] == 0:
+                break
+            yield batch_nt_x, batch_nt_y, batch_tt_x, batch_tt_y
+
+    def train(self):
+        self.print_and_log('model training...')
+        saver = tf.train.Saver()
+        session = tf.Session()
+        tb_writer = tf.summary.FileWriter(tensorboard_log_dir, session.graph)
+        global_step = 0
+        session.run(tf.global_variables_initializer())
+
+        for epoch in range(self.num_epoches):
+            epoch_start_time = time.time()
+            batch_step = 0
+            loss_per_epoch = 0.0
+            n_accu_per_epoch = 0.0
+            t_accu_per_epoch = 0.0
+
+            subset_generator = self.get_subset_data()
+            for data in subset_generator:
+                batch_generator = self.get_batch(data)
+                for b_x, b_y, b_cate in batch_generator:
+                    batch_step += 1
+                    global_step += 1
+                    feed = {self.input_x: b_x,
+                            self.target_y: b_y,
+                            self.target_cate: b_cate,
+                            self.keep_prob: 0.5,}
+                    batch_start_time = time.time()
+                    show_loss, show_n_accu, show_t_accu, _, summary_str = session.run(
+                        [self.loss, self.n_accu, self.t_accu, self.optimizer, self.merged_op], feed_dict=feed)
+
+                    tb_writer.add_summary(summary_str, global_step)
+                    tb_writer.flush()
+
+                    loss_per_epoch += show_loss
+                    n_accu_per_epoch += show_n_accu
+                    t_accu_per_epoch += show_t_accu
+                    batch_end_time = time.time()
+
+                    if global_step % show_every_n == 0:
+                        log_info = 'epoch:{}/{}  '.format(epoch + 1, self.num_epoches) + \
+                            'global_step:{}  '.format(global_step) + \
+                            'loss:{:.2f}  '.format(show_loss) + \
+                            'nt_accu:{:.2f}%  '.format(show_n_accu * 100) + \
+                            'tt_accu:{:.2f}%  '.format(show_t_accu * 100) + \
+                            'time cost per batch: {:.2f}/s'.format(
+                            batch_end_time - batch_start_time)
+                        self.print_and_log(log_info)
+
+                    if self.saved_model and global_step % save_every_n == 0:
+                        saver.save(session, model_save_dir + 'e{}_b{}.ckpt'.format(epoch, batch_step))
+            epoch_end_time = time.time()
+            epoch_cost_time = epoch_end_time - epoch_start_time
+            epoch_log = 'EPOCH:{}/{}  '.format(epoch + 1, self.num_epoches) + \
+                        'time cost this epoch:{:.2f}/s  '.format(epoch_cost_time) + \
+                        'epoch average loss:{:.2f}  '.format(loss_per_epoch / batch_step) + \
+                        'epoch average nt_accu:{:.2f}%  '.format(100*n_accu_per_epoch / batch_step) + \
+                        'epoch average tt_accu:{:.2f}%  '.format(100*t_accu_per_epoch / batch_step)
+            self.print_and_log(epoch_log)
+
+        if self.saved_model:
+            saver.save(session, model_save_dir + 'lastest_model.ckpt')
+        self.print_and_log('model training finished...')
+        session.close()
+
+    def valid(self, session, epoch, global_step):
+        valid_dir = sub_int_valid_dir + 'int_part1.json'
+        with open(valid_dir, 'rb') as f:
+            valid_data = pickle.load(f)
+        batch_generator = self.get_batch(valid_data)
+        valid_step = 0
+        valid_n_accuracy = 0.0
+        valid_t_accuracy = 0.0
+        valid_start_time = time.time()
+        for b_nt_x, b_nt_y, b_t_x, b_t_y in batch_generator:
+            valid_step += 1
+            feed = {self.t_input: b_t_x,
+                    self.n_input: b_nt_x,
+                    self.n_target: b_nt_y,
+                    self.t_target: b_t_y,
+                    self.keep_prob: 0.5,
+                    self.global_step: global_step}
+            n_accuracy, t_accuracy = session.run([self.n_accu, self.t_accu], feed)
+            valid_n_accuracy += n_accuracy
+            valid_t_accuracy += t_accuracy
+
+        valid_n_accuracy /= valid_step
+        valid_t_accuracy /= valid_step
+        valid_end_time = time.time()
+        valid_log = "VALID epoch:{}/{}  ".format(epoch, self.num_epoches) + \
+                    "global step:{}  ".format(global_step) + \
+                    "valid_nt_accu:{:.2f}%  ".format(valid_n_accuracy * 100) + \
+                    "valid_tt_accu:{:.2f}%  ".format(valid_t_accuracy * 100) + \
+                    "valid time cost:{:.2f}s".format(valid_end_time - valid_start_time)
+        self.print_and_log(valid_log)
+
+    def print_and_log(self, info):
+        try:
+            self.log_file.write(info)
+            self.log_file.write('\n')
+        except BaseException:
+            self.log_file = open(training_log_dir, 'w')
+            self.log_file.write(info)
+            self.log_file.write('\n')
+        print(info)
 
 
 

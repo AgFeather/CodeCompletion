@@ -5,7 +5,7 @@ import random
 import pickle
 
 import utils
-from lstm_model import RnnModel
+from basic_lstm import RnnModel
 from setting import Setting
 
 
@@ -35,10 +35,10 @@ class CodeCompletion(object):
 
     # query test
     def query(self, prefix, suffix):
-        '''
+        """
         Input: all tokens before the hole token(prefix) and all tokens after the hole token,
         ML model will predict the most probable token in the hole
-        '''
+        """
         new_state = self.sess.run(self.model.init_state)
         n_prediction = None
         t_prediction = None

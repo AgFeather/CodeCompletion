@@ -29,14 +29,15 @@ class Setting(object):
         self.lstm_test_log_dir = 'test_log/lstm_test_log' + str(curr_time) + '.txt'  # 模型测试时的log
 
         # 数据集特性相关
-        self.num_sub_train_data = 26
-        self.num_sub_valid_data = 2
-        self.num_sub_test_data = 2
+        self.num_sub_train_data = 20
+        self.num_sub_valid_data = 1
+        self.num_sub_test_data = 1
         self.num_non_terminal = 106
         self.unknown_token = 'UNK'
         self.num_terminal = 30000 + 1
 
         # 模型相关
         self.time_steps = 50
-        self.show_every_n = 200
-        self.save_every_n = 2000
+        self.show_every_n = 100
+        self.valid_every_n = 500
+        self.save_every_n = 1500
