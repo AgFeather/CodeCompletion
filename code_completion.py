@@ -40,19 +40,16 @@ class CodeCompletion(object):
         ML model will predict the most probable token in the hole
         """
         new_state = self.sess.run(self.model.init_state)
-        n_prediction = None
-        t_prediction = None
-        for i, (nt_token, tt_token) in enumerate(prefix):
-            nt_x = np.zeros((1, 1), dtype=np.int32)
-            tt_x = np.zeros((1, 1), dtype=np.int32)
-            nt_x[0, 0] = nt_token
-            tt_x[0, 0] = tt_token
-            feed = {self.model.n_input: nt_x,
-                    self.model.t_input: tt_x,
-                    self.model.keep_prob: 1.,
-                    self.model.init_state: new_state}
-            n_prediction, t_prediction, new_state = self.sess.run(
-                [self.model.n_output, self.model.t_output, self.model.final_state], feed_dict=feed)
+        prefix = np.array(prefix)
+        nt_token = prefix[:, 0]
+        tt_token = prefix[:, 1]
+
+        feed = {self.model.n_input: nt_token,
+                self.model.t_input: tt_token,
+                self.model.keep_prob: 1.,
+                self.model.init_state: new_state}
+        n_prediction, t_prediction = self.sess.run(
+            [self.model.n_output, self.model.t_output], feed_dict=feed)
 
         assert n_prediction is not None and t_prediction is not None
         n_prediction = np.argmax(n_prediction)

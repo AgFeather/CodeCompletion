@@ -178,7 +178,7 @@ class RnnModel(object):
         tf.summary.scalar('t_accuracy', self.t_accu)
         self.merged_op = tf.summary.merge_all()
 
-        self.print_and_log('lstm model has been created...')
+        print('lstm model has been created...')
 
     def get_batch(self, data_seq):
         data_seq = np.array(data_seq)  # 是否可以注释掉节省时间
@@ -293,7 +293,7 @@ class RnnModel(object):
                     self.n_input: b_nt_x,
                     self.n_target: b_nt_y,
                     self.t_target: b_t_y,
-                    self.keep_prob: 0.5,
+                    self.keep_prob: 1.0,
                     self.global_step: global_step}
             n_accuracy, t_accuracy = session.run([self.n_accu, self.t_accu], feed)
             valid_n_accuracy += n_accuracy
