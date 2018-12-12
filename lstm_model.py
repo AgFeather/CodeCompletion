@@ -28,7 +28,7 @@ class RnnModel(object):
                  batch_size=64,
                  n_embed_dim=64,
                  t_embed_dim=200,
-                 num_hidden_units=600,
+                 num_hidden_units=256,
                  num_hidden_layers=2,
                  learning_rate=0.001,
                  num_epoches=10,

@@ -59,11 +59,11 @@ class BiRnnModel(object):
 
     def build_input(self):
         input_x = tf.placeholder(
-            tf.int32, [self.batch_size, self.time_steps], name='input_x')
+            tf.int32, [None, None], name='input_x')
         target_y = tf.placeholder(
-            tf.int32, [self.batch_size, self.time_steps], name='target_y')
+            tf.int32, [None, None], name='target_y')
         target_cate = tf.placeholder(
-            tf.int32, [self.batch_size, self.time_steps], name='target_cate')
+            tf.int32, [None, None], name='target_cate')
         keep_prob = tf.placeholder(tf.float32, name='keep_prob')
         return input_x, target_y, target_cate, keep_prob
 

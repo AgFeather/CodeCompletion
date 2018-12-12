@@ -241,7 +241,7 @@ def train_nt_seq_to_int(time_steps=50, train_or_valid='TRAIN'):
         one_sub_int_data_dir = sub_int_data_dir + 'int_part{}.json'.format(index)
         pickle_save(one_sub_int_data_dir, data_seq)
 
-    print('There are {} nt_pair in {} dataset...'.format(total_num_nt_pair, train_or_valid))  # total == 6,970,900  14,976,250
+    print('There are {} nt_pair in {} dataset...'.format(total_num_nt_pair, train_or_valid))  # old: 6,970,900  new: 14,976,250
 
 
 def test_nt_seq_to_int():

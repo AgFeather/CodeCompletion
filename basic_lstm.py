@@ -30,6 +30,7 @@ class RnnModel(object):
                  n_embed_dim=1500,
                  t_embed_dim=1500,
                  num_hidden_units=1500,
+                 num_hidden_layers=1,
                  learning_rate=0.001,
                  num_epoches=10,
                  time_steps=50,
@@ -41,6 +42,7 @@ class RnnModel(object):
         self.num_ttoken = num_ttoken
         self.t_embed_dim = t_embed_dim
         self.num_hidden_units = num_hidden_units
+        self.num_hidden_layers = num_hidden_layers
         self.learning_rate = learning_rate
         self.num_epoches = num_epoches
         self.grad_clip = grad_clip
@@ -329,5 +331,5 @@ if __name__ == '__main__':
     tt_token_to_int, tt_int_to_token, nt_token_to_int, nt_int_to_token = utils.load_dict_parameter()
     n_ntoken = len(nt_int_to_token)
     n_ttoken = len(tt_int_to_token)
-    model = RnnModel(n_ntoken, n_ttoken, saved_model=False)
+    model = RnnModel(n_ntoken, n_ttoken, saved_model=True)
     model.train()
