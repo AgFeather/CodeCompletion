@@ -93,7 +93,7 @@ class BiRnnModel(object):
         init_state = cells.zero_state(self.batch_size, dtype=tf.float32)
         return cells, init_state
 
-    def build_dynamic_output(self, lstm_input, token_cells, category_cells, token_init_state, category_init_state):
+    def build_dynamic_rnn(self, lstm_input, token_cells, category_cells, token_init_state, category_init_state):
         token_lstm_output = tf.nn.dynamic_rnn(token_cells, lstm_input, token_init_state)
         category_lstm_output = tf.nn.dynamic_rnn(category_cells, lstm_input, category_init_state)
         return token_lstm_output, category_lstm_output
@@ -106,7 +106,7 @@ class BiRnnModel(object):
         category_output = tf.greater(category_output, 0.5)
         return category_output
 
-    def build_token_output(self, category_logits, lstm_output):
+    def build_token_mask(self, category_logits, lstm_output):
         non_terminal = tf.boolean_mask(lstm_output,category_logits)
         inv_category_logits = tf.logical_not(category_logits)
         terminal = tf.boolean_mask(lstm_output, inv_category_logits)
@@ -127,29 +127,42 @@ class BiRnnModel(object):
     def build_category_loss(self, category_output, target_cate):
         pass
 
-    def build_nt_loss(self):
+    def build_nt_loss(self, output, target):
+        pass
+
+    def build_tt_loss(self, output, target):
         pass
 
     def build_category_optimizer(self, category_loss):
         pass
 
-    def build_token_optimizer(self):
+    def build_token_optimizer(self,n_loss, t_loss):
         pass
 
-    def build_accuracy(self):
+    def build_category_accuracy(self):
+        pass
+
+    def build_token_accuracy(self):
         pass
 
     def build_model(self):
         self.input_x, self.target_y, self.target_cate, self.keep_prob = self.build_input()
         input_embedding = self.build_input_embed(self.input_x)
-        self.token_cells, self.token_init_state = self.build_token_lstm(self.keep_prob)
-        self.category_cells, self.category_init_state = self.build_category_lstm(self.keep_prob)
-        token_lstm_output, category_lstm_output = self.build_dynamic_output(
-            self.token_cells, self.category_cells, self.token_init_state, self.category_init_state)
+        token_cells, self.token_init_state = self.build_token_lstm(self.keep_prob)
+        category_cells, self.category_init_state = self.build_category_lstm(self.keep_prob)
+        token_lstm_output, category_lstm_output = self.build_dynamic_rnn(
+            input_embedding, token_cells, category_cells, self.token_init_state, self.category_init_state)
         category_output = self.build_category_output(category_lstm_output)
         self.category_loss = self.build_category_loss(category_output, self.target_cate)
         self.category_optimizer = self.build_category_optimizer(self.category_loss)
-        non_terminal_output, terminal_output = self.build_token_output(category_output, token_lstm_output)
+        non_terminal_output, terminal_output = self.build_token_mask(category_output, token_lstm_output)
+        non_terminal_target, terminal_target = self.build_token_mask(category_output, self.target_y)
+        self.c_loss = self.build_category_loss(category_output, self.target_cate)
+        self.n_loss = self.build_nt_loss(non_terminal_output, non_terminal_target)
+        self.t_loss = self.build_tt_loss(terminal_output, terminal_target)
+        self.c_optimizer = self.build_category_optimizer(self.c_loss)
+        self.t_optimizer = self.build_token_optimizer(self.n_loss, self.t_loss)
+
 
     def get_subset_data(self):
         for i in range(1, num_subset_train_data + 1):

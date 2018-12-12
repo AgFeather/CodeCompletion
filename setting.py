@@ -36,8 +36,12 @@ class Setting(object):
         self.unknown_token = 'UNK'
         self.num_terminal = 30000 + 1
 
-        # 模型相关
+        # 学习模型相关
         self.time_steps = 50
         self.show_every_n = 100
         self.valid_every_n = 500
         self.save_every_n = 1500
+
+        # word2vec相关
+        self.word2vec_embed_dim = 300
+        self.word2vec_save_path = 'trained_model/token2vec.model'
