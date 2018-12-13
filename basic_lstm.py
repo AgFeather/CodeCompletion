@@ -161,8 +161,9 @@ class RnnModel(object):
         # n_embedding shape = (64, 50, 1500)  t_embedding shape = (64, 50, 1500)
         lstm_input = tf.add(n_input_embedding, t_input_embedding)  # shape = (64, 50, 1500)
         cells, self.init_state = self.build_lstm(self.keep_prob)
+        self.lstm_state = self.init_state
         lstm_output, self.final_state = tf.nn.dynamic_rnn(
-            cells, lstm_input, initial_state=self.init_state)
+            cells, lstm_input, initial_state=self.lstm_state)
         t_logits, self.t_output = self.build_t_output(lstm_output)
         n_logits, self.n_output = self.build_n_output(lstm_output)
         # print(t_logits.get_shape())  # (3200, 30001)
@@ -186,8 +187,8 @@ class RnnModel(object):
         print('lstm model has been created...')
 
     def get_batch(self, data_seq):
-        data_seq = np.array(data_seq)  # 是否可以注释掉节省时间
-        total_length = self.time_steps * self.batch_size
+        data_seq = np.array(data_seq)
+        total_length = self.time_steps * self.batch_size  # 统计每次输入一共有多少个token
         n_batches = len(data_seq) // total_length
         data_seq = data_seq[:total_length * n_batches]
         nt_x = data_seq[:, 0]
@@ -236,6 +237,7 @@ class RnnModel(object):
             subset_generator = self.get_subset_data()
             for data in subset_generator:
                 batch_generator = self.get_batch(data)
+                lstm_state = session.run(self.init_state)
                 for b_nt_x, b_nt_y, b_t_x, b_t_y in batch_generator:
                     batch_step += 1
                     global_step += 1
@@ -244,10 +246,19 @@ class RnnModel(object):
                             self.n_target: b_nt_y,
                             self.t_target: b_t_y,
                             self.keep_prob: 0.5,
+                            self.lstm_state:lstm_state,
                             self.global_step: global_step}
                     batch_start_time = time.time()
-                    loss, n_loss, t_loss,n_accu, t_accu, _, summary_str = session.run(
-                        [self.loss, self.n_loss, self.t_loss, self.n_accu, self.t_accu, self.optimizer, self.merged_op], feed_dict=feed)
+                    loss, n_loss, t_loss, n_accu, t_accu, _,lstm_state, summary_str = \
+                        session.run([
+                            self.loss,
+                            self.n_loss,
+                            self.t_loss,
+                            self.n_accu,
+                            self.t_accu,
+                            self.optimizer,
+                            self.final_state,
+                            self.merged_op], feed_dict=feed)
 
                     tb_writer.add_summary(summary_str, global_step)
                     tb_writer.flush()

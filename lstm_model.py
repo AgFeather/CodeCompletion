@@ -159,8 +159,9 @@ class RnnModel(object):
         # n_embedding shape = (64, 50, 64)  t_embedding shape = (64, 50, 200)
         lstm_input = tf.concat([n_input_embedding, t_input_embedding], 2)  # shape = (64, 50, 264)
         cells, self.init_state = self.build_lstm(self.keep_prob)
+        self.lstm_state = self.init_state
         lstm_output, self.final_state = tf.nn.dynamic_rnn(
-            cells, lstm_input, initial_state=self.init_state)
+            cells, lstm_input, initial_state=self.lstm_state)
         t_logits, self.t_output = self.build_t_output(lstm_output)
         n_logits, self.n_output = self. build_n_output(lstm_output)
 
@@ -231,6 +232,7 @@ class RnnModel(object):
             subset_generator = self.get_subset_data()
             for data in subset_generator:
                 batch_generator = self.get_batch(data)
+                lstm_state = session.run(self.init_state)
                 for b_nt_x, b_nt_y, b_t_x, b_t_y in batch_generator:
                     batch_step += 1
                     global_step += 1
@@ -239,27 +241,34 @@ class RnnModel(object):
                             self.n_target: b_nt_y,
                             self.t_target: b_t_y,
                             self.keep_prob: 0.5,
+                            self.lstm_state:lstm_state,
                             self.global_step:global_step}
                     batch_start_time = time.time()
-                    show_loss, show_n_accu, show_t_accu, _, summary_str = session.run(
-                        [self.loss, self.n_accu, self.t_accu, self.optimizer, self.merged_op], feed_dict=feed)
+                    loss, n_loss, t_loss, n_accu, t_accu, _, summary_str = \
+                        session.run([
+                            self.loss,
+                            self.n_loss,
+                            self.t_loss,
+                            self.n_accu,
+                            self.t_accu,
+                            self.optimizer,
+                            self.merged_op], feed_dict=feed)
 
                     tb_writer.add_summary(summary_str, global_step)
                     tb_writer.flush()
 
-                    loss_per_epoch += show_loss
-                    n_accu_per_epoch += show_n_accu
-                    t_accu_per_epoch += show_t_accu
+                    loss_per_epoch += loss
+                    n_accu_per_epoch += n_accu
+                    t_accu_per_epoch += t_accu
                     batch_end_time = time.time()
 
                     if global_step % show_every_n == 0:
-                        log_info = 'epoch:{}/{}  '.format(epoch + 1, self.num_epoches) + \
-                            'global_step:{}  '.format(global_step) + \
-                            'loss:{:.2f}  '.format(show_loss) + \
-                            'nt_accu:{:.2f}%  '.format(show_n_accu * 100) + \
-                            'tt_accu:{:.2f}%  '.format(show_t_accu * 100) + \
-                            'time cost per batch: {:.2f}/s'.format(
-                            batch_end_time - batch_start_time)
+                        log_info = 'epoch:{}/{}  '.format(epoch, self.num_epoches) + \
+                                   'global_step:{}  '.format(global_step) + \
+                                   'loss:{:.2f}(n_loss:{:.2f} + t_loss:{:.2f})  '.format(loss, n_loss, t_loss) + \
+                                   'nt_accu:{:.2f}%  '.format(n_accu * 100) + \
+                                   'tt_accu:{:.2f}%  '.format(t_accu * 100) + \
+                                   'time cost per batch: {:.2f}/s'.format(batch_end_time - batch_start_time)
                         self.print_and_log(log_info)
 
                     if self.saved_model and global_step % save_every_n == 0:

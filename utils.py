@@ -235,7 +235,7 @@ def train_nt_seq_to_int(time_steps=50, train_or_valid='TRAIN'):
             one_ast = one_ast[:num_steps * time_steps]
             nt_int_seq = [(nt_token_to_int[n], tt_token_to_int.get(
                     t, tt_token_to_int[unknown_token])) for n, t in one_ast]
-            data_seq.extend(nt_int_seq)
+            data_seq.extend(nt_int_seq)  # todo：修改为append，让其分句
 
         total_num_nt_pair += len(data_seq)
         one_sub_int_data_dir = sub_int_data_dir + 'int_part{}.json'.format(index)

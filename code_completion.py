@@ -41,8 +41,8 @@ class CodeCompletion(object):
         """
         new_state = self.sess.run(self.model.init_state)
         prefix = np.array(prefix)
-        nt_token = prefix[:, 0]
-        tt_token = prefix[:, 1]
+        nt_token = prefix[:, 0].reshape([1, -1])
+        tt_token = prefix[:, 1].reshape([1, -1])
 
         feed = {self.model.n_input: nt_token,
                 self.model.t_input: tt_token,
@@ -50,7 +50,8 @@ class CodeCompletion(object):
                 self.model.init_state: new_state}
         n_prediction, t_prediction = self.sess.run(
             [self.model.n_output, self.model.t_output], feed_dict=feed)
-
+        n_prediction = n_prediction[-1, :]
+        t_prediction = t_prediction[-1, :]
         assert n_prediction is not None and t_prediction is not None
         n_prediction = np.argmax(n_prediction)
         t_prediction = np.argmax(t_prediction)
