@@ -38,7 +38,7 @@ class Setting(object):
 
         # 学习模型相关
         self.time_steps = 50
-        self.show_every_n = 100
+        self.show_every_n = 1
         self.valid_every_n = 500
         self.save_every_n = 1500
 

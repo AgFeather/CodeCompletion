@@ -5,6 +5,7 @@ import time
 
 import utils
 from setting import Setting
+from data_generator import DataGenerator
 
 
 base_setting = Setting()
@@ -19,16 +20,17 @@ num_subset_train_data = base_setting.num_sub_train_data
 num_subset_test_data = base_setting.num_sub_test_data
 show_every_n = base_setting.show_every_n
 save_every_n = base_setting.save_every_n
+valid_every_n = base_setting.valid_every_n
 num_terminal = base_setting.num_terminal
 
 
 class RnnModel(object):
     def __init__(self,
-                 num_ntoken, num_ttoken, is_training=True, saved_model=False,
+                 num_ntoken, num_ttoken, is_training=True, saved_model=False, kernel='LSTM',
                  batch_size=64,
-                 n_embed_dim=300,
-                 t_embed_dim=300,
-                 num_hidden_units=300,
+                 n_embed_dim=800,
+                 t_embed_dim=800,
+                 num_hidden_units=800,
                  num_hidden_layers=2,
                  learning_rate=0.001,
                  num_epoches=10,
@@ -46,8 +48,10 @@ class RnnModel(object):
         self.num_epoches = num_epoches
         self.grad_clip = grad_clip
         self.saved_model = saved_model
+        self.kernel = kernel
+        self.is_training = is_training
 
-        if not is_training:
+        if not self.is_training:
             self.batch_size = 1
             self.time_steps = 1
 
@@ -74,19 +78,43 @@ class RnnModel(object):
         t_input_embedding = tf.nn.embedding_lookup(t_embed_matrix, t_input)
         return n_input_embedding, t_input_embedding
 
-    def build_lstm(self, keep_prob):
+    def build_rnn(self, keep_prob):
         def lstm_cell():
             cell = tf.contrib.rnn.BasicLSTMCell(self.num_hidden_units)
             cell = tf.contrib.rnn.DropoutWrapper(cell, output_keep_prob=keep_prob)
             return cell
-        cell_list = [lstm_cell() for _ in range(self.num_hidden_layers)]
+        def gru_cell():
+            cell = tf.contrib.rnn.GRUCell(self.num_hidden_units)
+        #    cell = tf.contrib.rnn.AttentionCellWrapper(cell, attn_length=50)
+            cell = tf.contrib.rnn.DropoutWrapper(cell, output_keep_prob=keep_prob)
+            return cell
+        if self.kernel == 'LSTM':
+            cell_list = [lstm_cell() for _ in range(self.num_hidden_layers)]
+        else:
+            assert self.kernel == 'GRU'
+            cell_list = [gru_cell() for _ in range(self.num_hidden_layers)]
         cells = tf.contrib.rnn.MultiRNNCell(cell_list)
         init_state = cells.zero_state(self.batch_size, dtype=tf.float32)
         return cells, init_state
 
+    def build_dynamic_rnn(self, cells, lstm_input, lstm_state):
+        lstm_output, final_state = tf.nn.dynamic_rnn(
+            cells, lstm_input, initial_state=lstm_state)
+        return lstm_output, final_state
+
+    def build_attention(self, inputs, attention_size):
+        with tf.name_scope('attention'):
+            w_omega = tf.Variable(tf.random_normal([self.num_hidden_units, attention_size], stddev=0.1))
+            b_omega = tf.Variable(tf.random_normal([attention_size], stddev=0.1))
+            u_omega = tf.Variable(tf.random_normal([attention_size], stddev=0.1))
+        v = tf.tanh(tf.tensordot(inputs, w_omega, axes=1) + b_omega)  # 不同维度tensor进行矩阵乘法
+        vu = tf.tensordot(v, u_omega, axes=1, name='vu')
+        alphas = tf.nn.softmax(vu, name='alphas')
+        attention_output = tf.reduce_sum(inputs * tf.expand_dims(alphas, -1), 1)
+        return attention_output, alphas
+
     def build_n_output(self, lstm_output):
-        # 将lstm_output的形状由[batch_size, time_steps, n_units] 转换为
-        # [batch_size*time_steps, n_units]
+        # 将output的形状由[batch, time_steps, n_units] 转换为 [batch*time_steps, n_units]
         seq_output = tf.concat(lstm_output, axis=1)
         seq_output = tf.reshape(seq_output, [-1, self.num_hidden_units])
 
@@ -121,6 +149,8 @@ class RnnModel(object):
             logits=t_logits, labels=t_target)
         loss = tf.add(n_loss, t_loss)
         loss = tf.reduce_mean(loss)
+        n_loss = tf.reduce_mean(n_loss)
+        t_loss = tf.reduce_mean(t_loss)
         return loss, n_loss, t_loss
 
     def bulid_accuracy(self, n_output, n_target, t_output, t_target):
@@ -151,17 +181,23 @@ class RnnModel(object):
         onehot_t_target = tf.reshape(onehot_t_target, t_shape)
         return onehot_n_target, onehot_t_target
 
+    def build_summary(self):
+        tf.summary.scalar('train_loss', self.loss)
+        tf.summary.scalar('t_loss', self.t_loss)
+        tf.summary.scalar('n_loss', self.n_loss)
+        tf.summary.scalar('n_accuracy', self.n_accu)
+        tf.summary.scalar('t_accuracy', self.t_accu)
+        self.merged_op = tf.summary.merge_all()
+
     def build_model(self):
         tf.reset_default_graph()
         self.n_input, self.t_input, self.n_target, self.t_target, self.keep_prob = self.build_input()
         n_input_embedding, t_input_embedding = self.build_input_embed(
             self.n_input, self.t_input)
-        # n_embedding shape = (64, 50, 64)  t_embedding shape = (64, 50, 200)
-        lstm_input = tf.concat([n_input_embedding, t_input_embedding], 2)  # shape = (64, 50, 264)
-        cells, self.init_state = self.build_lstm(self.keep_prob)
+        lstm_input = tf.add(n_input_embedding, t_input_embedding)
+        cells, self.init_state = self.build_rnn(self.keep_prob)
         self.lstm_state = self.init_state
-        lstm_output, self.final_state = tf.nn.dynamic_rnn(
-            cells, lstm_input, initial_state=self.lstm_state)
+        lstm_output, self.final_state = self.build_dynamic_rnn(cells, lstm_input, self.lstm_state)
         t_logits, self.t_output = self.build_t_output(lstm_output)
         n_logits, self.n_output = self. build_n_output(lstm_output)
 
@@ -174,64 +210,30 @@ class RnnModel(object):
             self.n_output, onehot_n_target, self.t_output, onehot_t_target)
         self.optimizer = self.bulid_optimizer(self.loss)
 
-        tf.summary.scalar('train_loss', self.loss)
-        tf.summary.scalar('n_accuracy', self.n_accu)
-        tf.summary.scalar('t_accuracy', self.t_accu)
-        self.merged_op = tf.summary.merge_all()
+        if self.is_training:
+            self.build_summary()
 
         print('lstm model has been created...')
-
-    def get_batch(self, data_seq):
-        data_seq = np.array(data_seq)  # 是否可以注释掉节省时间
-        total_length = self.time_steps * self.batch_size
-        n_batches = len(data_seq) // total_length
-        data_seq = data_seq[:total_length * n_batches]
-        nt_x = data_seq[:, 0]
-        tt_x = data_seq[:, 1]
-        nt_y = np.zeros_like(nt_x)
-        tt_y = np.zeros_like(tt_x)
-        nt_y[:-1], nt_y[-1] = nt_x[1:], nt_x[0]
-        tt_y[:-1], tt_y[-1] = tt_x[1:], tt_x[0]
-
-        nt_x = nt_x.reshape((self.batch_size, -1))
-        tt_x = tt_x.reshape((self.batch_size, -1))
-        nt_y = nt_y.reshape((self.batch_size, -1))
-        tt_y = tt_y.reshape((self.batch_size, -1))
-        data_seq = data_seq.reshape((self.batch_size, -1))
-        for n in range(0, data_seq.shape[1], self.time_steps):
-            batch_nt_x = nt_x[:, n:n + self.time_steps]
-            batch_tt_x = tt_x[:, n:n + self.time_steps]
-            batch_nt_y = nt_y[:, n:n + self.time_steps]
-            batch_tt_y = tt_y[:, n:n + self.time_steps]
-            if batch_nt_x.shape[1] == 0:
-                break
-            yield batch_nt_x, batch_nt_y, batch_tt_x, batch_tt_y
-
-    def get_subset_data(self):
-        for i in range(1, num_subset_train_data + 1):
-            data_path = sub_int_train_dir + 'int_part{}.json'.format(i)
-            with open(data_path, 'rb') as file:
-                data = pickle.load(file)
-                yield data
 
     def train(self):
         self.print_and_log('model training...')
         saver = tf.train.Saver()
         session = tf.Session()
+        generator = DataGenerator(self.batch_size, self.time_steps)
         tb_writer = tf.summary.FileWriter(tensorboard_log_dir, session.graph)
         global_step = 0
         session.run(tf.global_variables_initializer())
 
-        for epoch in range(self.num_epoches):
+        for epoch in range(1, self.num_epoches+1):
             epoch_start_time = time.time()
             batch_step = 0
             loss_per_epoch = 0.0
             n_accu_per_epoch = 0.0
             t_accu_per_epoch = 0.0
 
-            subset_generator = self.get_subset_data()
+            subset_generator = generator.get_subset_data()
             for data in subset_generator:
-                batch_generator = self.get_batch(data)
+                batch_generator = generator.get_batch(data_seq=data)
                 lstm_state = session.run(self.init_state)
                 for b_nt_x, b_nt_y, b_t_x, b_t_y in batch_generator:
                     batch_step += 1
@@ -268,8 +270,11 @@ class RnnModel(object):
                                    'loss:{:.2f}(n_loss:{:.2f} + t_loss:{:.2f})  '.format(loss, n_loss, t_loss) + \
                                    'nt_accu:{:.2f}%  '.format(n_accu * 100) + \
                                    'tt_accu:{:.2f}%  '.format(t_accu * 100) + \
-                                   'time cost per batch: {:.2f}/s'.format(batch_end_time - batch_start_time)
+                                   'time cost per batch:{:.2f}/s'.format(batch_end_time - batch_start_time)
                         self.print_and_log(log_info)
+
+                    if global_step % valid_every_n == 0:
+                        self.valid(session, epoch, global_step)
 
                     if self.saved_model and global_step % save_every_n == 0:
                         saver.save(session, model_save_dir + 'e{}_b{}.ckpt'.format(epoch, batch_step))
@@ -279,7 +284,7 @@ class RnnModel(object):
                         'time cost this epoch:{:.2f}/s  '.format(epoch_cost_time) + \
                         'epoch average loss:{:.2f}  '.format(loss_per_epoch / batch_step) + \
                         'epoch average nt_accu:{:.2f}%  '.format(100*n_accu_per_epoch / batch_step) + \
-                        'epoch average tt_accu:{:.2f}%  '.format(100*t_accu_per_epoch / batch_step)
+                        'epoch average tt_accu:{:.2f}%  '.format(100*t_accu_per_epoch / batch_step) + '\n'
             self.print_and_log(epoch_log)
 
         if self.saved_model:
@@ -333,5 +338,5 @@ if __name__ == '__main__':
     tt_token_to_int, tt_int_to_token, nt_token_to_int, nt_int_to_token = utils.load_dict_parameter()
     n_ntoken = len(nt_int_to_token)
     n_ttoken = len(tt_int_to_token)
-    model = RnnModel(n_ntoken, n_ttoken, saved_model=True)
+    model = RnnModel(n_ntoken, n_ttoken, saved_model=False)
     model.train()

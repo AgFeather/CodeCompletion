@@ -274,7 +274,7 @@ class RnnModel(object):
                             'loss:{:.2f}(n_loss:{:.2f} + t_loss:{:.2f})  '.format(loss, n_loss, t_loss) + \
                             'nt_accu:{:.2f}%  '.format(n_accu * 100) + \
                             'tt_accu:{:.2f}%  '.format(t_accu * 100) + \
-                            'time cost per batch: {:.2f}/s'.format(batch_end_time - batch_start_time)
+                            'time cost per batch:{:.2f}/s'.format(batch_end_time - batch_start_time)
                         self.print_and_log(log_info)
 
                     if global_step % valid_every_n == 0:
