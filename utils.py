@@ -220,7 +220,7 @@ def train_nt_seq_to_int(time_steps=50, train_or_valid='TRAIN'):
         sys.exit(1)
 
     def get_subset_data():  # 对每个part的nt_sequence读取并返回，等待进行处理
-        for i in range(1, 20 + 1):
+        for i in range(1, num_sub_data + 1):
             data_path = sub_data_dir + 'part{}.json'.format(i)
             data = pickle_load(data_path)
             yield (i, data)
@@ -235,7 +235,7 @@ def train_nt_seq_to_int(time_steps=50, train_or_valid='TRAIN'):
             one_ast = one_ast[:num_steps * time_steps]
             nt_int_seq = [(nt_token_to_int[n], tt_token_to_int.get(
                     t, tt_token_to_int[unknown_token])) for n, t in one_ast]
-            data_seq.extend(nt_int_seq)  # todo：修改为append，让其分句
+            data_seq.extend(nt_int_seq)
 
         total_num_nt_pair += len(data_seq)
         one_sub_int_data_dir = sub_int_data_dir + 'int_part{}.json'.format(index)

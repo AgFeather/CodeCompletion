@@ -28,14 +28,14 @@ class RnnModel(object):
     def __init__(self,
                  num_ntoken, num_ttoken, is_training=True, saved_model=False, kernel='LSTM',
                  batch_size=64,
-                 n_embed_dim=800,
-                 t_embed_dim=800,
-                 num_hidden_units=800,
+                 n_embed_dim=1000,
+                 t_embed_dim=1000,
+                 num_hidden_units=1000,
                  num_hidden_layers=2,
                  learning_rate=0.001,
                  num_epoches=10,
                  time_steps=50,
-                 grad_clip=2,):
+                 grad_clip=5,):
         self.time_steps = time_steps
         self.batch_size = batch_size
         self.n_embed_dim = n_embed_dim
@@ -59,13 +59,13 @@ class RnnModel(object):
 
     def build_input(self):
         n_input = tf.placeholder(
-            tf.int32, [self.batch_size, self.time_steps], name='n_input')
+            tf.int32, [None, None], name='n_input')
         t_input = tf.placeholder(
-            tf.int32, [self.batch_size, self.time_steps], name='t_input')
+            tf.int32, [None, None], name='t_input')
         n_target = tf.placeholder(
-            tf.int32, [self.batch_size, self.time_steps], name='n_target')
+            tf.int32, [None, None], name='n_target')
         t_target = tf.placeholder(
-            tf.int32, [self.batch_size, self.time_steps], name='t_target')
+            tf.int32, [None, None], name='t_target')
         keep_prob = tf.placeholder(tf.float32, name='keep_prob')
         return n_input, t_input, n_target, t_target, keep_prob
 
@@ -174,8 +174,10 @@ class RnnModel(object):
         optimizer = optimizer.apply_gradients(clip_gradient_pair)
         return optimizer
 
-    def bulid_onehot_target(self, n_target, t_target, n_shape, t_shape):
+    def bulid_onehot_target(self, n_target, t_target):
         onehot_n_target = tf.one_hot(n_target, self.num_ntoken)
+        n_shape = (self.batch_size * self.time_steps, self.num_ntoken)
+        t_shape = (self.batch_size * self.time_steps, self.num_ttoken)
         onehot_n_target = tf.reshape(onehot_n_target, n_shape)
         onehot_t_target = tf.one_hot(t_target, self.num_ttoken)
         onehot_t_target = tf.reshape(onehot_t_target, t_shape)
@@ -202,7 +204,7 @@ class RnnModel(object):
         n_logits, self.n_output = self. build_n_output(lstm_output)
 
         onehot_n_target, onehot_t_target = self.bulid_onehot_target(
-            self.n_target, self.t_target, n_logits.get_shape(), t_logits.get_shape())
+            self.n_target, self.t_target)
 
         self.loss, self.n_loss, self.t_loss = self.build_loss(
             n_logits, onehot_n_target, t_logits, onehot_t_target)
@@ -219,7 +221,7 @@ class RnnModel(object):
         self.print_and_log('model training...')
         saver = tf.train.Saver()
         session = tf.Session()
-        generator = DataGenerator(self.batch_size, self.time_steps)
+        self.generator = DataGenerator(self.batch_size, self.time_steps)
         tb_writer = tf.summary.FileWriter(tensorboard_log_dir, session.graph)
         global_step = 0
         session.run(tf.global_variables_initializer())
@@ -231,9 +233,9 @@ class RnnModel(object):
             n_accu_per_epoch = 0.0
             t_accu_per_epoch = 0.0
 
-            subset_generator = generator.get_subset_data()
+            subset_generator = self.generator.get_subset_data()
             for data in subset_generator:
-                batch_generator = generator.get_batch(data_seq=data)
+                batch_generator = self.generator.get_batch(data_seq=data)
                 lstm_state = session.run(self.init_state)
                 for b_nt_x, b_nt_y, b_t_x, b_t_y in batch_generator:
                     batch_step += 1
@@ -278,9 +280,10 @@ class RnnModel(object):
 
                     if self.saved_model and global_step % save_every_n == 0:
                         saver.save(session, model_save_dir + 'e{}_b{}.ckpt'.format(epoch, batch_step))
+                        print('model saved: epoch:{} global_step:{}'.format(epoch, global_step))
             epoch_end_time = time.time()
             epoch_cost_time = epoch_end_time - epoch_start_time
-            epoch_log = 'EPOCH:{}/{}  '.format(epoch + 1, self.num_epoches) + \
+            epoch_log = 'EPOCH:{}/{}  '.format(epoch, self.num_epoches) + \
                         'time cost this epoch:{:.2f}/s  '.format(epoch_cost_time) + \
                         'epoch average loss:{:.2f}  '.format(loss_per_epoch / batch_step) + \
                         'epoch average nt_accu:{:.2f}%  '.format(100*n_accu_per_epoch / batch_step) + \
@@ -296,7 +299,7 @@ class RnnModel(object):
         valid_dir = sub_int_valid_dir + 'int_part1.json'
         with open(valid_dir, 'rb') as f:
             valid_data = pickle.load(f)
-        batch_generator = self.get_batch(valid_data)
+        batch_generator = self.generator.get_batch(valid_data)
         valid_step = 0
         valid_n_accuracy = 0.0
         valid_t_accuracy = 0.0
@@ -338,5 +341,5 @@ if __name__ == '__main__':
     tt_token_to_int, tt_int_to_token, nt_token_to_int, nt_int_to_token = utils.load_dict_parameter()
     n_ntoken = len(nt_int_to_token)
     n_ttoken = len(tt_int_to_token)
-    model = RnnModel(n_ntoken, n_ttoken, saved_model=False)
+    model = RnnModel(n_ntoken, n_ttoken, saved_model=True)
     model.train()

@@ -29,7 +29,7 @@ class Setting(object):
         self.lstm_test_log_dir = 'test_log/lstm_test_log' + str(curr_time) + '.txt'  # 模型测试时的log
 
         # 数据集特性相关
-        self.num_sub_train_data = 20
+        self.num_sub_train_data = 20  # change to 28 for more data to train
         self.num_sub_valid_data = 1
         self.num_sub_test_data = 1
         self.num_non_terminal = 106
@@ -38,7 +38,7 @@ class Setting(object):
 
         # 学习模型相关
         self.time_steps = 50
-        self.show_every_n = 1
+        self.show_every_n = 1  # 为了快速debug
         self.valid_every_n = 500
         self.save_every_n = 1500
 

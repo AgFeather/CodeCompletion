@@ -5,7 +5,7 @@ import time
 
 import utils
 from setting import Setting
-
+from data_generator import DataGenerator
 
 base_setting = Setting()
 sub_int_train_dir = base_setting.sub_int_train_dir
@@ -77,6 +77,8 @@ class RnnModel(object):
 
     def build_lstm(self, keep_prob):
         cell = tf.contrib.rnn.BasicLSTMCell(self.num_hidden_units)
+        cell = tf.contrib.rnn.AttentionCellWrapper(cell, attn_length=100)  # 加入Attention机制
+        # epoch:1/10  global_step:1  loss:14.97(n_loss:4.67 + t_loss:10.31)  nt_accu:1.19%  tt_accu:0.00%  time cost per batch:127.92/s
         cell = tf.contrib.rnn.DropoutWrapper(cell, output_keep_prob=keep_prob)
         init_state = cell.zero_state(self.batch_size, dtype=tf.float32)
         return cell, init_state
@@ -186,43 +188,11 @@ class RnnModel(object):
 
         print('lstm model has been created...')
 
-    def get_batch(self, data_seq):
-        data_seq = np.array(data_seq)
-        total_length = self.time_steps * self.batch_size  # 统计每次输入一共有多少个token
-        n_batches = len(data_seq) // total_length
-        data_seq = data_seq[:total_length * n_batches]
-        nt_x = data_seq[:, 0]
-        tt_x = data_seq[:, 1]
-        nt_y = np.zeros_like(nt_x)
-        tt_y = np.zeros_like(tt_x)
-        nt_y[:-1], nt_y[-1] = nt_x[1:], nt_x[0]
-        tt_y[:-1], tt_y[-1] = tt_x[1:], tt_x[0]
-
-        nt_x = nt_x.reshape((self.batch_size, -1))
-        tt_x = tt_x.reshape((self.batch_size, -1))
-        nt_y = nt_y.reshape((self.batch_size, -1))
-        tt_y = tt_y.reshape((self.batch_size, -1))
-        data_seq = data_seq.reshape((self.batch_size, -1))
-        for n in range(0, data_seq.shape[1], self.time_steps):
-            batch_nt_x = nt_x[:, n:n + self.time_steps]
-            batch_tt_x = tt_x[:, n:n + self.time_steps]
-            batch_nt_y = nt_y[:, n:n + self.time_steps]
-            batch_tt_y = tt_y[:, n:n + self.time_steps]
-            if batch_nt_x.shape[1] == 0:
-                break
-            yield batch_nt_x, batch_nt_y, batch_tt_x, batch_tt_y
-
-    def get_subset_data(self):
-        for i in range(1, num_subset_train_data + 1):
-            data_path = sub_int_train_dir + 'int_part{}.json'.format(i)
-            with open(data_path, 'rb') as file:
-                data = pickle.load(file)
-                yield data
-
     def train(self):
         self.print_and_log('model training...')
         saver = tf.train.Saver()
         session = tf.Session()
+        self.generator = DataGenerator(batch_size=self.batch_size, time_steps=self.time_steps)
         tb_writer = tf.summary.FileWriter(tensorboard_log_dir, session.graph)
         global_step = 0
         session.run(tf.global_variables_initializer())
@@ -234,9 +204,9 @@ class RnnModel(object):
             n_accu_per_epoch = 0.0
             t_accu_per_epoch = 0.0
 
-            subset_generator = self.get_subset_data()
+            subset_generator = self.generator.get_subset_data()
             for data in subset_generator:
-                batch_generator = self.get_batch(data)
+                batch_generator = self.generator.get_batch(data)
                 lstm_state = session.run(self.init_state)
                 for b_nt_x, b_nt_y, b_t_x, b_t_y in batch_generator:
                     batch_step += 1
@@ -300,7 +270,7 @@ class RnnModel(object):
         valid_dir = sub_int_valid_dir + 'int_part1.json'
         with open(valid_dir, 'rb') as f:
             valid_data = pickle.load(f)
-        batch_generator = self.get_batch(valid_data)
+        batch_generator = self.generator.get_batch(valid_data)
         valid_step = 0
         valid_n_accuracy = 0.0
         valid_t_accuracy = 0.0
