@@ -39,8 +39,9 @@ class Setting(object):
         # 学习模型相关
         self.time_steps = 50
         self.show_every_n = 1  # 为了快速debug
-        self.valid_every_n = 500
+        self.valid_every_n = 800
         self.save_every_n = 1500
+        self.test_show = 100
 
         # word2vec相关
         self.word2vec_embed_dim = 300

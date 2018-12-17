@@ -36,7 +36,7 @@ class TokenToVec():
     def train(self, dataset):
         # self.model.build_vocab(dataset)
         # self.model.train(dataset, total_examples=self.model.corpus_count, epochs=self.model.iter)
-        self.model = word2vec.Word2Vec(dataset, size=300, window=6)
+        self.model = word2vec.Word2Vec(dataset, size=300, window=10)
         print('model training finished...')
         self.model.save(model_save_path)
         print('model has saved...')
@@ -65,7 +65,6 @@ def load_all_data():
 def string_to_int_sequence():
     # 将训练集的string nt-sequence转换成int-nt-sequence，并且完全保存各个sub-sequence的结构
     # 也就是说生成的sequence的元素仍然是一个sequence，该sequence表示一个ast。这个sequence的元素才是nt-pair
-
     tt_token_to_int, tt_int_to_token, nt_token_to_int, nt_int_to_token = utils.load_dict_parameter()
 
     def get_subset_data():  # 对每个part的nt_sequence读取并返回，等待进行处理
