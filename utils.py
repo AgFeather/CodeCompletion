@@ -24,12 +24,14 @@ num_sub_valid_data = base_setting.num_sub_valid_data
 num_sub_train_data = base_setting.num_sub_train_data
 num_sub_test_data = base_setting.num_sub_test_data
 
-most_common_termial_num = base_setting.num_terminal
+most_common_termial_num = 30000
 unknown_token = base_setting.unknown_token
 time_steps = base_setting.time_steps
 
 
 def dataset_split(is_training=True, subset_size=5000):
+    sys.setrecursionlimit(10000)  # 设置递归最大深度
+    print('setrecursionlimit')
     """读取原始AST数据集，并将其分割成多个subset data
     对每个AST，将其转换成二叉树的形式，然后进行中序遍历生成一个nt-sequence"""
     if is_training:  # 对training数据集进行分割
@@ -44,15 +46,29 @@ def dataset_split(is_training=True, subset_size=5000):
     file = open(data_path, 'r')
     subset_list = []
     nt_seq = None
-    error_count = 0
     for i in range(1, total_size + 1):
         try:
             line = file.readline()  # 从文件中读取一个AST
+        except:
+            print('read error')
+        try:
             ast = json.loads(line)  # 将string类型转换成为json的ast
-            binary_tree = bulid_binary_tree(ast)  # AST转换为二叉树
-            nt_seq = ast_to_seq(binary_tree)  # 将一个AST按照规则转换成nt_sequence
         except BaseException:
-            error_count += 1
+            print('ast load error')
+            continue
+        try:
+            binary_tree = bulid_binary_tree(ast)  # AST转换为二叉树
+        except:
+            print('bulid_binary_tree error')
+            continue
+        try:
+            nt_seq = ast_to_seq(binary_tree)  # 将一个AST按照规则转换成nt_sequence
+        except RecursionError:
+            print('maximum recursion depth exceeded in comparison')
+            continue
+        except BaseException:
+             print('ast parsed error')
+             continue
         subset_list.append(nt_seq)  # 将生成的nt sequence加入到list中
 
         if i % subset_size == 0:  # 当读入的ast已经等于给定的subset的大小时
@@ -64,7 +80,7 @@ def dataset_split(is_training=True, subset_size=5000):
     if is_training:  # 当处理训练数据集时，需要保存映射map，测试数据集则不需要
         save_string_int_dict()
         print('training data seperating finished...')
-        print('encoding information has been save in {}'.format(data_parameter_dir))
+        print('encoding information has been saved in {}'.format(data_parameter_dir))
     else:
         print('testing data seperating finished...')
 
@@ -82,7 +98,7 @@ def bulid_binary_tree(ast):
         node['right'] = brother_map.get(node['id'], -1)
 
         if 'children' in node.keys():  # 表示该node为non-terminal
-            node['isTerminal'] = False
+            node['isTerminal'] = False  # 存在四种token，有children list但是list的长度为0，暂时将其归为terminal
             add_two_bits_info(ast, node, brother_map)  # 向每个节点添加两bit的额外信息
             child_list = node['children']
             node['left'] = child_list[0]  # 构建该node的left node
@@ -92,6 +108,8 @@ def bulid_binary_tree(ast):
                 brother_map[bro] = child_list[i + 1]
         else:
             node['isTerminal'] = True
+            if 'children' in node.keys():
+                print(node)
     return ast
 
 
@@ -109,24 +127,32 @@ def add_two_bits_info(ast, node, brother_map):
 
 
 terminal_count = Counter()  # 统计每个terminal token的出现次数
-non_termial_set = set()  # 统计non_termial token 种类
+non_terminal_set = set()  # 统计non_termial token 种类
 
 
 def ast_to_seq(binary_tree):
     # 将一个ast首先转换成二叉树，然后对该二叉树进行中序遍历，得到nt_sequence
+    temp_terminal_count = Counter()
+    temp_non_terminal_set = set()
     def node_to_string(node):
         # 将一个node转换为string
         if node == 'EMPTY':
             string_node = 'EMPTY'
+            temp_terminal_count[string_node] += 1
         elif node['isTerminal']:  # 如果node为terminal
-            string_node = str(node['type']) + '=$$=' + \
-                str(node['value'])  # + '==' + str(node['id'])
-            terminal_count[string_node] += 1
+            string_node = str(node['type'])
+            if 'value' in node.keys():
+                # Note:存在很多token(break, return等）既不包括children，也不包括value
+                string_node += '=$$=' + str(node['value'])  # + '==' + str(node['id'])
+            temp_terminal_count[string_node] += 1
+
         else:  # 如果是non-terminal
+
             string_node = str(node['type']) + '=$$=' + \
                 str(node['hasSibling']) + '=$$=' + \
                 str(node['hasNonTerminalChild'])  # 有些non-terminal包含value，探索该value的意义？（value种类非常多）
-            non_termial_set.add(string_node)
+            temp_non_terminal_set.add(string_node)
+
         return string_node
 
     def in_order_traversal(bin_tree, index):
@@ -135,11 +161,14 @@ def ast_to_seq(binary_tree):
         if 'left' in node.keys():
             in_order_traversal(bin_tree, node['left'])
 
-        if 'isTerminal' in node.keys() and node['isTerminal'] is False:
+        if node == 'EMPTY' or node['isTerminal'] is True:  # 该token是terminal，只将其记录到counter中
+            node_to_string(node)
+        else:
+            assert 'isTerminal' in node.keys() and node['isTerminal'] is False
             # 如果该node是non-terminal，并且包含一个terminal 子节点，则和该子节点组成nt_pair保存在output中
             # 否则将nt_pair的T设为字符串EMPTY
             n_pair = node_to_string(node)
-            for child_index in node['children']:  # 遍历该Nterminal的所有child，分别用所有child构建NT-pair
+            for child_index in node['children']:  # 遍历该non-terminal的所有child，分别用所有child构建NT-pair
                 if bin_tree[child_index]['isTerminal']:
                     t_pair = node_to_string(bin_tree[child_index])
                 else:
@@ -147,14 +176,17 @@ def ast_to_seq(binary_tree):
                 nt_pair = (n_pair, t_pair)
                 output.append(nt_pair)
 
-        else:  # 该token是terminal，只将其记录到counter中
-            node_to_string(node)
 
         if node['right'] != -1:  # 遍历right side
             in_order_traversal(bin_tree, node['right'])
 
     output = []
     in_order_traversal(binary_tree, 0)
+    if len(output) >= time_steps:  # note: 仅将长度大于阈值的ast产生的node统计到counter中
+        terminal_count.update(temp_terminal_count)
+        non_terminal_set.update(temp_non_terminal_set)
+    else:
+        output = []
     return output
 
 
@@ -183,7 +215,7 @@ def save_string_int_dict():
     for index, (token, times) in enumerate(most_common_tuple):
         tt_token_to_int[token] = index
         tt_int_to_token[index] = token
-    for index, token in enumerate(list(non_termial_set)):
+    for index, token in enumerate(list(non_terminal_set)):
         nt_token_to_int[token] = index
         nt_int_to_token[index] = token
 
@@ -228,11 +260,12 @@ def train_nt_seq_to_int(time_steps=50, train_or_valid='TRAIN'):
     subset_generator = get_subset_data()
     for index, data in subset_generator:
         data_seq = []
+        # todo: 探讨是否需要对ast进行裁剪
         for one_ast in data:  # 将每个nt_seq进行截取，并encode成integer，然后保存
-            num_steps = len(one_ast) // time_steps  # 将每个nt seq都切割成time steps的整数倍
-            if num_steps == 0:  # 该ast大小不足time step 舍去
+            if len(one_ast) < time_steps:  # 该ast大小不足time step 舍去
                 continue
-            one_ast = one_ast[:num_steps * time_steps]
+            # num_steps = len(one_ast) // time_steps
+            # one_ast = one_ast[:num_steps * time_steps]
             nt_int_seq = [(nt_token_to_int[n], tt_token_to_int.get(
                     t, tt_token_to_int[unknown_token])) for n, t in one_ast]
             data_seq.extend(nt_int_seq)
@@ -241,7 +274,7 @@ def train_nt_seq_to_int(time_steps=50, train_or_valid='TRAIN'):
         one_sub_int_data_dir = sub_int_data_dir + 'int_part{}.json'.format(index)
         pickle_save(one_sub_int_data_dir, data_seq)
 
-    print('There are {} nt_pair in {} dataset...'.format(total_num_nt_pair, train_or_valid))  # old: 6,970,900  new: 14,976,250
+    print('There are {} nt_pair in {} dataset...'.format(total_num_nt_pair, train_or_valid))  # old:14,976,250 new:157,237,460
 
 
 def test_nt_seq_to_int():
@@ -285,7 +318,7 @@ if __name__ == '__main__':
     data_process = operation_list[0]
 
     if data_process == 'TRAIN':
-        # dataset_split(is_training=True)
+        dataset_split(is_training=True)
         train_nt_seq_to_int(train_or_valid='TRAIN')
     elif data_process == 'TEST':
         # dataset_split(is_training=False)

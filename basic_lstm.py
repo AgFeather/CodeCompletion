@@ -77,8 +77,6 @@ class RnnModel(object):
 
     def build_lstm(self, keep_prob):
         cell = tf.contrib.rnn.BasicLSTMCell(self.num_hidden_units)
-        #cell = tf.contrib.rnn.AttentionCellWrapper(cell, attn_length=100)  # 加入Attention机制
-        # epoch:1/10  global_step:1  loss:14.97(n_loss:4.67 + t_loss:10.31)  nt_accu:1.19%  tt_accu:0.00%  time cost per batch:127.92/s
         cell = tf.contrib.rnn.DropoutWrapper(cell, output_keep_prob=keep_prob)
         init_state = cell.zero_state(self.batch_size, dtype=tf.float32)
         return cell, init_state

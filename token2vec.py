@@ -30,21 +30,34 @@ save_to_path = sub_train_data_dir + 'int_for_word2vec/'
 class TokenToVec():
     """对输入数据corpus中的每个token训练一个representation vector"""
     def __init__(self):
-        # self.model = word2vec.Word2Vec(window=6, size=embed_dim)
         print('WordToVec model has been created...')
 
     def train(self, dataset):
-        # self.model.build_vocab(dataset)
-        # self.model.train(dataset, total_examples=self.model.corpus_count, epochs=self.model.iter)
-        self.model = word2vec.Word2Vec(dataset, size=300, window=10)
+        self.model = word2vec.Word2Vec(dataset, size=300, window=12, min_count=1, iter=6)
         print('model training finished...')
         self.model.save(model_save_path)
         print('model has saved...')
 
+    def load_model(self):
+        model = word2vec.Word2Vec.load(model_save_path)
+        return model
 
-def load_model():
-    model = word2vec.Word2Vec.load(model_save_path)
-    return model
+    def get_token_representation_matice(self):
+        """加载已经训练好的word2vec模型，并将所有non-terminal的矩阵表示和所有terminal的矩阵表示提取并返回"""
+        model = self.load_model()
+        nt_represent_matrix = []
+        tt_represent_matrix = []
+        print(model.wv)
+        for i in range(num_terminal + num_non_terminal):
+            vector = model[str(i)]
+            if i < num_non_terminal:  # < 106 (0到105为non-terminal)
+                nt_represent_matrix.append(vector)
+            else:
+                tt_represent_matrix.append(vector)
+        pickle.dump([nt_represent_matrix, tt_represent_matrix], open('token2vec_repre_matrix.p', 'wb'))
+        print('token2vec representation matrix has been saved...')
+        return nt_represent_matrix, tt_represent_matrix
+
 
 def load_all_data():
     all_seq = []
@@ -55,12 +68,15 @@ def load_all_data():
         for nt_seq in sub_data:
             sub_seq = []
             for n_pair, t_pair in nt_seq:
+                if n_pair == 22:
+                    print(n_pair, ' ', t_pair)
                 sub_seq.append(str(n_pair))
                 sub_seq.append(str(t_pair + num_non_terminal))  # 为防止nt和tt的index重复，将所有的terminal的index都向后移num_nt位
             all_seq.append(sub_seq)
         print(file_path, 'has been loaded...')
     print('all data has been loaded...')
     return all_seq
+
 
 def string_to_int_sequence():
     # 将训练集的string nt-sequence转换成int-nt-sequence，并且完全保存各个sub-sequence的结构
@@ -89,13 +105,16 @@ def string_to_int_sequence():
 
 
 if __name__ == '__main__':
-    step_choice = [0, 1]
+    step_choice = [0, 1, 2]
     step = step_choice[1]
+    model = TokenToVec()
     if step == 0:
         string_to_int_sequence()
     elif step == 1:
         all_data = load_all_data()
         print(len(all_data))  # number of token:34546856 totally. number of seq:100000 totally.
-        model = TokenToVec()
         model.train(all_data)
+    elif step == 2:
+        model.get_token_representation_matice()
+
 
