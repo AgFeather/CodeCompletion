@@ -26,13 +26,13 @@ num_terminal = base_setting.num_terminal
 class RnnModel(object):
     def __init__(self,
                  num_ntoken, num_ttoken, is_training=True, saved_model=False,
-                 batch_size=64,
+                 batch_size=50,
                  n_embed_dim=1500,
                  t_embed_dim=1500,
                  num_hidden_units=1500,
                  num_hidden_layers=1,
                  learning_rate=0.001,
-                 num_epoches=10,
+                 num_epoches=4,
                  time_steps=50,
                  grad_clip=5,):
         self.time_steps = time_steps
@@ -134,7 +134,7 @@ class RnnModel(object):
 
     def bulid_optimizer(self, loss):
         self.global_step = tf.Variable(0, trainable=False)
-        learning_rate = tf.train.exponential_decay(self.learning_rate, self.global_step, 1000, 0.9)
+        learning_rate = tf.train.exponential_decay(self.learning_rate, self.global_step, 10000, 0.9)
         optimizer = tf.train.AdamOptimizer(learning_rate)
         gradient_pair = optimizer.compute_gradients(loss)
         clip_gradient_pair = []
@@ -164,10 +164,8 @@ class RnnModel(object):
         self.lstm_state = self.init_state
         lstm_output, self.final_state = tf.nn.dynamic_rnn(
             cells, lstm_input, initial_state=self.lstm_state)
-        t_logits, self.t_output = self.build_t_output(lstm_output)
-        n_logits, self.n_output = self.build_n_output(lstm_output)
-        # print(t_logits.get_shape())  # (3200, 30001)
-        # print(n_logits.get_shape())  # (3200, 106)
+        t_logits, self.t_output = self.build_t_output(lstm_output)  # t_logits.shape == (3200, 30001)
+        n_logits, self.n_output = self.build_n_output(lstm_output)  # n_logits.shape == (3200, 123)
         onehot_n_target, onehot_t_target = self.bulid_onehot_target(
             self.n_target, self.t_target)
 
@@ -256,7 +254,7 @@ class RnnModel(object):
                         'time cost this epoch:{:.2f}/s  '.format(epoch_cost_time) + \
                         'epoch average loss:{:.2f}  '.format(loss_per_epoch / batch_step) + \
                         'epoch average nt_accu:{:.2f}%  '.format(100*n_accu_per_epoch / batch_step) + \
-                        'epoch average tt_accu:{:.2f}%  '.format(100*t_accu_per_epoch / batch_step)
+                        'epoch average tt_accu:{:.2f}%  '.format(100*t_accu_per_epoch / batch_step) + '\n'
             self.print_and_log(epoch_log)
 
         if self.saved_model:
@@ -273,6 +271,7 @@ class RnnModel(object):
         valid_n_accuracy = 0.0
         valid_t_accuracy = 0.0
         valid_start_time = time.time()
+        valid_times = 200
         for b_nt_x, b_nt_y, b_t_x, b_t_y in batch_generator:
             valid_step += 1
             feed = {self.t_input: b_t_x,
@@ -284,6 +283,8 @@ class RnnModel(object):
             n_accuracy, t_accuracy = session.run([self.n_accu, self.t_accu], feed)
             valid_n_accuracy += n_accuracy
             valid_t_accuracy += t_accuracy
+            if valid_step >= valid_times:
+                break
 
         valid_n_accuracy /= valid_step
         valid_t_accuracy /= valid_step

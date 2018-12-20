@@ -27,7 +27,7 @@ num_terminal = base_setting.num_terminal
 class RnnModel(object):
     def __init__(self,
                  num_ntoken, num_ttoken, is_training=True, saved_model=False, kernel='LSTM',
-                 batch_size=64,
+                 batch_size=50,
                  n_embed_dim=1000,
                  t_embed_dim=1000,
                  num_hidden_units=1000,
@@ -164,7 +164,7 @@ class RnnModel(object):
 
     def bulid_optimizer(self, loss):
         self.global_step = tf.Variable(0, trainable=False)
-        learning_rate = tf.train.exponential_decay(self.learning_rate, self.global_step, 1000, 0.9)
+        learning_rate = tf.train.exponential_decay(self.learning_rate, self.global_step, 10000, 0.9)
         optimizer = tf.train.AdamOptimizer(learning_rate)
         gradient_pair = optimizer.compute_gradients(loss)
         clip_gradient_pair = []

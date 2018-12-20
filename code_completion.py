@@ -3,6 +3,7 @@ import numpy as np
 import time
 import random
 import pickle
+from collections import Counter
 
 import utils
 from basic_lstm import RnnModel
@@ -19,20 +20,16 @@ num_subset_test_data = test_setting.num_sub_test_data
 seq_per_subset = 5000
 show_every_n = test_setting.test_show
 num_terminal = test_setting.num_terminal
-test_time_step = 4000
+test_time_step = 50
 
 
 class CodeCompletion(object):
 
     def __init__(self,
                  num_ntoken,
-                 num_ttoken,
-                 using_gpu=False):
+                 num_ttoken,):
         self.model = RnnModel(num_ntoken, num_ttoken, is_training=False)
-        if using_gpu:
-            self.sess = tf.Session(config=tf.ConfigProto(device_count={'cpu': 0}))
-        else:
-            self.sess = tf.Session(config=tf.ConfigProto(device_count={'cpu': 0}))
+        self.sess = tf.Session()
         self.last_chackpoints = tf.train.latest_checkpoint(
             checkpoint_dir=model_save_dir)
 
@@ -152,11 +149,58 @@ class CodeCompletion(object):
         self.log_file.write('\n')
         print(log_info)
 
+    def short_long_performance(self):
+        """测试模型性能随着测试数据长短的变化趋势"""
+        length_define = 5000
+
+        def find_long_seq(saved_info=False):
+            """读取测试集中的数据并找到长度较长的测试数据"""
+            long_case = []
+            subdata_generator = self.subset_generator()
+            length_counter = Counter()
+            for index, subset_test_data in subdata_generator:
+                for token_seq in subset_test_data:
+                    length_counter[len(token_seq)] += 1
+            sorted_counter = sorted(length_counter.items(), key=lambda x: x[0],reverse=True)
+            if saved_info:
+                pickle.dump(sorted_counter, open('longth_count_info.p', 'wb'))
+            for index, subset_test_data in subdata_generator:
+                for token_seq in subset_test_data:
+                    if len(token_seq) >= length_define:
+                        long_case.append(token_seq)
+            return long_case
+
+        long_case = find_long_seq()
+        long_case = np.array(long_case)
+        test_epoch = 5
+        test_batch_size = len(long_case)
+        for i in range(test_epoch):
+            lstm_state = self.sess.run(self.model.init_state)
+            for length in range(length_define):
+                nt_token_input = long_case[:, length, 0].reshape([-1, 1])
+                tt_token_input = long_case[:, length, 1].reshape([-1, 1])
+                nt_token_target = long_case[:, length+1, 0]
+                tt_token_target = long_case[:, length+1, 1]
+                feed = {self.model.lstm_state: lstm_state,
+                        self.model.n_input:nt_token_input,
+                        self.model.t_input:tt_token_input,
+                        self.model.keep_prob:1.0}
+                lstm_state, n_prediction, t_prediction = self.sess.run(
+                    [self.model.final_state, self.model.n_output, self.model.t_output], feed)
+
+
+
+
+
+
+
+
 
 if __name__ == '__main__':
     # test step
-    terminalToken2int, terminalInt2token, nonTerminalToken2int, nonTerminalInt2token = utils.load_dict_parameter()
-    num_ntoken = len(nonTerminalInt2token)
-    num_ttoken = len(terminalInt2token)
+    tt_token_to_int, tt_int_to_token, nt_token_to_int, nt_int_to_token = utils.load_dict_parameter()
+    num_ntoken = len(nt_token_to_int)
+    num_ttoken = len(tt_token_to_int)
     test_model = CodeCompletion(num_ntoken, num_ttoken)
-    nt_accuracy, tt_accuracy = test_model.test_model()
+    #nt_accuracy, tt_accuracy = test_model.test_model()
+    test_model.short_long_performance()

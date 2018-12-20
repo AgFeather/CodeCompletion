@@ -252,7 +252,7 @@ def train_nt_seq_to_int(time_steps=50, train_or_valid='TRAIN'):
         sys.exit(1)
 
     def get_subset_data():  # 对每个part的nt_sequence读取并返回，等待进行处理
-        for i in range(1, num_sub_data + 1):
+        for i in range(1, num_sub_train_data + 1):
             data_path = sub_data_dir + 'part{}.json'.format(i)
             data = pickle_load(data_path)
             yield (i, data)
@@ -260,14 +260,15 @@ def train_nt_seq_to_int(time_steps=50, train_or_valid='TRAIN'):
     subset_generator = get_subset_data()
     for index, data in subset_generator:
         data_seq = []
-        # todo: 探讨是否需要对ast进行裁剪
         for one_ast in data:  # 将每个nt_seq进行截取，并encode成integer，然后保存
             if len(one_ast) < time_steps:  # 该ast大小不足time step 舍去
                 continue
-            # num_steps = len(one_ast) // time_steps
-            # one_ast = one_ast[:num_steps * time_steps]
-            nt_int_seq = [(nt_token_to_int[n], tt_token_to_int.get(
+            try:
+                nt_int_seq = [(nt_token_to_int[n], tt_token_to_int.get(
                     t, tt_token_to_int[unknown_token])) for n, t in one_ast]
+            except KeyError:
+                print('key error')
+                continue
             data_seq.extend(nt_int_seq)
 
         total_num_nt_pair += len(data_seq)
@@ -291,16 +292,19 @@ def test_nt_seq_to_int():
             yield (i, data)
 
     subset_generator = get_subset_data()
-    short_count = 0
     for index, nt_data in subset_generator:
         data_seq = []
         num_nt_pair = 0
         for one_ast in nt_data:  # 将每个由token组成的nt_seq，并encode成integer，然后保存
             if len(one_ast) < time_steps:  # 对于长度小于50的ast，直接舍去
-                short_count += 1
                 continue
-            nt_int_seq = [(nt_token_to_int[n],
-                           tt_token_to_int.get(t, tt_token_to_int[unknown_token])) for n, t in one_ast]
+            try:
+                nt_int_seq = [(nt_token_to_int[n],
+                               tt_token_to_int.get(t, tt_token_to_int[unknown_token]))
+                              for n, t in one_ast]
+            except KeyError:
+                print('key error')
+                continue
             data_seq.append(nt_int_seq)
             num_nt_pair += len(nt_int_seq)
         total_num_nt_pair += num_nt_pair
@@ -308,8 +312,7 @@ def test_nt_seq_to_int():
         one_sub_train_int_data_dir = sub_int_test_dir + 'int_part{}.json'.format(index)
         pickle_save(one_sub_train_int_data_dir, data_seq)
 
-    print('There are {} nt_sequence which length is shorter than {}'.format(short_count, time_steps))
-    print('There are {} nt_pair in test data set...'.format(total_num_nt_pair))  # new: 1,557,285
+    print('There are {} nt_pair in test data set...'.format(total_num_nt_pair))  # new: 1,557,285  new: 81,078,099
 
 
 if __name__ == '__main__':
@@ -318,10 +321,10 @@ if __name__ == '__main__':
     data_process = operation_list[0]
 
     if data_process == 'TRAIN':
-        dataset_split(is_training=True)
+        #dataset_split(is_training=True)
         train_nt_seq_to_int(train_or_valid='TRAIN')
     elif data_process == 'TEST':
-        # dataset_split(is_training=False)
+        #dataset_split(is_training=False)
         test_nt_seq_to_int()
     elif data_process == 'VALID':
         train_nt_seq_to_int(train_or_valid='VALID')

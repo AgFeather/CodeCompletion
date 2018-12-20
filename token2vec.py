@@ -1,5 +1,5 @@
-from gensim.models import word2vec
-import os
+from gensim.models.word2vec import Word2Vec
+from gensim.models.word2vec import PathLineSentences
 import pickle
 
 from setting import Setting
@@ -13,7 +13,6 @@ Using Word2Vec to pre-train the repesentation of each token
 base_setting = Setting()
 
 model_save_path = base_setting.word2vec_save_path
-sub_int_train_dir = base_setting.sub_int_train_dir
 sub_train_data_dir = base_setting.sub_train_data_dir
 
 num_sub_train_data = base_setting.num_sub_train_data
@@ -22,7 +21,7 @@ num_terminal = base_setting.num_terminal
 embed_dim = base_setting.word2vec_embed_dim
 unknown_token = base_setting.unknown_token
 
-save_to_path = sub_train_data_dir + 'int_for_word2vec/'
+wor2vec_data_save_dir = sub_train_data_dir + 'int_for_word2vec/'
 
 
 
@@ -30,16 +29,12 @@ save_to_path = sub_train_data_dir + 'int_for_word2vec/'
 class TokenToVec():
     """对输入数据corpus中的每个token训练一个representation vector"""
     def __init__(self):
+        dataset = PathLineSentences(wor2vec_data_save_dir)
+        self.model = Word2Vec(dataset, size=300, window=12, min_count=1, iter=6)
         print('WordToVec model has been created...')
 
-    def train(self, dataset):
-        self.model = word2vec.Word2Vec(dataset, size=300, window=12, min_count=1, iter=6)
-        print('model training finished...')
-        self.model.save(model_save_path)
-        print('model has saved...')
-
     def load_model(self):
-        model = word2vec.Word2Vec.load(model_save_path)
+        model = Word2Vec.load(model_save_path)
         return model
 
     def get_token_representation_matice(self):
@@ -50,7 +45,7 @@ class TokenToVec():
         print(model.wv)
         for i in range(num_terminal + num_non_terminal):
             vector = model[str(i)]
-            if i < num_non_terminal:  # < 106 (0到105为non-terminal)
+            if i < num_non_terminal:  # < 123 (0到122为non-terminal)
                 nt_represent_matrix.append(vector)
             else:
                 tt_represent_matrix.append(vector)
@@ -59,26 +54,7 @@ class TokenToVec():
         return nt_represent_matrix, tt_represent_matrix
 
 
-def load_all_data():
-    all_seq = []
-    for file_number in range(1, num_sub_train_data+1):
-        file_path = save_to_path + 'int_with_seq{}.json'.format(file_number)
-        file = open(file_path, 'rb')
-        sub_data = pickle.load(file)
-        for nt_seq in sub_data:
-            sub_seq = []
-            for n_pair, t_pair in nt_seq:
-                if n_pair == 22:
-                    print(n_pair, ' ', t_pair)
-                sub_seq.append(str(n_pair))
-                sub_seq.append(str(t_pair + num_non_terminal))  # 为防止nt和tt的index重复，将所有的terminal的index都向后移num_nt位
-            all_seq.append(sub_seq)
-        print(file_path, 'has been loaded...')
-    print('all data has been loaded...')
-    return all_seq
-
-
-def string_to_int_sequence():
+def get_sub_dataet():
     # 将训练集的string nt-sequence转换成int-nt-sequence，并且完全保存各个sub-sequence的结构
     # 也就是说生成的sequence的元素仍然是一个sequence，该sequence表示一个ast。这个sequence的元素才是nt-pair
     tt_token_to_int, tt_int_to_token, nt_token_to_int, nt_int_to_token = utils.load_dict_parameter()
@@ -91,30 +67,22 @@ def string_to_int_sequence():
 
     subset_generator = get_subset_data()
     for index, sub_data in subset_generator:
-        data_seq = []
+        data_seq = ''
         for one_ast in sub_data:
-            nt_int_seq = [(nt_token_to_int[n], tt_token_to_int.get(
-                t, tt_token_to_int[unknown_token])) for n, t in one_ast]
-            data_seq.append(nt_int_seq)
-        print('there are {} ast in {} sub dataset'.format(len(data_seq), index))
-        one_saved_path = save_to_path + 'int_with_seq{}.json'.format(index)
-        utils.pickle_save(one_saved_path, data_seq)
-    print('all training data has been processed...')
-
-
-
+            for n_pair, t_pair in one_ast:
+                data_seq += str(nt_token_to_int[n_pair]) + ' '
+                data_seq += str(tt_token_to_int.get(t_pair, tt_token_to_int[unknown_token]) + num_non_terminal) + ' '
+            data_seq += '\n'
+        one_save_path = wor2vec_data_save_dir + 'int_with_seq{}.txt'.format(index)
+        file = open(one_save_path, 'w', encoding='utf-8')
+        file.write(data_seq)
+        print(one_save_path, ' has been saved...')
 
 if __name__ == '__main__':
     step_choice = [0, 1, 2]
     step = step_choice[1]
+    get_sub_dataet()
     model = TokenToVec()
-    if step == 0:
-        string_to_int_sequence()
-    elif step == 1:
-        all_data = load_all_data()
-        print(len(all_data))  # number of token:34546856 totally. number of seq:100000 totally.
-        model.train(all_data)
-    elif step == 2:
-        model.get_token_representation_matice()
+    # model.get_token_representation_matice()
 
 

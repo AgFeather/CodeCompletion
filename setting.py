@@ -32,7 +32,7 @@ class Setting(object):
         self.num_sub_train_data = 20  # change to 28 for more data to train
         self.num_sub_valid_data = 1
         self.num_sub_test_data = 1
-        self.num_non_terminal = 106
+        self.num_non_terminal = 123
         self.unknown_token = 'UNK'
         self.num_terminal = 30000 + 1
 
