@@ -28,12 +28,11 @@ class RnnModel(object):
     def __init__(self,
                  num_ntoken, num_ttoken, is_training=True, saved_model=False, kernel='LSTM',
                  batch_size=50,
-                 n_embed_dim=1000,
-                 t_embed_dim=1000,
-                 num_hidden_units=1000,
-                 num_hidden_layers=2,
+                 n_embed_dim=1500,
+                 t_embed_dim=1500,
+                 num_hidden_units=1500,
                  learning_rate=0.001,
-                 num_epoches=10,
+                 num_epoches=4,
                  time_steps=50,
                  grad_clip=5,):
         self.time_steps = time_steps
@@ -43,7 +42,6 @@ class RnnModel(object):
         self.num_ttoken = num_ttoken
         self.t_embed_dim = t_embed_dim
         self.num_hidden_units = num_hidden_units
-        self.num_hidden_layers = num_hidden_layers
         self.learning_rate = learning_rate
         self.num_epoches = num_epoches
         self.grad_clip = grad_clip
@@ -83,75 +81,55 @@ class RnnModel(object):
             cell = tf.contrib.rnn.BasicLSTMCell(self.num_hidden_units)
             cell = tf.contrib.rnn.DropoutWrapper(cell, output_keep_prob=keep_prob)
             return cell
-        def gru_cell():
-            cell = tf.contrib.rnn.GRUCell(self.num_hidden_units)
-        #    cell = tf.contrib.rnn.AttentionCellWrapper(cell, attn_length=50)
-            cell = tf.contrib.rnn.DropoutWrapper(cell, output_keep_prob=keep_prob)
-            return cell
-        if self.kernel == 'LSTM':
-            cell_list = [lstm_cell() for _ in range(self.num_hidden_layers)]
-        else:
-            assert self.kernel == 'GRU'
-            cell_list = [gru_cell() for _ in range(self.num_hidden_layers)]
-        cells = tf.contrib.rnn.MultiRNNCell(cell_list)
-        init_state = cells.zero_state(self.batch_size, dtype=tf.float32)
-        return cells, init_state
+        cell = lstm_cell()
+        init_state = cell.zero_state(self.batch_size, dtype=tf.float32)
+        return cell, init_state
 
     def build_dynamic_rnn(self, cells, lstm_input, lstm_state):
         lstm_output, final_state = tf.nn.dynamic_rnn(
             cells, lstm_input, initial_state=lstm_state)
+        # 将lstm_output的形状由[batch_size, time_steps, n_units] 转换为
+        # [batch_size*time_steps, n_units]
+        lstm_output = tf.concat(lstm_output, axis=1)
+        lstm_output = tf.reshape(lstm_output, [-1, self.num_hidden_units])
         return lstm_output, final_state
 
-    def build_attention(self, inputs, attention_size):
-        with tf.name_scope('attention'):
-            w_omega = tf.Variable(tf.random_normal([self.num_hidden_units, attention_size], stddev=0.1))
-            b_omega = tf.Variable(tf.random_normal([attention_size], stddev=0.1))
-            u_omega = tf.Variable(tf.random_normal([attention_size], stddev=0.1))
-        v = tf.tanh(tf.tensordot(inputs, w_omega, axes=1) + b_omega)  # 不同维度tensor进行矩阵乘法
-        vu = tf.tensordot(v, u_omega, axes=1, name='vu')
-        alphas = tf.nn.softmax(vu, name='alphas')
-        attention_output = tf.reduce_sum(inputs * tf.expand_dims(alphas, -1), 1)
-        return attention_output, alphas
-
     def build_n_output(self, lstm_output):
-        # 将output的形状由[batch, time_steps, n_units] 转换为 [batch*time_steps, n_units]
-        seq_output = tf.concat(lstm_output, axis=1)
-        seq_output = tf.reshape(seq_output, [-1, self.num_hidden_units])
-
         with tf.variable_scope('non_terminal_softmax'):
             nt_weight = tf.Variable(tf.truncated_normal(
                 [self.num_hidden_units, self.num_ntoken], stddev=0.1))
             nt_bias = tf.Variable(tf.zeros(self.num_ntoken))
 
-        nonterminal_logits = tf.matmul(seq_output, nt_weight) + nt_bias
+        nonterminal_logits = tf.matmul(lstm_output, nt_weight) + nt_bias
         nonterminal_output = tf.nn.softmax(logits=nonterminal_logits, name='nonterminal_output')
         return nonterminal_logits, nonterminal_output
 
     def build_t_output(self, lstm_output):
-        # 将lstm_output的形状由[batch_size, time_steps, n_units] 转换为
-        # [batch_size*time_steps, n_units]
-        seq_output = tf.concat(lstm_output, axis=1)
-        seq_output = tf.reshape(seq_output, [-1, self.num_hidden_units])
         with tf.variable_scope('terminal_softmax'):
             t_weight = tf.Variable(tf.truncated_normal([self.num_hidden_units, self.num_ttoken], stddev=0.1))
             t_bias = tf.Variable(tf.zeros(self.num_ttoken))
-
-        terminal_logits = tf.matmul(seq_output, t_weight) + t_bias
+        terminal_logits = tf.matmul(lstm_output, t_weight) + t_bias
         termnial_output = tf.nn.softmax(
             logits=terminal_logits, name='terminal_output')
-        return terminal_logits, termnial_output
+        return terminal_logits, termnial_output, t_weight, t_bias
 
-    def build_loss(self, n_logits, n_target, t_logits, t_target):
-        # todo: 使用负采样方法进行训练加快训练速度？
-        n_loss = tf.nn.softmax_cross_entropy_with_logits_v2(
-            logits=n_logits, labels=n_target)
-        t_loss = tf.nn.softmax_cross_entropy_with_logits_v2(
-            logits=t_logits, labels=t_target)
+    def build_loss(self, n_loss, t_loss):
         loss = tf.add(n_loss, t_loss)
-        loss = tf.reduce_mean(loss)
+        return loss
+
+    def build_nt_loss(self, n_logits, n_targets):
+        n_loss = tf.nn.softmax_cross_entropy_with_logits_v2(
+            logits=n_logits, labels=n_targets)
         n_loss = tf.reduce_mean(n_loss)
+        return n_loss
+
+    def build_tt_loss(self,weights, bias, t_logits, t_targets):
+        # 对于terminal token的预测采用负采样方法加快训练速度
+        n_sampled = 100
+        t_loss = tf.nn.sampled_softmax_loss(
+            weights, bias, t_targets, t_logits, n_sampled, self.num_ttoken)
         t_loss = tf.reduce_mean(t_loss)
-        return loss, n_loss, t_loss
+        return t_loss
 
     def bulid_accuracy(self, n_output, n_target, t_output, t_target):
         n_equal = tf.equal(
@@ -196,18 +174,19 @@ class RnnModel(object):
         self.n_input, self.t_input, self.n_target, self.t_target, self.keep_prob = self.build_input()
         n_input_embedding, t_input_embedding = self.build_input_embed(
             self.n_input, self.t_input)
+        onehot_n_target, onehot_t_target = self.bulid_onehot_target(
+            self.n_target, self.t_target)
         lstm_input = tf.add(n_input_embedding, t_input_embedding)
         cells, self.init_state = self.build_rnn(self.keep_prob)
         self.lstm_state = self.init_state
         lstm_output, self.final_state = self.build_dynamic_rnn(cells, lstm_input, self.lstm_state)
-        t_logits, self.t_output = self.build_t_output(lstm_output)
-        n_logits, self.n_output = self. build_n_output(lstm_output)
 
-        onehot_n_target, onehot_t_target = self.bulid_onehot_target(
-            self.n_target, self.t_target)
+        n_logits, self.n_output = self.build_n_output(lstm_output)
+        t_logits, self.t_output, t_weight, t_bias = self.build_t_output(lstm_output)
 
-        self.loss, self.n_loss, self.t_loss = self.build_loss(
-            n_logits, onehot_n_target, t_logits, onehot_t_target)
+        self.n_loss = self.build_nt_loss(n_logits, onehot_n_target)
+        self.t_loss = self.build_tt_loss(t_weight, t_bias, t_logits, onehot_t_target)
+        self.loss = self.build_loss(self.n_loss, self.t_loss)
         self.n_accu, self.t_accu = self.bulid_accuracy(
             self.n_output, onehot_n_target, self.t_output, onehot_t_target)
         self.optimizer = self.bulid_optimizer(self.loss)

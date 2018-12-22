@@ -81,38 +81,36 @@ class RnnModel(object):
         init_state = cell.zero_state(self.batch_size, dtype=tf.float32)
         return cell, init_state
 
-    def build_n_output(self, lstm_output):
-        # 将lstm_output的形状由[batch_size, time_steps, n_units] 转换为
-        # [batch_size*time_steps, n_units]
-        seq_output = tf.concat(lstm_output, axis=1)
-        seq_output = tf.reshape(seq_output, [-1, self.num_hidden_units])
+    def build_dynamic_rnn(self, cells, lstm_input, lstm_state):
+        lstm_output, final_state = tf.nn.dynamic_rnn(
+            cells, lstm_input, initial_state=lstm_state)
+        # 将output的形状由[batch, time_steps, n_units] 转换为 [batch*time_steps, n_units]
+        lstm_output = tf.concat(lstm_output, axis=1)
+        lstm_output = tf.reshape(lstm_output, [-1, self.num_hidden_units])
+        return lstm_output, final_state
 
+    def build_n_output(self, lstm_output):
         with tf.variable_scope('non_terminal_softmax'):
             nt_weight = tf.Variable(tf.random_uniform(
                 [self.num_hidden_units, self.num_ntoken], minval=-0.05, maxval=0.05))
             nt_bias = tf.Variable(tf.zeros(self.num_ntoken))
 
-        nonterminal_logits = tf.matmul(seq_output, nt_weight) + nt_bias
+        nonterminal_logits = tf.matmul(lstm_output, nt_weight) + nt_bias
         nonterminal_output = tf.nn.softmax(logits=nonterminal_logits, name='nonterminal_output')
         return nonterminal_logits, nonterminal_output
 
     def build_t_output(self, lstm_output):
-        # 将lstm_output的形状由[batch_size, time_steps, n_units] 转换为
-        # [batch_size*time_steps, n_units]
-        seq_output = tf.concat(lstm_output, axis=1)
-        seq_output = tf.reshape(seq_output, [-1, self.num_hidden_units])
         with tf.variable_scope('terminal_softmax'):
             t_weight = tf.Variable(tf.random_uniform(
                 [self.num_hidden_units, self.num_ttoken], minval=-0.05, maxval=0.05))
             t_bias = tf.Variable(tf.zeros(self.num_ttoken))
 
-        terminal_logits = tf.matmul(seq_output, t_weight) + t_bias
+        terminal_logits = tf.matmul(lstm_output, t_weight) + t_bias
         termnial_output = tf.nn.softmax(
             logits=terminal_logits, name='terminal_output')
         return terminal_logits, termnial_output
 
     def build_loss(self, n_logits, n_target, t_logits, t_target):
-        # todo: 使用负采样方法进行训练加快训练速度？
         n_loss = tf.nn.softmax_cross_entropy_with_logits_v2(
             logits=n_logits, labels=n_target)
         t_loss = tf.nn.softmax_cross_entropy_with_logits_v2(
@@ -153,6 +151,12 @@ class RnnModel(object):
         onehot_t_target = tf.reshape(onehot_t_target, t_shape)
         return onehot_n_target, onehot_t_target
 
+    def build_summary(self, kwargs):
+        for key, value in kwargs.items():
+            tf.summary.scalar(key, value)
+        merged_op = tf.summary.merge_all()
+        return merged_op
+
     def build_model(self):
         tf.reset_default_graph()
         self.n_input, self.t_input, self.n_target, self.t_target, self.keep_prob = self.build_input()
@@ -162,8 +166,7 @@ class RnnModel(object):
         lstm_input = tf.add(n_input_embedding, t_input_embedding)  # shape = (64, 50, 1500)
         cells, self.init_state = self.build_lstm(self.keep_prob)
         self.lstm_state = self.init_state
-        lstm_output, self.final_state = tf.nn.dynamic_rnn(
-            cells, lstm_input, initial_state=self.lstm_state)
+        lstm_output, self.final_state = self.build_dynamic_rnn(cells, lstm_input, self.lstm_state)
         t_logits, self.t_output = self.build_t_output(lstm_output)  # t_logits.shape == (3200, 30001)
         n_logits, self.n_output = self.build_n_output(lstm_output)  # n_logits.shape == (3200, 123)
         onehot_n_target, onehot_t_target = self.bulid_onehot_target(
@@ -175,12 +178,10 @@ class RnnModel(object):
             self.n_output, onehot_n_target, self.t_output, onehot_t_target)
         self.optimizer = self.bulid_optimizer(self.loss)
 
-        tf.summary.scalar('train loss', self.loss)
-        tf.summary.scalar('non-terminal loss', self.n_loss)
-        tf.summary.scalar('terminal loss', self.t_loss)
-        tf.summary.scalar('n_accuracy', self.n_accu)
-        tf.summary.scalar('t_accuracy', self.t_accu)
-        self.merged_op = tf.summary.merge_all()
+        summary_dict = {'train loss':self.loss, 'non-terminal loss':self.t_loss,
+                        'terminal loss':self.t_loss, 'n_accuracy':self.n_accu,
+                        't_accuracy':self.t_loss}
+        self.merged_op = self.build_summary(summary_dict)
 
         print('lstm model has been created...')
 

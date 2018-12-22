@@ -149,8 +149,28 @@ class CodeCompletion(object):
         self.log_file.write('\n')
         print(log_info)
 
+
+
+class ShortLongTest(object):
+    """测试模型性能随着测试数据长短的变化趋势"""
+    def __init__(self,
+                 num_ntoken,
+                 num_ttoken, ):
+        self.model = RnnModel(num_ntoken, num_ttoken, is_training=False)
+        self.sess = tf.Session()
+        self.last_chackpoints = tf.train.latest_checkpoint(
+            checkpoint_dir=model_save_dir)
+
+        saver = tf.train.Saver()
+        saver.restore(self.sess, self.last_chackpoints)
+
+    def subset_generator(self):
+        for index in range(1, num_subset_test_data+1):
+            with open(test_subset_data_dir + 'int_part{}.json'.format(index), 'rb') as file:
+                subset_data = pickle.load(file)
+                yield index, subset_data
+
     def short_long_performance(self):
-        """测试模型性能随着测试数据长短的变化趋势"""
         length_define = 5000
 
         def find_long_seq(saved_info=False):
@@ -171,9 +191,12 @@ class CodeCompletion(object):
             return long_case
 
         long_case = find_long_seq()
+        num_test_case = len(long_case)
         long_case = np.array(long_case)
         test_epoch = 5
-        test_batch_size = len(long_case)
+        length_nt_correct = np.zeros(length_define, dtype=np.float32)
+        length_tt_correct = np.zeros(length_define, dtype=np.float32)
+
         for i in range(test_epoch):
             lstm_state = self.sess.run(self.model.init_state)
             for length in range(length_define):
@@ -187,6 +210,22 @@ class CodeCompletion(object):
                         self.model.keep_prob:1.0}
                 lstm_state, n_prediction, t_prediction = self.sess.run(
                     [self.model.final_state, self.model.n_output, self.model.t_output], feed)
+                n_prediction = np.argmax(n_prediction)
+                t_prediction = np.argmax(t_prediction)
+                nt_result = np.equal(n_prediction, nt_token_target).astype(np.float32)
+                tt_result = np.equal(t_prediction, tt_token_target).astype(np.float32)
+                length_nt_correct[length] += nt_result
+                length_tt_correct[length] += tt_result
+
+        nt_accuracy = length_nt_correct / (test_epoch * num_test_case)
+        tt_accuracy = length_tt_correct / (test_epoch * num_test_case)
+
+
+
+
+
+
+
 
 
 
@@ -203,4 +242,3 @@ if __name__ == '__main__':
     num_ttoken = len(tt_token_to_int)
     test_model = CodeCompletion(num_ntoken, num_ttoken)
     #nt_accuracy, tt_accuracy = test_model.test_model()
-    test_model.short_long_performance()

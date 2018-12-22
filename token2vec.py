@@ -29,15 +29,21 @@ wor2vec_data_save_dir = sub_train_data_dir + 'int_for_word2vec/'
 class TokenToVec():
     """对输入数据corpus中的每个token训练一个representation vector"""
     def __init__(self):
-        dataset = PathLineSentences(wor2vec_data_save_dir)
-        self.model = Word2Vec(dataset, size=300, window=12, min_count=1, iter=6)
-        print('WordToVec model has been created...')
+        pass
+
+    def train(self, data_path):
+        self.dataset = PathLineSentences(data_path)
+        print('data has been loaded...')
+        print('Token2Vec model is training...')
+        self.model = Word2Vec(self.dataset, size=300, window=20, min_count=1, iter=6)
+        self.model.save(model_save_path)
+        print('WordToVec model has been trained and saved...')
 
     def load_model(self):
         model = Word2Vec.load(model_save_path)
         return model
 
-    def get_token_representation_matice(self):
+    def get_token_representation_matrix(self):
         """加载已经训练好的word2vec模型，并将所有non-terminal的矩阵表示和所有terminal的矩阵表示提取并返回"""
         model = self.load_model()
         nt_represent_matrix = []
@@ -79,10 +85,15 @@ def get_sub_dataet():
         print(one_save_path, ' has been saved...')
 
 if __name__ == '__main__':
-    step_choice = [0, 1, 2]
-    step = step_choice[1]
-    get_sub_dataet()
-    model = TokenToVec()
-    # model.get_token_representation_matice()
+    step_choice = ['data_processing', 'model training', 'represent matrix']
+    step = step_choice[2]
+    if step == 'data_processing':
+        get_sub_dataet()
+    elif step == 'model training':
+        model = TokenToVec()
+        model.train(wor2vec_data_save_dir)
+    elif step == 'represent matrix':
+        model = TokenToVec()
+        model.get_token_representation_matrix()
 
 
