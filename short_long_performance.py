@@ -99,6 +99,7 @@ class ShortLongTest(object):
         import matplotlib.pyplot as plt
         file = open('short_long_performance.p', 'rb')
         nt_accuracy, tt_accuracy = pickle.load(file)
+        plt.figure(figsize=(40, 12))
         plt.plot(nt_accuracy, label='non-terminal')
         plt.plot(tt_accuracy, label='terminal')
         plt.xlabel('time step')

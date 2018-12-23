@@ -2,6 +2,7 @@ import pickle
 import json
 import sys
 from collections import Counter
+from json.decoder import JSONDecodeError
 
 from setting import Setting
 
@@ -30,10 +31,11 @@ time_steps = base_setting.time_steps
 
 
 def dataset_split(is_training=True, subset_size=5000):
-    sys.setrecursionlimit(10000)  # 设置递归最大深度
-    print('setrecursionlimit')
     """读取原始AST数据集，并将其分割成多个subset data
     对每个AST，将其转换成二叉树的形式，然后进行中序遍历生成一个nt-sequence"""
+    sys.setrecursionlimit(10000)  # 设置递归最大深度
+    print('setrecursionlimit == 10000')
+
     if is_training:  # 对training数据集进行分割
         data_path = js_train_data_dir
         total_size = 100000
@@ -45,31 +47,23 @@ def dataset_split(is_training=True, subset_size=5000):
 
     file = open(data_path, 'r')
     subset_list = []
-    nt_seq = None
+    nt_seq = []
     for i in range(1, total_size + 1):
         try:
             line = file.readline()  # 从文件中读取一个AST
-        except:
-            print('read error')
-        try:
             ast = json.loads(line)  # 将string类型转换成为json的ast
-        except BaseException:
-            print('ast load error')
-            continue
-        try:
             binary_tree = bulid_binary_tree(ast)  # AST转换为二叉树
-        except:
-            print('bulid_binary_tree error')
-            continue
-        try:
             nt_seq = ast_to_seq(binary_tree)  # 将一个AST按照规则转换成nt_sequence
-        except RecursionError:
-            print('maximum recursion depth exceeded in comparison')
-            continue
+        except UnicodeDecodeError as error:  # 由readline导致
+            print(error)
+        except JSONDecodeError as error:  # 由json load导致
+            print(error)
+        except RecursionError as error:
+            print(error)
         except BaseException:
-             print('ast parsed error')
-             continue
-        subset_list.append(nt_seq)  # 将生成的nt sequence加入到list中
+            print('other unknown error, plesae check the code')
+        else:
+            subset_list.append(nt_seq)  # 将生成的nt sequence加入到list中
 
         if i % subset_size == 0:  # 当读入的ast已经等于给定的subset的大小时
             sub_path = saved_to_path + \
@@ -93,7 +87,7 @@ def bulid_binary_tree(ast):
 
         if not isinstance(node, dict) and node == 0:  # AST中最后添加一个'EOF’标识
             ast[index] = 'EOF'
-            break  # return data
+            break
 
         node['right'] = brother_map.get(node['id'], -1)
 
@@ -277,16 +271,17 @@ def nt_seq_to_int(time_steps=50, status='TRAIN'):
             # 在train和valid中，是直接将所有ast-seq extend到一起，在test中，保留各个ast-seq的独立
             if status == 'TEST':
                 data_seq.append(nt_int_seq)
+                total_num_nt_pair += len(nt_int_seq)
             else:
                 data_seq.extend(nt_int_seq)
+                total_num_nt_pair += len(nt_int_seq)
 
-        total_num_nt_pair += len(data_seq)
         one_sub_int_data_dir = sub_int_data_dir + 'int_part{}.json'.format(index)
         pickle_save(one_sub_int_data_dir, data_seq)
-
-    print('There are {} nt_pair in {} dataset...'.format(total_num_nt_pair, status))
     # old:14,976,250 new:157,237,460  训练数据集新旧处理方法产生的数据量对比
     # old: 1,557,285  new: 81,078,099  测试数据集数据量对比
+    print('There are {} nt_pair in {} dataset...'.format(total_num_nt_pair, status))
+
 
 
 if __name__ == '__main__':
@@ -295,10 +290,10 @@ if __name__ == '__main__':
     data_process = operation_list[0]
 
     if data_process == 'TRAIN':
-        #dataset_split(is_training=True)
+        # dataset_split(is_training=True)
         nt_seq_to_int(status='TRAIN')
     elif data_process == 'TEST':
-        #dataset_split(is_training=False)
+        # dataset_split(is_training=False)
         nt_seq_to_int(status='TEST')
     elif data_process == 'VALID':
         nt_seq_to_int(status='VALID')
