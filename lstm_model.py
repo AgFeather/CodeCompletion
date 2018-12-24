@@ -111,7 +111,7 @@ class RnnModel(object):
         terminal_logits = tf.matmul(lstm_output, t_weight) + t_bias
         termnial_output = tf.nn.softmax(
             logits=terminal_logits, name='terminal_output')
-        return terminal_logits, termnial_output, t_weight, t_bias
+        return terminal_logits, termnial_output
 
     def build_loss(self, n_loss, t_loss):
         loss = tf.add(n_loss, t_loss)
@@ -123,11 +123,9 @@ class RnnModel(object):
         n_loss = tf.reduce_mean(n_loss)
         return n_loss
 
-    def build_tt_loss(self,weights, bias, t_logits, t_targets):
-        # 对于terminal token的预测采用负采样方法加快训练速度
-        n_sampled = 100
-        t_loss = tf.nn.sampled_softmax_loss(
-            weights, bias, t_targets, t_logits, n_sampled, self.num_ttoken)
+    def build_tt_loss(self,t_logits, t_targets):
+        t_loss = tf.nn.softmax_cross_entropy_with_logits_v2(
+            logits=t_logits, labels=t_targets)
         t_loss = tf.reduce_mean(t_loss)
         return t_loss
 
@@ -161,13 +159,11 @@ class RnnModel(object):
         onehot_t_target = tf.reshape(onehot_t_target, t_shape)
         return onehot_n_target, onehot_t_target
 
-    def build_summary(self):
-        tf.summary.scalar('train_loss', self.loss)
-        tf.summary.scalar('t_loss', self.t_loss)
-        tf.summary.scalar('n_loss', self.n_loss)
-        tf.summary.scalar('n_accuracy', self.n_accu)
-        tf.summary.scalar('t_accuracy', self.t_accu)
-        self.merged_op = tf.summary.merge_all()
+    def build_summary(self, summary_dict):
+        for key, value in summary_dict.items():
+            tf.summary.scalar(key, value)
+        merged_op = tf.summary.merge_all()
+        return merged_op
 
     def build_model(self):
         tf.reset_default_graph()
@@ -182,17 +178,19 @@ class RnnModel(object):
         lstm_output, self.final_state = self.build_dynamic_rnn(cells, lstm_input, self.lstm_state)
 
         n_logits, self.n_output = self.build_n_output(lstm_output)
-        t_logits, self.t_output, t_weight, t_bias = self.build_t_output(lstm_output)
+        t_logits, self.t_output = self.build_t_output(lstm_output)
 
         self.n_loss = self.build_nt_loss(n_logits, onehot_n_target)
-        self.t_loss = self.build_tt_loss(t_weight, t_bias, t_logits, onehot_t_target)
+        self.t_loss = self.build_tt_loss(t_logits, onehot_t_target)
         self.loss = self.build_loss(self.n_loss, self.t_loss)
         self.n_accu, self.t_accu = self.bulid_accuracy(
             self.n_output, onehot_n_target, self.t_output, onehot_t_target)
         self.optimizer = self.bulid_optimizer(self.loss)
 
-        if self.is_training:
-            self.build_summary()
+        summary_dict = {'train loss': self.loss, 'non-terminal loss': self.t_loss,
+                        'terminal loss': self.t_loss, 'n_accuracy': self.n_accu,
+                        't_accuracy': self.t_loss}
+        self.merged_op = self.build_summary(summary_dict)
 
         print('lstm model has been created...')
 
@@ -282,6 +280,7 @@ class RnnModel(object):
         valid_step = 0
         valid_n_accuracy = 0.0
         valid_t_accuracy = 0.0
+        valid_times = 200
         valid_start_time = time.time()
         for b_nt_x, b_nt_y, b_t_x, b_t_y in batch_generator:
             valid_step += 1
@@ -294,6 +293,8 @@ class RnnModel(object):
             n_accuracy, t_accuracy = session.run([self.n_accu, self.t_accu], feed)
             valid_n_accuracy += n_accuracy
             valid_t_accuracy += t_accuracy
+            if valid_step >= valid_times:
+                break
 
         valid_n_accuracy /= valid_step
         valid_t_accuracy /= valid_step
