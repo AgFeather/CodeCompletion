@@ -26,7 +26,9 @@ num_terminal = base_setting.num_terminal
 
 class RnnModel(object):
     def __init__(self,
-                 num_ntoken, num_ttoken, is_training=True, saved_model=False, kernel='LSTM',
+                 num_ntoken, num_ttoken,
+                 is_training=True,
+                 saved_model=False,
                  batch_size=50,
                  n_embed_dim=1500,
                  t_embed_dim=1500,
@@ -46,7 +48,6 @@ class RnnModel(object):
         self.num_epoches = num_epoches
         self.grad_clip = grad_clip
         self.saved_model = saved_model
-        self.kernel = kernel
         self.is_training = is_training
 
         if not self.is_training:
@@ -88,8 +89,7 @@ class RnnModel(object):
     def build_dynamic_rnn(self, cells, lstm_input, lstm_state):
         lstm_output, final_state = tf.nn.dynamic_rnn(
             cells, lstm_input, initial_state=lstm_state)
-        # 将lstm_output的形状由[batch_size, time_steps, n_units] 转换为
-        # [batch_size*time_steps, n_units]
+        # 将lstm_output由[batch_size, time_steps, n_units] 转换为[batch_size*time_steps, n_units]
         lstm_output = tf.concat(lstm_output, axis=1)
         lstm_output = tf.reshape(lstm_output, [-1, self.num_hidden_units])
         return lstm_output, final_state
@@ -196,6 +196,7 @@ class RnnModel(object):
 
     def train(self):
         self.print_and_log('model training...')
+        model_info = ''
         saver = tf.train.Saver()
         session = tf.Session()
         self.generator = DataGenerator(self.batch_size, self.time_steps)
@@ -282,6 +283,7 @@ class RnnModel(object):
         valid_t_accuracy = 0.0
         valid_times = 200
         valid_start_time = time.time()
+        lstm_state = session.run(self.init_state)
         for b_nt_x, b_nt_y, b_t_x, b_t_y in batch_generator:
             valid_step += 1
             feed = {self.t_input: b_t_x,
@@ -289,8 +291,10 @@ class RnnModel(object):
                     self.n_target: b_nt_y,
                     self.t_target: b_t_y,
                     self.keep_prob: 1.0,
+                    self.lstm_state:lstm_state,
                     self.global_step: global_step}
-            n_accuracy, t_accuracy = session.run([self.n_accu, self.t_accu], feed)
+            n_accuracy, t_accuracy, lstm_state = session.run(
+                [self.n_accu, self.t_accu, self.final_state], feed)
             valid_n_accuracy += n_accuracy
             valid_t_accuracy += t_accuracy
             if valid_step >= valid_times:

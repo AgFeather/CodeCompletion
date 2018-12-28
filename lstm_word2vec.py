@@ -7,6 +7,7 @@ import utils
 from setting import Setting
 from data_generator import DataGenerator
 
+
 base_setting = Setting()
 sub_int_train_dir = base_setting.sub_int_train_dir
 sub_int_valid_dir = base_setting.sub_int_valid_dir
@@ -18,19 +19,21 @@ training_log_dir = base_setting.lstm_train_log_dir
 num_subset_train_data = base_setting.num_sub_train_data
 num_subset_test_data = base_setting.num_sub_test_data
 show_every_n = base_setting.show_every_n
-valid_every_n = base_setting.valid_every_n
 save_every_n = base_setting.save_every_n
+valid_every_n = base_setting.valid_every_n
 num_terminal = base_setting.num_terminal
 
 
 class RnnModel(object):
+    """使用Word2vec预训练每个token的embedding representation"""
     def __init__(self,
-                 num_ntoken, num_ttoken, is_training=True, saved_model=False,
+                 num_ntoken, num_ttoken,
+                 is_training=True,
+                 saved_model=False,
                  batch_size=50,
-                 n_embed_dim=1500,
-                 t_embed_dim=1500,
-                 num_hidden_units=1500,
-                 num_hidden_layers=1,
+                 n_embed_dim=300,
+                 t_embed_dim=300,
+                 num_hidden_units=300,
                  learning_rate=0.001,
                  num_epoches=4,
                  time_steps=50,
@@ -42,17 +45,22 @@ class RnnModel(object):
         self.num_ttoken = num_ttoken
         self.t_embed_dim = t_embed_dim
         self.num_hidden_units = num_hidden_units
-        self.num_hidden_layers = num_hidden_layers
         self.learning_rate = learning_rate
         self.num_epoches = num_epoches
         self.grad_clip = grad_clip
         self.saved_model = saved_model
+        self.is_training = is_training
 
-        if not is_training:
+        if not self.is_training:
             self.batch_size = 1
             self.time_steps = 1
 
         self.build_model()
+
+    def get_represent_matrix(self):
+        file = open('token2vec_repre_matrix.p', 'rb')
+        nt_matrix, tt_matrix = pickle.load(file)
+        return nt_matrix, tt_matrix
 
     def build_input(self):
         n_input = tf.placeholder(
@@ -66,69 +74,76 @@ class RnnModel(object):
         keep_prob = tf.placeholder(tf.float32, name='keep_prob')
         return n_input, t_input, n_target, t_target, keep_prob
 
-    def build_input_embed(self, n_input, t_input):
-        n_embed_matrix = tf.Variable(tf.random_uniform(
-            [self.num_ntoken, self.n_embed_dim], minval=-0.05, maxval=0.05),  name='n_embed_matrix')
-        t_embed_matrix = tf.Variable(tf.random_uniform(
-            [self.num_ttoken, self.t_embed_dim], minval=-0.05, maxval=0.05), name='t_embed_matrix')
-        n_input_embedding = tf.nn.embedding_lookup(n_embed_matrix, n_input)
-        t_input_embedding = tf.nn.embedding_lookup(t_embed_matrix, t_input)
+    def build_represent_embed(self, n_token, t_token):
+        self.n_embed_matrix = tf.Variable(
+            initial_value=self.nt_init_matrix, trainable=False, name='n_embed_matrix')
+        self.t_embed_matrix = tf.Variable(
+            initial_value=self.tt_init_matrix, trainable=False, name='t_embed_matrix')
+        n_input_embedding = tf.nn.embedding_lookup(self.n_embed_matrix, n_token)
+        t_input_embedding = tf.nn.embedding_lookup(self.t_embed_matrix, t_token)
         return n_input_embedding, t_input_embedding
 
-    def build_lstm(self, keep_prob):
-        cell = tf.contrib.rnn.BasicLSTMCell(self.num_hidden_units)
-        cell = tf.contrib.rnn.DropoutWrapper(cell, output_keep_prob=keep_prob)
+    def build_rnn(self, keep_prob):
+        def lstm_cell():
+            cell = tf.contrib.rnn.BasicLSTMCell(self.num_hidden_units)
+            cell = tf.contrib.rnn.DropoutWrapper(cell, output_keep_prob=keep_prob)
+            return cell
+        cell = lstm_cell()
         init_state = cell.zero_state(self.batch_size, dtype=tf.float32)
         return cell, init_state
 
     def build_dynamic_rnn(self, cells, lstm_input, lstm_state):
         lstm_output, final_state = tf.nn.dynamic_rnn(
             cells, lstm_input, initial_state=lstm_state)
-        # 将output的形状由[batch, time_steps, n_units] 转换为 [batch*time_steps, n_units]
+        # 将lstm_output由[batch_size, time_steps, n_units] 转换为 [batch_size*time_steps, n_units]
         lstm_output = tf.concat(lstm_output, axis=1)
         lstm_output = tf.reshape(lstm_output, [-1, self.num_hidden_units])
         return lstm_output, final_state
 
     def build_n_output(self, lstm_output):
         with tf.variable_scope('non_terminal_softmax'):
-            nt_weight = tf.Variable(tf.random_uniform(
-                [self.num_hidden_units, self.num_ntoken], minval=-0.05, maxval=0.05))
+            nt_weight = tf.Variable(tf.truncated_normal(
+                [self.num_hidden_units, self.num_ntoken], stddev=0.1))
             nt_bias = tf.Variable(tf.zeros(self.num_ntoken))
 
         nonterminal_logits = tf.matmul(lstm_output, nt_weight) + nt_bias
-        nonterminal_output = tf.nn.softmax(logits=nonterminal_logits, name='nonterminal_output')
-        return nonterminal_logits, nonterminal_output
+        return nonterminal_logits
 
     def build_t_output(self, lstm_output):
         with tf.variable_scope('terminal_softmax'):
-            t_weight = tf.Variable(tf.random_uniform(
-                [self.num_hidden_units, self.num_ttoken], minval=-0.05, maxval=0.05))
+            t_weight = tf.Variable(tf.truncated_normal([self.num_hidden_units, self.num_ttoken], stddev=0.1))
             t_bias = tf.Variable(tf.zeros(self.num_ttoken))
-
         terminal_logits = tf.matmul(lstm_output, t_weight) + t_bias
-        termnial_output = tf.nn.softmax(
-            logits=terminal_logits, name='terminal_output')
-        return terminal_logits, termnial_output
+        return terminal_logits
 
-    def build_loss(self, n_logits, n_target, t_logits, t_target):
-        n_loss = tf.nn.softmax_cross_entropy_with_logits_v2(
-            logits=n_logits, labels=n_target)
-        t_loss = tf.nn.softmax_cross_entropy_with_logits_v2(
-            logits=t_logits, labels=t_target)
+    def build_loss(self, n_loss, t_loss):
         loss = tf.add(n_loss, t_loss)
-        loss = tf.reduce_mean(loss)
+        return loss
+
+    def build_nt_loss(self, n_logits, n_targets):
+        n_loss = tf.nn.softmax_cross_entropy_with_logits_v2(
+            logits=n_logits, labels=n_targets)
         n_loss = tf.reduce_mean(n_loss)
+        return n_loss
+
+    def build_tt_loss(self,t_logits, t_targets):
+        t_loss = tf.nn.softmax_cross_entropy_with_logits_v2(
+            logits=t_logits, labels=t_targets)
         t_loss = tf.reduce_mean(t_loss)
-        return loss, n_loss, t_loss
+        return t_loss
 
     def bulid_accuracy(self, n_output, n_target, t_output, t_target):
-        n_equal = tf.equal(
-            tf.argmax(n_output, axis=1), tf.argmax(n_target, axis=1))
-        t_equal = tf.equal(
-            tf.argmax(t_output, axis=1), tf.argmax(t_target, axis=1))
+        n_most_similar = self.get_most_similar(self.n_embed_matrix, n_output)
+        t_most_similar = self.get_most_similar(self.t_embed_matrix, t_output)
+        n_equal = tf.equal(n_most_similar, n_target)
+        t_equal = tf.equal(t_most_similar, t_target)
         n_accuracy = tf.reduce_mean(tf.cast(n_equal, tf.float32))
         t_accuracy = tf.reduce_mean(tf.cast(t_equal, tf.float32))
         return n_accuracy, t_accuracy
+
+    def get_most_similar(self, represent_matrix, output):
+        """计算给定embedding matrix中距离最近的vector对应的index，使用TensorFlow中距离计算函数"""
+        pass
 
     def bulid_optimizer(self, loss):
         self.global_step = tf.Variable(0, trainable=False)
@@ -142,45 +157,38 @@ class RnnModel(object):
         optimizer = optimizer.apply_gradients(clip_gradient_pair)
         return optimizer
 
-    def bulid_onehot_target(self, n_target, t_target):
-        onehot_n_target = tf.one_hot(n_target, self.num_ntoken)
-        n_shape = (self.batch_size * self.time_steps, self.num_ntoken)
-        t_shape = (self.batch_size * self.time_steps, self.num_ttoken)
-        onehot_n_target = tf.reshape(onehot_n_target, n_shape)
-        onehot_t_target = tf.one_hot(t_target, self.num_ttoken)
-        onehot_t_target = tf.reshape(onehot_t_target, t_shape)
-        return onehot_n_target, onehot_t_target
-
-    def build_summary(self, kwargs):
-        for key, value in kwargs.items():
+    def build_summary(self, summary_dict):
+        for key, value in summary_dict.items():
             tf.summary.scalar(key, value)
         merged_op = tf.summary.merge_all()
         return merged_op
 
     def build_model(self):
         tf.reset_default_graph()
+        self.nt_init_matrix, self.tt_init_matrix = self.get_represent_matrix()
         self.n_input, self.t_input, self.n_target, self.t_target, self.keep_prob = self.build_input()
-        n_input_embedding, t_input_embedding = self.build_input_embed(
+        n_input_embedding, t_input_embedding = self.build_represent_embed(
             self.n_input, self.t_input)
-        # n_embedding shape = (64, 50, 1500)  t_embedding shape = (64, 50, 1500)
-        lstm_input = tf.add(n_input_embedding, t_input_embedding)  # shape = (64, 50, 1500)
-        cells, self.init_state = self.build_lstm(self.keep_prob)
+        n_output_embedding, t_output_embeding = self.build_represent_embed(
+            self.n_output, self.t_output)
+        lstm_input = tf.add(n_input_embedding, t_input_embedding)
+        cells, self.init_state = self.build_rnn(self.keep_prob)
         self.lstm_state = self.init_state
         lstm_output, self.final_state = self.build_dynamic_rnn(cells, lstm_input, self.lstm_state)
-        t_logits, self.t_output = self.build_t_output(lstm_output)  # t_logits.shape == (3200, 30001)
-        n_logits, self.n_output = self.build_n_output(lstm_output)  # n_logits.shape == (3200, 123)
-        onehot_n_target, onehot_t_target = self.bulid_onehot_target(
-            self.n_target, self.t_target)
 
-        self.loss, self.n_loss, self.t_loss = self.build_loss(
-            n_logits, onehot_n_target, t_logits, onehot_t_target)
+        n_logits, self.n_output = self.build_n_output(lstm_output)
+        t_logits, self.t_output = self.build_t_output(lstm_output)
+
+        self.n_loss = self.build_nt_loss(n_logits, n_output_embedding)
+        self.t_loss = self.build_tt_loss(t_logits, n_output_embedding)
+        self.loss = self.build_loss(self.n_loss, self.t_loss)
         self.n_accu, self.t_accu = self.bulid_accuracy(
-            self.n_output, onehot_n_target, self.t_output, onehot_t_target)
+            self.n_output, self.n_target, self.t_output, self.t_target)
         self.optimizer = self.bulid_optimizer(self.loss)
 
-        summary_dict = {'train loss':self.loss, 'non-terminal loss':self.t_loss,
-                        'terminal loss':self.t_loss, 'n_accuracy':self.n_accu,
-                        't_accuracy':self.t_loss}
+        summary_dict = {'train loss': self.loss, 'non-terminal loss': self.t_loss,
+                        'terminal loss': self.t_loss, 'n_accuracy': self.n_accu,
+                        't_accuracy': self.t_loss}
         self.merged_op = self.build_summary(summary_dict)
 
         print('lstm model has been created...')
@@ -189,7 +197,7 @@ class RnnModel(object):
         self.print_and_log('model training...')
         saver = tf.train.Saver()
         session = tf.Session()
-        self.generator = DataGenerator(batch_size=self.batch_size, time_steps=self.time_steps)
+        self.generator = DataGenerator(self.batch_size, self.time_steps)
         tb_writer = tf.summary.FileWriter(tensorboard_log_dir, session.graph)
         global_step = 0
         session.run(tf.global_variables_initializer())
@@ -203,7 +211,7 @@ class RnnModel(object):
 
             subset_generator = self.generator.get_subset_data()
             for data in subset_generator:
-                batch_generator = self.generator.get_batch(data)
+                batch_generator = self.generator.get_batch(data_seq=data)
                 lstm_state = session.run(self.init_state)
                 for b_nt_x, b_nt_y, b_t_x, b_t_y in batch_generator:
                     batch_step += 1
@@ -214,9 +222,9 @@ class RnnModel(object):
                             self.t_target: b_t_y,
                             self.keep_prob: 0.5,
                             self.lstm_state:lstm_state,
-                            self.global_step: global_step}
+                            self.global_step:global_step}
                     batch_start_time = time.time()
-                    loss, n_loss, t_loss, n_accu, t_accu, _,lstm_state, summary_str = \
+                    loss, n_loss, t_loss, n_accu, t_accu, _, summary_str = \
                         session.run([
                             self.loss,
                             self.n_loss,
@@ -224,7 +232,6 @@ class RnnModel(object):
                             self.n_accu,
                             self.t_accu,
                             self.optimizer,
-                            self.final_state,
                             self.merged_op], feed_dict=feed)
 
                     tb_writer.add_summary(summary_str, global_step)
@@ -237,18 +244,19 @@ class RnnModel(object):
 
                     if global_step % show_every_n == 0:
                         log_info = 'epoch:{}/{}  '.format(epoch, self.num_epoches) + \
-                            'global_step:{}  '.format(global_step) + \
-                            'loss:{:.2f}(n_loss:{:.2f} + t_loss:{:.2f})  '.format(loss, n_loss, t_loss) + \
-                            'nt_accu:{:.2f}%  '.format(n_accu * 100) + \
-                            'tt_accu:{:.2f}%  '.format(t_accu * 100) + \
-                            'time cost per batch:{:.2f}/s'.format(batch_end_time - batch_start_time)
+                                   'global_step:{}  '.format(global_step) + \
+                                   'loss:{:.2f}(n_loss:{:.2f} + t_loss:{:.2f})  '.format(loss, n_loss, t_loss) + \
+                                   'nt_accu:{:.2f}%  '.format(n_accu * 100) + \
+                                   'tt_accu:{:.2f}%  '.format(t_accu * 100) + \
+                                   'time cost per batch:{:.2f}/s'.format(batch_end_time - batch_start_time)
                         self.print_and_log(log_info)
 
                     if global_step % valid_every_n == 0:
-                        self.valid(session, epoch, global_step)  # 进行valid验证
+                        self.valid(session, epoch, global_step)
 
                     if self.saved_model and global_step % save_every_n == 0:
                         saver.save(session, model_save_dir + 'e{}_b{}.ckpt'.format(epoch, batch_step))
+                        print('model saved: epoch:{} global_step:{}'.format(epoch, global_step))
             epoch_end_time = time.time()
             epoch_cost_time = epoch_end_time - epoch_start_time
             epoch_log = 'EPOCH:{}/{}  '.format(epoch, self.num_epoches) + \
@@ -271,9 +279,8 @@ class RnnModel(object):
         valid_step = 0
         valid_n_accuracy = 0.0
         valid_t_accuracy = 0.0
-        valid_start_time = time.time()
         valid_times = 200
-        lstm_state = session.run(self.init_state)
+        valid_start_time = time.time()
         for b_nt_x, b_nt_y, b_t_x, b_t_y in batch_generator:
             valid_step += 1
             feed = {self.t_input: b_t_x,
@@ -281,10 +288,8 @@ class RnnModel(object):
                     self.n_target: b_nt_y,
                     self.t_target: b_t_y,
                     self.keep_prob: 1.0,
-                    self.lstm_state:lstm_state,
                     self.global_step: global_step}
-            n_accuracy, t_accuracy, lstm_state = session.run(
-                [self.n_accu, self.t_accu, self.final_state], feed)
+            n_accuracy, t_accuracy = session.run([self.n_accu, self.t_accu], feed)
             valid_n_accuracy += n_accuracy
             valid_t_accuracy += t_accuracy
             if valid_step >= valid_times:

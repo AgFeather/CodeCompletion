@@ -50,13 +50,13 @@ def dataset_split(is_training=True, subset_size=5000):
     nt_seq = []
     for i in range(1, total_size + 1):
         try:
-            line = file.readline()  # 从文件中读取一个AST
-            ast = json.loads(line)  # 将string类型转换成为json的ast
-            binary_tree = bulid_binary_tree(ast)  # AST转换为二叉树
-            nt_seq = ast_to_seq(binary_tree)  # 将一个AST按照规则转换成nt_sequence
-        except UnicodeDecodeError as error:  # 由readline导致
+            line = file.readline()  # read a lind from file(one ast)
+            ast = json.loads(line)  # transform it to json format
+            binary_tree = bulid_binary_tree(ast)  # AST to binary tree
+            nt_seq = ast_to_seq(binary_tree)  # binary to nt_sequence
+        except UnicodeDecodeError as error:  # arise by readline
             print(error)
-        except JSONDecodeError as error:  # 由json load导致
+        except JSONDecodeError as error:  # arise by json_load
             print(error)
         except RecursionError as error:
             print(error)
@@ -136,8 +136,8 @@ def ast_to_seq(binary_tree):
         elif node['isTerminal']:  # 如果node为terminal
             string_node = str(node['type'])
             if 'value' in node.keys():
-                # Note:存在很多token(break, return等）既不包括children，也不包括value
-                string_node += '=$$=' + str(node['value'])  # + '==' + str(node['id'])
+                # Note:There are some tokens(like:break .etc）do not contains 'value'
+                string_node += '=$$=' + str(node['value'])
             temp_terminal_count[string_node] += 1
 
         else:  # 如果是non-terminal
@@ -278,7 +278,7 @@ def nt_seq_to_int(time_steps=50, status='TRAIN'):
 
         one_sub_int_data_dir = sub_int_data_dir + 'int_part{}.json'.format(index)
         pickle_save(one_sub_int_data_dir, data_seq)
-    # old:14,976,250 new:157,237,460  训练数据集新旧处理方法产生的数据量对比
+    # old:14,976,250  new:157,237,460  size of training dataset comparison
     # old: 1,557,285  new: 81,078,099  测试数据集数据量对比
     print('There are {} nt_pair in {} dataset...'.format(total_num_nt_pair, status))
 
