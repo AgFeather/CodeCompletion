@@ -61,9 +61,9 @@ class RnnModel(object):
         t_input = tf.placeholder(
             tf.int32, [None, None], name='t_input')
         n_target = tf.placeholder(
-            tf.int32, [None, None], name='n_target')
+            tf.int64, [None, None], name='n_target')
         t_target = tf.placeholder(
-            tf.int32, [None, None], name='t_target')
+            tf.int64, [None, None], name='t_target')
         keep_prob = tf.placeholder(tf.float32, name='keep_prob')
         return n_input, t_input, n_target, t_target, keep_prob
 
@@ -118,7 +118,7 @@ class RnnModel(object):
         return loss
 
     def build_nt_loss(self, n_logits, n_targets):
-        n_loss = tf.nn.softmax_cross_entropy_with_logits_v2(
+        n_loss = tf.nn.sparse_softmax_cross_entropy_with_logits(
             logits=n_logits, labels=n_targets)
         n_loss = tf.reduce_mean(n_loss)
         return n_loss
@@ -133,10 +133,8 @@ class RnnModel(object):
         return t_loss
 
     def bulid_accuracy(self, n_output, n_target, t_output, t_target):
-        n_equal = tf.equal(
-            tf.argmax(n_output, axis=1), tf.argmax(n_target, axis=1))
-        t_equal = tf.equal(
-            tf.argmax(t_output, axis=1), tf.argmax(t_target, axis=1))
+        n_equal = tf.equal(tf.argmax(n_output, axis=1), n_target)
+        t_equal = tf.equal(tf.argmax(t_output, axis=1), t_target)
         n_accuracy = tf.reduce_mean(tf.cast(n_equal, tf.float32))
         t_accuracy = tf.reduce_mean(tf.cast(t_equal, tf.float32))
         return n_accuracy, t_accuracy
@@ -175,8 +173,7 @@ class RnnModel(object):
         self.n_input, self.t_input, self.n_target, self.t_target, self.keep_prob = self.build_input()
         n_input_embedding, t_input_embedding = self.build_input_embed(
             self.n_input, self.t_input)
-        onehot_n_target, onehot_t_target = self.bulid_onehot_target(
-            self.n_target, self.t_target)
+
         lstm_input = tf.add(n_input_embedding, t_input_embedding)
         cells, self.init_state = self.build_rnn(self.keep_prob)
         self.lstm_state = self.init_state
@@ -186,12 +183,14 @@ class RnnModel(object):
         t_logits, self.t_output, t_weight, t_bias = self.build_t_output(lstm_output)
 
         sample_targets = tf.reshape(self.t_target, [self.batch_size*self.time_steps, -1])
+        n_target = tf.reshape(self.n_target, [self.batch_size * self.time_steps])
+        t_target = tf.reshape(self.t_target, [self.batch_size * self.time_steps])
 
-        self.n_loss = self.build_nt_loss(n_logits, onehot_n_target)
+        self.n_loss = self.build_nt_loss(n_logits, n_target)
         self.t_loss = self.build_tt_loss(t_weight, t_bias, lstm_output, sample_targets)
         self.loss = self.build_loss(self.n_loss, self.t_loss)
         self.n_accu, self.t_accu = self.bulid_accuracy(
-            self.n_output, onehot_n_target, self.t_output, onehot_t_target)
+            self.n_output, n_target, self.t_output, t_target)
         self.optimizer = self.bulid_optimizer(self.loss)
 
         if self.is_training:
@@ -217,7 +216,7 @@ class RnnModel(object):
             n_accu_per_epoch = 0.0
             t_accu_per_epoch = 0.0
 
-            subset_generator = self.generator.get_subset_data()
+            subset_generator = self.generator.get_train_subset_data()
             for data in subset_generator:
                 batch_generator = self.generator.get_batch(data_seq=data)
                 lstm_state = session.run(self.init_state)

@@ -23,6 +23,8 @@ save_every_n = base_setting.save_every_n
 valid_every_n = base_setting.valid_every_n
 num_terminal = base_setting.num_terminal
 
+repre_matrix_dir = base_setting.temp_info + 'token2vec_repre_matrix.p'
+
 
 class RnnModel(object):
     """使用Word2vec预训练每个token的embedding representation"""
@@ -58,7 +60,7 @@ class RnnModel(object):
         self.build_model()
 
     def get_represent_matrix(self):
-        file = open('token2vec_repre_matrix.p', 'rb')
+        file = open(repre_matrix_dir, 'rb')
         nt_matrix, tt_matrix = pickle.load(file)
         return nt_matrix, tt_matrix
 

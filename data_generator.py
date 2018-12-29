@@ -3,15 +3,20 @@ import pickle
 from setting import Setting
 
 class DataGenerator():
-
-    def __init__(self, batch_size, time_steps):
+    """a generator class for data generation"""
+    def __init__(self, batch_size=50, time_steps=50):
         self.time_steps = time_steps
         self.batch_size = batch_size
         model_setting = Setting()
         self.num_subset_train_data = model_setting.num_sub_train_data
+        self.num_subset_test_data = model_setting.num_sub_test_data
         self.sub_int_train_dir = model_setting.sub_int_train_dir
+        self.sub_int_test_dir = model_setting.sub_int_test_dir
 
     def get_batch(self, data_seq):
+        """Generator for training phase,
+        each time it will return (non-terminal x, non-terminal y, terminal x, terminal y)
+        shape of both x and y is [batch_size, time_step]"""
         data_seq = np.array(data_seq)
         total_length = self.time_steps * self.batch_size
         n_batches = len(data_seq) // total_length
@@ -37,9 +42,23 @@ class DataGenerator():
                 break
             yield batch_nt_x, batch_nt_y, batch_tt_x, batch_tt_y
 
-    def get_subset_data(self):
+    def get_test_batch(self, prefix):
+        prefix = np.array(prefix)
+        for index in range(0, len(prefix), self.time_steps):
+            nt_token = prefix[index: index+self.time_steps, 0].reshape([1, -1])
+            tt_token = prefix[index: index+self.time_steps, 1].reshape([1, -1])
+            yield nt_token, tt_token
+
+    def get_train_subset_data(self):
+        """yield sub training dataset"""
         for i in range(1, self.num_subset_train_data + 1):
             data_path = self.sub_int_train_dir + 'int_part{}.json'.format(i)
             with open(data_path, 'rb') as file:
                 data = pickle.load(file)
                 yield data
+
+    def get_test_subset_data(self):
+        for index in range(1, self.num_subset_test_data+1):
+            with open(self.sub_int_test_dir + 'int_part{}.json'.format(index), 'rb') as file:
+                subset_data = pickle.load(file)
+                yield index, subset_data

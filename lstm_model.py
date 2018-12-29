@@ -31,7 +31,7 @@ class RnnModel(object):
                  t_embed_dim=1500,
                  num_hidden_units=1500,
                  learning_rate=0.001,
-                 num_epoches=5,
+                 num_epochs=5,
                  time_steps=50,
                  grad_clip=5,):
         self.time_steps = time_steps
@@ -42,20 +42,16 @@ class RnnModel(object):
         self.t_embed_dim = t_embed_dim
         self.num_hidden_units = num_hidden_units
         self.learning_rate = learning_rate
-        self.num_epoches = num_epoches
+        self.num_epochs = num_epochs
         self.grad_clip = grad_clip
 
         self.build_model()
 
     def build_input(self):
-        n_input = tf.placeholder(
-            tf.int32, [None, None], name='n_input')
-        t_input = tf.placeholder(
-            tf.int32, [None, None], name='t_input')
-        n_target = tf.placeholder(
-            tf.int64, [None, None], name='n_target')
-        t_target = tf.placeholder(
-            tf.int64, [None, None], name='t_target')
+        n_input = tf.placeholder(tf.int32, [None, None], name='n_input')
+        t_input = tf.placeholder(tf.int32, [None, None], name='t_input')
+        n_target = tf.placeholder(tf.int64, [None, None], name='n_target')
+        t_target = tf.placeholder(tf.int64, [None, None], name='t_target')
         keep_prob = tf.placeholder(tf.float32, name='keep_prob')
         return n_input, t_input, n_target, t_target, keep_prob
 
@@ -107,14 +103,14 @@ class RnnModel(object):
         loss = tf.add(n_loss, t_loss)
         return loss
 
-    def build_nt_loss(self, n_logits, n_targets):
-        n_loss = tf.nn.sparse_softmax_cross_entropy_with_logits(logits=n_logits, labels=n_targets)
+    def build_nt_loss(self, n_logits, n_target):
+        n_loss = tf.nn.sparse_softmax_cross_entropy_with_logits(logits=n_logits, labels=n_target)
        # n_loss = tf.nn.softmax_cross_entropy_with_logits_v2(logits=n_logits, labels=n_targets)
         n_loss = tf.reduce_mean(n_loss)
         return n_loss
 
-    def build_tt_loss(self, t_logits, t_targets):
-        t_loss = tf.nn.sparse_softmax_cross_entropy_with_logits(logits=t_logits, labels=t_targets)
+    def build_tt_loss(self, t_logits, t_target):
+        t_loss = tf.nn.sparse_softmax_cross_entropy_with_logits(logits=t_logits, labels=t_target)
         # t_loss = tf.nn.softmax_cross_entropy_with_logits_v2(logits=t_logits, labels=t_targets)
         t_loss = tf.reduce_mean(t_loss)
         return t_loss
@@ -200,13 +196,13 @@ class RnnModel(object):
         global_step = 0
         session.run(tf.global_variables_initializer())
 
-        for epoch in range(1, self.num_epoches+1):
+        for epoch in range(1, self.num_epochs+1):
             epoch_start_time = time.time()
             batch_step = 0
             loss_per_epoch = 0.0
             n_accu_per_epoch = 0.0
             t_accu_per_epoch = 0.0
-            subset_generator = self.generator.get_subset_data()
+            subset_generator = self.generator.get_train_subset_data()
 
             for data in subset_generator:
                 batch_generator = self.generator.get_batch(data_seq=data)
@@ -243,7 +239,7 @@ class RnnModel(object):
                     batch_end_time = time.time()
 
                     if global_step % show_every_n == 0:
-                        log_info = 'epoch:{}/{}  '.format(epoch, self.num_epoches) + \
+                        log_info = 'epoch:{}/{}  '.format(epoch, self.num_epochs) + \
                                    'global_step:{}  '.format(global_step) + \
                                    'loss:{:.2f}(n_loss:{:.2f} + t_loss:{:.2f})  '.format(loss, n_loss, t_loss) + \
                                    'nt_accu:{:.2f}%  '.format(n_accu * 100) + \
@@ -260,7 +256,7 @@ class RnnModel(object):
             epoch_end_time = time.time()
             epoch_cost_time = epoch_end_time - epoch_start_time
 
-            epoch_log = 'EPOCH:{}/{}  '.format(epoch, self.num_epoches) + \
+            epoch_log = 'EPOCH:{}/{}  '.format(epoch, self.num_epochs) + \
                         'time cost this epoch:{:.2f}/s  '.format(epoch_cost_time) + \
                         'epoch average loss:{:.2f}  '.format(loss_per_epoch / batch_step) + \
                         'epoch average nt_accu:{:.2f}%  '.format(100*n_accu_per_epoch / batch_step) + \
@@ -302,7 +298,7 @@ class RnnModel(object):
         valid_n_accuracy /= valid_step
         valid_t_accuracy /= valid_step
         valid_end_time = time.time()
-        valid_log = "VALID epoch:{}/{}  ".format(epoch, self.num_epoches) + \
+        valid_log = "VALID epoch:{}/{}  ".format(epoch, self.num_epochs) + \
                     "global step:{}  ".format(global_step) + \
                     "valid_nt_accu:{:.2f}%  ".format(valid_n_accuracy * 100) + \
                     "valid_tt_accu:{:.2f}%  ".format(valid_t_accuracy * 100) + \

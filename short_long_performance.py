@@ -21,6 +21,7 @@ show_every_n = test_setting.test_show
 num_terminal = test_setting.num_terminal
 test_time_step = 50
 
+short_long_performance = test_setting.temp_info + 'short_long_performance.p'
 
 
 
@@ -55,8 +56,6 @@ class ShortLongTest(object):
                     token_seq = token_seq[:length_define+1]
                     long_case.append(token_seq)
         sorted_counter = sorted(length_counter.items(), key=lambda x: x[0] ,reverse=True)
-        if saved_info:
-            pickle.dump(sorted_counter, open('longth_count_info.p', 'wb'))
         return long_case
 
     def short_long_performance(self):
@@ -90,14 +89,14 @@ class ShortLongTest(object):
 
         nt_accuracy = length_nt_correct / (test_epoch * num_test_case)
         tt_accuracy = length_tt_correct / (test_epoch * num_test_case)
-        file = open('short_long_performance.p', 'wb')
+        file = open(short_long_performance, 'wb')
         pickle.dump([nt_accuracy, tt_accuracy], file)
 
         return nt_accuracy, tt_accuracy
 
     def plot_performance(self):
         import matplotlib.pyplot as plt
-        file = open('short_long_performance.p', 'rb')
+        file = open(short_long_performance, 'rb')
         nt_accuracy, tt_accuracy = pickle.load(file)
         plt.figure(figsize=(40, 12))
         plt.plot(nt_accuracy, label='non-terminal')

@@ -22,7 +22,7 @@ embed_dim = base_setting.word2vec_embed_dim
 unknown_token = base_setting.unknown_token
 
 wor2vec_data_save_dir = sub_train_data_dir + 'int_for_word2vec/'
-
+repre_matrix_dir = base_setting.temp_info + 'token2vec_repre_matrix.p'
 
 
 
@@ -55,7 +55,7 @@ class TokenToVec():
                 nt_represent_matrix.append(vector)
             else:
                 tt_represent_matrix.append(vector)
-        pickle.dump([nt_represent_matrix, tt_represent_matrix], open('token2vec_repre_matrix.p', 'wb'))
+        pickle.dump([nt_represent_matrix, tt_represent_matrix], open('repre_matrix_dir', 'wb'))
         print('token2vec representation matrix has been saved...')
         return nt_represent_matrix, tt_represent_matrix
 

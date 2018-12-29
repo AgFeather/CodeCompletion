@@ -2,25 +2,21 @@ import tensorflow as tf
 import numpy as np
 import time
 import random
-import pickle
-from collections import Counter
 
-import utils
 from basic_lstm import RnnModel
+from data_generator import DataGenerator
 from setting import Setting
 
 
 test_setting = Setting()
-test_subset_data_dir = test_setting.sub_int_test_dir
 model_save_dir = test_setting.lstm_model_save_dir
 test_log_dir = test_setting.lstm_test_log_dir
 
 
 num_subset_test_data = test_setting.num_sub_test_data
-seq_per_subset = 5000
+seq_per_subset = test_setting.num_seq_per_subset
 show_every_n = test_setting.test_show
-num_terminal = test_setting.num_terminal
-test_time_step = 50
+
 
 
 class CodeCompletion(object):
@@ -44,7 +40,7 @@ class CodeCompletion(object):
         ML model will predict the most probable token in the hole
         """
         new_state = self.sess.run(self.model.init_state)
-        test_batch = self.get_batch(prefix)
+        test_batch = self.generator.get_test_batch(prefix)
         n_prediction, t_prediction = None, None
         for nt_token, tt_token in test_batch:
             feed = {self.model.n_input: nt_token,
@@ -61,26 +57,16 @@ class CodeCompletion(object):
         t_prediction = np.argmax(t_prediction)
         return n_prediction, t_prediction
 
-    def get_batch(self, prefix):
-        prefix = np.array(prefix)
-        for index in range(0, len(prefix), test_time_step):
-            nt_token = prefix[index: index+test_time_step, 0].reshape([1, -1])
-            tt_token = prefix[index: index+test_time_step, 1].reshape([1, -1])
-            yield nt_token, tt_token
 
-    def subset_generator(self):
-        for index in range(1, num_subset_test_data+1):
-            with open(test_subset_data_dir + 'int_part{}.json'.format(index), 'rb') as file:
-                subset_data = pickle.load(file)
-                yield index, subset_data
 
     def test_model(self):
-        self.test_log('test phase is beginning... time_step is:{}'.format(test_time_step))
+        self.test_log('test phase is beginning...')
         start_time = time.time()
         total_tt_accuracy = 0.0
         total_nt_accuracy = 0.0
-        subdata_generator = self.subset_generator()
-        for index, subset_test_data in subdata_generator:  # 遍历每个sub test dataset
+        self.generator = DataGenerator()
+        sub_data_generator = self.generator.get_test_subset_data()
+        for index, subset_test_data in sub_data_generator:  # 遍历每个sub test dataset
             tt_correct_count = 0.0
             nt_correct_count = 0.0
             subset_step = 0
@@ -151,94 +137,11 @@ class CodeCompletion(object):
 
 
 
-class ShortLongTest(object):
-    """测试模型性能随着测试数据长短的变化趋势"""
-    def __init__(self,
-                 num_ntoken,
-                 num_ttoken, ):
-        self.model = RnnModel(num_ntoken, num_ttoken, is_training=False)
-        self.sess = tf.Session()
-        self.last_chackpoints = tf.train.latest_checkpoint(
-            checkpoint_dir=model_save_dir)
-
-        saver = tf.train.Saver()
-        saver.restore(self.sess, self.last_chackpoints)
-
-    def subset_generator(self):
-        for index in range(1, num_subset_test_data+1):
-            with open(test_subset_data_dir + 'int_part{}.json'.format(index), 'rb') as file:
-                subset_data = pickle.load(file)
-                yield index, subset_data
-
-    def short_long_performance(self):
-        length_define = 5000
-
-        def find_long_seq(saved_info=False):
-            """读取测试集中的数据并找到长度较长的测试数据"""
-            long_case = []
-            subdata_generator = self.subset_generator()
-            length_counter = Counter()
-            for index, subset_test_data in subdata_generator:
-                for token_seq in subset_test_data:
-                    length_counter[len(token_seq)] += 1
-            sorted_counter = sorted(length_counter.items(), key=lambda x: x[0],reverse=True)
-            if saved_info:
-                pickle.dump(sorted_counter, open('longth_count_info.p', 'wb'))
-            for index, subset_test_data in subdata_generator:
-                for token_seq in subset_test_data:
-                    if len(token_seq) >= length_define:
-                        long_case.append(token_seq)
-            return long_case
-
-        long_case = find_long_seq()
-        num_test_case = len(long_case)
-        long_case = np.array(long_case)
-        test_epoch = 5
-        length_nt_correct = np.zeros(length_define, dtype=np.float32)
-        length_tt_correct = np.zeros(length_define, dtype=np.float32)
-
-        for i in range(test_epoch):
-            lstm_state = self.sess.run(self.model.init_state)
-            for length in range(length_define):
-                nt_token_input = long_case[:, length, 0].reshape([-1, 1])
-                tt_token_input = long_case[:, length, 1].reshape([-1, 1])
-                nt_token_target = long_case[:, length+1, 0]
-                tt_token_target = long_case[:, length+1, 1]
-                feed = {self.model.lstm_state: lstm_state,
-                        self.model.n_input:nt_token_input,
-                        self.model.t_input:tt_token_input,
-                        self.model.keep_prob:1.0}
-                lstm_state, n_prediction, t_prediction = self.sess.run(
-                    [self.model.final_state, self.model.n_output, self.model.t_output], feed)
-                n_prediction = np.argmax(n_prediction)
-                t_prediction = np.argmax(t_prediction)
-                nt_result = np.equal(n_prediction, nt_token_target).astype(np.float32)
-                tt_result = np.equal(t_prediction, tt_token_target).astype(np.float32)
-                length_nt_correct[length] += nt_result
-                length_tt_correct[length] += tt_result
-
-        nt_accuracy = length_nt_correct / (test_epoch * num_test_case)
-        tt_accuracy = length_tt_correct / (test_epoch * num_test_case)
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 if __name__ == '__main__':
     # test step
-    tt_token_to_int, tt_int_to_token, nt_token_to_int, nt_int_to_token = utils.load_dict_parameter()
-    num_ntoken = len(nt_token_to_int)
-    num_ttoken = len(tt_token_to_int)
+    num_ntoken = test_setting.num_non_terminal
+    num_ttoken = test_setting.num_terminal
     test_model = CodeCompletion(num_ntoken, num_ttoken)
-    #nt_accuracy, tt_accuracy = test_model.test_model()
+    nt_accuracy, tt_accuracy = test_model.test_model()
