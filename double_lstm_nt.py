@@ -178,11 +178,17 @@ class DoubleLstmModel():
         self.batch_size = batch_size
         self.time_steps = time_steps
         self.num_epochs = num_epochs
-        self.nt_model = RnnModel(num_ntoken, num_ttoken, num_hidden_units=500, category='ntoken')
+        self.num_hidden_units = 500
+        self.nt_model = RnnModel(
+            num_ntoken, num_ttoken, num_hidden_units=self.num_hidden_units, category='ntoken')
 
 
     def train_nt_model(self):
         self.print_and_log('non-terminal model training...')
+        model_info = 'basic lstm model  ' + \
+            'time_step:{},  batch_size:{},  hidden_units:{}'.format(
+                self.time_steps, self.batch_size, self.num_hidden_units)
+        self.print_and_log(model_info)
         saver = tf.train.Saver()
         session = tf.Session()
         self.generator = DataGenerator(self.batch_size, self.time_steps)

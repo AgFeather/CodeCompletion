@@ -110,16 +110,19 @@ class RnnModel(object):
             logits=terminal_logits, name='terminal_output')
         return terminal_logits, termnial_output
 
-    def build_loss(self, n_logits, n_target, t_logits, t_target):
-        n_loss = tf.nn.softmax_cross_entropy_with_logits_v2(
-            logits=n_logits, labels=n_target)
-        t_loss = tf.nn.softmax_cross_entropy_with_logits_v2(
-            logits=t_logits, labels=t_target)
+    def build_loss(self, n_loss, t_loss):
         loss = tf.add(n_loss, t_loss)
-        loss = tf.reduce_mean(loss)
+        return loss
+
+    def build_nt_loss(self, n_logits, n_targets):
+        n_loss = tf.nn.sparse_softmax_cross_entropy_with_logits(logits=n_logits, labels=n_targets)
         n_loss = tf.reduce_mean(n_loss)
+        return n_loss
+
+    def build_tt_loss(self, t_logits, t_targets):
+        t_loss = tf.nn.sparse_softmax_cross_entropy_with_logits(logits=t_logits, labels=t_targets)
         t_loss = tf.reduce_mean(t_loss)
-        return loss, n_loss, t_loss
+        return t_loss
 
     def bulid_accuracy(self, n_output, n_target, t_output, t_target):
         n_equal = tf.equal(
@@ -162,20 +165,23 @@ class RnnModel(object):
         self.n_input, self.t_input, self.n_target, self.t_target, self.keep_prob = self.build_input()
         n_input_embedding, t_input_embedding = self.build_input_embed(
             self.n_input, self.t_input)
-        # n_embedding shape = (64, 50, 1500)  t_embedding shape = (64, 50, 1500)
-        lstm_input = tf.add(n_input_embedding, t_input_embedding)  # shape = (64, 50, 1500)
+        lstm_input = tf.add(n_input_embedding, t_input_embedding)
         cells, self.init_state = self.build_lstm(self.keep_prob)
         self.lstm_state = self.init_state
         lstm_output, self.final_state = self.build_dynamic_rnn(cells, lstm_input, self.lstm_state)
-        t_logits, self.t_output = self.build_t_output(lstm_output)  # t_logits.shape == (3200, 30001)
-        n_logits, self.n_output = self.build_n_output(lstm_output)  # n_logits.shape == (3200, 123)
-        onehot_n_target, onehot_t_target = self.bulid_onehot_target(
-            self.n_target, self.t_target)
 
-        self.loss, self.n_loss, self.t_loss = self.build_loss(
-            n_logits, onehot_n_target, t_logits, onehot_t_target)
+        n_logits, self.n_output = self.build_n_output(lstm_output)
+        t_logits, self.t_output = self.build_t_output(lstm_output)
+
+        n_target = tf.reshape(self.n_target, [self.batch_size * self.time_steps])
+        t_target = tf.reshape(self.t_target, [self.batch_size * self.time_steps])
+        self.n_loss = self.build_nt_loss(n_logits, n_target)
+        self.t_loss = self.build_tt_loss(t_logits, t_target)
+
+        self.loss = self.build_loss(self.n_loss, self.t_loss)
         self.n_accu, self.t_accu = self.bulid_accuracy(
-            self.n_output, onehot_n_target, self.t_output, onehot_t_target)
+            self.n_output, n_target, self.t_output, t_target)
+        self.optimizer = self.bulid_optimizer(self.loss)
         self.optimizer = self.bulid_optimizer(self.loss)
 
         summary_dict = {'train loss':self.loss, 'non-terminal loss':self.t_loss,
@@ -187,6 +193,11 @@ class RnnModel(object):
 
     def train(self):
         self.print_and_log('model training...')
+        model_info = 'basic lstm model  ' + \
+            'time_step:{},  batch_size:{},  hidden_units:{}'.format(
+                self.time_steps, self.batch_size, self.num_hidden_units)
+
+        self.print_and_log(model_info)
         saver = tf.train.Saver()
         session = tf.Session()
         self.generator = DataGenerator(batch_size=self.batch_size, time_steps=self.time_steps)

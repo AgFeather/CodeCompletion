@@ -24,22 +24,23 @@ class Setting(object):
         # 模型log相关路径
         curr_time = time.strftime('_%Y_%m_%d_%H_%M', time.localtime())  # 年月日时分
         self.lstm_model_save_dir = 'trained_model/lstm_model/'  # 训练好的模型的保存路径
-        self.lstm_tb_log_dir = 'tensorboard_log/lstm' + str(curr_time) + '/'  # 训练时tensorboard的log
-        self.lstm_train_log_dir = 'training_log/lstm_train_log' + str(curr_time) + '.txt'  # 模型训练时的log
-        self.lstm_test_log_dir = 'test_log/lstm_test_log' + str(curr_time) + '.txt'  # 模型测试时的log
+        self.lstm_tb_log_dir = 'log_info/tensorboard_log/lstm' + str(curr_time) + '/'  # 训练时tensorboard的log
+        self.lstm_train_log_dir = 'log_info/training_log/lstm_train_log' + str(curr_time) + '.txt'  # 模型训练时的log
+        self.lstm_test_log_dir = 'log_info/test_log/lstm_test_log' + str(curr_time) + '.txt'  # 模型测试时的log
+        self.lstm_valid_log_dir = 'log_info/valid_log/lstm_valid_log' + str(curr_time) + '.txt'
 
         # 数据集特性相关
         self.num_sub_train_data = 20  # change to 28 for more data to train
         self.num_sub_valid_data = 1
         self.num_sub_test_data = 1
-        self.num_non_terminal = 123
         self.unknown_token = 'UNK'
+        self.num_non_terminal = 123
         self.num_terminal = 30000 + 1
 
         # 学习模型相关
         self.time_steps = 50
         self.show_every_n = 1  # 为了快速debug
-        self.valid_every_n = 1
+        self.valid_every_n = 10
         self.save_every_n = 4000
         self.test_show = 100
 

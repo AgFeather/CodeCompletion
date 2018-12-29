@@ -12,7 +12,7 @@ class DataGenerator():
         self.sub_int_train_dir = model_setting.sub_int_train_dir
 
     def get_batch(self, data_seq):
-        data_seq = np.array(data_seq)  # 是否可以注释掉节省时间
+        data_seq = np.array(data_seq)
         total_length = self.time_steps * self.batch_size
         n_batches = len(data_seq) // total_length
         data_seq = data_seq[:total_length * n_batches]
