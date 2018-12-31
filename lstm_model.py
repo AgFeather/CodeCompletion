@@ -8,15 +8,12 @@ from data_generator import DataGenerator
 
 
 base_setting = Setting()
-sub_int_train_dir = base_setting.sub_int_train_dir
-sub_int_valid_dir = base_setting.sub_int_valid_dir
 
 model_save_dir = base_setting.lstm_model_save_dir
 tensorboard_log_dir = base_setting.lstm_tb_log_dir
 training_log_dir = base_setting.lstm_train_log_dir
-valid_log_dir = ''
+valid_log_dir = base_setting.lstm_valid_log_dir
 
-num_subset_train_data = base_setting.num_sub_train_data
 show_every_n = base_setting.show_every_n
 save_every_n = base_setting.save_every_n
 valid_every_n = base_setting.valid_every_n
@@ -48,6 +45,7 @@ class RnnModel(object):
         self.build_model()
 
     def build_input(self):
+        """create input and target placeholder"""
         n_input = tf.placeholder(tf.int32, [None, None], name='n_input')
         t_input = tf.placeholder(tf.int32, [None, None], name='t_input')
         n_target = tf.placeholder(tf.int64, [None, None], name='n_target')
@@ -56,6 +54,7 @@ class RnnModel(object):
         return n_input, t_input, n_target, t_target, keep_prob
 
     def build_input_embed(self, n_input, t_input):
+        """create input embedding matrix and return embedding vector"""
         n_embed_matrix = tf.Variable(tf.truncated_normal(
             [self.num_ntoken, self.n_embed_dim]), name='n_embed_matrix')
         t_embed_matrix = tf.Variable(tf.truncated_normal(
@@ -65,6 +64,7 @@ class RnnModel(object):
         return n_input_embedding, t_input_embedding
 
     def build_lstm(self, keep_prob):
+        """create lstm cell and init state"""
         def get_cell():
             cell = tf.contrib.rnn.BasicLSTMCell(self.num_hidden_units)
             cell = tf.contrib.rnn.DropoutWrapper(cell, output_keep_prob=keep_prob)
@@ -74,14 +74,15 @@ class RnnModel(object):
         return lstm_cell, init_state
 
     def build_dynamic_rnn(self, cells, lstm_input, lstm_state):
-        lstm_output, final_state = tf.nn.dynamic_rnn(
-            cells, lstm_input, initial_state=lstm_state)
+        """using dynamic rnn to run LSTM automatically"""
+        lstm_output, final_state = tf.nn.dynamic_rnn(cells, lstm_input, initial_state=lstm_state)
         # reshape lstm_output from [batch_size, time_steps, n_units] to [batch_size*time_steps, n_units]
         lstm_output = tf.concat(lstm_output, axis=1)
         lstm_output = tf.reshape(lstm_output, [-1, self.num_hidden_units])
         return lstm_output, final_state
 
     def build_n_output(self, lstm_output):
+        """using a trainable matrix to transform the output of lstm to non-terminal token prediction"""
         with tf.variable_scope('non_terminal_softmax'):
             nt_weight = tf.Variable(tf.truncated_normal(
                 [self.num_hidden_units, self.num_ntoken], stddev=0.1))
@@ -91,6 +92,7 @@ class RnnModel(object):
         return nonterminal_logits, nonterminal_output
 
     def build_t_output(self, lstm_output):
+        """using a trainable matrix to transform the otuput of lstm to terminal token prediction"""
         with tf.variable_scope('terminal_softmax'):
             t_weight = tf.Variable(tf.truncated_normal([self.num_hidden_units, self.num_ttoken], stddev=0.1))
             t_bias = tf.Variable(tf.zeros(self.num_ttoken))
@@ -100,29 +102,48 @@ class RnnModel(object):
         return terminal_logits, termnial_output
 
     def build_loss(self, n_loss, t_loss):
+        """add n_loss, t_loss together"""
         loss = tf.add(n_loss, t_loss)
         return loss
 
     def build_nt_loss(self, n_logits, n_target):
+        """calculate the loss function of non-terminal prediction"""
         n_loss = tf.nn.sparse_softmax_cross_entropy_with_logits(logits=n_logits, labels=n_target)
        # n_loss = tf.nn.softmax_cross_entropy_with_logits_v2(logits=n_logits, labels=n_targets)
         n_loss = tf.reduce_mean(n_loss)
         return n_loss
 
     def build_tt_loss(self, t_logits, t_target):
+        """calculate the loss function of terminal prediction"""
         t_loss = tf.nn.sparse_softmax_cross_entropy_with_logits(logits=t_logits, labels=t_target)
         # t_loss = tf.nn.softmax_cross_entropy_with_logits_v2(logits=t_logits, labels=t_targets)
         t_loss = tf.reduce_mean(t_loss)
         return t_loss
 
-    def bulid_accuracy(self, n_output, n_target, t_output, t_target):
+    def build_accuracy(self, n_output, n_target, t_output, t_target):
+        """calculate the predction accuracy of non-terminal terminal prediction"""
         n_equal = tf.equal(tf.argmax(n_output, axis=1), n_target)
         t_equal = tf.equal(tf.argmax(t_output, axis=1), t_target)
         n_accuracy = tf.reduce_mean(tf.cast(n_equal, tf.float32))
         t_accuracy = tf.reduce_mean(tf.cast(t_equal, tf.float32))
         return n_accuracy, t_accuracy
 
-    def bulid_optimizer(self, loss):
+    def build_topk_accuracy(self, n_output, n_target, t_output, t_target, define_k=3):
+        """calculate the accuracy of non-terminal terminal top k prediction"""
+        n_topk_equal = tf.nn.in_top_k(n_output, n_target, k=define_k)
+        t_topk_equal = tf.nn.in_top_k(t_output, t_target, k=define_k)
+        n_topk_accu = tf.reduce_mean(tf.cast(n_topk_equal, tf.float32))
+        t_topk_accu = tf.reduce_mean(tf.cast(t_topk_equal, tf.float32))
+        return n_topk_accu, t_topk_accu
+
+    def build_topk_prediction(self, n_output, t_output, define_k=3):
+        """return the top k prediction by model"""
+        n_topk_possibility, n_topk_prediction = tf.nn.top_k(n_output, k=define_k)
+        t_topk_possibility, t_topk_prediction = tf.nn.top_k(t_output, k=define_k)
+        return n_topk_prediction, n_topk_possibility, t_topk_prediction, t_topk_possibility
+
+    def build_optimizer(self, loss):
+        """build optimizer for model, using learning rate decay and gradient clip"""
         self.global_step = tf.Variable(0, trainable=False)
         learning_rate = tf.train.exponential_decay(self.learning_rate, self.global_step, 10000, 0.9)
         optimizer = tf.train.AdamOptimizer(learning_rate)
@@ -134,7 +155,8 @@ class RnnModel(object):
         optimizer = optimizer.apply_gradients(clip_gradient_pair)
         return optimizer
 
-    def bulid_onehot_target(self, n_target, t_target):
+    def build_onehot_target(self, n_target, t_target):
+        """not used, transform int target to one-hot-encoding target"""
         onehot_n_target = tf.one_hot(n_target, self.num_ntoken)
         n_shape = (self.batch_size * self.time_steps, self.num_ntoken)
         t_shape = (self.batch_size * self.time_steps, self.num_ttoken)
@@ -144,18 +166,19 @@ class RnnModel(object):
         return onehot_n_target, onehot_t_target
 
     def build_summary(self, summary_dict):
+        """summary model info for tensorboard"""
         for key, value in summary_dict.items():
             tf.summary.scalar(key, value)
         merged_op = tf.summary.merge_all()
         return merged_op
 
     def build_model(self):
+        """create model"""
         tf.reset_default_graph()
         self.n_input, self.t_input, self.n_target, self.t_target, self.keep_prob = self.build_input()
         n_input_embedding, t_input_embedding = self.build_input_embed(
             self.n_input, self.t_input)
-    #    onehot_n_target, onehot_t_target = self.bulid_onehot_target(
-    #        self.n_target, self.t_target)
+
         lstm_input = tf.add(n_input_embedding, t_input_embedding)
         cells, self.init_state = self.build_lstm(self.keep_prob)
         self.lstm_state = self.init_state
@@ -169,12 +192,22 @@ class RnnModel(object):
         self.n_loss = self.build_nt_loss(n_logits, n_target)
         self.t_loss = self.build_tt_loss(t_logits, t_target)
 
+        # onehot_n_target, onehot_t_target = self.build_onehot_target(
+        #        self.n_target, self.t_target)
         # self.n_loss = self.build_nt_loss(n_logits, onehot_n_target)
         # self.t_loss = self.build_tt_loss(t_logits, onehot_t_target)
+        
         self.loss = self.build_loss(self.n_loss, self.t_loss)
-        self.n_accu, self.t_accu = self.bulid_accuracy(
+        self.n_accu, self.t_accu = self.build_accuracy(
             self.n_output, n_target, self.t_output, t_target)
-        self.optimizer = self.bulid_optimizer(self.loss)
+        # top k prediction accuracy
+        self.n_top_k_accu, self.t_top_k_accu = self.build_topk_accuracy(
+            self.n_output, n_target, self.t_output, t_target)
+        self.optimizer = self.build_optimizer(self.loss)
+
+        # top k prediction with possibility
+        self.n_topk_pred, self.n_topk_poss, self.t_topk_pred, self.t_topk_poss = \
+            self.build_topk_prediction(self.n_output, self.t_output)
 
         summary_dict = {'train loss': self.loss, 'non-terminal loss': self.t_loss,
                         'terminal loss': self.t_loss, 'n_accuracy': self.n_accu,
@@ -269,9 +302,7 @@ class RnnModel(object):
 
     def valid(self, session, epoch, global_step):
         """valid model when it is trained"""
-        valid_dir = sub_int_valid_dir + 'int_part1.json'
-        with open(valid_dir, 'rb') as f:
-            valid_data = pickle.load(f)
+        valid_data = self.generator.get_valid_subset_data()
         batch_generator = self.generator.get_batch(valid_data)
         valid_step = 0
         valid_n_accuracy = 0.0

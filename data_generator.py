@@ -11,10 +11,11 @@ class DataGenerator():
         self.num_subset_train_data = model_setting.num_sub_train_data
         self.num_subset_test_data = model_setting.num_sub_test_data
         self.sub_int_train_dir = model_setting.sub_int_train_dir
+        self.sub_int_valid_dir = model_setting.sub_int_valid_dir
         self.sub_int_test_dir = model_setting.sub_int_test_dir
 
     def get_batch(self, data_seq):
-        """Generator for training phase,
+        """Generator for training and valid phase,
         each time it will return (non-terminal x, non-terminal y, terminal x, terminal y)
         shape of both x and y is [batch_size, time_step]"""
         data_seq = np.array(data_seq)
@@ -56,6 +57,12 @@ class DataGenerator():
             with open(data_path, 'rb') as file:
                 data = pickle.load(file)
                 yield data
+
+    def get_valid_subset_data(self):
+        valid_dir = self.sub_int_valid_dir + 'int_part1.json'
+        with open(valid_dir, 'rb') as f:
+            valid_data = pickle.load(f)
+        return valid_data
 
     def get_test_subset_data(self):
         for index in range(1, self.num_subset_test_data+1):

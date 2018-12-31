@@ -5,8 +5,8 @@ class Setting(object):
 
     def __init__(self):
 
-        self.data_path = 'js_dataset/'
         # 数据相关的路径变量
+        self.data_path = 'js_dataset/'  # 最原始数据集路径
         self.origin_test_data_dir = self.data_path + 'js_programs_eval.json'  # 原始AST测试数据路径
         self.origin_train_data_dir = self.data_path + 'js_programs_training.json'  # 原始AST训练数据路径
 
@@ -38,6 +38,7 @@ class Setting(object):
         self.num_sub_valid_data = 1
         self.num_sub_test_data = 1
         self.unknown_token = 'UNK'
+        self.split_token = '=$$='
         self.num_non_terminal = 123
         self.num_terminal = 30000 + 1
         self.num_seq_per_subset = 5000

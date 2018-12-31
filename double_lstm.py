@@ -90,8 +90,9 @@ class DoubleLstmModel():
 
     def build_dynamic_rnn(self, cell, lstm_input, lstm_state, cate):
         hidden_units = self.get_hidden_units(cate)
-        lstm_output, final_state = tf.nn.dynamic_rnn(
-            cell, lstm_input, initial_state=lstm_state)
+        with tf.variable_scope(str(cate), reuse=tf.AUTO_REUSE):
+            lstm_output, final_state = tf.nn.dynamic_rnn(
+                cell, lstm_input, initial_state=lstm_state)
         lstm_output = tf.concat(lstm_output, axis=1)
         lstm_output = tf.reshape(lstm_output, [-1, hidden_units])
         return lstm_output, final_state
@@ -128,19 +129,26 @@ class DoubleLstmModel():
         t_loss = tf.reduce_mean(t_loss)
         return t_loss
 
-    def bulid_accuracy(self, n_output, n_target, t_output, t_target):
+    def build_accuracy(self, n_output, n_target, t_output, t_target):
         n_equal = tf.equal(tf.argmax(n_output, axis=1), n_target)
         t_equal = tf.equal(tf.argmax(t_output, axis=1), t_target)
         n_accuracy = tf.reduce_mean(tf.cast(n_equal, tf.float32))
         t_accuracy = tf.reduce_mean(tf.cast(t_equal, tf.float32))
         return n_accuracy, t_accuracy
 
-    def bulid_optimizer(self, n_loss, t_loss):
+    def build_optimizer(self, n_loss, t_loss):
+        """分别对两个 lstm构建optimizer，但将两个loss合并，构建一个整体optimizer也是可以的"""
         self.global_step = tf.Variable(0, trainable=False)
         learning_rate = tf.train.exponential_decay(self.learning_rate, self.global_step, 10000, 0.9)
+        train_vars = tf.trainable_variables()
+        nt_var_list = [var for var in train_vars if var.name.startswith('nt_model')]
+        tt_var_list = [var for var in train_vars if var.name.startswith('tt_model')]
+        input_var_list = [var for var in train_vars if var.name.startswith('input_embedding')]
+        nt_var_list.extend(input_var_list)
+        tt_var_list.extend(input_var_list)
         with tf.name_scope('nt_optimizer'):
             n_optimizer = tf.train.AdamOptimizer(learning_rate)
-            gradient_pair = n_optimizer.compute_gradients(n_loss)
+            gradient_pair = n_optimizer.compute_gradients(n_loss, var_list=nt_var_list)
             clip_gradient_pair = []
             for grad, var in gradient_pair:
                 grad = tf.clip_by_value(grad, -self.grad_clip, self.grad_clip)
@@ -148,7 +156,7 @@ class DoubleLstmModel():
             n_optimizer = n_optimizer.apply_gradients(clip_gradient_pair)
         with tf.name_scope('tt_optimizer'):
             t_optimizer = tf.train.AdamOptimizer(learning_rate)
-            gradient_pair = n_optimizer.compute_gradients(t_loss)
+            gradient_pair = t_optimizer.compute_gradients(t_loss, var_list=tt_var_list)
             clip_gradient_pair = []
             for grad, var in gradient_pair:
                 grad = tf.clip_by_value(grad, -self.grad_clip, self.grad_clip)
@@ -186,10 +194,10 @@ class DoubleLstmModel():
         self.n_loss = self.build_nt_loss(n_logits, n_target)
         self.t_loss = self.build_tt_loss(t_logits, t_target)
         self.loss = self.build_loss(self.n_loss, self.t_loss)
-        self.n_accu, self.t_accu = self.bulid_accuracy(
+        self.n_accu, self.t_accu = self.build_accuracy(
             self.n_output, n_target, self.t_output, t_target)
 
-        self.n_optimizer, self.t_optimizer= self.bulid_optimizer(self.n_loss, self.t_loss)
+        self.n_optimizer, self.t_optimizer= self.build_optimizer(self.n_loss, self.t_loss)
 
         summary_dict = {'train loss': self.loss, 'non-terminal loss': self.t_loss,
                         'terminal loss': self.t_loss, 'n_accuracy': self.n_accu,
@@ -330,8 +338,7 @@ class DoubleLstmModel():
 
 
 if __name__ == '__main__':
-    tt_token_to_int, tt_int_to_token, nt_token_to_int, nt_int_to_token = utils.load_dict_parameter()
-    n_ntoken = len(nt_int_to_token)
-    n_ttoken = len(tt_int_to_token)
-    model = DoubleLstmModel(n_ntoken, n_ttoken)
+    num_non_terminal = base_setting.num_non_terminal
+    num_terminal = base_setting.num_terminal
+    model = DoubleLstmModel(num_non_terminal, num_terminal)
     model.train()
