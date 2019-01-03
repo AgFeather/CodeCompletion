@@ -5,7 +5,7 @@ import random
 import pickle
 
 import utils
-from basic_lstm import RnnModel
+from lstm_model import RnnModel
 from setting import Setting
 
 

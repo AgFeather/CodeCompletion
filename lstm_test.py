@@ -174,7 +174,7 @@ class RnnModelTest(object):
 
         error_prediction_dir = 'error_prediction_info.p'
         file = open(error_prediction_dir, 'wb')
-        pickle.load((self.nt_error_log, self.tt_error_log), file)
+        pickle.dump((self.nt_error_log, self.tt_error_log), file)
         print(error_prediction_dir, 'has been saved...')
 
     def top_one_equal(self, prediction, expectation):
