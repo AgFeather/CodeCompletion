@@ -1,5 +1,4 @@
 import tensorflow as tf
-import pickle
 import time
 import os
 
@@ -22,7 +21,7 @@ valid_every_n = base_setting.valid_every_n
 class RnnModel(object):
     """A basic LSTM model for code completion"""
     def __init__(self,
-                 num_ntoken, num_ttoken,
+                 num_ntoken, num_ttoken, is_training,
                  batch_size=50,
                  n_embed_dim=1500,
                  t_embed_dim=1500,
@@ -41,6 +40,10 @@ class RnnModel(object):
         self.learning_rate = learning_rate
         self.num_epochs = num_epochs
         self.grad_clip = grad_clip
+        if not is_training:
+            self.batch_size = 1
+            self.time_steps = 1
+
 
         self.build_model()
 
@@ -48,17 +51,17 @@ class RnnModel(object):
         """create input and target placeholder"""
         n_input = tf.placeholder(tf.int32, [None, None], name='n_input')
         t_input = tf.placeholder(tf.int32, [None, None], name='t_input')
-        n_target = tf.placeholder(tf.int64, [None, None], name='n_target')
-        t_target = tf.placeholder(tf.int64, [None, None], name='t_target')
+        n_target = tf.placeholder(tf.int32, [None, None], name='n_target')
+        t_target = tf.placeholder(tf.int32, [None, None], name='t_target')
         keep_prob = tf.placeholder(tf.float32, name='keep_prob')
         return n_input, t_input, n_target, t_target, keep_prob
 
     def build_input_embed(self, n_input, t_input):
         """create input embedding matrix and return embedding vector"""
-        n_embed_matrix = tf.Variable(tf.truncated_normal(
-            [self.num_ntoken, self.n_embed_dim]), name='n_embed_matrix')
-        t_embed_matrix = tf.Variable(tf.truncated_normal(
-            [self.num_ttoken, self.t_embed_dim]), name='t_embed_matrix')
+        n_embed_matrix = tf.Variable(tf.random_uniform(
+            [self.num_ntoken, self.n_embed_dim], minval=-0.05, maxval=0.05),  name='n_embed_matrix')
+        t_embed_matrix = tf.Variable(tf.random_uniform(
+            [self.num_ttoken, self.t_embed_dim], minval=-0.05, maxval=0.05), name='t_embed_matrix')
         n_input_embedding = tf.nn.embedding_lookup(n_embed_matrix, n_input)
         t_input_embedding = tf.nn.embedding_lookup(t_embed_matrix, t_input)
         return n_input_embedding, t_input_embedding
@@ -84,22 +87,24 @@ class RnnModel(object):
     def build_n_output(self, lstm_output):
         """using a trainable matrix to transform the output of lstm to non-terminal token prediction"""
         with tf.variable_scope('non_terminal_softmax'):
-            nt_weight = tf.Variable(tf.truncated_normal(
-                [self.num_hidden_units, self.num_ntoken], stddev=0.1))
+            nt_weight = tf.Variable(tf.random_uniform(
+                [self.num_hidden_units, self.num_ntoken], minval=-0.05, maxval=0.05))
             nt_bias = tf.Variable(tf.zeros(self.num_ntoken))
-        nonterminal_logits = tf.matmul(lstm_output, nt_weight) + nt_bias
-        nonterminal_output = tf.nn.softmax(logits=nonterminal_logits, name='nonterminal_output')
-        return nonterminal_logits, nonterminal_output
+        nt_logits = tf.matmul(lstm_output, nt_weight) + nt_bias
+        return nt_logits
 
     def build_t_output(self, lstm_output):
         """using a trainable matrix to transform the otuput of lstm to terminal token prediction"""
         with tf.variable_scope('terminal_softmax'):
-            t_weight = tf.Variable(tf.truncated_normal([self.num_hidden_units, self.num_ttoken], stddev=0.1))
+            t_weight = tf.Variable(tf.random_uniform(
+                [self.num_hidden_units, self.num_ttoken], minval=-0.05, maxval=0.05))
             t_bias = tf.Variable(tf.zeros(self.num_ttoken))
-        terminal_logits = tf.matmul(lstm_output, t_weight) + t_bias
-        termnial_output = tf.nn.softmax(
-            logits=terminal_logits, name='terminal_output')
-        return terminal_logits, termnial_output
+        tt_logits = tf.matmul(lstm_output, t_weight) + t_bias
+        return tt_logits
+
+    def build_softmax(self, logits):
+        softmax_output = tf.nn.softmax(logits=logits)
+        return softmax_output
 
     def build_loss(self, n_loss, t_loss):
         """add n_loss, t_loss together"""
@@ -122,8 +127,10 @@ class RnnModel(object):
 
     def build_accuracy(self, n_output, n_target, t_output, t_target):
         """calculate the predction accuracy of non-terminal terminal prediction"""
-        n_equal = tf.equal(tf.argmax(n_output, axis=1), n_target)
-        t_equal = tf.equal(tf.argmax(t_output, axis=1), t_target)
+        # n_equal = tf.equal(tf.argmax(n_output, axis=1), n_target)
+        # t_equal = tf.equal(tf.argmax(t_output, axis=1), t_target)
+        n_equal = tf.nn.in_top_k(n_output, n_target, k=1)
+        t_equal = tf.nn.in_top_k(t_output, t_target, k=1)
         n_accuracy = tf.reduce_mean(tf.cast(n_equal, tf.float32))
         t_accuracy = tf.reduce_mean(tf.cast(t_equal, tf.float32))
         return n_accuracy, t_accuracy
@@ -178,14 +185,14 @@ class RnnModel(object):
         self.n_input, self.t_input, self.n_target, self.t_target, self.keep_prob = self.build_input()
         n_input_embedding, t_input_embedding = self.build_input_embed(
             self.n_input, self.t_input)
-
         lstm_input = tf.add(n_input_embedding, t_input_embedding)
+
         cells, self.init_state = self.build_lstm(self.keep_prob)
         self.lstm_state = self.init_state
         lstm_output, self.final_state = self.build_dynamic_rnn(cells, lstm_input, self.lstm_state)
 
-        n_logits, self.n_output = self.build_n_output(lstm_output)
-        t_logits, self.t_output = self.build_t_output(lstm_output)
+        n_logits = self.build_n_output(lstm_output)
+        t_logits = self.build_t_output(lstm_output)
 
         n_target = tf.reshape(self.n_target, [self.batch_size*self.time_steps])
         t_target = tf.reshape(self.t_target, [self.batch_size*self.time_steps])
@@ -199,13 +206,16 @@ class RnnModel(object):
         
         self.loss = self.build_loss(self.n_loss, self.t_loss)
         self.n_accu, self.t_accu = self.build_accuracy(
-            self.n_output, n_target, self.t_output, t_target)
+            n_logits, n_target, t_logits, t_target)
+        self.optimizer = self.build_optimizer(self.loss)
         # top k prediction accuracy
         self.n_top_k_accu, self.t_top_k_accu = self.build_topk_accuracy(
-            self.n_output, n_target, self.t_output, t_target)
+            n_logits, n_target, t_logits, t_target)
         self.optimizer = self.build_optimizer(self.loss)
 
         # top k prediction with possibility
+        self.n_output = self.build_softmax(n_logits)
+        self.t_output = self.build_softmax(t_logits)
         self.n_topk_pred, self.n_topk_poss, self.t_topk_pred, self.t_topk_poss = \
             self.build_topk_prediction(self.n_output, self.t_output)
 
@@ -222,7 +232,7 @@ class RnnModel(object):
             'time_step:{},  batch_size:{},  hidden_units:{}'.format(
                 self.time_steps, self.batch_size, self.num_hidden_units)
         self.print_and_log(model_info)
-        saver = tf.train.Saver()
+        saver = tf.train.Saver(max_to_keep=self.num_epochs + 1)
         session = tf.Session()
         self.generator = DataGenerator(self.batch_size, self.time_steps)
         tb_writer = tf.summary.FileWriter(tensorboard_log_dir, session.graph)
@@ -253,13 +263,15 @@ class RnnModel(object):
                             self.keep_prob: 0.5,
                             self.lstm_state: lstm_state,
                             self.global_step: global_step}
-                    loss, n_loss, t_loss, n_accu, t_accu, _, summary_str = \
+                    loss, n_loss, t_loss, n_accu, t_accu, topk_n_accu, topk_t_accu, _, summary_str = \
                         session.run([
                             self.loss,
                             self.n_loss,
                             self.t_loss,
                             self.n_accu,
                             self.t_accu,
+                            self.n_top_k_accu,
+                            self.t_top_k_accu,
                             self.optimizer,
                             self.merged_op], feed_dict=feed)
 
@@ -277,15 +289,17 @@ class RnnModel(object):
                                    'loss:{:.2f}(n_loss:{:.2f} + t_loss:{:.2f})  '.format(loss, n_loss, t_loss) + \
                                    'nt_accu:{:.2f}%  '.format(n_accu * 100) + \
                                    'tt_accu:{:.2f}%  '.format(t_accu * 100) + \
+                                   'top3_nt_accu:{:.2f}%  '.format(topk_n_accu * 100) + \
+                                   'top3_tt_accu:{:.2f}%  '.format(topk_t_accu * 100) + \
                                    'time cost per batch:{:.2f}/s'.format(batch_end_time - batch_start_time)
                         self.print_and_log(log_info)
 
                     if global_step % valid_every_n == 0:
                         self.valid(session, epoch, global_step)
 
-                    if global_step % save_every_n == 0:
-                        saver.save(session, model_save_dir + 'e{}_b{}.ckpt'.format(epoch, batch_step))
-                        print('model saved: epoch:{} global_step:{}'.format(epoch, global_step))
+                    # if global_step % save_every_n == 0:
+                    #     saver.save(session, model_save_dir + 'e{}_b{}.ckpt'.format(epoch, batch_step))
+                    #     print('model saved: epoch:{} global_step:{}'.format(epoch, global_step))
             epoch_end_time = time.time()
             epoch_cost_time = epoch_end_time - epoch_start_time
 
@@ -294,6 +308,8 @@ class RnnModel(object):
                         'epoch average loss:{:.2f}  '.format(loss_per_epoch / batch_step) + \
                         'epoch average nt_accu:{:.2f}%  '.format(100*n_accu_per_epoch / batch_step) + \
                         'epoch average tt_accu:{:.2f}%  '.format(100*t_accu_per_epoch / batch_step) + '\n'
+            saver.save(session, model_save_dir + 'EPOCH{}.ckpt'.format(epoch, batch_step))
+            print('EPOCH{} model saved'.format(epoch))
             self.print_and_log(epoch_log)
 
         saver.save(session, model_save_dir + 'lastest_model.ckpt')
@@ -351,5 +367,5 @@ class RnnModel(object):
 if __name__ == '__main__':
     num_terminal = base_setting.num_terminal
     num_non_terminal = base_setting.num_non_terminal
-    model = RnnModel(num_non_terminal, num_terminal)
+    model = RnnModel(num_non_terminal, num_terminal, is_training=True)
     model.train()

@@ -2,6 +2,7 @@ import tensorflow as tf
 import numpy as np
 import time
 import random
+import pickle
 
 from lstm_model import RnnModel
 from data_generator import DataGenerator
@@ -22,17 +23,17 @@ class CodeCompletion(object):
     def __init__(self,
                  num_ntoken,
                  num_ttoken,):
-        self.model = RnnModel(num_ntoken, num_ttoken)
+        self.model = RnnModel(num_ntoken, num_ttoken, is_training=False)
         self.sess = tf.Session()
         self.last_chackpoints = tf.train.latest_checkpoint(
             checkpoint_dir=model_save_dir)
-
+        self.test_log(self.last_chackpoints + 'has been used...')
         saver = tf.train.Saver()
         saver.restore(self.sess, self.last_chackpoints)
         self.log_file = open(test_log_dir, 'w')
 
     # query test
-    def query(self, prefix, suffix):
+    def eval(self, prefix, suffix):
         """ Query one source code file,
         Input: all tokens before the hole token(prefix) and all tokens after the hole token,
         ML model will predict the most probable token in the hole
@@ -55,44 +56,70 @@ class CodeCompletion(object):
         t_prediction = np.argmax(t_prediction)
         return n_prediction, t_prediction
 
+    def query(self, token_sequence):
+        prefix, expectation, suffix = self.create_hole(token_sequence)  # 随机在sequence中创建一个hole
+        n_expectation, t_expectation = expectation[0]
+        n_prediction, t_prediction = self.eval(prefix, suffix)
+
+        if self.token_equal(n_prediction, n_expectation):
+            self.nt_correct_count += 1
+        else:
+            temp_error_dic = {}
+            temp_error_dic['ast_prefix'] = prefix
+            temp_error_dic['ast_expectation'] = expectation
+            temp_error_dic['ast_suffix'] = suffix
+            temp_error_dic['expectation'] = n_expectation
+            temp_error_dic['prediction'] = n_prediction
+            self.nt_error_log.append(temp_error_dic)
+
+        if self.token_equal(t_prediction, t_expectation):
+            self.tt_correct_count += 1
+        else:
+            temp_error_dic = {}
+            temp_error_dic['ast_prefix'] = prefix
+            temp_error_dic['ast_expectation'] = expectation
+            temp_error_dic['ast_suffix'] = suffix
+            temp_error_dic['expectation'] = t_expectation
+            temp_error_dic['prediction'] = t_prediction
+            self.tt_error_log.append(temp_error_dic)
+
     def test_model(self):
         """Test model with the whole test dataset, it will call self.query() for each test case"""
         self.test_log('test phase is beginning...')
         start_time = time.time()
         total_tt_accuracy = 0.0
         total_nt_accuracy = 0.0
+        self.nt_error_log = []
+        self.tt_error_log = []
+        test_times = 2000
+        test_step = 0
         self.generator = DataGenerator()
         sub_data_generator = self.generator.get_test_subset_data()
         for index, subset_test_data in sub_data_generator:  # 遍历每个sub test dataset
-            tt_correct_count = 0.0
-            nt_correct_count = 0.0
-            subset_step = 0
+            self.tt_correct_count = 0.0
+            self.nt_correct_count = 0.0
             one_test_start_time = time.time()
             for token_sequence in subset_test_data:  # 遍历该subset中每个nt token sequence
-                subset_step += 1
-                prefix, expectation, suffix = self.create_hole(token_sequence)  # 随机在sequence中创建一个hole
-                n_expectation, t_expectation = expectation[0]
-                n_prediction, t_prediction = self.query(prefix, suffix)
+                test_step += 1
+                self.query(token_sequence)
 
-                if self.token_equal(n_prediction, n_expectation):
-                    nt_correct_count += 1
-                if self.token_equal(t_prediction, t_expectation):
-                    tt_correct_count += 1
-
-                if subset_step % show_every_n == 0:
+                if test_step % show_every_n == 0:
                     one_test_end_time = time.time()
                     duration = (one_test_end_time - one_test_start_time) / show_every_n
                     one_test_start_time = one_test_end_time
-                    sub_nt_accuracy = nt_correct_count / subset_step
-                    sub_tt_accuracy = tt_correct_count / subset_step
-                    log_info = 'test step:{}  '.format(subset_step) + \
-                            'nt_accuracy:{:.2f}%  '.format(sub_nt_accuracy * 100) + \
-                            'tt_accuracy:{:.2f}%  '.format(sub_tt_accuracy * 100) + \
-                            'average time cost:{:.2f}s  '.format(duration)
+                    sub_nt_accuracy = self.nt_correct_count / test_step
+                    sub_tt_accuracy = self.tt_correct_count / test_step
+                    log_info = 'test step:{}  '.format(test_step) + \
+                               'nt_accuracy:{:.2f}%  '.format(sub_nt_accuracy * 100) + \
+                               'tt_accuracy:{:.2f}%  '.format(sub_tt_accuracy * 100) + \
+                               'average time cost:{:.2f}s  '.format(duration)
                     self.test_log(log_info)
 
-            sub_nt_accuracy = nt_correct_count / len(subset_test_data)
-            sub_tt_accuracy = tt_correct_count / len(subset_test_data)
+                if test_step >= test_times:
+                    break
+
+            sub_nt_accuracy = self.nt_correct_count / test_step
+            sub_tt_accuracy = self.tt_correct_count / test_step
             total_nt_accuracy += sub_nt_accuracy
             total_tt_accuracy += sub_tt_accuracy
 
@@ -105,18 +132,15 @@ class CodeCompletion(object):
                 'accuracy of terminal token: {:.2f}%  '.format(sub_tt_accuracy*100)
             self.test_log(log_info)
 
-        total_nt_accuracy /= num_subset_test_data
-        total_tt_accuracy /= num_subset_test_data
-        log_info = 'test finished  ' + \
-            'accuracy of non-terminal token: {:.2f}%  '.format(total_nt_accuracy * 100) + \
-            'accuracy of terminal token: {:.2f}%  '.format(total_tt_accuracy * 100)
-        self.test_log(log_info)
+        error_prediction_dir = 'error_prediction_info.p'
+        file = open(error_prediction_dir, 'wb')
+        pickle.load((self.nt_error_log, self.tt_error_log), file)
+        print(error_prediction_dir, 'has been saved...')
         return total_nt_accuracy, total_tt_accuracy
 
-    def top_k_predict(self, prefix):
+    def top_k_predict(self, prefix, define_k=5):
         """给出top k预测的index，以及对应的概率"""
         # todo 没有测试
-        define_k = 5
         new_state = self.sess.run(self.model.init_state)
         test_batch = self.generator.get_test_batch(prefix)
         n_prediction, t_prediction = None, None
@@ -164,16 +188,14 @@ class CodeCompletion(object):
             len(nt_token_seq) // 2, len(nt_token_seq) - hole_size)
         hole_end_index = hole_start_index + hole_size
         prefix = nt_token_seq[0:hole_start_index]
-        expection = nt_token_seq[hole_start_index:hole_end_index]
+        expectation = nt_token_seq[hole_start_index:hole_end_index]
         suffix = nt_token_seq[hole_end_index:-1]
-        return prefix, expection, suffix
+        return prefix, expectation, suffix
 
     def test_log(self, log_info):
         self.log_file.write(log_info)
         self.log_file.write('\n')
         print(log_info)
-
-
 
 
 

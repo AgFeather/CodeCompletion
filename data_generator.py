@@ -2,6 +2,8 @@ import numpy as np
 import pickle
 from setting import Setting
 
+
+
 class DataGenerator():
     """a generator class for data generation"""
     def __init__(self, batch_size=50, time_steps=50):

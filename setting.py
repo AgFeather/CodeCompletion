@@ -25,6 +25,7 @@ class Setting(object):
         # 模型log相关路径
         curr_time = time.strftime('_%Y_%m_%d_%H_%M', time.localtime())  # 年月日时分
         self.lstm_model_save_dir = 'trained_model/lstm_model/'  # 训练好的模型的保存路径
+        self.double_lstm_save_dir = 'trained_model/double_model/'
         self.lstm_tb_log_dir = 'log_info/tensorboard_log/lstm' + str(curr_time) + '/'  # 训练时tensorboard的log
         self.lstm_train_log_dir = 'log_info/training_log/lstm_train_log' + str(curr_time) + '.txt'  # 模型训练时的log
         self.lstm_test_log_dir = 'log_info/test_log/lstm_test_log' + str(curr_time) + '.txt'  # 模型测试时的log
@@ -48,7 +49,7 @@ class Setting(object):
         self.show_every_n = 1  # 为了快速debug
         self.valid_every_n = 10
         self.save_every_n = 4000
-        self.test_show = 100
+        self.test_show = 1
 
         # word2vec相关
         self.word2vec_embed_dim = 300

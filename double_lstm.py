@@ -1,9 +1,7 @@
 import tensorflow as tf
-import pickle
 import os
 import time
 
-import utils
 from setting import Setting
 from data_generator import DataGenerator
 
@@ -16,12 +14,9 @@ model_save_dir = 'trained_model/double_model/'
 tensorboard_log_dir = base_setting.lstm_tb_log_dir
 training_log_dir = base_setting.lstm_train_log_dir
 
-num_subset_train_data = base_setting.num_sub_train_data
-num_subset_test_data = base_setting.num_sub_test_data
 show_every_n = base_setting.show_every_n
 save_every_n = base_setting.save_every_n
 valid_every_n = base_setting.valid_every_n
-num_terminal = base_setting.num_terminal
 
 
 class DoubleLstmModel():
@@ -53,8 +48,8 @@ class DoubleLstmModel():
     def build_input(self):
         n_input = tf.placeholder(tf.int32, [None, None], name='n_input')
         t_input = tf.placeholder(tf.int32, [None, None], name='t_input')
-        n_target = tf.placeholder(tf.int64, [None, None], name='n_target')
-        t_target = tf.placeholder(tf.int64, [None, None], name='t_target')
+        n_target = tf.placeholder(tf.int32, [None, None], name='n_target')
+        t_target = tf.placeholder(tf.int32, [None, None], name='t_target')
         keep_prob = tf.placeholder(tf.float32, name='keep_prob')
         return n_input, t_input, n_target, t_target, keep_prob
 
@@ -84,8 +79,16 @@ class DoubleLstmModel():
                 cell = tf.contrib.rnn.BasicLSTMCell(hidden_units, name='lstm_cell')
                 cell = tf.contrib.rnn.DropoutWrapper(cell, output_keep_prob=keep_prob)
             return cell
-        lstm_cell = get_cell()
-        init_state = lstm_cell.zero_state(self.batch_size, dtype=tf.float32)
+        if cate == 'nt_model':
+            num_hidden_layers = 2
+            lstm_cell = [get_cell() for _ in range(num_hidden_layers)]
+            lstm_cell = tf.contrib.rnn.MultiRNNCell(lstm_cell)
+            init_state = lstm_cell.zero_state(self.batch_size, dtype=tf.float32)
+        elif cate == 'tt_model':
+            lstm_cell = get_cell()
+            init_state = lstm_cell.zero_state(self.batch_size, dtype=tf.float32)
+        else:
+            raise UnboundLocalError
         return lstm_cell, init_state
 
     def build_dynamic_rnn(self, cell, lstm_input, lstm_state, cate):
@@ -98,22 +101,26 @@ class DoubleLstmModel():
         return lstm_output, final_state
 
     def build_n_output(self, lstm_output):
-        with tf.variable_scope('nt_model'):
-            nt_weight = tf.Variable(tf.truncated_normal(
-                [self.nt_hidden_units, self.num_ntoken], stddev=0.1),name='softmax_weight')
-            nt_bias = tf.Variable(tf.zeros(self.num_ntoken), name='softmax_weight')
-            nonterminal_logits = tf.nn.bias_add(tf.matmul(lstm_output, nt_weight), nt_bias)
-            nonterminal_output = tf.nn.softmax(logits=nonterminal_logits, name='nt_output')
-        return nonterminal_logits, nonterminal_output
+        """using a trainable matrix to transform the output of lstm to non-terminal token prediction"""
+        with tf.variable_scope('non_terminal_softmax'):
+            nt_weight = tf.Variable(tf.random_uniform(
+                [self.nt_hidden_units, self.num_ntoken], minval=-0.05, maxval=0.05))
+            nt_bias = tf.Variable(tf.zeros(self.num_ntoken))
+        nt_logits = tf.matmul(lstm_output, nt_weight) + nt_bias
+        return nt_logits
 
     def build_t_output(self, lstm_output):
-        with tf.variable_scope('tt_model'):
-            t_weight = tf.Variable(tf.truncated_normal(
-                [self.tt_hidden_units, self.num_ttoken], stddev=0.1), name='softmax_weight')
-            t_bias = tf.Variable(tf.zeros(self.num_ttoken), name='softmax_bias')
-            terminal_logits = tf.matmul(lstm_output, t_weight) + t_bias
-            termnial_output = tf.nn.softmax(logits=terminal_logits, name='tt_output')
-        return terminal_logits, termnial_output
+        """using a trainable matrix to transform the otuput of lstm to terminal token prediction"""
+        with tf.variable_scope('terminal_softmax'):
+            t_weight = tf.Variable(tf.random_uniform(
+                [self.tt_hidden_units, self.num_ttoken], minval=-0.05, maxval=0.05))
+            t_bias = tf.Variable(tf.zeros(self.num_ttoken))
+        tt_logits = tf.matmul(lstm_output, t_weight) + t_bias
+        return tt_logits
+
+    def build_softmax(self, logits):
+        softmax_output = tf.nn.softmax(logits=logits)
+        return softmax_output
 
     def build_loss(self, n_loss, t_loss):
         loss = tf.add(n_loss, t_loss)
@@ -130,11 +137,26 @@ class DoubleLstmModel():
         return t_loss
 
     def build_accuracy(self, n_output, n_target, t_output, t_target):
-        n_equal = tf.equal(tf.argmax(n_output, axis=1), n_target)
-        t_equal = tf.equal(tf.argmax(t_output, axis=1), t_target)
+        """calculate the predction accuracy of non-terminal terminal prediction"""
+        n_equal = tf.nn.in_top_k(n_output, n_target, k=1)
+        t_equal = tf.nn.in_top_k(t_output, t_target, k=1)
         n_accuracy = tf.reduce_mean(tf.cast(n_equal, tf.float32))
         t_accuracy = tf.reduce_mean(tf.cast(t_equal, tf.float32))
         return n_accuracy, t_accuracy
+
+    def build_topk_accuracy(self, n_output, n_target, t_output, t_target, define_k=3):
+        """calculate the accuracy of non-terminal terminal top k prediction"""
+        n_topk_equal = tf.nn.in_top_k(n_output, n_target, k=define_k)
+        t_topk_equal = tf.nn.in_top_k(t_output, t_target, k=define_k)
+        n_topk_accu = tf.reduce_mean(tf.cast(n_topk_equal, tf.float32))
+        t_topk_accu = tf.reduce_mean(tf.cast(t_topk_equal, tf.float32))
+        return n_topk_accu, t_topk_accu
+
+    def build_topk_prediction(self, n_output, t_output, define_k=3):
+        """return the top k prediction by model"""
+        n_topk_possibility, n_topk_prediction = tf.nn.top_k(n_output, k=define_k)
+        t_topk_possibility, t_topk_prediction = tf.nn.top_k(t_output, k=define_k)
+        return n_topk_prediction, n_topk_possibility, t_topk_prediction, t_topk_possibility
 
     def build_optimizer(self, n_loss, t_loss):
         """分别对两个 lstm构建optimizer，但将两个loss合并，构建一个整体optimizer也是可以的"""
@@ -188,14 +210,24 @@ class DoubleLstmModel():
         tt_lstm_output, self.tt_final_state = self.build_dynamic_rnn(
             tt_lstm_cell, lstm_input, self.tt_lstm_state, cate='tt_model')
 
-        n_logits, self.n_output = self.build_n_output(nt_lstm_output)
-        t_logits, self.t_output = self.build_t_output(tt_lstm_output)
+        n_logits = self.build_n_output(nt_lstm_output)
+        t_logits = self.build_t_output(tt_lstm_output)
+
 
         self.n_loss = self.build_nt_loss(n_logits, n_target)
         self.t_loss = self.build_tt_loss(t_logits, t_target)
         self.loss = self.build_loss(self.n_loss, self.t_loss)
         self.n_accu, self.t_accu = self.build_accuracy(
-            self.n_output, n_target, self.t_output, t_target)
+            n_logits, n_target, t_logits, t_target)
+
+        # top k prediction accuracy
+        self.n_top_k_accu, self.t_top_k_accu = self.build_topk_accuracy(
+            n_logits, n_target, t_logits, t_target)
+
+        self.n_output = self.build_softmax(n_logits)
+        self.t_output = self.build_softmax(t_logits)
+        self.n_topk_pred, self.n_topk_poss, self.t_topk_pred, self.t_topk_poss = \
+            self.build_topk_prediction(self.n_output, self.t_output)
 
         self.n_optimizer, self.t_optimizer= self.build_optimizer(self.n_loss, self.t_loss)
 
@@ -207,8 +239,9 @@ class DoubleLstmModel():
         print('lstm model has been created...')
 
     def train(self):
+        model_save_dir = 'trained_model/double_model/'
         session = tf.Session()
-        saver = tf.train.Saver()
+        saver = tf.train.Saver(max_to_keep=self.num_epochs + 1)
         self.generator = DataGenerator(self.batch_size, self.time_steps)
         tb_writer = tf.summary.FileWriter(tensorboard_log_dir, session.graph)
         global_step = 0
@@ -240,13 +273,15 @@ class DoubleLstmModel():
                             self.nt_lstm_state: nt_lstm_state,
                             self.tt_lstm_state: tt_lstm_state,
                             self.global_step:global_step}
-                    loss, n_loss, t_loss, n_accu, t_accu, _, __, summary_str = \
+                    loss, n_loss, t_loss, n_accu, t_accu, topk_n_accu, topk_t_accu, _, __, summary_str = \
                         session.run([
                             self.loss,
                             self.n_loss,
                             self.t_loss,
                             self.n_accu,
                             self.t_accu,
+                            self.n_top_k_accu,
+                            self.t_top_k_accu,
                             self.n_optimizer,
                             self.t_optimizer,
                             self.merged_op], feed_dict=feed)
@@ -261,19 +296,21 @@ class DoubleLstmModel():
                     if global_step % show_every_n == 0:
                         log_info = 'epoch:{}/{}  '.format(epoch, self.num_epochs) + \
                                    'global_step:{}  '.format(global_step) + \
-                                   'loss:{:.2f}(n_loss:{:.2f} + t_loss:{:.2f})  '.format(n_loss+t_loss, n_loss, t_loss) + \
+                                   'loss:{:.2f}(n_loss:{:.2f} + t_loss:{:.2f})  '.format(loss, n_loss, t_loss) + \
                                    'nt_accu:{:.2f}%  '.format(n_accu * 100) + \
                                    'tt_accu:{:.2f}%  '.format(t_accu * 100) + \
+                                   'top3_nt_accu:{:.2f}%  '.format(topk_n_accu * 100) + \
+                                   'top3_tt_accu:{:.2f}%  '.format(topk_t_accu * 100) + \
                                    'time cost per batch:{:.2f}/s'.format(batch_end_time - batch_start_time)
                         self.print_and_log(log_info)
 
                     if global_step % valid_every_n == 0:
                         self.valid(session, epoch, global_step)
 
-                    if global_step % save_every_n == 0:
-                        model_save_dir = model_save_dir + 'e{}_b{}.ckpt'.format(epoch, batch_step)
-                        saver.save(session, model_save_dir)
-                        print('model saved: epoch:{} global_step:{}'.format(epoch, global_step))
+                    # if global_step % save_every_n == 0:
+                    #     model_save_dir = model_save_dir + 'e{}_b{}.ckpt'.format(epoch, batch_step)
+                    #     saver.save(session, model_save_dir)
+                    #     print('model saved: epoch:{} global_step:{}'.format(epoch, global_step))
 
                 epoch_end_time = time.time()
                 epoch_cost_time = epoch_end_time - epoch_start_time
@@ -283,17 +320,18 @@ class DoubleLstmModel():
                             'epoch average t_loss:{:.2f}  '.format(t_loss_per_epoch / batch_step) + \
                             'epoch average nt_accu:{:.2f}%  '.format(100 * n_accu_per_epoch / batch_step) + \
                             'epoch average tt_accu:{:.2f}%  '.format(100 * t_accu_per_epoch / batch_step)
+
+                saver.save(session, model_save_dir + 'EPOCH{}.ckpt'.format(epoch, batch_step))
+                print('EPOCH{} model saved'.format(epoch))
                 self.print_and_log(epoch_log)
 
-            model_save_dir = model_save_dir  + 'lastest_model.ckpt'
-            saver.save(session, model_save_dir)
-            self.print_and_log('model training finished...')
-            session.close()
+        model_save_dir = model_save_dir  + 'lastest_model.ckpt'
+        saver.save(session, model_save_dir)
+        self.print_and_log('model training finished...')
+        session.close()
 
     def valid(self, session, epoch, global_step):
-        valid_dir = sub_int_valid_dir + 'int_part1.json'
-        with open(valid_dir, 'rb') as f:
-            valid_data = pickle.load(f)
+        valid_data = self.generator.get_valid_subset_data()
         batch_generator = self.generator.get_batch(valid_data)
         valid_step = 0
         valid_n_accuracy = 0.0
