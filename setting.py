@@ -28,6 +28,7 @@ class Setting(object):
         self.double_lstm_save_dir = 'trained_model/double_model/'
         self.lstm_tb_log_dir = 'log_info/tensorboard_log/lstm' + str(curr_time) + '/'  # 训练时tensorboard的log
         self.lstm_train_log_dir = 'log_info/training_log/lstm_train_log' + str(curr_time) + '.txt'  # 模型训练时的log
+        self.lstm_completion_log_dir = 'log_info/test_log/lstm_completion_log' + str(curr_time) + '.txt'  # 模型completion时的log
         self.lstm_test_log_dir = 'log_info/test_log/lstm_test_log' + str(curr_time) + '.txt'  # 模型测试时的log
         self.lstm_valid_log_dir = 'log_info/valid_log/lstm_valid_log' + str(curr_time) + '.txt'
 
@@ -50,6 +51,7 @@ class Setting(object):
         self.valid_every_n = 2
         self.save_every_n = 3
         self.test_show = 1
+        self.define_topk = 3
 
         # word2vec相关
         self.word2vec_embed_dim = 300

@@ -21,7 +21,7 @@ valid_every_n = base_setting.valid_every_n
 class RnnModel(object):
     """A basic LSTM model for code completion"""
     def __init__(self,
-                 num_ntoken, num_ttoken, is_training,
+                 num_ntoken, num_ttoken, is_training=True,
                  batch_size=50,
                  n_embed_dim=1500,
                  t_embed_dim=1500,
@@ -30,8 +30,6 @@ class RnnModel(object):
                  num_epochs=5,
                  time_steps=50,
                  grad_clip=5,):
-        self.time_steps = time_steps
-        self.batch_size = batch_size
         self.n_embed_dim = n_embed_dim
         self.num_ntoken = num_ntoken
         self.num_ttoken = num_ttoken
@@ -40,10 +38,12 @@ class RnnModel(object):
         self.learning_rate = learning_rate
         self.num_epochs = num_epochs
         self.grad_clip = grad_clip
+        self.time_steps = time_steps
+        self.batch_size = batch_size
+
         if not is_training:
             self.batch_size = 1
-            self.time_steps = 1
-
+            self.time_steps = 50
 
         self.build_model()
 
@@ -194,24 +194,21 @@ class RnnModel(object):
         n_logits = self.build_n_output(lstm_output)
         t_logits = self.build_t_output(lstm_output)
 
+        # loss calculate
         n_target = tf.reshape(self.n_target, [self.batch_size*self.time_steps])
         t_target = tf.reshape(self.t_target, [self.batch_size*self.time_steps])
         self.n_loss = self.build_nt_loss(n_logits, n_target)
         self.t_loss = self.build_tt_loss(t_logits, t_target)
-
-        # onehot_n_target, onehot_t_target = self.build_onehot_target(
-        #        self.n_target, self.t_target)
-        # self.n_loss = self.build_nt_loss(n_logits, onehot_n_target)
-        # self.t_loss = self.build_tt_loss(t_logits, onehot_t_target)
-        
         self.loss = self.build_loss(self.n_loss, self.t_loss)
-        self.n_accu, self.t_accu = self.build_accuracy(
-            n_logits, n_target, t_logits, t_target)
+        # optimizer
         self.optimizer = self.build_optimizer(self.loss)
-        # top k prediction accuracy
+
+        # top one accuracy
+        self.n_accu, self.t_accu = self.build_accuracy(n_logits, n_target, t_logits, t_target)
+
+        # top k accuracy
         self.n_top_k_accu, self.t_top_k_accu = self.build_topk_accuracy(
             n_logits, n_target, t_logits, t_target)
-        self.optimizer = self.build_optimizer(self.loss)
 
         # top k prediction with possibility
         self.n_output = self.build_softmax(n_logits)

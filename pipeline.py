@@ -1,9 +1,15 @@
-from basic_lstm import RnnModel
+from training import TrainModel
+from lstm_test import RnnModelTest
 from code_completion import CodeCompletion
 from short_long_performance import ShortLongTest
 import utils
+from setting import Setting
 
 """The pipeline and overflow of code completion system"""
+
+base_setting = Setting()
+num_ntoken = base_setting.num_non_terminal
+num_ttoken = base_setting.num_terminal
 
 def data_processing():
 
@@ -17,33 +23,25 @@ def data_processing():
 
 
 def model_training():
-
-    tt_token_to_int, tt_int_to_token, nt_token_to_int, nt_int_to_token = utils.load_dict_parameter()
-    n_ntoken = len(nt_int_to_token)
-    n_ttoken = len(tt_int_to_token)
-    model = RnnModel(n_ntoken, n_ttoken, saved_model=True)
+    model = TrainModel(num_ntoken, num_ttoken)
     model.train()
 
 
 def model_evaluation():
+    test_model = RnnModelTest(num_ntoken, num_ttoken)
+    test_model.test_model()
 
-    tt_token_to_int, tt_int_to_token, nt_token_to_int, nt_int_to_token = utils.load_dict_parameter()
-    num_ntoken = len(nt_token_to_int)
-    num_ttoken = len(tt_token_to_int)
-    test_model = CodeCompletion(num_ntoken, num_ttoken)
-    nt_accuracy, tt_accuracy = test_model.test_model()
-
+def code_completion():
+    model = CodeCompletion(num_ntoken, num_ttoken)
+    model.test_model()
 
 def length_performance():
-    tt_token_to_int, tt_int_to_token, nt_token_to_int, nt_int_to_token = utils.load_dict_parameter()
-    num_ntoken = len(nt_token_to_int)
-    num_ttoken = len(tt_token_to_int)
     model = ShortLongTest(num_ntoken, num_ttoken)
     model.short_long_performance()
 
 
 if __name__ == '__main__':
-    steps = ['data processing', 'model training', 'model evaluation']
+    steps = ['data processing', 'model training', 'model evaluation', 'code completion']
     data_processing()
     model_training()
     model_evaluation()

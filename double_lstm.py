@@ -28,7 +28,7 @@ class DoubleLstmModel():
                  nt_hidden_units=1500,
                  tt_hidden_units=500,
                  learning_rate=0.001,
-                 num_epochs=4,
+                 num_epochs=8,
                  time_steps=50,
                  grad_clip=5,):
         self.time_steps = time_steps
@@ -212,7 +212,6 @@ class DoubleLstmModel():
 
         n_logits = self.build_n_output(nt_lstm_output)
         t_logits = self.build_t_output(tt_lstm_output)
-
 
         self.n_loss = self.build_nt_loss(n_logits, n_target)
         self.t_loss = self.build_tt_loss(t_logits, t_target)

@@ -23,21 +23,18 @@ class TrainModel(object):
     def __init__(self,
                  num_ntoken, num_ttoken,
                  batch_size=50,
-                 num_hidden_units=1500,
-                 num_epochs=5,
+                 num_epochs=8,
                  time_steps=50,):
         self.time_steps = time_steps
         self.batch_size = batch_size
-        self.num_hidden_units = num_hidden_units
         self.num_epochs = num_epochs
 
         self.model = RnnModel(num_ntoken, num_ttoken, is_training=True)
 
     def train(self):
-        self.print_and_log('model training...')
         model_info = 'basic lstm model  ' + \
-                     'time_step:{},  batch_size:{},  hidden_units:{}'.format(
-                         self.time_steps, self.batch_size, self.num_hidden_units)
+                     'time_step:{},  batch_size:{} is training...'.format(
+                         self.time_steps, self.batch_size)
         self.print_and_log(model_info)
         saver = tf.train.Saver(max_to_keep=self.num_epochs + 1)
         session = tf.Session()
@@ -107,14 +104,18 @@ class TrainModel(object):
                     if global_step % save_every_n == 0:
                         saver.save(session, model_save_dir + 'e{}_b{}.ckpt'.format(epoch, batch_step))
                         print('model saved: epoch:{} global_step:{}'.format(epoch, global_step))
+
+            valid_n_accu, valid_t_accu = self.valid(session, epoch, global_step)
             epoch_end_time = time.time()
             epoch_cost_time = epoch_end_time - epoch_start_time
 
             epoch_log = 'EPOCH:{}/{}  '.format(epoch, self.num_epochs) + \
-                        'time cost this epoch:{:.2f}/s  '.format(epoch_cost_time) + \
                         'epoch average loss:{:.2f}  '.format(loss_per_epoch / batch_step) + \
                         'epoch average nt_accu:{:.2f}%  '.format(100 * n_accu_per_epoch / batch_step) + \
-                        'epoch average tt_accu:{:.2f}%  '.format(100 * t_accu_per_epoch / batch_step) + '\n'
+                        'epoch average tt_accu:{:.2f}%  '.format(100 * t_accu_per_epoch / batch_step) + \
+                        'epoch valid nt_accu:{:.2f}%  '.format(valid_n_accu) + \
+                        'epoch valid tt_accu:{:.2f}%  '.format(valid_t_accu) + \
+                        'time cost this epoch:{:.2f}/s  '.format(epoch_cost_time) + '\n'
             saver.save(session, model_save_dir + 'EPOCH{}.ckpt'.format(epoch, batch_step))
             print('EPOCH{} model saved'.format(epoch))
             self.print_and_log(epoch_log)
@@ -149,19 +150,20 @@ class TrainModel(object):
             if valid_step >= valid_times:
                 break
 
-        valid_n_accuracy /= valid_step
-        valid_t_accuracy /= valid_step
+        valid_n_accuracy = (valid_n_accuracy*100) / valid_step
+        valid_t_accuracy = (valid_t_accuracy*100) / valid_step
         valid_end_time = time.time()
         valid_log = "VALID epoch:{}/{}  ".format(epoch, self.num_epochs) + \
                     "global step:{}  ".format(global_step) + \
-                    "valid_nt_accu:{:.2f}%  ".format(valid_n_accuracy * 100) + \
-                    "valid_tt_accu:{:.2f}%  ".format(valid_t_accuracy * 100) + \
+                    "valid_nt_accu:{:.2f}%  ".format(valid_n_accuracy) + \
+                    "valid_tt_accu:{:.2f}%  ".format(valid_t_accuracy) + \
                     "valid time cost:{:.2f}s".format(valid_end_time - valid_start_time)
         if not os.path.exists(valid_log_dir):
             self.valid_file = open(valid_log_dir, 'w')
         valid_info = '{} {} {}\n'.format(global_step, valid_n_accuracy, valid_t_accuracy)
         self.valid_file.write(valid_info)
         self.print_and_log(valid_log)
+        return valid_n_accuracy, valid_t_accuracy
 
     def print_and_log(self, info):
         if not os.path.exists(training_log_dir):

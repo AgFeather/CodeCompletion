@@ -45,6 +45,20 @@ class DataGenerator():
                 break
             yield batch_nt_x, batch_nt_y, batch_tt_x, batch_tt_y
 
+    def get_valid_batch(self, nt_seq):
+        """Generator for valid test during test phase"""
+        nt_seq = np.array(nt_seq)
+        nt_x = nt_seq[:-1, 0]
+        tt_x = nt_seq[:-1, 1]
+        nt_y = nt_seq[1:, 0]
+        tt_y = nt_seq[1:, 1]
+        for n in range(0, len(nt_seq), self.time_steps):
+            batch_nt_x = nt_x[n:n + self.time_steps].reshape([1, -1])
+            batch_tt_x = tt_x[n:n + self.time_steps].reshape([1, -1])
+            batch_nt_y = nt_y[n:n + self.time_steps]
+            batch_tt_y = tt_y[n:n + self.time_steps]
+            yield batch_nt_x, batch_nt_y, batch_tt_x, batch_tt_y
+
     def get_test_batch(self, prefix):
         prefix = np.array(prefix)
         for index in range(0, len(prefix), self.time_steps):

@@ -282,6 +282,10 @@ def nt_seq_to_int(time_steps=50, status='TRAIN'):
     # old: 1,557,285  new: 81,078,099  测试数据集数据量对比
     print('There are {} nt_pair in {} dataset...'.format(total_num_nt_pair, status))
 
+def one_ast_to_seq(pre_context):
+    """runtime时的接口函数，将一个ast转换为nt_sequence"""
+    pass
+
 
 
 if __name__ == '__main__':
