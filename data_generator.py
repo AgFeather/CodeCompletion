@@ -55,8 +55,8 @@ class DataGenerator():
         for n in range(0, len(nt_seq), self.time_steps):
             batch_nt_x = nt_x[n:n + self.time_steps].reshape([1, -1])
             batch_tt_x = tt_x[n:n + self.time_steps].reshape([1, -1])
-            batch_nt_y = nt_y[n:n + self.time_steps]
-            batch_tt_y = tt_y[n:n + self.time_steps]
+            batch_nt_y = nt_y[n:n + self.time_steps].reshape([1, -1])
+            batch_tt_y = tt_y[n:n + self.time_steps].reshape([1, -1])
             yield batch_nt_x, batch_nt_y, batch_tt_x, batch_tt_y
 
     def get_test_batch(self, prefix):

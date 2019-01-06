@@ -80,8 +80,8 @@ class RnnModel(object):
         """using dynamic rnn to run LSTM automatically"""
         lstm_output, final_state = tf.nn.dynamic_rnn(cells, lstm_input, initial_state=lstm_state)
         # reshape lstm_output from [batch_size, time_steps, n_units] to [batch_size*time_steps, n_units]
-        lstm_output = tf.concat(lstm_output, axis=1)
         lstm_output = tf.reshape(lstm_output, [-1, self.num_hidden_units])
+
         return lstm_output, final_state
 
     def build_n_output(self, lstm_output):
@@ -195,8 +195,10 @@ class RnnModel(object):
         t_logits = self.build_t_output(lstm_output)
 
         # loss calculate
-        n_target = tf.reshape(self.n_target, [self.batch_size*self.time_steps])
-        t_target = tf.reshape(self.t_target, [self.batch_size*self.time_steps])
+        # n_target = tf.reshape(self.n_target, [self.batch_size*self.time_steps])
+        # t_target = tf.reshape(self.t_target, [self.batch_size*self.time_steps])
+        n_target = tf.reshape(self.n_target, [-1])
+        t_target = tf.reshape(self.t_target, [-1])
         self.n_loss = self.build_nt_loss(n_logits, n_target)
         self.t_loss = self.build_tt_loss(t_logits, t_target)
         self.loss = self.build_loss(self.n_loss, self.t_loss)

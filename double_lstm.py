@@ -88,15 +88,13 @@ class DoubleLstmModel():
             lstm_cell = get_cell()
             init_state = lstm_cell.zero_state(self.batch_size, dtype=tf.float32)
         else:
-            raise UnboundLocalError
+            raise AttributeError
         return lstm_cell, init_state
 
     def build_dynamic_rnn(self, cell, lstm_input, lstm_state, cate):
         hidden_units = self.get_hidden_units(cate)
-        with tf.variable_scope(str(cate), reuse=tf.AUTO_REUSE):
-            lstm_output, final_state = tf.nn.dynamic_rnn(
+        lstm_output, final_state = tf.nn.dynamic_rnn(
                 cell, lstm_input, initial_state=lstm_state)
-        lstm_output = tf.concat(lstm_output, axis=1)
         lstm_output = tf.reshape(lstm_output, [-1, hidden_units])
         return lstm_output, final_state
 

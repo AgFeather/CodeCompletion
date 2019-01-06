@@ -95,53 +95,43 @@ class RnnModelTest(object):
     def valid_query(self, nt_seq):
         """如同valid方法一样，不再是对每个ast随机创建一个hole，而是对每一个token都进行测试"""
         batch_step = 0
-        test_nt_accu = 0.0
-        test_tt_accu = 0.0
-        test_topk_nt_accu = 0.0
-        test_topk_tt_accu = 0.0
-        num_to_test = 0
-        num_nt_top1_correct = 0
-        num_tt_top1_correct = 0
-        num_nt_topk_correct = 0
-        num_tt_topk_correct = 0
+        test_nt_topk_accu = 0.0
+        test_tt_topk_accu = 0.0
+        test_nt_top1_accu = 0.0
+        test_tt_top1_accu = 0.0
 
         lstm_state = self.session.run(self.model.init_state)
-
         batch_generator = self.generator.get_valid_batch(nt_seq)
         for b_nt_x, b_nt_y, b_tt_x, b_tt_y in batch_generator:
             batch_step += 1
+
             feed = {self.model.n_input: b_nt_x,
                     self.model.t_input: b_tt_x,
                     self.model.keep_prob: 1.,
+                    self.model.n_target: b_nt_y,
+                    self.model.t_target: b_tt_y,
                     self.model.lstm_state: lstm_state}
-            n_topk_pred, t_topk_pred, lstm_state = self.session.run([
-                self.model.n_topk_pred, self.model.t_topk_pred, self.model.final_state], feed_dict=feed)
+            n_topk_accu, t_topk_accu, n_accu, t_accu, lstm_state = self.session.run([
+                self.model.n_top_k_accu, self.model.t_top_k_accu,
+                self.model.n_accu, self.model.t_accu, self.model.final_state], feed_dict=feed)
 
-            # todo 优化准确率计算，为什么跳过第一个time step的预测后准确率没有提升
             # if batch_step <= 1:
             #     continue
+        # test_nt_top1_accu /= (batch_step-1)
+        # test_tt_top1_accu /= (batch_step-1)
+        # test_nt_topk_accu /= (batch_step-1)
+        # test_tt_topk_accu /= (batch_step-1)
+            test_nt_top1_accu += n_accu
+            test_tt_top1_accu += t_accu
+            test_nt_topk_accu += n_topk_accu
+            test_tt_topk_accu += t_topk_accu
 
-            num_to_test += len(b_tt_y)
-            for n_pred, n_target in zip(n_topk_pred, b_nt_y):
-                if self.top_one_equal(n_pred, n_target):
-                    num_nt_top1_correct += 1
-                    num_nt_topk_correct += 1
-                elif self.topk_equal(n_pred, n_target):
-                    num_nt_topk_correct += 1
+        test_nt_top1_accu /= batch_step
+        test_tt_top1_accu /= batch_step
+        test_nt_topk_accu /= batch_step
+        test_tt_topk_accu /= batch_step
 
-            for t_pred, t_target in zip(t_topk_pred, b_tt_y):
-                if self.top_one_equal(t_pred, t_target):
-                    num_tt_top1_correct += 1
-                    num_tt_topk_correct += 1
-                elif self.topk_equal(t_pred, t_target):
-                    num_tt_topk_correct += 1
-
-        test_nt_accu = num_nt_top1_correct / num_to_test
-        test_tt_accu = num_tt_top1_correct / num_to_test
-        test_topk_nt_accu = num_nt_topk_correct / num_to_test
-        test_topk_tt_accu = num_tt_topk_correct / num_to_test
-
-        return test_nt_accu, test_tt_accu, test_topk_nt_accu, test_topk_tt_accu
+        return test_nt_top1_accu, test_tt_top1_accu, test_nt_topk_accu, test_tt_topk_accu
 
     def test_log(self, log_info):
         self.log_file.write(log_info)
