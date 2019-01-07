@@ -27,7 +27,7 @@ class RnnModel(object):
                  t_embed_dim=1500,
                  num_hidden_units=1500,
                  learning_rate=0.001,
-                 num_epochs=5,
+                 num_epochs=10,
                  time_steps=50,
                  grad_clip=5,):
         self.n_embed_dim = n_embed_dim
@@ -125,23 +125,13 @@ class RnnModel(object):
         t_loss = tf.reduce_mean(t_loss)
         return t_loss
 
-    def build_accuracy(self, n_output, n_target, t_output, t_target):
-        """calculate the predction accuracy of non-terminal terminal prediction"""
-        # n_equal = tf.equal(tf.argmax(n_output, axis=1), n_target)
-        # t_equal = tf.equal(tf.argmax(t_output, axis=1), t_target)
-        n_equal = tf.nn.in_top_k(n_output, n_target, k=1)
-        t_equal = tf.nn.in_top_k(t_output, t_target, k=1)
-        n_accuracy = tf.reduce_mean(tf.cast(n_equal, tf.float32))
-        t_accuracy = tf.reduce_mean(tf.cast(t_equal, tf.float32))
-        return n_accuracy, t_accuracy
-
-    def build_topk_accuracy(self, n_output, n_target, t_output, t_target, define_k=3):
+    def build_accuracy(self, n_output, n_target, t_output, t_target, topk=3):
         """calculate the accuracy of non-terminal terminal top k prediction"""
-        n_topk_equal = tf.nn.in_top_k(n_output, n_target, k=define_k)
-        t_topk_equal = tf.nn.in_top_k(t_output, t_target, k=define_k)
-        n_topk_accu = tf.reduce_mean(tf.cast(n_topk_equal, tf.float32))
-        t_topk_accu = tf.reduce_mean(tf.cast(t_topk_equal, tf.float32))
-        return n_topk_accu, t_topk_accu
+        n_equal = tf.nn.in_top_k(n_output, n_target, k=topk)
+        t_equal = tf.nn.in_top_k(t_output, t_target, k=topk)
+        n_accu = tf.reduce_mean(tf.cast(n_equal, tf.float32))
+        t_accu = tf.reduce_mean(tf.cast(t_equal, tf.float32))
+        return n_accu, t_accu
 
     def build_topk_prediction(self, n_output, t_output, define_k=3):
         """return the top k prediction by model"""
@@ -152,7 +142,7 @@ class RnnModel(object):
     def build_optimizer(self, loss):
         """build optimizer for model, using learning rate decay and gradient clip"""
         self.decay_epoch = tf.Variable(0, trainable=False)
-        decay_learning_rate = tf.train.exponential_decay(self.learning_rate, self.decay_epoch, 10000, 0.9)
+        decay_learning_rate = tf.train.exponential_decay(self.learning_rate, self.decay_epoch, 0.2, 0.9)
         optimizer = tf.train.AdamOptimizer(decay_learning_rate)
         gradient_pair = optimizer.compute_gradients(loss)
         clip_gradient_pair = []
@@ -206,11 +196,11 @@ class RnnModel(object):
         self.optimizer, self.decay_learning_rate = self.build_optimizer(self.loss)
 
         # top one accuracy
-        self.n_accu, self.t_accu = self.build_accuracy(n_logits, n_target, t_logits, t_target)
+        self.n_accu, self.t_accu = self.build_accuracy(n_logits, n_target, t_logits, t_target, topk=1)
 
         # top k accuracy
-        self.n_top_k_accu, self.t_top_k_accu = self.build_topk_accuracy(
-            n_logits, n_target, t_logits, t_target)
+        self.n_topk_accu, self.t_topk_accu = self.build_accuracy(
+            n_logits, n_target, t_logits, t_target, topk=3)
 
         # top k prediction with possibility
         self.n_output = self.build_softmax(n_logits)
@@ -223,7 +213,7 @@ class RnnModel(object):
                         't_accuracy': self.t_loss, 'learning_rate': self.decay_learning_rate}
         self.merged_op = self.build_summary(summary_dict)
 
-        print('lstm model has been created...')
+        print('basic lstm model has been created...')
 
 
 

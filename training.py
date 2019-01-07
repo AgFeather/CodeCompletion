@@ -66,7 +66,7 @@ class TrainModel(object):
                             self.model.t_target: b_t_y,
                             self.model.keep_prob: 0.5,
                             self.model.lstm_state: lstm_state,
-                            self.model.decay_epoch: epoch}
+                            self.model.decay_epoch: (epoch-1)}
                     loss, n_loss, t_loss, \
                     n_accu, t_accu, topk_n_accu, topk_t_accu, \
                     _, learning_rate, summary_str = \
@@ -76,8 +76,8 @@ class TrainModel(object):
                             self.model.t_loss,
                             self.model.n_accu,
                             self.model.t_accu,
-                            self.model.n_top_k_accu,
-                            self.model.t_top_k_accu,
+                            self.model.n_topk_accu,
+                            self.model.t_topk_accu,
                             self.model.optimizer,
                             self.model.decay_learning_rate,
                             self.model.merged_op], feed_dict=feed)
@@ -98,7 +98,7 @@ class TrainModel(object):
                                    'tt_accu:{:.2f}%  '.format(t_accu * 100) + \
                                    'top3_nt_accu:{:.2f}%  '.format(topk_n_accu * 100) + \
                                    'top3_tt_accu:{:.2f}%  '.format(topk_t_accu * 100) + \
-                                   'learning_rate:{:.2f}  '.format(learning_rate) + \
+                                   'learning_rate:{:.4f}  '.format(learning_rate) + \
                                    'time cost per batch:{:.2f}/s'.format(batch_end_time - batch_start_time)
                         self.print_and_log(log_info)
 
