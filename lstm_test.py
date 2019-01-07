@@ -16,8 +16,10 @@ seq_per_subset = test_setting.num_seq_per_subset
 show_every_n = test_setting.test_show
 define_topk =  test_setting.define_topk
 
+
 class RnnModelTest(object):
-    """test code completion performance"""
+    """Performance test for LSTM model, different with creating a random hole in an ast,
+    this test method is to evaluate each token in an ast and calculate accuracy for all token prediction"""
     def __init__(self,
                  num_ntoken,
                  num_ttoken,):
@@ -25,13 +27,18 @@ class RnnModelTest(object):
         self.log_file = open(test_log_dir, 'w')
         self.session = tf.Session()
         self.time_steps = 50
-        checkpoints_path = tf.train.latest_checkpoint(model_save_dir)
+        which_to_test = 'latest'
+        if which_to_test == 'latest':
+            checkpoints_path = tf.train.latest_checkpoint(model_save_dir)
+        else:
+            checkpoints_path = model_save_dir + 'EPOCH{}.ckpt'.format(int(which_to_test))
         saver = tf.train.Saver()
         saver.restore(self.session, checkpoints_path)
         self.test_log(checkpoints_path + ' is using...')
 
     def test_model(self):
-        """Test model with the whole test dataset, it will call self.query() for each test case"""
+        """Test method, it will traverse all test ast in test_dataset,
+        then evaluate each token's prediction for each test ast case"""
         self.test_log('test phase is beginning...')
         start_time = time.time()
 

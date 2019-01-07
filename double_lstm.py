@@ -158,8 +158,8 @@ class DoubleLstmModel():
 
     def build_optimizer(self, n_loss, t_loss):
         """分别对两个 lstm构建optimizer，但将两个loss合并，构建一个整体optimizer也是可以的"""
-        self.global_step = tf.Variable(0, trainable=False)
-        learning_rate = tf.train.exponential_decay(self.learning_rate, self.global_step, 10000, 0.9)
+        self.decay_epoch = tf.Variable(0, trainable=False)
+        learning_rate = tf.train.exponential_decay(self.learning_rate, self.decay_epoch, 1, 0.9)
         train_vars = tf.trainable_variables()
         nt_var_list = [var for var in train_vars if var.name.startswith('nt_model')]
         tt_var_list = [var for var in train_vars if var.name.startswith('tt_model')]
@@ -182,7 +182,22 @@ class DoubleLstmModel():
                 grad = tf.clip_by_value(grad, -self.grad_clip, self.grad_clip)
                 clip_gradient_pair.append((grad, var))
             t_optimizer = t_optimizer.apply_gradients(clip_gradient_pair)
+
         return n_optimizer, t_optimizer
+
+    def build_total_optimizer(self, loss):
+        """分别对两个 lstm构建optimizer，但将两个loss合并，构建一个整体optimizer也是可以的"""
+        self.decay_epoch = tf.Variable(0, trainable=False)
+        # learning rate decay 0.9 for each epoch
+        learning_rate = tf.train.exponential_decay(self.learning_rate, self.decay_epoch, 1, 0.9)
+        optimizer = tf.train.AdamOptimizer(learning_rate)
+        gradient_pair = optimizer.compute_gradients(loss)
+        clip_gradient_pair = []
+        for grad, var in gradient_pair:
+            grad = tf.clip_by_value(grad, -self.grad_clip, self.grad_clip)
+            clip_gradient_pair.append((grad, var))
+        optimizer = optimizer.apply_gradients(clip_gradient_pair)
+        return optimizer
 
     def build_summary(self, summary_dict):
         for key, value in summary_dict.items():
@@ -226,7 +241,8 @@ class DoubleLstmModel():
         self.n_topk_pred, self.n_topk_poss, self.t_topk_pred, self.t_topk_poss = \
             self.build_topk_prediction(self.n_output, self.t_output)
 
-        self.n_optimizer, self.t_optimizer= self.build_optimizer(self.n_loss, self.t_loss)
+        #self.n_optimizer, self.t_optimizer= self.build_optimizer(self.n_loss, self.t_loss)
+        self.optimizer = self.build_total_optimizer(self.loss)
 
         summary_dict = {'train loss': self.loss, 'non-terminal loss': self.t_loss,
                         'terminal loss': self.t_loss, 'n_accuracy': self.n_accu,
@@ -269,8 +285,8 @@ class DoubleLstmModel():
                             self.keep_prob: 0.5,
                             self.nt_lstm_state: nt_lstm_state,
                             self.tt_lstm_state: tt_lstm_state,
-                            self.global_step:global_step}
-                    loss, n_loss, t_loss, n_accu, t_accu, topk_n_accu, topk_t_accu, _, __, summary_str = \
+                            self.decay_epoch: epoch}
+                    loss, n_loss, t_loss, n_accu, t_accu, topk_n_accu, topk_t_accu, _,  summary_str = \
                         session.run([
                             self.loss,
                             self.n_loss,
@@ -279,8 +295,9 @@ class DoubleLstmModel():
                             self.t_accu,
                             self.n_top_k_accu,
                             self.t_top_k_accu,
-                            self.n_optimizer,
-                            self.t_optimizer,
+                            # self.n_optimizer,
+                            # self.t_optimizer,
+                            self.optimizer,
                             self.merged_op], feed_dict=feed)
                     tb_writer.add_summary(summary_str, global_step)
                     tb_writer.flush()
@@ -345,8 +362,7 @@ class DoubleLstmModel():
                     self.t_target: b_tt_y,
                     self.keep_prob: 0.5,
                     self.nt_lstm_state: nt_lstm_state,
-                    self.tt_lstm_state: tt_lstm_state,
-                    self.global_step: global_step}
+                    self.tt_lstm_state: tt_lstm_state,}
             n_accu, t_accu, nt_lstm_state, tt_lstm_state = session.run(
                 [self.n_accu, self.t_accu, self.nt_final_state, self.tt_final_state], feed)
             valid_n_accuracy += n_accu

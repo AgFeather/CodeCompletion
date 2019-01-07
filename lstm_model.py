@@ -151,16 +151,16 @@ class RnnModel(object):
 
     def build_optimizer(self, loss):
         """build optimizer for model, using learning rate decay and gradient clip"""
-        self.global_step = tf.Variable(0, trainable=False)
-        learning_rate = tf.train.exponential_decay(self.learning_rate, self.global_step, 10000, 0.9)
-        optimizer = tf.train.AdamOptimizer(learning_rate)
+        self.decay_epoch = tf.Variable(0, trainable=False)
+        decay_learning_rate = tf.train.exponential_decay(self.learning_rate, self.decay_epoch, 10000, 0.9)
+        optimizer = tf.train.AdamOptimizer(decay_learning_rate)
         gradient_pair = optimizer.compute_gradients(loss)
         clip_gradient_pair = []
         for grad, var in gradient_pair:
             grad = tf.clip_by_value(grad, -self.grad_clip, self.grad_clip)
             clip_gradient_pair.append((grad, var))
         optimizer = optimizer.apply_gradients(clip_gradient_pair)
-        return optimizer
+        return optimizer, decay_learning_rate
 
     def build_onehot_target(self, n_target, t_target):
         """not used, transform int target to one-hot-encoding target"""
@@ -203,7 +203,7 @@ class RnnModel(object):
         self.t_loss = self.build_tt_loss(t_logits, t_target)
         self.loss = self.build_loss(self.n_loss, self.t_loss)
         # optimizer
-        self.optimizer = self.build_optimizer(self.loss)
+        self.optimizer, self.decay_learning_rate = self.build_optimizer(self.loss)
 
         # top one accuracy
         self.n_accu, self.t_accu = self.build_accuracy(n_logits, n_target, t_logits, t_target)
@@ -220,7 +220,7 @@ class RnnModel(object):
 
         summary_dict = {'train loss': self.loss, 'non-terminal loss': self.t_loss,
                         'terminal loss': self.t_loss, 'n_accuracy': self.n_accu,
-                        't_accuracy': self.t_loss}
+                        't_accuracy': self.t_loss, 'learning_rate': self.decay_learning_rate}
         self.merged_op = self.build_summary(summary_dict)
 
         print('lstm model has been created...')

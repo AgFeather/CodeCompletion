@@ -17,7 +17,8 @@ define_topk = test_setting.define_topk
 
 
 class CodeCompletion(object):
-    """test code completion performance"""
+    """test the performance of code completion, Creating a random hole in the given nt-sequence,
+    and the model will return it's prediction, then calculate the accuracy"""
 
     def __init__(self,
                  num_ntoken,
