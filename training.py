@@ -23,12 +23,11 @@ class TrainModel(object):
     def __init__(self,
                  num_ntoken, num_ttoken,
                  batch_size=50,
-                 num_epochs=8,
+                 num_epochs=10,
                  time_steps=50,):
         self.time_steps = time_steps
         self.batch_size = batch_size
         self.num_epochs = num_epochs
-
         self.model = RnnModel(num_ntoken, num_ttoken, is_training=True)
 
     def train(self):
@@ -105,9 +104,9 @@ class TrainModel(object):
                     if global_step % valid_every_n == 0:
                         self.valid(session, epoch, global_step)
 
-                    if global_step % save_every_n == 0:
-                        saver.save(session, model_save_dir + 'e{}_b{}.ckpt'.format(epoch, batch_step))
-                        print('model saved: epoch:{} global_step:{}'.format(epoch, global_step))
+                    # if global_step % save_every_n == 0:
+                    #     saver.save(session, model_save_dir + 'e{}_b{}.ckpt'.format(epoch, batch_step))
+                    #     print('model saved: epoch:{} global_step:{}'.format(epoch, global_step))
 
             valid_n_accu, valid_t_accu = self.valid(session, epoch, global_step)
             epoch_end_time = time.time()
@@ -121,8 +120,9 @@ class TrainModel(object):
                         'epoch valid tt_accu:{:.2f}%  '.format(valid_t_accu) + \
                         'time cost this epoch:{:.2f}/s  '.format(epoch_cost_time) + '\n'
             saver.save(session, model_save_dir + 'EPOCH{}.ckpt'.format(epoch, batch_step))
-            print('EPOCH{} model saved'.format(epoch))
             self.print_and_log(epoch_log)
+            self.print_and_log('EPOCH{} model saved'.format(epoch))
+
 
         saver.save(session, model_save_dir + 'lastest_model.ckpt')
         self.print_and_log('model training finished...')

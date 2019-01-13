@@ -81,6 +81,17 @@ class CodeCompletion(object):
         t_topk_pred = t_topk_pred[-1, :]
         t_topk_poss = t_topk_poss[-1, :]
 
+        topk_token_pairs = [self.int_to_token(n_int ,t_int)
+                            for n_int, t_int in zip(n_topk_pred, t_topk_pred)]
+        topk_pairs_poss = [(n_poss, t_poss)
+                           for n_poss, t_poss in zip(n_topk_poss, t_topk_poss)]
+
+        print('\nthe token you may want to write is:')
+        for index, (token, poss) in enumerate(zip(topk_token_pairs, topk_pairs_poss)):
+            n_token, t_token = token
+            n_poss, t_poss = poss
+            print('top{} n_token:{} with possibility:{:.2f}'.format(index+1, n_token, n_poss))
+            print('top{} t_token:{} with possibility:{:.2f}'.format(index+1, t_token, t_poss))
         return n_topk_pred, n_topk_poss, t_topk_pred, t_topk_poss
 
     def eval_without_define_k(self, prefix, topk):
@@ -254,4 +265,4 @@ if __name__ == '__main__':
     num_ntoken = test_setting.num_non_terminal
     num_ttoken = test_setting.num_terminal
     test_model = CodeCompletion(num_ntoken, num_ttoken)
-    test_model.completion_test(topk=5)
+    test_model.completion_test(topk=3)

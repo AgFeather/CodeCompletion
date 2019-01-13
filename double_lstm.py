@@ -19,7 +19,7 @@ save_every_n = base_setting.save_every_n
 valid_every_n = base_setting.valid_every_n
 
 
-class DoubleLstmModel():
+class DualLstmModel():
     def __init__(self,
                  num_ntoken, num_ttoken,
                  batch_size=50,
@@ -159,7 +159,7 @@ class DoubleLstmModel():
     def build_optimizer(self, n_loss, t_loss):
         """分别对两个 lstm构建optimizer，但将两个loss合并，构建一个整体optimizer也是可以的"""
         self.decay_epoch = tf.Variable(0, trainable=False)
-        learning_rate = tf.train.exponential_decay(self.learning_rate, self.decay_epoch, 1, 0.9)
+        learning_rate = tf.train.exponential_decay(self.learning_rate, self.decay_epoch, 0.2, 0.9)
         train_vars = tf.trainable_variables()
         nt_var_list = [var for var in train_vars if var.name.startswith('nt_model')]
         tt_var_list = [var for var in train_vars if var.name.startswith('tt_model')]
@@ -189,7 +189,7 @@ class DoubleLstmModel():
         """分别对两个 lstm构建optimizer，但将两个loss合并，构建一个整体optimizer也是可以的"""
         self.decay_epoch = tf.Variable(0, trainable=False)
         # learning rate decay 0.9 for each epoch
-        learning_rate = tf.train.exponential_decay(self.learning_rate, self.decay_epoch, 1, 0.9)
+        learning_rate = tf.train.exponential_decay(self.learning_rate, self.decay_epoch, 0.2, 0.9)
         optimizer = tf.train.AdamOptimizer(learning_rate)
         gradient_pair = optimizer.compute_gradients(loss)
         clip_gradient_pair = []
@@ -391,5 +391,5 @@ class DoubleLstmModel():
 if __name__ == '__main__':
     num_non_terminal = base_setting.num_non_terminal
     num_terminal = base_setting.num_terminal
-    model = DoubleLstmModel(num_non_terminal, num_terminal)
+    model = DualLstmModel(num_non_terminal, num_terminal)
     model.train()

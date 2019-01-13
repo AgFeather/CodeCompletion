@@ -27,7 +27,6 @@ class RnnModel(object):
                  t_embed_dim=1500,
                  num_hidden_units=1500,
                  learning_rate=0.001,
-                 num_epochs=10,
                  time_steps=50,
                  grad_clip=5,):
         self.n_embed_dim = n_embed_dim
@@ -36,7 +35,6 @@ class RnnModel(object):
         self.t_embed_dim = t_embed_dim
         self.num_hidden_units = num_hidden_units
         self.learning_rate = learning_rate
-        self.num_epochs = num_epochs
         self.grad_clip = grad_clip
         self.time_steps = time_steps
         self.batch_size = batch_size
