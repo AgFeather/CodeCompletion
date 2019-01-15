@@ -33,7 +33,7 @@ class Setting(object):
         self.lstm_valid_log_dir = 'log_info/valid_log/lstm_valid_log' + str(curr_time) + '.txt'
 
         # 暂时存放一些信息
-        self.temp_info = 'temp_info'
+        self.temp_info = 'temp_info/'
 
         # 数据集特性相关
         self.num_sub_train_data = 20  # change to 28 for more data to train

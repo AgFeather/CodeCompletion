@@ -124,7 +124,7 @@ terminal_count = Counter()  # 统计每个terminal token的出现次数
 non_terminal_set = set()  # 统计non_termial token 种类
 
 
-def ast_to_seq(binary_tree):
+def ast_to_seq(binary_tree, run_or_process='process'):
     # 将一个ast首先转换成二叉树，然后对该二叉树进行中序遍历，得到nt_sequence
     temp_terminal_count = Counter()
     temp_non_terminal_set = set()
@@ -176,6 +176,10 @@ def ast_to_seq(binary_tree):
 
     output = []
     in_order_traversal(binary_tree, 0)
+
+    if run_or_process == 'run':
+        return output
+
     if len(output) >= time_steps:  # note: 仅将长度大于阈值的ast产生的node统计到counter中
         terminal_count.update(temp_terminal_count)
         non_terminal_set.update(temp_non_terminal_set)
@@ -282,9 +286,6 @@ def nt_seq_to_int(time_steps=50, status='TRAIN'):
     # old: 1,557,285  new: 81,078,099  测试数据集数据量对比
     print('There are {} nt_pair in {} dataset...'.format(total_num_nt_pair, status))
 
-def one_ast_to_seq(pre_context):
-    """runtime时的接口函数，将一个ast转换为nt_sequence"""
-    pass
 
 
 

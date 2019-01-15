@@ -1,5 +1,4 @@
 import tensorflow as tf
-import numpy as np
 import time
 
 from lstm_model import RnnModel
@@ -64,6 +63,12 @@ class RnnModelTest(object):
                 topk_nt_correct_count += topk_nt_accu
                 topk_tt_correct_count += topk_tt_accu
 
+                # print('\n nt_tt_correct_count')
+                # print(nt_correct_count)
+                # print(tt_correct_count)
+                # print(topk_nt_correct_count)
+                # print(topk_tt_correct_count)
+
                 if test_step % show_every_n == 0:
                     one_test_end_time = time.time()
                     duration = (one_test_end_time - one_test_start_time) / show_every_n
@@ -119,7 +124,7 @@ class RnnModelTest(object):
                     self.model.t_target: b_tt_y,
                     self.model.lstm_state: lstm_state}
             n_topk_accu, t_topk_accu, n_accu, t_accu, lstm_state = self.session.run([
-                self.model.n_top_k_accu, self.model.t_top_k_accu,
+                self.model.n_topk_accu, self.model.t_topk_accu,
                 self.model.n_accu, self.model.t_accu, self.model.final_state], feed_dict=feed)
 
             # if batch_step <= 1:

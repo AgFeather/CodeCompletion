@@ -30,17 +30,12 @@ class CodeCompletion(object):
         self.session = tf.Session()
         checkpoints_path = tf.train.latest_checkpoint(model_save_dir)
         saver = tf.train.Saver()
+        self.generator = DataGenerator()
         saver.restore(self.session, checkpoints_path)
         self.test_log(checkpoints_path + ' is using...')
 
-    def predict(self, pre_context, topk=3):
+    def predict(self, int_nt_seq, topk=3):
         """对外接口，先将所有pre-context转换为int，然后使用trained model进行evaluate"""
-        nt_seq = utils.one_ast_to_seq(pre_context)
-        int_nt_seq = []
-        for n_token, t_token in nt_seq:
-            n_int = self.nt_token_to_int[n_token]
-            t_int = self.tt_token_to_int.get(t_token, unknown_token)
-            int_nt_seq.append((n_int, t_int))
         if define_topk == topk:
             n_topk_pred, n_topk_poss, t_topk_pred, t_topk_poss = self.eval(int_nt_seq)
         else:
@@ -51,10 +46,10 @@ class CodeCompletion(object):
         topk_pairs_poss = [(n_poss, t_poss)
                            for n_poss, t_poss in zip(n_topk_poss, t_topk_poss)]
 
-        print('the token you may want to write is:')
-        print(topk_token_pairs)
-        print('with possibilities:')
-        print(topk_pairs_poss)
+        # print('the token you may want to write is:')
+        # print(topk_token_pairs)
+        # print('with possibilities:')
+        # print(topk_pairs_poss)
         return topk_token_pairs, topk_pairs_poss
 
     def eval(self, prefix):
@@ -86,12 +81,12 @@ class CodeCompletion(object):
         topk_pairs_poss = [(n_poss, t_poss)
                            for n_poss, t_poss in zip(n_topk_poss, t_topk_poss)]
 
-        print('\nthe token you may want to write is:')
-        for index, (token, poss) in enumerate(zip(topk_token_pairs, topk_pairs_poss)):
-            n_token, t_token = token
-            n_poss, t_poss = poss
-            print('top{} n_token:{} with possibility:{:.2f}'.format(index+1, n_token, n_poss))
-            print('top{} t_token:{} with possibility:{:.2f}'.format(index+1, t_token, t_poss))
+        # print('\nthe token you may want to write is:')
+        # for index, (token, poss) in enumerate(zip(topk_token_pairs, topk_pairs_poss)):
+        #     n_token, t_token = token
+        #     n_poss, t_poss = poss
+        #     print('top{} n_token:{} with possibility:{:.2f}'.format(index+1, n_token, n_poss))
+        #     print('top{} t_token:{} with possibility:{:.2f}'.format(index+1, t_token, t_poss))
         return n_topk_pred, n_topk_poss, t_topk_pred, t_topk_poss
 
     def eval_without_define_k(self, prefix, topk):

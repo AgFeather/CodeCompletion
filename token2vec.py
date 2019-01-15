@@ -1,6 +1,7 @@
 from gensim.models.word2vec import Word2Vec
 from gensim.models.word2vec import PathLineSentences
 import pickle
+import numpy as np
 
 from setting import Setting
 import utils
@@ -55,6 +56,8 @@ class TokenToVec():
                 nt_represent_matrix.append(vector)
             else:
                 tt_represent_matrix.append(vector)
+        nt_represent_matrix = np.array(nt_represent_matrix)
+        tt_represent_matrix = np.array(tt_represent_matrix)
         pickle.dump([nt_represent_matrix, tt_represent_matrix], open('repre_matrix_dir', 'wb'))
         print('token2vec representation matrix has been saved...')
         return nt_represent_matrix, tt_represent_matrix
@@ -83,6 +86,8 @@ def get_sub_dataet():
         file = open(one_save_path, 'w', encoding='utf-8')
         file.write(data_seq)
         print(one_save_path, ' has been saved...')
+
+
 
 if __name__ == '__main__':
     step_choice = ['data_processing', 'model training', 'represent matrix']

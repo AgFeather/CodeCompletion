@@ -1,10 +1,6 @@
 import tensorflow as tf
-import time
-import os
 
 from setting import Setting
-from data_generator import DataGenerator
-
 
 base_setting = Setting()
 
@@ -206,9 +202,11 @@ class RnnModel(object):
         self.n_topk_pred, self.n_topk_poss, self.t_topk_pred, self.t_topk_poss = \
             self.build_topk_prediction(self.n_output, self.t_output)
 
-        summary_dict = {'train loss': self.loss, 'non-terminal loss': self.t_loss,
-                        'terminal loss': self.t_loss, 'n_accuracy': self.n_accu,
-                        't_accuracy': self.t_loss, 'learning_rate': self.decay_learning_rate}
+        summary_dict = {'train loss': self.loss,
+                        'non-terminal loss': self.t_loss, 'terminal loss': self.t_loss,
+                        'n_accuracy': self.n_accu, 't_accuracy': self.t_accu,
+                        'top3_nt_accu':self.n_topk_accu, 'top3_tt_accu':self.t_topk_accu,
+                        'learning_rate': self.decay_learning_rate}
         self.merged_op = self.build_summary(summary_dict)
 
         print('basic lstm model has been created...')
