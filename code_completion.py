@@ -52,41 +52,53 @@ class CodeCompletion(object):
         # print(topk_pairs_poss)
         return topk_token_pairs, topk_pairs_poss
 
-    def eval(self, prefix):
+    def eval(self, prefix, next_n=5):
         """ evaluate one source code file, return the top k prediction and it's possibilities,
         Input: all tokens before the hole token(prefix) and all tokens after the hole token,
         ML model will predict the most probable token in the hole
         """
         lstm_state = self.session.run(self.model.init_state)
         test_batch = self.generator.get_test_batch(prefix)
-        n_topk_pred, n_topk_poss, t_topk_pred, t_topk_poss = None, None, None, None
+        n_topk_pred, n_topk_poss, t_topk_pred, t_topk_poss = [], [], [], []
         for nt_token, tt_token in test_batch:
             feed = {self.model.n_input: nt_token,
                     self.model.t_input: tt_token,
                     self.model.keep_prob: 1.,
                     self.model.lstm_state: lstm_state}
-            n_topk_pred, n_topk_poss, t_topk_pred, t_topk_poss, lstm_state = self.session.run([
+            n_pred, n_poss, t_pred, t_poss, lstm_state = self.session.run([
                 self.model.n_topk_pred, self.model.n_topk_poss, self.model.t_topk_pred,
                 self.model.t_topk_poss, self.model.final_state], feed_dict=feed)
 
+            n_topk_pred = n_pred[-1, :]
+            n_topk_poss = n_poss[-1, :]
+            t_topk_pred = t_pred[-1, :]
+            t_topk_poss = t_poss[-1, :]
+            n_topk_pred.append(n_pred)
+            n_topk_poss.append(n_poss)
+            t_topk_pred.append(t_pred)
+            t_topk_poss.append(t_poss)
+
+            for _ in range(next_n):
+                feed = {self.model.n_input: n_pred[0],
+                        self.model.t_input: t_pred[0],
+                        self.model.keep_prob: 1.,
+                        self.model.lstm_state: lstm_state}
+                n_pred, n_poss, t_pred, t_poss, lstm_state = self.session.run([
+                    self.model.n_topk_pred, self.model.n_topk_poss, self.model.t_topk_pred,
+                    self.model.t_topk_poss, self.model.final_state], feed_dict=feed)
+
+            n_topk_pred.append(n_pred)
+            n_topk_poss.append(n_poss)
+            t_topk_pred.append(t_pred)
+            t_topk_poss.append(t_poss)
+
         assert n_topk_pred is not None and n_topk_poss is not None and \
                t_topk_pred is not None and t_topk_poss is not None
-        n_topk_pred = n_topk_pred[-1, :]
-        n_topk_poss = n_topk_poss[-1, :]
-        t_topk_pred = t_topk_pred[-1, :]
-        t_topk_poss = t_topk_poss[-1, :]
+        # n_topk_pred = n_topk_pred[-1, :]
+        # n_topk_poss = n_topk_poss[-1, :]
+        # t_topk_pred = t_topk_pred[-1, :]
+        # t_topk_poss = t_topk_poss[-1, :]
 
-        topk_token_pairs = [self.int_to_token(n_int ,t_int)
-                            for n_int, t_int in zip(n_topk_pred, t_topk_pred)]
-        topk_pairs_poss = [(n_poss, t_poss)
-                           for n_poss, t_poss in zip(n_topk_poss, t_topk_poss)]
-
-        # print('\nthe token you may want to write is:')
-        # for index, (token, poss) in enumerate(zip(topk_token_pairs, topk_pairs_poss)):
-        #     n_token, t_token = token
-        #     n_poss, t_poss = poss
-        #     print('top{} n_token:{} with possibility:{:.2f}'.format(index+1, n_token, n_poss))
-        #     print('top{} t_token:{} with possibility:{:.2f}'.format(index+1, t_token, t_poss))
         return n_topk_pred, n_topk_poss, t_topk_pred, t_topk_poss
 
     def eval_without_define_k(self, prefix, topk):

@@ -1,8 +1,3 @@
-import tensorflow as tf
-import numpy as np
-import time
-import random
-import pickle
 import json
 import subprocess
 
@@ -57,10 +52,6 @@ def to_int_nt_seq(nt_seq):
 class OnlineCompletion():
     def __init__(self):
         self.model = CodeCompletion(num_non_terminal, num_terminal)
-        # checkpoint_path = tf.train.latest_checkpoint(model_save_dir)
-        # self.session = tf.Session()
-        # saver = tf.train.Saver()
-        # saver.restore(self.session, checkpoint_path)
 
     def complete(self, code_path, topk=3):
         ast = code_to_ast(code_path=code_path)
@@ -71,9 +62,13 @@ class OnlineCompletion():
         for index, (token, poss) in enumerate(zip(topk_token_pairs, topk_pairs_poss)):
             n_token, t_token = token
             n_poss, t_poss = poss
-            print('top{} n_token:{} with possibility:{:.2f}'.format(index+1, n_token, n_poss))
+            print('\ntop{} n_token:{} with possibility:{:.2f}'.format(index+1, n_token, n_poss))
             print('top{} t_token:{} with possibility:{:.2f}'.format(index+1, t_token, t_poss))
         return topk_token_pairs, topk_pairs_poss
+
+
+
+
 
 
 if __name__ == '__main__':

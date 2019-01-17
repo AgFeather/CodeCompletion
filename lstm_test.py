@@ -1,5 +1,6 @@
 import tensorflow as tf
 import time
+import math
 
 from lstm_model import RnnModel
 from data_generator import DataGenerator
@@ -57,17 +58,13 @@ class RnnModelTest(object):
                 # 对一个ast sequence进行test
                 if len(token_sequence) < self.time_steps:
                     continue
+
                 nt_accu, tt_accu, topk_nt_accu, topk_tt_accu = self.valid_query(token_sequence)
+
                 nt_correct_count += nt_accu
                 tt_correct_count += tt_accu
                 topk_nt_correct_count += topk_nt_accu
                 topk_tt_correct_count += topk_tt_accu
-
-                # print('\n nt_tt_correct_count')
-                # print(nt_correct_count)
-                # print(tt_correct_count)
-                # print(topk_nt_correct_count)
-                # print(topk_tt_correct_count)
 
                 if test_step % show_every_n == 0:
                     one_test_end_time = time.time()
@@ -127,12 +124,19 @@ class RnnModelTest(object):
                 self.model.n_topk_accu, self.model.t_topk_accu,
                 self.model.n_accu, self.model.t_accu, self.model.final_state], feed_dict=feed)
 
+
+            if math.isnan(n_topk_accu) or math.isnan(t_topk_accu) or math.isnan(n_accu) or math.isnan(t_accu):
+                # 在第10个test case的最后一个test batch上准确率返回nan，暂时没有找到原因，先行略过
+                batch_step -= 1
+                continue
+
             # if batch_step <= 1:
             #     continue
         # test_nt_top1_accu /= (batch_step-1)
         # test_tt_top1_accu /= (batch_step-1)
         # test_nt_topk_accu /= (batch_step-1)
         # test_tt_topk_accu /= (batch_step-1)
+
             test_nt_top1_accu += n_accu
             test_tt_top1_accu += t_accu
             test_nt_topk_accu += n_topk_accu

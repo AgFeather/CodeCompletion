@@ -53,8 +53,18 @@ class DualLstmModel():
         keep_prob = tf.placeholder(tf.float32, name='keep_prob')
         return n_input, t_input, n_target, t_target, keep_prob
 
-    def build_input_embed(self, n_input, t_input):
-        with tf.name_scope('input_embedding'):
+    def build_nt_embed(self, n_input, t_input):
+        with tf.name_scope('nt_input_embedding'):
+            n_embed_matrix = tf.Variable(tf.truncated_normal(
+                [self.num_ntoken, self.n_embed_dim]), name='n_embed_matrix')
+            t_embed_matrix = tf.Variable(tf.truncated_normal(
+                [self.num_ttoken, self.t_embed_dim]), name='t_embed_matrix')
+            n_input_embedding = tf.nn.embedding_lookup(n_embed_matrix, n_input)
+            t_input_embedding = tf.nn.embedding_lookup(t_embed_matrix, t_input)
+        return n_input_embedding, t_input_embedding
+
+    def build_tt_embed(self, n_input, t_input):
+        with tf.name_scope('tt_input_embedding'):
             n_embed_matrix = tf.Variable(tf.truncated_normal(
                 [self.num_ntoken, self.n_embed_dim]), name='n_embed_matrix')
             t_embed_matrix = tf.Variable(tf.truncated_normal(
@@ -208,20 +218,23 @@ class DualLstmModel():
     def build_model(self):
         tf.reset_default_graph()
         self.n_input, self.t_input, self.n_target, self.t_target, self.keep_prob = self.build_input()
-        n_input_embedding, t_input_embedding = self.build_input_embed(
+        nt_n_input_embedding, nt_t_input_embedding = self.build_nt_embed(
+            self.n_input, self.t_input)
+        tt_n_input_embedding, tt_t_input_embedding = self.build_tt_embed(
             self.n_input, self.t_input)
         n_target = tf.reshape(self.n_target, [self.batch_size*self.time_steps])
         t_target = tf.reshape(self.t_target, [self.batch_size*self.time_steps])
 
-        lstm_input = tf.add(n_input_embedding, t_input_embedding)
+        n_lstm_input = tf.add(nt_n_input_embedding, nt_t_input_embedding)
+        t_lstm_input = tf.add(tt_n_input_embedding, tt_t_input_embedding)
         nt_lstm_cell, self.nt_init_state = self.build_lstm(self.keep_prob, cate='nt_model')
         tt_lstm_cell, self.tt_init_state = self.build_lstm(self.keep_prob, cate='tt_model')
         self.nt_lstm_state = self.nt_init_state
         self.tt_lstm_state = self.tt_init_state
         nt_lstm_output, self.nt_final_state = self.build_dynamic_rnn(
-            nt_lstm_cell, lstm_input, self.nt_lstm_state, cate='nt_model')
+            nt_lstm_cell, n_lstm_input, self.nt_lstm_state, cate='nt_model')
         tt_lstm_output, self.tt_final_state = self.build_dynamic_rnn(
-            tt_lstm_cell, lstm_input, self.tt_lstm_state, cate='tt_model')
+            tt_lstm_cell, t_lstm_input, self.tt_lstm_state, cate='tt_model')
 
         n_logits = self.build_n_output(nt_lstm_output)
         t_logits = self.build_t_output(tt_lstm_output)

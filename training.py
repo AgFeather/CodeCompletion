@@ -21,14 +21,14 @@ valid_every_n = base_setting.valid_every_n
 class TrainModel(object):
     """Train rnn model"""
     def __init__(self,
-                 num_ntoken, num_ttoken,
+                 num_ntoken, num_ttoken, kernel='LSTM',
                  batch_size=50,
                  num_epochs=10,
                  time_steps=50,):
         self.time_steps = time_steps
         self.batch_size = batch_size
         self.num_epochs = num_epochs
-        self.model = RnnModel(num_ntoken, num_ttoken, is_training=True)
+        self.model = RnnModel(num_ntoken, num_ttoken, is_training=True, kernel=kernel)
 
     def train(self):
         model_info = 'basic lstm model  ' + \
@@ -179,5 +179,5 @@ class TrainModel(object):
 if __name__ == '__main__':
     num_terminal = base_setting.num_terminal
     num_non_terminal = base_setting.num_non_terminal
-    model = TrainModel(num_non_terminal, num_terminal)
+    model = TrainModel(num_non_terminal, num_terminal, kernel='LSTM')
     model.train()

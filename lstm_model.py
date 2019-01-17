@@ -17,7 +17,7 @@ valid_every_n = base_setting.valid_every_n
 class RnnModel(object):
     """A basic LSTM model for code completion"""
     def __init__(self,
-                 num_ntoken, num_ttoken, is_training=True,
+                 num_ntoken, num_ttoken, is_training=True, kernel='LSTM',
                  batch_size=50,
                  n_embed_dim=1500,
                  t_embed_dim=1500,
@@ -34,6 +34,7 @@ class RnnModel(object):
         self.grad_clip = grad_clip
         self.time_steps = time_steps
         self.batch_size = batch_size
+        self.kernel = kernel
 
         if not is_training:
             self.batch_size = 1
@@ -63,7 +64,14 @@ class RnnModel(object):
     def build_lstm(self, keep_prob):
         """create lstm cell and init state"""
         def get_cell():
-            cell = tf.contrib.rnn.BasicLSTMCell(self.num_hidden_units)
+            if self.kernel == 'LSTM':
+                cell = tf.contrib.rnn.BasicLSTMCell(self.num_hidden_units)
+                print('LSTM is using...')
+            elif self.kernel == 'GRU':  # GRU RNN
+                cell = tf.contrib.rnn.GRUCell(self.num_hidden_units)
+                print('GRU is using...')
+            else:
+                raise AttributeError
             cell = tf.contrib.rnn.DropoutWrapper(cell, output_keep_prob=keep_prob)
             return cell
         lstm_cell = get_cell()
@@ -217,4 +225,4 @@ class RnnModel(object):
 if __name__ == '__main__':
     num_terminal = base_setting.num_terminal
     num_non_terminal = base_setting.num_non_terminal
-    model = RnnModel(num_non_terminal, num_terminal, is_training=True)
+    model = RnnModel(num_non_terminal, num_terminal, is_training=True, kernel='GRU')
