@@ -53,17 +53,19 @@ class OnlineCompletion():
     def __init__(self):
         self.model = CodeCompletion(num_non_terminal, num_terminal)
 
-    def complete(self, code_path, topk=3):
+    def complete(self, code_path, topk=3, next_n=2):
         ast = code_to_ast(code_path=code_path)
         nt_seq = ast_to_nt_seq(ast)
         int_seq = to_int_nt_seq(nt_seq)
-        topk_token_pairs, topk_pairs_poss = self.model.predict(int_seq, topk=topk)
-        print('\nthe token you may want to write is:')
-        for index, (token, poss) in enumerate(zip(topk_token_pairs, topk_pairs_poss)):
-            n_token, t_token = token
-            n_poss, t_poss = poss
-            print('\ntop{} n_token:{} with possibility:{:.2f}'.format(index+1, n_token, n_poss))
-            print('top{} t_token:{} with possibility:{:.2f}'.format(index+1, t_token, t_poss))
+        topk_token_pairs, topk_pairs_poss = self.model.predict(int_seq, topk=topk, next_n=next_n)
+
+        for i in range(next_n):
+            print('\n\nThe {}th token you may want to write is:  '.format(i+1))
+            for index, (token, poss) in enumerate(zip(topk_token_pairs[i], topk_pairs_poss[i])):
+                n_token, t_token = token
+                n_poss, t_poss = poss
+                print('\ntop{} n_token:{} with possibility:{:.2f}'.format(index+1, n_token, n_poss))
+                print('top{} t_token:{} with possibility:{:.2f}'.format(index+1, t_token, t_poss))
         return topk_token_pairs, topk_pairs_poss
 
 

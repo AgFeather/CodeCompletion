@@ -34,22 +34,26 @@ class CodeCompletion(object):
         saver.restore(self.session, checkpoints_path)
         self.test_log(checkpoints_path + ' is using...')
 
-    def predict(self, int_nt_seq, topk=3):
+    def predict(self, int_nt_seq, topk=3, next_n=1):
         """对外接口，先将所有pre-context转换为int，然后使用trained model进行evaluate"""
-        if define_topk == topk:
-            n_topk_pred, n_topk_poss, t_topk_pred, t_topk_poss = self.eval(int_nt_seq)
+
+        if topk == define_topk:
+            eval_func = self.eval
         else:
-            n_topk_pred, n_topk_poss, t_topk_pred, t_topk_poss = self.eval_without_define_k(int_nt_seq, topk)
+            eval_func = self.eval_without_define_k
 
-        topk_token_pairs = [self.int_to_token(n_int ,t_int)
-                            for n_int, t_int in zip(n_topk_pred, t_topk_pred)]
-        topk_pairs_poss = [(n_poss, t_poss)
-                           for n_poss, t_poss in zip(n_topk_poss, t_topk_poss)]
+        topk_token_pairs = []
+        topk_pairs_poss = []
+        for _ in range(next_n):
+            n_topk_pred, n_topk_poss, t_topk_pred, t_topk_poss = eval_func(int_nt_seq, topk)
 
-        # print('the token you may want to write is:')
-        # print(topk_token_pairs)
-        # print('with possibilities:')
-        # print(topk_pairs_poss)
+            topk_token_pairs.append([self.int_to_token(n_int ,t_int)
+                                for n_int, t_int in zip(n_topk_pred, t_topk_pred)])
+            topk_pairs_poss.append([(n_poss, t_poss)
+                               for n_poss, t_poss in zip(n_topk_poss, t_topk_poss)])
+
+            int_nt_seq = [(n_topk_poss[0], t_topk_pred[0])]
+
         return topk_token_pairs, topk_pairs_poss
 
     def eval(self, prefix, next_n=5):
@@ -73,31 +77,28 @@ class CodeCompletion(object):
             n_topk_poss = n_poss[-1, :]
             t_topk_pred = t_pred[-1, :]
             t_topk_poss = t_poss[-1, :]
-            n_topk_pred.append(n_pred)
-            n_topk_poss.append(n_poss)
-            t_topk_pred.append(t_pred)
-            t_topk_poss.append(t_poss)
 
-            for _ in range(next_n):
-                feed = {self.model.n_input: n_pred[0],
-                        self.model.t_input: t_pred[0],
-                        self.model.keep_prob: 1.,
-                        self.model.lstm_state: lstm_state}
-                n_pred, n_poss, t_pred, t_poss, lstm_state = self.session.run([
-                    self.model.n_topk_pred, self.model.n_topk_poss, self.model.t_topk_pred,
-                    self.model.t_topk_poss, self.model.final_state], feed_dict=feed)
+            # n_topk_pred.append(n_pred)
+            # n_topk_poss.append(n_poss)
+            # t_topk_pred.append(t_pred)
+            # t_topk_poss.append(t_poss)
+            #
+            # for _ in range(next_n-1):
+            #     feed = {self.model.n_input: n_pred[0],
+            #             self.model.t_input: t_pred[0],
+            #             self.model.keep_prob: 1.,
+            #             self.model.lstm_state: lstm_state}
+            #     n_pred, n_poss, t_pred, t_poss, lstm_state = self.session.run([
+            #         self.model.n_topk_pred, self.model.n_topk_poss, self.model.t_topk_pred,
+            #         self.model.t_topk_poss, self.model.final_state], feed_dict=feed)
+            #
+            # n_topk_pred.append(n_pred)
+            # n_topk_poss.append(n_poss)
+            # t_topk_pred.append(t_pred)
+            # t_topk_poss.append(t_poss)
 
-            n_topk_pred.append(n_pred)
-            n_topk_poss.append(n_poss)
-            t_topk_pred.append(t_pred)
-            t_topk_poss.append(t_poss)
 
-        assert n_topk_pred is not None and n_topk_poss is not None and \
-               t_topk_pred is not None and t_topk_poss is not None
-        # n_topk_pred = n_topk_pred[-1, :]
-        # n_topk_poss = n_topk_poss[-1, :]
-        # t_topk_pred = t_topk_pred[-1, :]
-        # t_topk_poss = t_topk_poss[-1, :]
+
 
         return n_topk_pred, n_topk_poss, t_topk_pred, t_topk_poss
 
