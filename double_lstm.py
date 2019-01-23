@@ -13,6 +13,7 @@ sub_int_valid_dir = base_setting.sub_int_valid_dir
 model_save_dir = 'trained_model/double_model/'
 tensorboard_log_dir = base_setting.lstm_tb_log_dir
 training_log_dir = base_setting.lstm_train_log_dir
+valid_log_dir = base_setting.lstm_valid_log_dir
 
 show_every_n = base_setting.show_every_n
 save_every_n = base_setting.save_every_n
@@ -169,7 +170,7 @@ class DualLstmModel():
     def build_optimizer(self, n_loss, t_loss):
         """分别对两个 lstm构建optimizer，但将两个loss合并，构建一个整体optimizer也是可以的"""
         self.decay_epoch = tf.Variable(0, trainable=False)
-        learning_rate = tf.train.exponential_decay(self.learning_rate, self.decay_epoch, 0.2, 0.9)
+        decay_learning_rate = tf.train.exponential_decay(self.learning_rate, self.decay_epoch, 1, 0.9)
         train_vars = tf.trainable_variables()
         nt_var_list = [var for var in train_vars if var.name.startswith('nt_model')]
         tt_var_list = [var for var in train_vars if var.name.startswith('tt_model')]
@@ -177,7 +178,7 @@ class DualLstmModel():
         nt_var_list.extend(input_var_list)
         tt_var_list.extend(input_var_list)
         with tf.name_scope('nt_optimizer'):
-            n_optimizer = tf.train.AdamOptimizer(learning_rate)
+            n_optimizer = tf.train.AdamOptimizer(decay_learning_rate)
             gradient_pair = n_optimizer.compute_gradients(n_loss, var_list=nt_var_list)
             clip_gradient_pair = []
             for grad, var in gradient_pair:
@@ -185,7 +186,7 @@ class DualLstmModel():
                 clip_gradient_pair.append((grad, var))
             n_optimizer = n_optimizer.apply_gradients(clip_gradient_pair)
         with tf.name_scope('tt_optimizer'):
-            t_optimizer = tf.train.AdamOptimizer(learning_rate)
+            t_optimizer = tf.train.AdamOptimizer(decay_learning_rate)
             gradient_pair = t_optimizer.compute_gradients(t_loss, var_list=tt_var_list)
             clip_gradient_pair = []
             for grad, var in gradient_pair:
@@ -199,15 +200,15 @@ class DualLstmModel():
         """分别对两个 lstm构建optimizer，但将两个loss合并，构建一个整体optimizer也是可以的"""
         self.decay_epoch = tf.Variable(0, trainable=False)
         # learning rate decay 0.9 for each epoch
-        learning_rate = tf.train.exponential_decay(self.learning_rate, self.decay_epoch, 0.2, 0.9)
-        optimizer = tf.train.AdamOptimizer(learning_rate)
+        decay_learning_rate = tf.train.exponential_decay(self.learning_rate, self.decay_epoch, 1, 0.9)
+        optimizer = tf.train.AdamOptimizer(decay_learning_rate)
         gradient_pair = optimizer.compute_gradients(loss)
         clip_gradient_pair = []
         for grad, var in gradient_pair:
             grad = tf.clip_by_value(grad, -self.grad_clip, self.grad_clip)
             clip_gradient_pair.append((grad, var))
         optimizer = optimizer.apply_gradients(clip_gradient_pair)
-        return optimizer
+        return optimizer, decay_learning_rate
 
     def build_summary(self, summary_dict):
         for key, value in summary_dict.items():
@@ -255,7 +256,7 @@ class DualLstmModel():
             self.build_topk_prediction(self.n_output, self.t_output)
 
         #self.n_optimizer, self.t_optimizer= self.build_optimizer(self.n_loss, self.t_loss)
-        self.optimizer = self.build_total_optimizer(self.loss)
+        self.optimizer, self.decay_learning_rate = self.build_total_optimizer(self.loss)
 
         summary_dict = {'train loss': self.loss, 'non-terminal loss': self.t_loss,
                         'terminal loss': self.t_loss, 'n_accuracy': self.n_accu,
@@ -265,6 +266,10 @@ class DualLstmModel():
         print('lstm model has been created...')
 
     def train(self):
+        model_info = 'dual lstm model  ' + \
+                     'time_step:{},  batch_size:{} is training...'.format(
+                         self.time_steps, self.batch_size)
+        self.print_and_log(model_info)
         model_save_dir = 'trained_model/double_model/'
         session = tf.Session()
         saver = tf.train.Saver(max_to_keep=self.num_epochs + 1)
@@ -299,7 +304,9 @@ class DualLstmModel():
                             self.nt_lstm_state: nt_lstm_state,
                             self.tt_lstm_state: tt_lstm_state,
                             self.decay_epoch: epoch}
-                    loss, n_loss, t_loss, n_accu, t_accu, topk_n_accu, topk_t_accu, _,  summary_str = \
+                    loss, n_loss, t_loss, \
+                    n_accu, t_accu, topk_n_accu, topk_t_accu, \
+                    _,  learning_rate, summary_str = \
                         session.run([
                             self.loss,
                             self.n_loss,
@@ -311,6 +318,7 @@ class DualLstmModel():
                             # self.n_optimizer,
                             # self.t_optimizer,
                             self.optimizer,
+                            self.decay_learning_rate,
                             self.merged_op], feed_dict=feed)
                     tb_writer.add_summary(summary_str, global_step)
                     tb_writer.flush()
@@ -328,6 +336,7 @@ class DualLstmModel():
                                    'tt_accu:{:.2f}%  '.format(t_accu * 100) + \
                                    'top3_nt_accu:{:.2f}%  '.format(topk_n_accu * 100) + \
                                    'top3_tt_accu:{:.2f}%  '.format(topk_t_accu * 100) + \
+                                   'learning_rate: {:.4f}  '.format(learning_rate) + \
                                    'time cost per batch:{:.2f}/s'.format(batch_end_time - batch_start_time)
                         self.print_and_log(log_info)
 
@@ -391,6 +400,10 @@ class DualLstmModel():
                     "valid_nt_accu:{:.2f}%  ".format(valid_n_accuracy * 100) + \
                     "valid_tt_accu:{:.2f}%  ".format(valid_t_accuracy * 100) + \
                     "valid time cost:{:.2f}s".format(valid_end_time - valid_start_time)
+        if not os.path.exists(valid_log_dir):
+            self.valid_file = open(valid_log_dir, 'w')
+        valid_info = '{} {} {}\n'.format(global_step, valid_n_accuracy, valid_t_accuracy)
+        self.valid_file.write(valid_info)
         self.print_and_log(valid_log)
 
     def print_and_log(self, info):

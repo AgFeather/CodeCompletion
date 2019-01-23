@@ -14,7 +14,8 @@ class DataGenerator():
         self.num_subset_test_data = model_setting.num_sub_test_data
         self.sub_int_train_dir = model_setting.sub_int_train_dir
         self.sub_int_valid_dir = model_setting.sub_int_valid_dir
-        self.sub_int_test_dir = model_setting.sub_int_test_dir
+        #self.sub_int_test_dir = model_setting.sub_int_test_dir
+        self.sub_int_test_dir = model_setting.sub_int_valid_dir
 
     def get_batch(self, data_seq):
         """Generator for training and valid phase,

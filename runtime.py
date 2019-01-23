@@ -53,7 +53,7 @@ class OnlineCompletion():
     def __init__(self):
         self.model = CodeCompletion(num_non_terminal, num_terminal)
 
-    def complete(self, code_path, topk=3, next_n=2):
+    def complete(self, code_path, topk=3, next_n=3):
         ast = code_to_ast(code_path=code_path)
         nt_seq = ast_to_nt_seq(ast)
         int_seq = to_int_nt_seq(nt_seq)

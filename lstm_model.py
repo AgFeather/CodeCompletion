@@ -116,14 +116,12 @@ class RnnModel(object):
     def build_nt_loss(self, n_logits, n_target):
         """calculate the loss function of non-terminal prediction"""
         n_loss = tf.nn.sparse_softmax_cross_entropy_with_logits(logits=n_logits, labels=n_target)
-       # n_loss = tf.nn.softmax_cross_entropy_with_logits_v2(logits=n_logits, labels=n_targets)
         n_loss = tf.reduce_mean(n_loss)
         return n_loss
 
     def build_tt_loss(self, t_logits, t_target):
         """calculate the loss function of terminal prediction"""
         t_loss = tf.nn.sparse_softmax_cross_entropy_with_logits(logits=t_logits, labels=t_target)
-        # t_loss = tf.nn.softmax_cross_entropy_with_logits_v2(logits=t_logits, labels=t_targets)
         t_loss = tf.reduce_mean(t_loss)
         return t_loss
 
@@ -144,7 +142,7 @@ class RnnModel(object):
     def build_optimizer(self, loss):
         """build optimizer for model, using learning rate decay and gradient clip"""
         self.decay_epoch = tf.Variable(0, trainable=False)
-        decay_learning_rate = tf.train.exponential_decay(self.learning_rate, self.decay_epoch, 0.2, 0.9)
+        decay_learning_rate = tf.train.exponential_decay(self.learning_rate, self.decay_epoch, 1, 0.9)
         optimizer = tf.train.AdamOptimizer(decay_learning_rate)
         gradient_pair = optimizer.compute_gradients(loss)
         clip_gradient_pair = []

@@ -28,7 +28,7 @@ class RnnModelTest(object):
         self.session = tf.Session()
         self.time_steps = 50
         which_to_test = 'latest'
-        if which_to_test == 'latest':
+        if not isinstance(which_to_test, int):
             checkpoints_path = tf.train.latest_checkpoint(model_save_dir)
         else:
             checkpoints_path = model_save_dir + 'EPOCH{}.ckpt'.format(int(which_to_test))
@@ -46,7 +46,7 @@ class RnnModelTest(object):
         nt_correct_count = 0.0
         topk_nt_correct_count = 0.0
         topk_tt_correct_count = 0.0
-        test_times = 2000
+        test_times = 1000
         test_step = 0
         self.generator = DataGenerator()
         sub_data_generator = self.generator.get_test_subset_data()
