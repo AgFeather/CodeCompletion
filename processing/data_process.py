@@ -1,13 +1,12 @@
-import numpy as np
-import sys
-
-
-import pickle
 import json
+import sys
 from collections import Counter
 from json.decoder import JSONDecodeError
 
 from setting import Setting
+import utils
+
+
 
 base_setting = Setting()
 
@@ -31,7 +30,6 @@ num_sub_test_data = base_setting.num_sub_test_data
 most_common_termial_num = 30000
 unknown_token = base_setting.unknown_token
 time_steps = base_setting.time_steps
-
 
 
 def dataset_split(is_training=True, subset_size=5000):
@@ -72,7 +70,7 @@ def dataset_split(is_training=True, subset_size=5000):
         if i % subset_size == 0:  # 当读入的ast已经等于给定的subset的大小时
             sub_path = saved_to_path + \
                 'part{}'.format(i // subset_size) + '.json'
-            pickle_save(sub_path, subset_list)  # 将subset dataset保存
+            utils.pickle_save(sub_path, subset_list)  # 将subset dataset保存
             subset_list = []
 
     if is_training:  # 当处理训练数据集时，需要保存映射map，测试数据集则不需要
@@ -190,3 +188,103 @@ def ast_to_seq(binary_tree, run_or_process='process'):
     else:
         output = []
     return output
+
+
+
+
+
+def save_string_int_dict():
+    # 将nonterminal和terminal对应的映射字典保存并返回
+    # 其中，对于terminal只选用most frequent的30000个token
+    tt_token_to_int = {}
+    tt_int_to_token = {}
+    nt_token_to_int = {}
+    nt_int_to_token = {}
+
+    most_common_tuple = terminal_count.most_common(most_common_termial_num)
+    for index, (token, times) in enumerate(most_common_tuple):
+        tt_token_to_int[token] = index
+        tt_int_to_token[index] = token
+    for index, token in enumerate(list(non_terminal_set)):
+        nt_token_to_int[token] = index
+        nt_int_to_token[index] = token
+
+    tt_int_to_token[len(tt_int_to_token)] = unknown_token  # terminal中添加UNK
+    tt_token_to_int[unknown_token] = len(tt_token_to_int)
+
+    utils.pickle_save(data_parameter_dir,
+                [tt_token_to_int, tt_int_to_token, nt_token_to_int, nt_int_to_token])  # 将映射字典保存到本地
+    return tt_token_to_int, tt_int_to_token, nt_token_to_int, nt_int_to_token
+
+
+
+def nt_seq_to_int(time_steps=50, status='TRAIN'):
+    # 对NT seq进行进一步的处理，首先将每个token转换为number，
+    # 然后对于train data和valid data将所有ast-seq extend成一个list 便于训练时的格式转换
+    # 对于test data，将所有ast-seq append，保留各个ast的独立seq
+    tt_token_to_int, tt_int_to_token, nt_token_to_int, nt_int_to_token = utils.load_dict_parameter()
+    total_num_nt_pair = 0
+    if status == 'TRAIN':
+        sub_data_dir = sub_train_data_dir
+        num_sub_data = num_sub_train_data
+        sub_int_data_dir = sub_int_train_dir
+    elif status == 'VALID':
+        sub_data_dir = sub_valid_data_dir
+        num_sub_data = num_sub_valid_data
+        sub_int_data_dir = sub_int_valid_dir
+    elif status == 'TEST':
+        sub_data_dir = sub_test_data_dir
+        num_sub_data = num_sub_test_data
+        sub_int_data_dir = sub_int_test_dir
+    else:
+        print('ERROR! Unknown commend!!')
+        sys.exit(1)
+
+    def get_subset_data():  # 对每个part的nt_sequence读取并返回，等待进行处理
+        for i in range(1, num_sub_data + 1):
+            data_path = sub_data_dir + 'part{}.json'.format(i)
+            data = utils.pickle_load(data_path)
+            yield (i, data)
+
+    subset_generator = get_subset_data()
+    for index, data in subset_generator:
+        data_seq = []
+        for one_ast in data:  # 将每个nt_seq进行截取，并encode成integer，然后保存
+            if len(one_ast) < time_steps:  # 该ast大小不足time step 舍去
+                continue
+            try:
+                nt_int_seq = [(nt_token_to_int[n], tt_token_to_int.get(
+                    t, tt_token_to_int[unknown_token])) for n, t in one_ast]
+            except KeyError:
+                print('key error')
+                continue
+            # 在train和valid中，是直接将所有ast-seq extend到一起，在test中，保留各个ast-seq的独立
+            if status == 'TEST':
+                data_seq.append(nt_int_seq)
+                total_num_nt_pair += len(nt_int_seq)
+            else:
+                data_seq.extend(nt_int_seq)
+                total_num_nt_pair += len(nt_int_seq)
+
+        one_sub_int_data_dir = sub_int_data_dir + 'int_part{}.json'.format(index)
+        utils.pickle_save(one_sub_int_data_dir, data_seq)
+    # old:14,976,250  new:157,237,460  size of training dataset comparison
+    # old: 1,557,285  new: 81,078,099  测试数据集数据量对比
+    print('There are {} nt_pair in {} dataset...'.format(total_num_nt_pair, status))
+
+
+
+
+if __name__ == '__main__':
+
+    operation_list = ['TRAIN', 'TEST', 'VALID']
+    data_process = operation_list[0]
+
+    if data_process == 'TRAIN':
+        # dataset_split(is_training=True)
+        nt_seq_to_int(status='TRAIN')
+    elif data_process == 'TEST':
+        # dataset_split(is_training=False)
+        nt_seq_to_int(status='TEST')
+    elif data_process == 'VALID':
+        nt_seq_to_int(status='VALID')

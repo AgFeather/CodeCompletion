@@ -2,7 +2,7 @@ import tensorflow as tf
 import time
 import os
 
-from lstm_model import RnnModel
+from nn_model.lstm_model import RnnModel
 from setting import Setting
 from data_generator import DataGenerator
 

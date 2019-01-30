@@ -4,6 +4,7 @@ from setting import Setting
 
 base_setting = Setting()
 
+
 model_save_dir = base_setting.lstm_model_save_dir
 tensorboard_log_dir = base_setting.lstm_tb_log_dir
 training_log_dir = base_setting.lstm_train_log_dir

@@ -2,10 +2,9 @@ import tensorflow as tf
 import time
 import math
 
-from lstm_model import RnnModel
+from nn_model.lstm_model import RnnModel
 from data_generator import DataGenerator
 from setting import Setting
-import utils
 
 test_setting = Setting()
 model_save_dir = test_setting.lstm_model_save_dir

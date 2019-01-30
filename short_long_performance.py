@@ -1,11 +1,10 @@
 import tensorflow as tf
 import numpy as np
-import time
 import pickle
 from collections import Counter
 
 import utils
-from basic_lstm import RnnModel
+from nn_model.lstm_model import RnnModel
 from setting import Setting
 
 

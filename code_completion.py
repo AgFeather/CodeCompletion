@@ -3,10 +3,11 @@ import random
 import time
 import pickle
 
-from lstm_model import RnnModel
+from nn_model.lstm_model import RnnModel
 from data_generator import DataGenerator
-from setting import Setting
 import utils
+from setting import Setting
+
 
 test_setting = Setting()
 model_save_dir = test_setting.lstm_model_save_dir
@@ -22,11 +23,11 @@ class CodeCompletion(object):
 
     def __init__(self,
                  num_ntoken,
-                 num_ttoken, ):
+                 num_ttoken, is_runtime=False):
         self.model = RnnModel(num_ntoken, num_ttoken, is_training=False)
         self.log_file = open(completion_log_dir, 'w')
         self.tt_token_to_int, self.tt_int_to_token, self.nt_token_to_int, self.nt_int_to_token = \
-            utils.load_dict_parameter()
+            utils.load_dict_parameter(is_lower=False)
         self.session = tf.Session()
         checkpoints_path = tf.train.latest_checkpoint(model_save_dir)
         saver = tf.train.Saver()
