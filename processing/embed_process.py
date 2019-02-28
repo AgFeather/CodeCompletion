@@ -15,9 +15,10 @@ base_setting = Setting()
 
 js_train_data_dir = base_setting.origin_train_data_dir
 
-data_parameter_dir = base_setting.data_parameter_dir
+data_parameter_dir = '../' + base_setting.data_parameter_dir
 
-train_pair_dir = 'js_dataset/train_pair_data/'
+nt_train_pair_dir = 'js_dataset/train_pair_data/nt_train_pair/'
+tt_train_pair_dir = 'js_dataset/train_pair_data/tt_train_pair/'
 
 num_sub_valid_data = base_setting.num_sub_valid_data
 num_sub_train_data = base_setting.num_sub_train_data
@@ -28,6 +29,9 @@ unknown_token = base_setting.unknown_token
 time_steps = base_setting.time_steps
 
 
+parameter_file = open(data_parameter_dir, 'rb')
+tt_token_to_int, tt_int_to_token, nt_token_to_int, nt_int_to_token = pickle.load(parameter_file)
+
 
 def dataset_split(subset_size=5000):
     """读取原始AST数据集，并将其分割成多个subset data
@@ -35,15 +39,15 @@ def dataset_split(subset_size=5000):
 
     data_path = js_train_data_dir
     total_size = 100000
-    saved_to_path = train_pair_dir
 
     file = open(data_path, 'r')
-    train_pairs_list = []
+    nt_train_pairs_list = []
+    tt_train_pairs_list = []
     for i in range(1, total_size + 1):
         try:
             line = file.readline()  # read a lind from file(one ast)
             ast = json.loads(line)  # transform it to json format
-            one_ast_pairs = generate_train_pair(ast)
+            nt_train_pairs, tt_train_pairs = generate_train_pair(ast)
         except UnicodeDecodeError as error:  # arise by readline
             print(error)
         except JSONDecodeError as error:  # arise by json_load
@@ -53,13 +57,18 @@ def dataset_split(subset_size=5000):
         except BaseException:
             print('other unknown error, plesae check the code')
         else:
-            train_pairs_list.append(one_ast_pairs)
+            nt_train_pairs_list.extend(nt_train_pairs)
+            tt_train_pairs_list.extend(tt_train_pairs)
 
         if i % subset_size == 0:  # 当读入的ast已经等于给定的subset的大小时
-            sub_path = saved_to_path + \
+            nt_pair_path = nt_train_pair_dir + \
                 'part{}'.format(i // subset_size) + '.json'
-            pickle_save(sub_path, train_pairs_list)  # 将subset dataset保存
-            train_pairs_list = []
+            tt_pair_path = tt_train_pair_dir + \
+                'part{}'.format(i // subset_size) + '.json'
+            pickle_save(nt_pair_path, nt_train_pairs_list)
+            pickle_save(tt_pair_path, tt_train_pairs_list)
+            nt_train_pairs_list = []
+            tt_train_pairs_list = []
 
 
 def add_two_bits_info(ast, node, brother_map):
@@ -124,42 +133,107 @@ def node_to_string(node):
 
     return string_node
 
-def string_to_int(node):
-    pass
 
+def string_to_int(string_node, tt_or_nt):
+    if tt_or_nt == 'tt':
+        return tt_token_to_int[string_node]
+    elif tt_or_nt == 'nt':
+        return nt_token_to_int[string_node]
+    else:
+        raise AttributeError
+
+
+def get_nt_train_pair(ast, node, nt_v_dim):
+    nt_train_x = node_to_string(node)
+    nt_train_ny_index = node['father'][-nt_v_dim:]  # 对于一个nt-node所有father context的index
+    if node['hasNonTerminalChild']:
+        nt_train_ty_index = [child for child in node['children'] if ast[child]['isTerminal']]
+    else:
+        nt_train_ty_index = []  # todo:修改如果该nt-node不包含terminal node时的表示
+    nt_train_ny = []
+    nt_train_ty = []
+    try:
+        for ny_index in nt_train_ny_index:
+            # 将所有的father context 转换为对应string
+            string_node = node_to_string(ast[ny_index])
+            # 再转换为对应的int
+            nt_train_ny.append(string_to_int(string_node, 'nt'))
+        for ty_index in nt_train_ty_index:
+            # 将所有terminal context转换为对应的string
+            string_node = node_to_string(ast[ty_index])
+            nt_train_ty.append(string_to_int(string_node, 'nt'))
+    except KeyError:
+        raise KeyError
+
+    nt_train_pair = (nt_train_x, nt_train_ny, nt_train_ty)
+    return nt_train_pair
+
+
+def get_tt_train_pair(ast, node, tt_v_dim, tt_h_dim):
+    tt_train_ny = []
+    tt_train_ty = []
+    for index, child_index in enumerate(node['children']):
+        child = ast[child_index]
+        if child['isTerminal']:
+            tt_train_x = node_to_string(child)
+            tt_train_ny_index = child['father'][-tt_v_dim:]
+            tt_train_ty_index = []
+            for i in range(index - tt_h_dim, index + tt_h_dim + 1):
+                if i == index or i >= len(node['children']):
+                    continue
+                terminal_context_index = node['children'][i]
+                if ast[terminal_context_index]['isTerminal']:
+                    tt_train_ty_index.append(terminal_context_index)
+
+            try:
+                for ny_index in tt_train_ny_index:
+                    string_node = node_to_string(ast[ny_index])
+                    tt_train_ny.append(string_to_int(string_node, 'tt'))
+                for ty_index in tt_train_ty_index:
+                    string_node = node_to_string(ast[ty_index])
+                    tt_train_ny.append(string_to_int(string_node, 'tt'))
+            except KeyError:
+                raise KeyError
+
+            tt_train_pair = (tt_train_x, tt_train_ny, tt_train_ty)
+            return tt_train_pair
+
+
+# todo:检查生成的train pair是否正确
 def generate_train_pair(ast, nt_v_dim=2, tt_v_dim=2, tt_h_dim=2):
     info_ast = add_info(ast)
     nt_train_pair_list = []
     tt_train_pair_list = []
     for node in info_ast:
+        if isinstance(node, str):
+            continue
         if not node['isTerminal']:
-
             # 该node为nt-node，所以构建一个nt_train_pair
-            nt_train_x = node_to_string(node)
-            nt_train_ny_index = node['father'][-nt_v_dim:]  # 对于一个nt-node所有father context的index
-            if node['hasNonTerminalChild']:
-                nt_train_ty_index = [child for child in node['children'] if ast[child]['isTerminal']]
+            try:
+                nt_train_pair = get_nt_train_pair(ast, node, nt_v_dim)
+            except KeyError:
+                print("nt key error")
             else:
-                nt_train_ty_index = []  #todo:修改如果该nt-node不包含terminal node时的表示
-            nt_train_ny = []
-            nt_train_ty = []
-            for ny_index in nt_train_ny_index:
-                # 将所有的father context 转换为对应string
-                string_node = node_to_string(ast[ny_index])
-                # 再转换为对应的int
-                nt_train_ny.append(string_to_int(string_node))
-            for ty_index in nt_train_ty_index:
-                # 将所有terminal context转换为对应的string
-                string_node = node_to_string(ast[ty_index])
-                nt_train_ty.append(string_to_int(string_node))
-
-            nt_train_pair = (nt_train_x, nt_train_ny, nt_train_ty)
-            nt_train_pair_list.append(nt_train_pair)
+                nt_train_pair_list.append(nt_train_pair)
 
             if node['hasNonTerminalChild']:
                 # 说明该nt-node包含terminal child node，将所有terminal node也用来构建train pair
-                for child in node['children']:
-                    if ast[child]['isTerminal']:
-                        tt_train_x = node_to_string(ast[child])
+                try:
+                    tt_train_pair = get_tt_train_pair(ast, node, tt_v_dim, tt_h_dim)
+                except KeyError:
+                    print('tt key error')
+                else:
+                    tt_train_pair_list.append(tt_train_pair)
+
+    return nt_train_pair_list, tt_train_pair_list
 
 
+
+
+
+if __name__ == '__main__':
+    import examples
+    ast = examples.ast_example
+    # info_ast = add_info(ast)
+    # print(info_ast)
+    nt_train_pair_list, tt_train_pair_list = generate_train_pair(ast)
