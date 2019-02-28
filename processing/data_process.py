@@ -104,8 +104,6 @@ def bulid_binary_tree(ast):
                 brother_map[bro] = child_list[i + 1]
         else:
             node['isTerminal'] = True
-            if 'children' in node.keys():
-                print(node)
     return ast
 
 
@@ -188,9 +186,6 @@ def ast_to_seq(binary_tree, run_or_process='process'):
     else:
         output = []
     return output
-
-
-
 
 
 def save_string_int_dict():
