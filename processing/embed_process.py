@@ -95,7 +95,7 @@ def add_info(ast):
             ast[index] = 'EOF'
             break
 
-        if 'children' in node.keys():
+        if 'children' in node.keys():  # 说明是non-terminal node
             for child_index in node['children']:
                 child = ast[child_index]
                 child['father'] = []
@@ -136,32 +136,53 @@ def node_to_string(node):
 
 def string_to_int(string_node, tt_or_nt):
     if tt_or_nt == 'tt':
-        return tt_token_to_int[string_node]
+        if string_node not in tt_token_to_int.keys():
+            int_node = tt_token_to_int[unknown_token]
+        else:
+            int_node = tt_token_to_int[string_node]
+        return int_node
     elif tt_or_nt == 'nt':
         return nt_token_to_int[string_node]
     else:
         raise AttributeError
 
 
+def has_terminal_child(ast, node):  # 判断给定节点是否包含Teminal node child
+    for child in node['children']:
+        if ast[child]['isTerminal']:
+            return True
+    return False
+
+
 def get_nt_train_pair(ast, node, nt_v_dim):
-    nt_train_x = node_to_string(node)
+    try:
+        string_train_x = node_to_string(node)
+        nt_train_x = string_to_int(string_train_x, 'nt')
+    except:
+        print('ERROR2')
     nt_train_ny_index = node['father'][-nt_v_dim:]  # 对于一个nt-node所有father context的index
-    if node['hasNonTerminalChild']:
+
+    if has_terminal_child(ast, node):  # 找到所有Teminal context
         nt_train_ty_index = [child for child in node['children'] if ast[child]['isTerminal']]
     else:
-        nt_train_ty_index = []  # todo:修改如果该nt-node不包含terminal node时的表示
+        nt_train_ty_index = 'EMPTY'
+
     nt_train_ny = []
     nt_train_ty = []
     try:
         for ny_index in nt_train_ny_index:
-            # 将所有的father context 转换为对应string
+            # 将所有的father context 转换为对应string, 再转换为对应的int
             string_node = node_to_string(ast[ny_index])
-            # 再转换为对应的int
             nt_train_ny.append(string_to_int(string_node, 'nt'))
-        for ty_index in nt_train_ty_index:
-            # 将所有terminal context转换为对应的string
-            string_node = node_to_string(ast[ty_index])
-            nt_train_ty.append(string_to_int(string_node, 'nt'))
+
+        if isinstance(nt_train_ty_index, str):  # 说明是empty
+            print(node)
+            nt_train_ty.append(string_to_int(nt_train_ty_index, 'tt'))
+        else:
+            for ty_index in nt_train_ty_index:
+                # 将所有terminal context转换为对应的string, 再转换为对应的int
+                string_node = node_to_string(ast[ty_index])
+                nt_train_ty.append(string_to_int(string_node, 'tt'))
     except KeyError:
         raise KeyError
 
@@ -175,7 +196,11 @@ def get_tt_train_pair(ast, node, tt_v_dim, tt_h_dim):
     for index, child_index in enumerate(node['children']):
         child = ast[child_index]
         if child['isTerminal']:
-            tt_train_x = node_to_string(child)
+            string_train_x = node_to_string(child)
+            try:
+                tt_train_x = string_to_int(string_train_x, 'tt')
+            except:
+                print('ERROR1')
             tt_train_ny_index = child['father'][-tt_v_dim:]
             tt_train_ty_index = []
             for i in range(index - tt_h_dim, index + tt_h_dim + 1):
@@ -188,7 +213,7 @@ def get_tt_train_pair(ast, node, tt_v_dim, tt_h_dim):
             try:
                 for ny_index in tt_train_ny_index:
                     string_node = node_to_string(ast[ny_index])
-                    tt_train_ny.append(string_to_int(string_node, 'tt'))
+                    tt_train_ny.append(string_to_int(string_node, 'nt'))
                 for ty_index in tt_train_ty_index:
                     string_node = node_to_string(ast[ty_index])
                     tt_train_ny.append(string_to_int(string_node, 'tt'))
@@ -200,13 +225,15 @@ def get_tt_train_pair(ast, node, tt_v_dim, tt_h_dim):
 
 
 # todo:检查生成的train pair是否正确
+# todo:terminal train pair中的None是如何产生的
 def generate_train_pair(ast, nt_v_dim=2, tt_v_dim=2, tt_h_dim=2):
     info_ast = add_info(ast)
     nt_train_pair_list = []
     tt_train_pair_list = []
     for node in info_ast:
-        if isinstance(node, str):
+        if isinstance(node, str):  # 过滤掉最后的EOF
             continue
+
         if not node['isTerminal']:
             # 该node为nt-node，所以构建一个nt_train_pair
             try:
@@ -237,3 +264,5 @@ if __name__ == '__main__':
     # info_ast = add_info(ast)
     # print(info_ast)
     nt_train_pair_list, tt_train_pair_list = generate_train_pair(ast)
+    print(nt_train_pair_list)
+    #print(tt_train_pair_list)
