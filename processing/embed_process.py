@@ -155,6 +155,9 @@ def has_terminal_child(ast, node):  # 判断给定节点是否包含Teminal node
 
 
 def get_nt_train_pair(ast, node, nt_v_dim):
+    nt_train_ny = []
+    nt_train_ty = []
+    nt_train_x = None
     try:
         string_train_x = node_to_string(node)
         nt_train_x = string_to_int(string_train_x, 'nt')
@@ -167,8 +170,7 @@ def get_nt_train_pair(ast, node, nt_v_dim):
     else:
         nt_train_ty_index = 'EMPTY'
 
-    nt_train_ny = []
-    nt_train_ty = []
+
     try:
         for ny_index in nt_train_ny_index:
             # 将所有的father context 转换为对应string, 再转换为对应的int
@@ -191,42 +193,50 @@ def get_nt_train_pair(ast, node, nt_v_dim):
 
 
 def get_tt_train_pair(ast, node, tt_v_dim, tt_h_dim):
-    tt_train_ny = []
-    tt_train_ty = []
+    # 根据输入的nt node的所有children terminal node构建 tt training pair
+    train_x = None
+    train_ny = []
+    train_ty = []
+    train_pair_list = []
     for index, child_index in enumerate(node['children']):
         child = ast[child_index]
         if child['isTerminal']:
-            string_train_x = node_to_string(child)
+            # 该child node为terminal node，构建一个training pair
             try:
-                tt_train_x = string_to_int(string_train_x, 'tt')
+                string_train_x = node_to_string(child)
+                train_x = string_to_int(string_train_x, 'tt')
             except:
                 print('ERROR1')
-            tt_train_ny_index = child['father'][-tt_v_dim:]
-            tt_train_ty_index = []
+            train_ny_index = child['father'][-tt_v_dim:] # 构建指定的non-terminal father context
+            train_ty_index = []
             for i in range(index - tt_h_dim, index + tt_h_dim + 1):
-                if i == index or i >= len(node['children']):
+                if i == index or i >= len(node['children']) or i < 0:
                     continue
                 terminal_context_index = node['children'][i]
                 if ast[terminal_context_index]['isTerminal']:
-                    tt_train_ty_index.append(terminal_context_index)
+                    train_ty_index.append(terminal_context_index)
 
             try:
-                for ny_index in tt_train_ny_index:
+                for ny_index in train_ny_index:
                     string_node = node_to_string(ast[ny_index])
-                    tt_train_ny.append(string_to_int(string_node, 'nt'))
-                for ty_index in tt_train_ty_index:
+                    train_ny.append(string_to_int(string_node, 'nt'))
+                for ty_index in train_ty_index:
                     string_node = node_to_string(ast[ty_index])
-                    tt_train_ny.append(string_to_int(string_node, 'tt'))
+                    train_ty.append(string_to_int(string_node, 'tt'))
             except KeyError:
                 raise KeyError
 
-            tt_train_pair = (tt_train_x, tt_train_ny, tt_train_ty)
-            return tt_train_pair
+            if len(train_ty) == 0: # 当前的train x没有 terminal context，所以添加一个EMTPY node
+                train_ty.append(string_to_int('EMPTY', 'tt'))
+
+            train_pair = (train_x, train_ny, train_ty)
+            train_pair_list.append(train_pair)
+    return train_pair_list
 
 
 # todo:检查生成的train pair是否正确
-# todo:terminal train pair中的None是如何产生的
 def generate_train_pair(ast, nt_v_dim=2, tt_v_dim=2, tt_h_dim=2):
+    """生成nt-train-pair 和 tt-train-pair"""
     info_ast = add_info(ast)
     nt_train_pair_list = []
     tt_train_pair_list = []
@@ -243,14 +253,14 @@ def generate_train_pair(ast, nt_v_dim=2, tt_v_dim=2, tt_h_dim=2):
             else:
                 nt_train_pair_list.append(nt_train_pair)
 
-            if node['hasNonTerminalChild']:
+            if has_terminal_child(ast, node):
                 # 说明该nt-node包含terminal child node，将所有terminal node也用来构建train pair
                 try:
                     tt_train_pair = get_tt_train_pair(ast, node, tt_v_dim, tt_h_dim)
                 except KeyError:
                     print('tt key error')
                 else:
-                    tt_train_pair_list.append(tt_train_pair)
+                    tt_train_pair_list.extend(tt_train_pair)
 
     return nt_train_pair_list, tt_train_pair_list
 
@@ -265,4 +275,4 @@ if __name__ == '__main__':
     # print(info_ast)
     nt_train_pair_list, tt_train_pair_list = generate_train_pair(ast)
     print(nt_train_pair_list)
-    #print(tt_train_pair_list)
+    print(tt_train_pair_list)
