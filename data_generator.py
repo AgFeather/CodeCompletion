@@ -86,3 +86,31 @@ class DataGenerator():
             with open(self.sub_int_test_dir + 'int_part{}.json'.format(index), 'rb') as file:
                 subset_data = pickle.load(file)
                 yield index, subset_data
+
+
+    # embedding model node2vec的batch generator
+    def get_embedding_sub_data(self, cate):
+        nt_train_pair_dir = '../js_dataset/train_pair_data/nt_train_pair/'
+        tt_train_pair_dir = '../js_dataset/train_pair_data/tt_train_pair/'
+
+        if cate == 'nt':
+            path = nt_train_pair_dir
+        elif cate == 'tt':
+            path = tt_train_pair_dir
+        else:
+            path = 'error'
+        self.num_subset_embed_data = 20
+        for index in range(1, self.num_subset_embed_data + 1):
+            sub_path = path + 'part{}.json'.format(index)
+            with open(sub_path, 'rb') as file:
+                subset_data = pickle.load(file)
+                yield index, subset_data
+
+
+    def get_embedding_batch(self, data):
+        data = np.array(data)
+        for index in range(0, len(data), self.time_steps):
+            batch_x = data[index: index+self.time_steps, 0].reshape([1, -1])
+            batch_ny = data[index: index+self.time_steps, 1].reshape([1, -1])
+            batch_ty = data[index: index+self.time_steps, 2].reshape([1, -1])
+            yield batch_x, batch_ny, batch_ty

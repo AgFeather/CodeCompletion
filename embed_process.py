@@ -1,6 +1,3 @@
-import numpy as np
-
-
 import pickle
 import json
 from json.decoder import JSONDecodeError
@@ -9,6 +6,12 @@ from setting import Setting
 from utils import pickle_save
 
 base_setting = Setting()
+
+
+"""Process original dataset, and generate two kinds of trianing pairs and save
+(non-terminal node, non-terminal context, terminal context)
+(terminal node, non-terminal context, terminal context)
+"""
 
 
 js_train_data_dir = base_setting.origin_train_data_dir
@@ -73,8 +76,8 @@ def dataset_training_pair(subset_size=5000):
             nt_train_pairs_list = []
             tt_train_pairs_list = []
 
-    print("Number of non-terminal training pairs: {}".format(num_nt_train_pair))
-    print("Number of terminal trianing pairs: {}".format(num_tt_train_pair))
+    print("Number of non-terminal training pairs: {}".format(num_nt_train_pair))  # 89512876
+    print("Number of terminal trianing pairs: {}".format(num_tt_train_pair))  # 82839660
 
 def add_two_bits_info(ast, node, brother_map):
     # 向每个节点添加两bit的额外信息：hasNonTerminalChild和hasSibling
@@ -174,7 +177,7 @@ def get_nt_train_pair(ast, node, nt_v_dim):
         string_train_x = node_to_string(node)
         nt_train_x = string_to_int(string_train_x, 'nt')
     except:
-        print('ERROR2')
+        print('nt string to int error')
 
     nt_train_ny_index = node['father'][-nt_v_dim:]  # 对于一个nt-node所有father context的index
     if has_non_terminal_child(ast, node):  # 将该node的所有non-terminal child也加入到non-terminal context中
@@ -222,7 +225,7 @@ def get_tt_train_pair(ast, node, tt_v_dim, tt_h_dim):
                 string_train_x = node_to_string(child)
                 train_x = string_to_int(string_train_x, 'tt')
             except:
-                print('ERROR1')
+                print('tt string to int error')
             train_ny_index = child['father'][-tt_v_dim:] # 构建指定的non-terminal father context
             train_ty_index = []
             for i in range(index - tt_h_dim, index + tt_h_dim + 1):
