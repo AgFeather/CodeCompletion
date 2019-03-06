@@ -1,8 +1,12 @@
 import tensorflow as tf
+import os
+import sys
+sys.path.append('..')
 
 from data_generator import DataGenerator
 from setting import Setting
-import os
+
+
 
 embed_setting = Setting()
 show_every_n = embed_setting.show_every_n * 2
