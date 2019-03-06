@@ -119,7 +119,7 @@ class TrainModel(object):
                         'epoch valid nt_accu:{:.2f}%  '.format(valid_n_accu) + \
                         'epoch valid tt_accu:{:.2f}%  '.format(valid_t_accu) + \
                         'time cost this epoch:{:.2f}/s  '.format(epoch_cost_time) + '\n'
-            saver.save(session, model_save_dir + 'EPOCH{}.ckpt'.format(epoch, batch_step))
+            saver.save(session, model_save_dir + 'EPOCH{}.ckpt'.format(epoch))
             self.print_and_log(epoch_log)
             self.print_and_log('EPOCH{} model saved'.format(epoch))
 

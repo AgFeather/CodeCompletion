@@ -14,9 +14,9 @@ save_every_n = embed_setting.save_every_n
 num_nt_token = embed_setting.num_non_terminal
 num_tt_token = embed_setting.num_terminal
 
-model_save_path = 'trained_model/node2vec/node2vec_tt.model'
-nt_train_pair_dir = 'js_dataset/train_pair_data/nt_train_pair/'
-tt_train_pair_dir = 'js_dataset/train_pair_data/tt_train_pair/'
+model_save_dir = '../trained_model/node2vec/'
+tensorboard_log_dir = '../log_info/tensorboard_log/node2vec/'
+
 training_log_dir = embed_setting.node2vec_train_log_dir
 
 
@@ -122,11 +122,18 @@ class NodeToVec_NT(object):
         self.loss = self.build_loss(self.nt_loss, self.tt_loss)
         self.optimizer = self.build_optimizer(self.loss)
 
+        tf.summary.scalar('loss', self.loss)
+        tf.summary.scalar('n_loss', self.nt_loss)
+        tf.summary.scalar('t_loss', self.tt_loss)
+        self.merged_op = tf.summary.merge_all()
+
     def train(self):
         global_step = 0
         saver = tf.train.Saver(max_to_keep=self.num_epochs + 1)
+
         session = tf.Session()
         session.run(tf.global_variables_initializer())
+        tb_writer = tf.summary.FileWriter(tensorboard_log_dir, session.graph)
         generator = DataGenerator()
         for epoch in range(1, self.num_epochs+1):
             data_gen = generator.get_embedding_sub_data(cate='nt')
@@ -139,8 +146,11 @@ class NodeToVec_NT(object):
                         self.nt_target:batch_nt_y,
                         self.tt_target:batch_tt_y,
                     }
-                    n_loss, t_loss, loss, _ = session.run([
-                        self.nt_loss, self.tt_loss, self.loss, self.optimizer], feed_dict=feed)
+                    n_loss, t_loss, loss, _, summary_str = session.run([
+                        self.nt_loss, self.tt_loss, self.loss, self.optimizer, self.merged_op], feed_dict=feed)
+
+                    tb_writer.add_summary(summary_str, global_step)
+                    tb_writer.flush()
 
                     if global_step % show_every_n == 0:
                         log_info = 'epoch:{}/{}  '.format(epoch, self.num_epochs) + \
@@ -148,8 +158,9 @@ class NodeToVec_NT(object):
                                    'loss:{:.2f}(n_loss:{:.2f} + t_loss:{:.2f})  '.format(loss, n_loss, t_loss)
                         self.print_and_log(log_info)
 
+
             print('epoch{} model saved...'.format(epoch))
-            saver.save(session, save_path=model_save_path)
+            saver.save(session, model_save_dir + 'EPOCH{}.ckpt'.format(epoch))
 
         session.close()
 
