@@ -10,7 +10,7 @@ save_every_n = embed_setting.save_every_n
 num_nt_token = embed_setting.num_non_terminal
 num_tt_token = embed_setting.num_terminal
 
-model_save_path = 'trained_model/node2vector/node2vec.model'
+model_save_path = 'trained_model/node2vector/node2vec_tt.model'
 nt_train_pair_dir = 'js_dataset/train_pair_data/nt_train_pair/'
 tt_train_pair_dir = 'js_dataset/train_pair_data/tt_train_pair/'
 
@@ -19,7 +19,7 @@ tt_train_pair_dir = 'js_dataset/train_pair_data/tt_train_pair/'
 
 
 
-class NodeToVec_T(object):
+class NodeToVec_TT(object):
 
     def __init__(self, num_ntoken, num_ttoken,
                  embed_dim=300,
@@ -96,7 +96,7 @@ class NodeToVec_T(object):
         tt_bias = tf.get_variable('tt_bias', [self.num_ttoken], dtype=tf.float32,
                                   initializer=tf.truncated_normal_initializer)
         loss = tf.nn.sampled_softmax_loss(tt_weight, tt_bias, target, embed_input, self.n_sampled,
-                                          self.num_ttoken, num_true=self.tt_t_dim)
+                                          self.num_ttoken, num_true=self.tt_t_dim * 2)
         loss = tf.reduce_mean(loss)
         return loss
 
@@ -151,3 +151,8 @@ class NodeToVec_T(object):
                 saver.save(session, save_path=model_save_path)
 
         session.close()
+
+
+if __name__ == '__main__':
+    model = NodeToVec_TT(num_nt_token, num_tt_token)
+    model.train()

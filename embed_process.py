@@ -36,7 +36,7 @@ tt_token_to_int, tt_int_to_token, nt_token_to_int, nt_int_to_token = pickle.load
 nt_n_dim = 3 # 需要乘2
 nt_t_dim = 6 # non-terminal的前六个terminal child node
 tt_n_dim = 4 # 需要乘2 （似乎不应该乘2）
-tt_t_dim = 2 # terminal node前后各两个terminal node作为context 需要乘2
+tt_t_dim = 2 # 需要乘2 terminal node前后各两个terminal node作为context
 
 def dataset_training_pair(subset_size=5000):
     """读取原始AST数据集，并将其分割成多个subset data

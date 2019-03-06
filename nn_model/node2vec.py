@@ -10,7 +10,7 @@ save_every_n = embed_setting.save_every_n
 num_nt_token = embed_setting.num_non_terminal
 num_tt_token = embed_setting.num_terminal
 
-model_save_path = 'trained_model/node2vector/node2vec.model'
+model_save_path = 'trained_model/node2vec/node2vec_tt.model'
 nt_train_pair_dir = 'js_dataset/train_pair_data/nt_train_pair/'
 tt_train_pair_dir = 'js_dataset/train_pair_data/tt_train_pair/'
 
@@ -143,8 +143,8 @@ class NodeToVec_NT(object):
                             'loss(n+t):{:.3f} ({:.3f} + {:.3f}) '.format(loss, n_loss, t_loss)
                         print(train_info)
 
-                print('epoch{} model saved...'.format(epoch))
-                saver.save(session, save_path=model_save_path)
+            print('epoch{} model saved...'.format(epoch))
+            saver.save(session, save_path=model_save_path)
 
         session.close()
 
