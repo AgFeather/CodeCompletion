@@ -33,13 +33,17 @@ time_steps = base_setting.time_steps
 parameter_file = open(data_parameter_dir, 'rb')
 tt_token_to_int, tt_int_to_token, nt_token_to_int, nt_int_to_token = pickle.load(parameter_file)
 
+nt_n_dim = 3 # 需要乘2
+nt_t_dim = 6 # non-terminal的前六个terminal child node
+tt_n_dim = 4 # 需要乘2 （似乎不应该乘2）
+tt_t_dim = 2 # terminal node前后各两个terminal node作为context 需要乘2
 
 def dataset_training_pair(subset_size=5000):
     """读取原始AST数据集，并将其分割成多个subset data
     对每个AST，生成多个training pair"""
-
     data_path = js_train_data_dir
     total_size = 100000
+    print('begin to generate training pairs from dataset:{}'.format(data_path))
 
     file = open(data_path, 'r')
     nt_train_pairs_list = []
@@ -50,7 +54,7 @@ def dataset_training_pair(subset_size=5000):
         try:
             line = file.readline()  # read a lind from file(one ast)
             ast = json.loads(line)  # transform it to json format
-            nt_train_pairs, tt_train_pairs = generate_train_pair(ast)
+            nt_train_pairs, tt_train_pairs = generate_train_pair(ast, nt_n_dim, nt_t_dim, tt_n_dim, tt_t_dim)
         except UnicodeDecodeError as error:  # arise by readline
             print(error)
         except JSONDecodeError as error:  # arise by json_load
@@ -64,6 +68,10 @@ def dataset_training_pair(subset_size=5000):
             tt_train_pairs_list.extend(tt_train_pairs)
 
         if i % subset_size == 0:  # 当读入的ast已经等于给定的subset的大小时
+            # 对生成的training是否符合规格进行检查
+            # check_correct(nt_train_pairs_list, nt_n_dim, nt_t_dim)
+            # check_correct(tt_train_pairs_list, tt_n_dim, tt_t_dim)
+
             nt_pair_path = nt_train_pair_dir + \
                 'part{}'.format(i // subset_size) + '.json'
             tt_pair_path = tt_train_pair_dir + \
@@ -71,13 +79,18 @@ def dataset_training_pair(subset_size=5000):
             pickle_save(nt_pair_path, nt_train_pairs_list)
             pickle_save(tt_pair_path, tt_train_pairs_list)
 
+            print('There are {} nt_train_pairs in {}th subset'.format(len(nt_train_pairs_list), i))
+            print('There are {} tt_train_pairs in {}th subset'.format(len(tt_train_pairs_list), i))
+
             num_nt_train_pair += len(nt_train_pairs_list)
             num_tt_train_pair += len(tt_train_pairs_list)
             nt_train_pairs_list = []
             tt_train_pairs_list = []
 
-    print("Number of non-terminal training pairs: {}".format(num_nt_train_pair))  # 89512876
+    print("Number of non-terminal training pairs: {}".format(num_nt_train_pair))  # 89512876 - 3
     print("Number of terminal trianing pairs: {}".format(num_tt_train_pair))  # 82839660
+
+
 
 def add_two_bits_info(ast, node, brother_map):
     # 向每个节点添加两bit的额外信息：hasNonTerminalChild和hasSibling
@@ -168,8 +181,7 @@ def has_non_terminal_child(ast, node):
     return False
 
 
-
-def get_nt_train_pair(ast, node, nt_v_dim):
+def get_nt_train_pair(ast, node, nt_n_dim, nt_t_dim):
     nt_train_ny = []
     nt_train_ty = []
     nt_train_x = None
@@ -179,17 +191,18 @@ def get_nt_train_pair(ast, node, nt_v_dim):
     except:
         print('nt string to int error')
 
-    nt_train_ny_index = node['father'][-nt_v_dim:]  # 对于一个nt-node所有father context的index
+    nt_train_ny_index = node['father'][-nt_n_dim:]  # 对于一个nt-node所有father context的index
+    nt_train_ny_index = set(nt_train_ny_index)
     if has_non_terminal_child(ast, node):  # 将该node的所有non-terminal child也加入到non-terminal context中
         for child in node['children']: # 只将所有的child nt-node加入，而不考虑更深的context（实现起来更简单，但精度可能不高）
             if not ast[child]['isTerminal']:
-                nt_train_ny_index.append(child)
+                nt_train_ny_index.add(child)
 
     if has_terminal_child(ast, node):  # 找到所有Teminal context
         nt_train_ty_index = [child for child in node['children'] if ast[child]['isTerminal']]
+        nt_train_ty_index = set(nt_train_ty_index)
     else:
         nt_train_ty_index = 'EMPTY'
-
 
     try:
         for ny_index in nt_train_ny_index:
@@ -207,17 +220,26 @@ def get_nt_train_pair(ast, node, nt_v_dim):
     except KeyError:
         raise KeyError
 
+    # 将两个context剪裁到指定尺寸
+    if len(nt_train_ny) < nt_n_dim * 2:
+        nt_train_ny = nt_train_ny * nt_n_dim * 2
+    nt_train_ny = nt_train_ny[:nt_n_dim*2]
+    if len(nt_train_ty) < nt_t_dim:
+        nt_train_ty = nt_train_ty * nt_t_dim
+    nt_train_ty = nt_train_ty[:nt_t_dim]
+
     nt_train_pair = (nt_train_x, nt_train_ny, nt_train_ty)
     return nt_train_pair
 
 
-def get_tt_train_pair(ast, node, tt_v_dim, tt_h_dim):
+def get_tt_train_pair(ast, node, tt_n_dim, tt_t_dim):
     # 根据输入的nt node的所有children terminal node构建 tt training pair
-    train_x = None
-    train_ny = []
-    train_ty = []
+
     train_pair_list = []
     for index, child_index in enumerate(node['children']):
+        train_x = None
+        train_ny = []
+        train_ty = []
         child = ast[child_index]
         if child['isTerminal']:
             # 该child node为terminal node，构建一个training pair
@@ -226,16 +248,18 @@ def get_tt_train_pair(ast, node, tt_v_dim, tt_h_dim):
                 train_x = string_to_int(string_train_x, 'tt')
             except:
                 print('tt string to int error')
-            train_ny_index = child['father'][-tt_v_dim:] # 构建指定的non-terminal father context
-            train_ty_index = []
-            for i in range(index - tt_h_dim, index + tt_h_dim + 1):
+            train_ny_index = child['father'][-tt_n_dim:] # 构建指定的non-terminal father context
+            train_ny_index = set(train_ny_index)
+            train_ty_index = set()
+            for i in range(index - tt_t_dim, index + tt_t_dim + 1):
                 if i == index or i >= len(node['children']) or i < 0:
                     continue
                 terminal_context_index = node['children'][i]
                 if ast[terminal_context_index]['isTerminal']:
-                    train_ty_index.append(terminal_context_index)
+                    train_ty_index.add(terminal_context_index)
 
             try:
+                # 将两个context改成set
                 for ny_index in train_ny_index:
                     string_node = node_to_string(ast[ny_index])
                     train_ny.append(string_to_int(string_node, 'nt'))
@@ -248,12 +272,22 @@ def get_tt_train_pair(ast, node, tt_v_dim, tt_h_dim):
             if len(train_ty) == 0: # 当前的train x没有 terminal context，所以添加一个EMTPY node
                 train_ty.append(string_to_int('EMPTY', 'tt'))
 
+            # 将两个context都剪裁到指定尺度
+            if len(train_ny) < tt_n_dim * 2:
+                train_ny = train_ny * tt_n_dim * 2
+            train_ny = train_ny[:tt_n_dim * 2]
+            if len(train_ty) < tt_t_dim * 2:
+                train_ty = train_ty * tt_t_dim * 2
+            train_ty = train_ty[:tt_t_dim * 2]
+
             train_pair = (train_x, train_ny, train_ty)
             train_pair_list.append(train_pair)
+
     return train_pair_list
 
 
-def generate_train_pair(ast, nt_v_dim=2, tt_v_dim=2, tt_h_dim=2):
+def generate_train_pair(ast, nt_n_dim=nt_n_dim, nt_t_dim=nt_t_dim,
+                        tt_n_dim=tt_n_dim, tt_t_dim=tt_t_dim):
     """生成nt-train-pair 和 tt-train-pair"""
     info_ast = add_info(ast)
     nt_train_pair_list = []
@@ -265,7 +299,7 @@ def generate_train_pair(ast, nt_v_dim=2, tt_v_dim=2, tt_h_dim=2):
         if not node['isTerminal']:
             # 该node为nt-node，所以构建一个nt_train_pair
             try:
-                nt_train_pair = get_nt_train_pair(ast, node, nt_v_dim)
+                nt_train_pair = get_nt_train_pair(ast, node, nt_n_dim, nt_t_dim)
             except KeyError:
                 print("nt key error")
             else:
@@ -274,11 +308,34 @@ def generate_train_pair(ast, nt_v_dim=2, tt_v_dim=2, tt_h_dim=2):
             if has_terminal_child(ast, node):
                 # 说明该nt-node包含terminal child node，将所有terminal node也用来构建train pair
                 try:
-                    tt_train_pair = get_tt_train_pair(ast, node, tt_v_dim, tt_h_dim)
+                    tt_train_pair = get_tt_train_pair(ast, node, tt_n_dim, tt_t_dim)
                 except KeyError:
                     print('tt key error')
                 else:
                     tt_train_pair_list.extend(tt_train_pair)
+
+
+    for i, pair in enumerate(nt_train_pair_list):
+        if not isinstance(pair[0], int):
+            print('ERROR: {} pair[0] is not int'.format('nt'))
+            del nt_train_pair_list[i]
+        elif len(pair[1]) != nt_n_dim * 2:
+            print('ERROR: {} pair[1] is not equal to n_dim * 2'.format('nt'))
+            del nt_train_pair_list[i]
+        elif len(pair[2]) != nt_t_dim:
+            print('ERROR: {} pair[2] is not equal to t_dim * 2'.format('nt'))
+            del nt_train_pair_list[i]
+
+    for i, pair in enumerate(tt_train_pair_list):
+        if not isinstance(pair[0], int):
+            print('ERROR: {} pair[0] is not int'.format('tt'))
+            del tt_train_pair_list[i]
+        elif len(pair[1]) != tt_n_dim * 2:
+            print('ERROR: {} pair[1] is not equal to n_dim * 2'.format('tt'))
+            del tt_train_pair_list[i]
+        elif len(pair[2]) != tt_t_dim * 2:
+            print('ERROR: {} pair[2] is not equal to t_dim * 2'.format('tt'))
+            del tt_train_pair_list[i]
 
     return nt_train_pair_list, tt_train_pair_list
 
@@ -287,11 +344,14 @@ def generate_train_pair(ast, nt_v_dim=2, tt_v_dim=2, tt_h_dim=2):
 
 
 if __name__ == '__main__':
-    # import examples
-    # ast = examples.ast_example
+    #import examples
+    #ast = examples.ast_example
     # info_ast = add_info(ast)
     # print(info_ast)
-    # nt_train_pair_list, tt_train_pair_list = generate_train_pair(ast)
-    # print(nt_train_pair_list)
-    # print(tt_train_pair_list)
+    #nt_train_pair_list, tt_train_pair_list = generate_train_pair(ast)
+
+    #print(nt_train_pair_list)
+    #print(tt_train_pair_list)
+
+
     dataset_training_pair()

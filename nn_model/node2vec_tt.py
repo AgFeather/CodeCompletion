@@ -15,7 +15,11 @@ nt_train_pair_dir = 'js_dataset/train_pair_data/nt_train_pair/'
 tt_train_pair_dir = 'js_dataset/train_pair_data/tt_train_pair/'
 
 
-class NodeToVec_NT(object):
+
+
+
+
+class NodeToVec_T(object):
 
     def __init__(self, num_ntoken, num_ttoken,
                  embed_dim=300,
@@ -55,7 +59,7 @@ class NodeToVec_NT(object):
     def build_embedding(self, input_token):
         with tf.name_scope('embedding_matrix'):
             embedding_matrix = tf.Variable(
-                tf.truncated_normal([self.num_ntoken, self.embed_dim]), dtype=tf.float32)
+                tf.truncated_normal([self.num_ttoken, self.embed_dim]), dtype=tf.float32)
             embedding_rep = tf.nn.embedding_lookup(embedding_matrix, input_token)
         return embedding_rep
 
@@ -82,7 +86,7 @@ class NodeToVec_NT(object):
         nt_bias = tf.get_variable('nt_bias', [self.num_ntoken], dtype=tf.float32,
                                   initializer=tf.truncated_normal_initializer)
         loss = tf.nn.sampled_softmax_loss(nt_weight, nt_bias, targets, embed_input, self.num_ntoken,
-                                          self.num_ntoken, num_true=self.nt_n_dim*2)
+                                          self.num_ntoken, num_true=self.tt_n_dim*2)
         loss = tf.reduce_mean(loss)
         return loss
 
@@ -92,7 +96,7 @@ class NodeToVec_NT(object):
         tt_bias = tf.get_variable('tt_bias', [self.num_ttoken], dtype=tf.float32,
                                   initializer=tf.truncated_normal_initializer)
         loss = tf.nn.sampled_softmax_loss(tt_weight, tt_bias, target, embed_input, self.n_sampled,
-                                          self.num_ttoken, num_true=self.nt_t_dim)
+                                          self.num_ttoken, num_true=self.tt_t_dim)
         loss = tf.reduce_mean(loss)
         return loss
 
@@ -124,7 +128,7 @@ class NodeToVec_NT(object):
         session.run(tf.global_variables_initializer())
         generator = DataGenerator()
         for epoch in range(self.num_epochs):
-            data_gen = generator.get_embedding_sub_data(cate='nt')
+            data_gen = generator.get_embedding_sub_data(cate='tt')
             for index, sub_data in data_gen:
                 batch_generator = generator.get_embedding_batch(sub_data)
                 for batch_tt_x, batch_nt_y, batch_tt_y in batch_generator:
@@ -147,16 +151,3 @@ class NodeToVec_NT(object):
                 saver.save(session, save_path=model_save_path)
 
         session.close()
-
-
-
-
-
-
-
-
-
-
-if __name__ == '__main__':
-    model = NodeToVec_NT(num_nt_token, num_tt_token)
-    model.train()

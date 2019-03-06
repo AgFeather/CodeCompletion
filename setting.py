@@ -47,7 +47,7 @@ class Setting(object):
 
         # 学习模型相关
         self.time_steps = 50
-        self.show_every_n = 1  # 为了快速debug
+        self.show_every_n = 100  # 为了快速debug
         self.valid_every_n = 20
         self.save_every_n = 3
         self.test_show = 1

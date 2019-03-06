@@ -108,9 +108,14 @@ class DataGenerator():
 
 
     def get_embedding_batch(self, data):
-        data = np.array(data)
         for index in range(0, len(data), self.time_steps):
-            batch_x = data[index: index+self.time_steps, 0].reshape([1, -1])
-            batch_ny = data[index: index+self.time_steps, 1].reshape([1, -1])
-            batch_ty = data[index: index+self.time_steps, 2].reshape([1, -1])
+            batch = data[index: index+self.time_steps]
+            batch_x = []
+            batch_ny = []
+            batch_ty = []
+            for one_pair in batch:
+                batch_x.append(one_pair[0])
+                batch_ny.append(one_pair[1])
+                batch_ty.append(one_pair[2])
+
             yield batch_x, batch_ny, batch_ty
