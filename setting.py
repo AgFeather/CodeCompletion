@@ -33,6 +33,7 @@ class Setting(object):
         self.lstm_valid_log_dir = 'log_info/valid_log/lstm_valid_log' + str(curr_time) + '.txt'
 
         self.node2vec_train_log_dir = '../log_info/training_log/node2vec_train_log' + str(curr_time) + '.txt'  # node2vec 模型训练时的log
+        self.node2vec_tt_train_log_dir = '../log_info/training_log/node2vec_tt_train_log' + str(curr_time) + '.txt'  # node2vec 模型训练时的log
 
         # 暂时存放一些信息
         self.temp_info = 'temp_info/'

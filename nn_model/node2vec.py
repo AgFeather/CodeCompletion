@@ -139,10 +139,10 @@ class NodeToVec_NT(object):
             data_gen = generator.get_embedding_sub_data(cate='nt')
             for index, sub_data in data_gen:
                 batch_generator = generator.get_embedding_batch(sub_data)
-                for batch_tt_x, batch_nt_y, batch_tt_y in batch_generator:
+                for batch_nt_x, batch_nt_y, batch_tt_y in batch_generator:
                     global_step += 1
                     feed = {
-                        self.input_token:batch_tt_x,
+                        self.input_token:batch_nt_x,
                         self.nt_target:batch_nt_y,
                         self.tt_target:batch_tt_y,
                     }

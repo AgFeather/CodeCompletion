@@ -1,18 +1,18 @@
 import tensorflow as tf
-
+import os
 
 from data_generator import DataGenerator
 from setting import Setting
 
 embed_setting = Setting()
 show_every_n = embed_setting.show_every_n
-save_every_n = embed_setting.save_every_n
 num_nt_token = embed_setting.num_non_terminal
 num_tt_token = embed_setting.num_terminal
 
-model_save_path = 'trained_model/node2vector/node2vec_tt.model'
-nt_train_pair_dir = 'js_dataset/train_pair_data/nt_train_pair/'
-tt_train_pair_dir = 'js_dataset/train_pair_data/tt_train_pair/'
+model_save_dir = '../trained_model/node2vec_tt/'
+tensorboard_log_dir = '../log_info/tensorboard_log/node2vec_tt/'
+
+training_log_dir = embed_setting.node2vec_tt_train_log_dir
 
 
 
@@ -25,7 +25,7 @@ class NodeToVec_TT(object):
                  embed_dim=300,
                  learning_rate=0.001,
                  n_sampled=100,
-                 num_epochs=1,
+                 num_epochs=8,
                  time_steps=80,
                  batch_size = 80,
                  alpha = 0.7,
@@ -121,13 +121,20 @@ class NodeToVec_TT(object):
         self.loss = self.build_loss(self.nt_loss, self.tt_loss)
         self.optimizer = self.build_optimizer(self.loss)
 
+        tf.summary.scalar('loss', self.loss)
+        tf.summary.scalar('nt_loss', self.loss)
+        tf.summary.scalar('tt_loss', self.loss)
+        self.merge_op = tf.summary.merge_all()
+
+
     def train(self):
         global_step = 0
         saver = tf.train.Saver(max_to_keep=self.num_epochs + 1)
         session = tf.Session()
         session.run(tf.global_variables_initializer())
+        tb_writer = tf.summary.FileWriter(tensorboard_log_dir, session.graph)
         generator = DataGenerator()
-        for epoch in range(self.num_epochs):
+        for epoch in range(1, self.num_epochs+1):
             data_gen = generator.get_embedding_sub_data(cate='tt')
             for index, sub_data in data_gen:
                 batch_generator = generator.get_embedding_batch(sub_data)
@@ -138,19 +145,28 @@ class NodeToVec_TT(object):
                         self.nt_target:batch_nt_y,
                         self.tt_target:batch_tt_y,
                     }
-                    n_loss, t_loss, loss, _ = session.run([
-                        self.nt_loss, self.tt_loss, self.loss, self.optimizer], feed_dict=feed)
-
+                    n_loss, t_loss, loss, _, summary_str = session.run([
+                        self.nt_loss, self.tt_loss, self.loss, self.optimizer, self.merge_op], feed_dict=feed)
+                    tb_writer.add_summary(summary_str, global_step)
+                    tb_writer.flush()
                     if global_step % show_every_n == 0:
-                        train_info = 'epoch:{} '.format(epoch) + \
-                            'step:{} '.format(global_step) + \
-                            'loss(n+t):{:.3f} ({:.3f} + {:.3f}) '.format(loss, n_loss, t_loss)
-                        print(train_info)
+                        log_info = 'epoch:{}/{}  '.format(epoch, self.num_epochs) + \
+                                   'global_step:{}  '.format(global_step) + \
+                                   'loss:{:.2f}(n_loss:{:.2f} + t_loss:{:.2f})  '.format(loss, n_loss, t_loss)
 
-                print('epoch{} model saved...'.format(epoch))
-                saver.save(session, save_path=model_save_path)
+                        self.print_and_log(log_info)
+
+            print('epoch{} model saved...'.format(epoch))
+            saver.save(session, model_save_dir + 'EPOCH{}.ckpt'.format(epoch))
 
         session.close()
+
+    def print_and_log(self, info):
+        if not os.path.exists(training_log_dir):
+            self.log_file = open(training_log_dir, 'w')
+        self.log_file.write(info)
+        self.log_file.write('\n')
+        print(info)
 
 
 if __name__ == '__main__':
