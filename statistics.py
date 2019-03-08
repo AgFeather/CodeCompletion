@@ -56,7 +56,8 @@ def dataset_traversal(is_training=True):
         try:
             line = file.readline()  # read a lind from file(one ast)
             ast = json.loads(line)  # transform it to json format
-            count_info(ast)
+            #count_tokens_types(ast)
+            count_num_terminal(ast)
         except UnicodeDecodeError as error:  # arise by readline
             print(error)
         except JSONDecodeError as error:  # arise by json_load
@@ -67,13 +68,36 @@ def dataset_traversal(is_training=True):
             print(error)
             print('other unknown error, plesae check the code')
 
-    count_info_path = 'count_statistic.pkl'
-    pickle.dump([nt_count, tt_count], open(count_info_path, 'wb'))
+    terminal_num_counter_path = 'terminal_num_counter.pkl'
+    pickle.dump(terminal_count, open(terminal_num_counter_path, 'wb'))
+    # count_info_path = 'count_statistic.pkl'
+    # pickle.dump([nt_count, tt_count], open(count_info_path, 'wb'))
+
+
+
+
+terminal_count = Counter()  # 统计每个terminal token的出现次数
+def count_num_terminal(ast):
+    def node_to_string(node):
+        # 将一个node转换为string
+        string_node = str(node['type'])
+        if 'value' in node.keys():
+            # Note:There are some tokens(like:break .etc）do not contains 'value'
+            string_node += '=$$=' + str(node['value'])
+        terminal_count[string_node] += 1
+
+    for node in ast:
+        if node == 0:
+            break
+        if 'children' not in node.keys() or len(node['children']) == 0:
+            node_to_string(node)
+
+
 
 
 tt_count = Counter()  # 统计每种terminal token的出现次数
 nt_count = Counter()  # 统计每种non-terminal token的出现次数
-def count_info(ast):
+def count_tokens_types(ast):
     """对输入进来的ast进行数据统计，统计每种terminal token的数量"""
     for node in ast:
         if node == 0:
@@ -132,5 +156,5 @@ def show_token_statistic(nt_clip=17, tt_clip=6):
 
 
 if __name__ == '__main__':
-    #dataset_traversal()
-    show_token_statistic()
+    dataset_traversal()
+    #show_token_statistic()
