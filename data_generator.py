@@ -67,17 +67,28 @@ class DataGenerator():
             tt_token = prefix[index: index+self.time_steps, 1].reshape([1, -1])
             yield nt_token, tt_token
 
-    def get_train_subset_data(self):
+    def get_train_subset_data(self, train_type):
         """yield sub training dataset"""
+        if train_type == 'origin':
+            dataset_path = self.sub_int_train_dir
+        elif train_type == 'rename':
+            dataset_path = 'js_dataset/rename_variable/train_data/int_format/'
+        else:
+            raise AttributeError
         for i in range(1, self.num_subset_train_data + 1):
-            data_path = self.sub_int_train_dir + 'int_part{}.json'.format(i)
+            data_path = dataset_path + 'int_part{}.json'.format(i)
             with open(data_path, 'rb') as file:
                 data = pickle.load(file)
                 yield data
 
-    def get_valid_subset_data(self):
-        valid_dir = self.sub_int_valid_dir + 'int_part1.json'
-        with open(valid_dir, 'rb') as f:
+    def get_valid_subset_data(self, train_type):
+        if train_type == 'origin':
+            dataset_path = self.sub_int_valid_dir
+        elif train_type == 'rename':
+            dataset_path = 'js_dataset/rename_variable/valid_data/int_format/int_part1.json'
+        else:
+            raise AttributeError
+        with open(dataset_path, 'rb') as f:
             valid_data = pickle.load(f)
         return valid_data
 

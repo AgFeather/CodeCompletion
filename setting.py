@@ -35,6 +35,8 @@ class Setting(object):
         self.node2vec_train_log_dir = '../log_info/training_log/node2vec_train_log' + str(curr_time) + '.txt'  # node2vec 模型训练时的log
         self.node2vec_tt_train_log_dir = '../log_info/training_log/node2vec_tt_train_log' + str(curr_time) + '.txt'  # node2vec 模型训练时的log
 
+
+
         # 暂时存放一些信息
         self.temp_info = 'temp_info/'
 
@@ -50,9 +52,9 @@ class Setting(object):
 
         # 学习模型相关
         self.time_steps = 50
-        self.show_every_n = 100  # 为了快速debug
-        self.valid_every_n = 20
-        self.save_every_n = 3
+        self.show_every_n = 1  # 为了快速debug
+        self.valid_every_n = 2
+        self.save_every_n = 1
         self.test_show = 1
         self.define_topk = 3
 

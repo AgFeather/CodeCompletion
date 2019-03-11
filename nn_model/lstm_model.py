@@ -1,18 +1,7 @@
 import tensorflow as tf
 
 from setting import Setting
-
 base_setting = Setting()
-
-
-model_save_dir = base_setting.lstm_model_save_dir
-tensorboard_log_dir = base_setting.lstm_tb_log_dir
-training_log_dir = base_setting.lstm_train_log_dir
-valid_log_dir = base_setting.lstm_valid_log_dir
-
-show_every_n = base_setting.show_every_n
-save_every_n = base_setting.save_every_n
-valid_every_n = base_setting.valid_every_n
 
 
 class RnnModel(object):

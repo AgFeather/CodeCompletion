@@ -172,6 +172,9 @@ class NodeToVec_NT(object):
         self.log_file.write('\n')
         print(info)
 
+    def get_most_similar(self, input_token):
+        input_embedding = self.build_embedding(input_token)
+
     def get_represent_vector(self, input_token):
         return self.build_embedding(input_token)
 

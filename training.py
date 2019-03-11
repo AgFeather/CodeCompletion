@@ -8,10 +8,21 @@ from data_generator import DataGenerator
 
 base_setting = Setting()
 
-model_save_dir = base_setting.lstm_model_save_dir
-tensorboard_log_dir = base_setting.lstm_tb_log_dir
-training_log_dir = base_setting.lstm_train_log_dir
-valid_log_dir = base_setting.lstm_valid_log_dir
+
+training_type = 'rename'
+if training_type == 'rename':
+    model_save_dir = 'trained_model/lstm_for_rename/'
+    tensorboard_log_dir = 'log_info/tensorboard_log/rename_tb_log/'
+    curr_time = time.strftime('_%Y_%m_%d_%H_%M', time.localtime())  # 年月日时分
+    training_log_dir = 'log_info/training_log/rename_lstm_train_log' + str(curr_time) + '.txt'
+    valid_log_dir = 'log_info/valid_log/lstm_valid_log' + str(curr_time) + '.txt'
+elif training_type == 'origin':
+    model_save_dir = base_setting.lstm_model_save_dir
+    tensorboard_log_dir = base_setting.lstm_tb_log_dir
+    training_log_dir = base_setting.lstm_train_log_dir
+    valid_log_dir = base_setting.lstm_valid_log_dir
+else:
+    print('Error')
 
 show_every_n = base_setting.show_every_n
 save_every_n = base_setting.save_every_n
@@ -48,7 +59,7 @@ class TrainModel(object):
             loss_per_epoch = 0.0
             n_accu_per_epoch = 0.0
             t_accu_per_epoch = 0.0
-            subset_generator = self.generator.get_train_subset_data()
+            subset_generator = self.generator.get_train_subset_data(train_type=training_type)
 
             for data in subset_generator:
                 batch_generator = self.generator.get_batch(data_seq=data)
@@ -130,7 +141,7 @@ class TrainModel(object):
 
     def valid(self, session, epoch, global_step):
         """valid model when it is trained"""
-        valid_data = self.generator.get_valid_subset_data()
+        valid_data = self.generator.get_valid_subset_data(train_type=training_type)
         batch_generator = self.generator.get_batch(valid_data)
         valid_step = 0
         valid_n_accuracy = 0.0
