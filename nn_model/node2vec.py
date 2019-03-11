@@ -172,6 +172,8 @@ class NodeToVec_NT(object):
         self.log_file.write('\n')
         print(info)
 
+    def get_represent_vector(self, input_token):
+        return self.build_embedding(input_token)
 
 
 

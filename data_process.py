@@ -279,7 +279,7 @@ if __name__ == '__main__':
         #dataset_split(is_training=True)
         nt_seq_to_int(status='TRAIN')
     elif data_process == 'TEST':
-        dataset_split(is_training=False)
+        #dataset_split(is_training=False)
         nt_seq_to_int(status='TEST')
     elif data_process == 'VALID':
         nt_seq_to_int(status='VALID')

@@ -2,6 +2,7 @@ import json
 import sys
 from collections import Counter
 from json.decoder import JSONDecodeError
+import pickle
 
 from setting import Setting
 import utils
@@ -54,8 +55,8 @@ def dataset_split(is_training=True, subset_size=5000):
         try:
             line = file.readline()  # read a lind from file(one ast)
             ast = json.loads(line)  # transform it to json format
-            ast = rename_variable(ast)
-            binary_tree = bulid_binary_tree(ast)  # AST to binary tree
+            rename_ast = rename_variable(ast)
+            binary_tree = bulid_binary_tree(rename_ast)  # AST to binary tree
             nt_seq = ast_to_seq(binary_tree)  # binary to nt_sequence
         except UnicodeDecodeError as error:  # arise by readline
             print(error)
@@ -175,7 +176,6 @@ def ast_to_seq(binary_tree, run_or_process='process'):
         if node['right'] != -1:  # 遍历right side
             in_order_traversal(bin_tree, node['right'])
 
-    rename_map = {}  # 保存rename variable后的映射关系
     output = []
     in_order_traversal(binary_tree, 0)
 
@@ -218,7 +218,7 @@ def save_string_int_dict():
     nt_int_to_token = {}
 
     import pickle
-    pickle.dump([terminal_count], open('js_dataset/rename_variable/terminal_counter.pkl'))
+    pickle.dump([terminal_count], open('js_dataset/rename_variable/terminal_counter.pkl', 'wb'))
 
     most_common_tuple = terminal_count.most_common(most_common_termial_num)
     for index, (token, times) in enumerate(most_common_tuple):
@@ -241,7 +241,8 @@ def nt_seq_to_int(time_steps=50, status='TRAIN'):
     # 对NT seq进行进一步的处理，首先将每个token转换为number，
     # 然后对于train data和valid data将所有ast-seq extend成一个list 便于训练时的格式转换
     # 对于test data，将所有ast-seq append，保留各个ast的独立seq
-    tt_token_to_int, tt_int_to_token, nt_token_to_int, nt_int_to_token = utils.load_dict_parameter(is_lower=False)
+    tt_token_to_int, tt_int_to_token, nt_token_to_int, nt_int_to_token = \
+        pickle.load(open('js_dataset/rename_variable/rename_parameter.pkl', 'rb'))
     total_num_nt_pair = 0
     if status == 'TRAIN':
         sub_data_dir = sub_train_data_dir
@@ -297,13 +298,13 @@ def nt_seq_to_int(time_steps=50, status='TRAIN'):
 if __name__ == '__main__':
 
     operation_list = ['TRAIN', 'TEST', 'VALID']
-    data_process = operation_list[0]
+    data_process = operation_list[2]
 
     if data_process == 'TRAIN':
-        dataset_split(is_training=True)
+        #dataset_split(is_training=True)
         nt_seq_to_int(status='TRAIN')
     elif data_process == 'TEST':
-        dataset_split(is_training=False)
+        #dataset_split(is_training=False)
         nt_seq_to_int(status='TEST')
     elif data_process == 'VALID':
         nt_seq_to_int(status='VALID')

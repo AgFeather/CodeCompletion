@@ -1,5 +1,7 @@
 import tensorflow as tf
 import os
+import sys
+sys.path.append('..')
 
 from data_generator import DataGenerator
 from setting import Setting
@@ -25,7 +27,7 @@ class NodeToVec_TT(object):
                  embed_dim=300,
                  learning_rate=0.001,
                  n_sampled=100,
-                 num_epochs=8,
+                 num_epochs=4,
                  time_steps=80,
                  batch_size = 80,
                  alpha = 0.7,
