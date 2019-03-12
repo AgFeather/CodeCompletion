@@ -176,7 +176,8 @@ class NodeToVec_NT(object):
         input_embedding = self.build_embedding(input_token)
 
     def get_represent_vector(self, input_token):
-        return self.build_embedding(input_token)
+        repre_vector = self.build_embedding(input_token)
+        return repre_vector.eval()
 
 
 

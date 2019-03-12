@@ -62,6 +62,7 @@ class NodeToVec_TT(object):
         with tf.name_scope('embedding_matrix'):
             embedding_matrix = tf.Variable(
                 tf.truncated_normal([self.num_ttoken, self.embed_dim]), dtype=tf.float32)
+            print(embedding_matrix.name)
             embedding_rep = tf.nn.embedding_lookup(embedding_matrix, input_token)
         return embedding_rep
 
@@ -163,6 +164,10 @@ class NodeToVec_TT(object):
 
         session.close()
 
+    def get_represent_vector(self):
+        repre_vector = self.build_embedding(self.input_token)
+        return repre_vector
+
     def print_and_log(self, info):
         if not os.path.exists(training_log_dir):
             self.log_file = open(training_log_dir, 'w')
@@ -173,4 +178,4 @@ class NodeToVec_TT(object):
 
 if __name__ == '__main__':
     model = NodeToVec_TT(num_nt_token, num_tt_token)
-    model.train()
+   # model.train()
