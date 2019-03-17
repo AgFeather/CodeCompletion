@@ -9,7 +9,7 @@ from setting import Setting
 
 
 embed_setting = Setting()
-show_every_n = embed_setting.show_every_n * 50
+show_every_n = embed_setting.show_every_n * 10
 save_every_n = embed_setting.save_every_n
 num_nt_token = embed_setting.num_non_terminal
 num_tt_token = embed_setting.num_terminal

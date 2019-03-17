@@ -7,6 +7,7 @@ import pickle
 from setting import Setting
 import utils
 
+"""rename all variables as arg1, arg2..."""
 
 
 base_setting = Setting()
