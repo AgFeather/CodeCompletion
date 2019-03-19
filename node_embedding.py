@@ -44,7 +44,15 @@ class NodeEmbedding(object):
 
 
 
-def plot_embedding(data, label, title):
+
+def TSNE_fit(data):
+    """使用t-SNE对原始的embedding representation vector进行可视化"""
+    tsne = TSNE(n_components=2, init='pca', random_state=0)
+    result = tsne.fit_transform(data)
+    return result
+
+def plot_embedding(data, label):
+    """对经过降维的数据进行可视化"""
     x_min, x_max = np.min(data, 0), np.max(data, 0)
     data = (data - x_min) / (x_max - x_min)
 
@@ -52,41 +60,61 @@ def plot_embedding(data, label, title):
     ax = plt.subplot(111)
     for i in range(data.shape[0]):
         plt.text(data[i, 0], data[i, 1], str(label[i]),
-                 #color=plt.cm.Set1(label[i] / 10.),
                  color=plt.cm.Set1(label[i]),
                  fontdict={'weight': 'bold', 'size': 9})
     plt.xticks([])
     plt.yticks([])
-    plt.title(title)
-    return fig
-
-def fit_main(data):
-    tsne = TSNE(n_components=2, init='pca', random_state=0)
-    result = tsne.fit_transform(data)
-    return result
-
-def plot_main(result, label):
-    fig = plot_embedding(result, label,
-                         't-SNE embedding of the digits')
+    plt.title('t-SNE embedding for Node2vec')
     plt.show(fig)
+
+
+def normalization(data, bias=5, num=100):
+    average_x, average_y = np.average(data, axis=0)
+    print(average_x, average_y)
+    normal_data = []
+    for x, y in data:
+        if abs(x - average_x) <= bias and abs(y - average_y) <= bias:
+            normal_data.append((x, y))
+        if len(normal_data) == num:
+            break
+    return np.array(normal_data)
+
+
 
 
 if __name__ == '__main__':
     model = NodeEmbedding()
     string_represent = model.get_representation('LiteralString')
     property_represent = model.get_representation('Property')
-    print(string_represent.shape)
-    print(property_represent.shape)
+    identifier_represent = model.get_representation('Identifier')
+    literal_number_represent = model.get_representation('LiteralNumber')
+    this_expression_represent = model.get_representation('ThisExpression')
+    literal_boolean_represent = model.get_representation('LiteralBoolean')
 
-    string_label = np.zeros([string_represent.shape[0]], dtype=np.int16)
-    property_label = np.ones([property_represent.shape[0]], dtype=np.int16)
-    print(string_label.shape)
-    print(property_label.shape)
 
-    data = np.vstack([string_represent, property_represent])
-    label = np.concatenate([string_label, property_label])
-    print(data.shape)
-    print(label.shape)
+    string_result = TSNE_fit(string_represent)
+    property_result = TSNE_fit(property_represent)
+    identifier_result = TSNE_fit(identifier_represent)
+    literal_number_result = TSNE_fit(literal_number_represent)
+    this_expression_result = TSNE_fit(this_expression_represent)
+    literal_boolean_result = TSNE_fit(literal_boolean_represent)
 
-    result = fit_main(data)
-    plot_main(result, label)
+    string_result = normalization(string_result)
+    property_result = normalization(property_result)
+    identifier_result = normalization(identifier_result)
+    literal_number_result = normalization(literal_number_result)
+    this_expression_result = normalization(this_expression_result)
+    literal_boolean_result = normalization(literal_boolean_result)
+
+    string_label = np.ones([string_result.shape[0]], dtype=np.int16) * 0
+    property_label = np.ones([property_result.shape[0]], dtype=np.int16) * 1
+    identifier_label = np.ones(identifier_result, dtype=np.int16) * 2
+    literal_number_label = np.ones(literal_number_result.shape[0], dtype=np.int16) * 3
+    literal_boolean_label = np.ones(literal_boolean_result.shape[0], dtype=np.int16) * 4
+
+    plot_data = np.vstack([string_result, property_result, identifier_result,
+                           literal_number_result, this_expression_result, literal_boolean_result])
+    plot_label = np.concatenate([string_label, property_label, identifier_label,
+                                 literal_number_label, literal_boolean_label])
+
+    plot_embedding(plot_data, plot_label)
