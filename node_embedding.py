@@ -23,8 +23,8 @@ class NodeEmbedding(object):
         self.embedding_matrix = self.session.run('embedding_matrix/Variable:0')
         print(self.embedding_matrix.shape)
 
-    def get_representation(self, string):
-        """输入token的type，返回所有属于该type token的representation vector"""
+    def get_terminal_representation(self, type_string):
+        """输入terminal token的type，返回所有属于该type token的representation vector"""
         dict_parameter_saved_path = 'js_dataset/split_js_data/parameter.p'
         tt_token_to_int, tt_int_to_token, nt_token_to_int, nt_int_to_token = \
             pickle.load(open(dict_parameter_saved_path, 'rb'))
@@ -32,7 +32,26 @@ class NodeEmbedding(object):
         token_index_list = []
         for string_token, index in tt_token_to_int.items():
             node_type = string_token.split('=$$=')[0]
-            if node_type == string:
+            if node_type == type_string:
+                token_index_list.append(index)
+
+        embedding_vector_list = []
+        for index in token_index_list:
+            represent_vector = self.embedding_matrix[index]  # 给定一个int型的token index，返回训练好的represent vector
+            embedding_vector_list.append(represent_vector)
+        embedding_vector_list = np.array(embedding_vector_list)
+        return embedding_vector_list
+
+    def get_nonterminal_representation(self, type_string):
+        """输入non-terminal token的type，返回所有属于该type token的representation vector"""
+        dict_parameter_saved_path = 'js_dataset/split_js_data/parameter.p'
+        tt_token_to_int, tt_int_to_token, nt_token_to_int, nt_int_to_token = \
+            pickle.load(open(dict_parameter_saved_path, 'rb'))
+
+        token_index_list = []
+        for string_token, index in nt_token_to_int.items():
+            node_type = string_token.split('=$$=')[0]
+            if node_type == type_string:
                 token_index_list.append(index)
 
         embedding_vector_list = []
@@ -51,12 +70,14 @@ def TSNE_fit(data):
     result = tsne.fit_transform(data)
     return result
 
+
 def plot_embedding(data, label):
     """对经过降维的数据进行可视化"""
-    x_min, x_max = np.min(data, 0), np.max(data, 0)
-    data = (data - x_min) / (x_max - x_min)
+    x_y_min, x_y_max = np.min(data, 0), np.max(data, 0)
 
-    fig = plt.figure(figsize=(12,12))
+    data = (data - x_y_min) / (x_y_max - x_y_min)
+
+    fig = plt.figure(figsize=(12, 12))
     ax = plt.subplot(111)
     for i in range(data.shape[0]):
         plt.text(data[i, 0], data[i, 1], str(label[i]),
@@ -64,6 +85,8 @@ def plot_embedding(data, label):
                  fontdict={'weight': 'bold', 'size': 9})
     plt.xticks([])
     plt.yticks([])
+    plt.xlim((-0.05, 1.05))
+    plt.ylim((-0.05, 1.05))
     plt.title('t-SNE embedding for Node2vec')
     plt.show(fig)
 
@@ -84,37 +107,35 @@ def normalization(data, bias=5, num=100):
 
 if __name__ == '__main__':
     model = NodeEmbedding()
-    string_represent = model.get_representation('LiteralString')
-    property_represent = model.get_representation('Property')
-    identifier_represent = model.get_representation('Identifier')
-    literal_number_represent = model.get_representation('LiteralNumber')
-    this_expression_represent = model.get_representation('ThisExpression')
-    literal_boolean_represent = model.get_representation('LiteralBoolean')
+    string_represent = model.get_terminal_representation('LiteralString')  # 4662
+    property_represent = model.get_terminal_representation('Property')  # 9617
+    identifier_represent = model.get_terminal_representation('Identifier')  # 13453
+    literal_number_represent = model.get_terminal_representation('LiteralNumber')  # 1369
+    this_expression_represent = model.get_terminal_representation('ThisExpression')  # 1
+    literal_boolean_represent = model.get_terminal_representation('LiteralBoolean')  # 2
 
+    total_data = np.vstack([string_represent, property_represent,
+                            identifier_represent, literal_number_represent])
+    total_result = TSNE_fit(total_data)
 
-    string_result = TSNE_fit(string_represent)
-    property_result = TSNE_fit(property_represent)
-    identifier_result = TSNE_fit(identifier_represent)
-    literal_number_result = TSNE_fit(literal_number_represent)
-    this_expression_result = TSNE_fit(this_expression_represent)
-    literal_boolean_result = TSNE_fit(literal_boolean_represent)
-
-    string_result = normalization(string_result)
-    property_result = normalization(property_result)
-    identifier_result = normalization(identifier_result)
-    literal_number_result = normalization(literal_number_result)
-    this_expression_result = normalization(this_expression_result)
-    literal_boolean_result = normalization(literal_boolean_result)
+    string_result = normalization(total_result[:len(string_represent)])
+    property_result = normalization(
+        total_result[len(string_represent):len(string_represent) + len(property_represent)])
+    identifier_result = normalization(
+        total_result[len(string_represent) + len(property_represent):
+                     len(string_represent) + len(property_represent) + len(identifier_represent)])
+    literal_number_result = normalization(
+        total_result[len(string_represent) + len(property_represent) + len(identifier_represent):
+                     len(string_represent) + len(property_represent) + len(identifier_represent) + len(literal_number_represent)])
 
     string_label = np.ones([string_result.shape[0]], dtype=np.int16) * 0
     property_label = np.ones([property_result.shape[0]], dtype=np.int16) * 1
-    identifier_label = np.ones(identifier_result, dtype=np.int16) * 2
+    identifier_label = np.ones(identifier_result.shape[0], dtype=np.int16) * 2
     literal_number_label = np.ones(literal_number_result.shape[0], dtype=np.int16) * 3
-    literal_boolean_label = np.ones(literal_boolean_result.shape[0], dtype=np.int16) * 4
 
     plot_data = np.vstack([string_result, property_result, identifier_result,
-                           literal_number_result, this_expression_result, literal_boolean_result])
+                           literal_number_result])
     plot_label = np.concatenate([string_label, property_label, identifier_label,
-                                 literal_number_label, literal_boolean_label])
+                                 literal_number_label])
 
     plot_embedding(plot_data, plot_label)
