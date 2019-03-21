@@ -20,7 +20,7 @@ class NodeEmbedding(object):
         print('model is loaded from', checkpoints_path)
         saver = tf.train.import_meta_graph(trained_model_path + 'EPOCH4.ckpt.meta')
         saver.restore(self.session, checkpoints_path)
-        self.embedding_matrix = self.session.run('embedding_matrix/Variable:0')
+        self.embedding_matrix = self.session.run('embedding_matrix/Variable:0')  # (30001, 300)
         print(self.embedding_matrix.shape)
 
     def get_terminal_representation(self, type_string):
@@ -83,9 +83,9 @@ def plot_embedding(data, label):
         plt.text(data[i, 0], data[i, 1], str(label[i]),
                  color=plt.cm.Set1(label[i]),
                  fontdict={'weight': 'bold', 'size': 9})
-    plt.xticks([])
+    plt.xticks([]) # 设置坐标刻度
     plt.yticks([])
-    plt.xlim((-0.05, 1.05))
+    plt.xlim((-0.05, 1.05)) # 设置坐标轴范围
     plt.ylim((-0.05, 1.05))
     plt.title('t-SNE embedding for Node2vec')
     plt.show(fig)
@@ -102,11 +102,13 @@ def normalization(data, bias=5, num=100):
             break
     return np.array(normal_data)
 
+def normalization_nt(data):
+    average_x, average_y = np.average(data, axis=0)
+    print(average_x, average_y)
+    return np.array((average_x, average_y)).reshape((1 ,2))
 
 
-
-if __name__ == '__main__':
-    model = NodeEmbedding()
+def terminal_embedding_test(model):
     string_represent = model.get_terminal_representation('LiteralString')  # 4662
     property_represent = model.get_terminal_representation('Property')  # 9617
     identifier_represent = model.get_terminal_representation('Identifier')  # 13453
@@ -126,7 +128,8 @@ if __name__ == '__main__':
                      len(string_represent) + len(property_represent) + len(identifier_represent)])
     literal_number_result = normalization(
         total_result[len(string_represent) + len(property_represent) + len(identifier_represent):
-                     len(string_represent) + len(property_represent) + len(identifier_represent) + len(literal_number_represent)])
+                     len(string_represent) + len(property_represent) + len(identifier_represent) + len(
+                         literal_number_represent)])
 
     string_label = np.ones([string_result.shape[0]], dtype=np.int16) * 0
     property_label = np.ones([property_result.shape[0]], dtype=np.int16) * 1
@@ -139,3 +142,66 @@ if __name__ == '__main__':
                                  literal_number_label])
 
     plot_embedding(plot_data, plot_label)
+
+
+def non_terminal_embedding_test(model):
+    member_exp_represent = model.get_nonterminal_representation('MemberExpression')
+    call_exp_represent = model.get_nonterminal_representation('CallExpression')
+    expression_stat_represent = model.get_nonterminal_representation('ExpressionStatement')
+    block_stat_represent = model.get_nonterminal_representation('BlockStatement')
+    property_represent = model.get_nonterminal_representation('Property')
+    binary_exp_represent = model.get_nonterminal_representation('BinaryExpression')
+    assignment_exp_represent = model.get_nonterminal_representation('AssignmentExpression')
+    variable_exp_represent = model.get_nonterminal_representation('VariableDeclarator')
+    total_data = np.vstack([member_exp_represent, call_exp_represent, expression_stat_represent,
+                            block_stat_represent, property_represent, binary_exp_represent,
+                            assignment_exp_represent, variable_exp_represent])
+    total_result = TSNE_fit(total_data)
+
+    member_len = len(member_exp_represent)
+    call_len = len(call_exp_represent)
+    express_len = len(expression_stat_represent)
+    block_len = len(block_stat_represent)
+    property_len = len(property_represent)
+    binary_len = len(binary_exp_represent)
+    assign_len = len(assignment_exp_represent)
+    variable_len = len(variable_exp_represent)
+
+    member_result = normalization_nt(total_result[:member_len])
+    call_result = normalization_nt(total_result[member_len: member_len + call_len])
+    express_result = normalization_nt(total_result[member_len + call_len: member_len + call_len + express_len])
+    block_result = normalization_nt(total_result[member_len + call_len + express_len:
+                                                 member_len + call_len + express_len + block_len])
+    property_result = normalization_nt(total_result[member_len + call_len + express_len + block_len:
+                                                    member_len + call_len + express_len + block_len + property_len])
+    binary_result = normalization_nt(total_result[member_len + call_len + express_len + block_len + property_len:
+                                                  member_len + call_len + express_len + block_len + property_len + binary_len])
+    assign_result = normalization_nt(
+        total_result[member_len + call_len + express_len + block_len + property_len + binary_len:
+                     member_len + call_len + express_len + block_len + property_len + binary_len + assign_len])
+    variable_result = normalization_nt(
+        total_result[member_len + call_len + express_len + block_len + property_len + binary_len + assign_len:])
+
+    member_label = np.ones(member_result.shape[0], dtype=np.int16) * 0
+    call_label = np.ones(call_result.shape[0], dtype=np.int16) * 1
+    express_label = np.ones(express_result.shape[0], dtype=np.int16) * 2
+    block_label = np.ones(block_result.shape[0], dtype=np.int16) * 3
+    property_label = np.ones(property_result.shape[0], dtype=np.int16) * 4
+    binary_label = np.ones(binary_result.shape[0], dtype=np.int16) * 5
+    assign_label = np.ones(assign_result.shape[0], dtype=np.int16) * 6
+    variable_label = np.ones(variable_result.shape[0], dtype=np.int16) * 7
+
+    plot_data = np.vstack([member_result, call_result, express_result, block_result, property_result,
+                           binary_result, assign_result, variable_result])
+    plot_label = np.concatenate((member_label, call_label, express_label, block_label, property_label,
+                                 binary_label, assign_label, variable_label))
+    plot_embedding(plot_data, plot_label)
+
+
+
+
+
+if __name__ == '__main__':
+    model = NodeEmbedding()
+    #terminal_embedding_test(model)
+    non_terminal_embedding_test(model)
