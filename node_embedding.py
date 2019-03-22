@@ -13,15 +13,36 @@ num_ttoken = embed_setting.num_terminal
 
 
 class NodeEmbedding(object):
-    def __init__(self):
+    """加载已经训练好的Node2vec数据"""
+    def __init__(self, nt_or_tt):
+        self.nt_or_tt = nt_or_tt
         self.session = tf.Session()
-        trained_model_path = 'trained_model/node2vec_tt/'
+        if self.nt_or_tt == 'tt':
+            trained_model_path = 'trained_model/node2vec_tt/'
+            saver = tf.train.import_meta_graph(trained_model_path + 'EPOCH4.ckpt.meta')
+        elif self.nt_or_tt == 'nt':
+            trained_model_path = 'trained_model/node2vec_nt/'
+            saver = tf.train.import_meta_graph(trained_model_path + 'EPOCH8.ckpt.meta')
+        else:
+            raise KeyError
         checkpoints_path = tf.train.latest_checkpoint(trained_model_path)
         print('model is loaded from', checkpoints_path)
-        saver = tf.train.import_meta_graph(trained_model_path + 'EPOCH4.ckpt.meta')
         saver.restore(self.session, checkpoints_path)
         self.embedding_matrix = self.session.run('embedding_matrix/Variable:0')  # (30001, 300)
-        print(self.embedding_matrix.shape)
+        print('shape of embedding matrix:', self.embedding_matrix.shape)
+
+    def save_embedding_matrix(self):
+        """将已经训练好的embedding matrix保存到指定路径中"""
+        import pickle
+        if self.nt_or_tt == 'tt':
+            file = open('temp_data/tt_embedding_matrix.pkl', 'wb')
+        elif self.nt_or_tt == 'nt':
+            file = open('temp_data/nt_embedding_matrix.pkl', 'wb')
+        else:
+            raise KeyError
+        pickle.dump(self.embedding_matrix, file)
+        print(self.nt_or_tt, 'embedding matrix has saved...')
+
 
     def get_terminal_representation(self, type_string):
         """输入terminal token的type，返回所有属于该type token的representation vector"""
@@ -202,6 +223,7 @@ def non_terminal_embedding_test(model):
 
 
 if __name__ == '__main__':
-    model = NodeEmbedding()
+    model = NodeEmbedding('nt')
+    model.save_embedding_matrix()
     #terminal_embedding_test(model)
-    non_terminal_embedding_test(model)
+    #non_terminal_embedding_test(model)
