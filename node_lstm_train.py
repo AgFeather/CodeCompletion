@@ -1,5 +1,4 @@
 import tensorflow as tf
-import pickle
 import time
 import os
 import sys
