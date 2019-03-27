@@ -2,7 +2,6 @@ import tensorflow as tf
 import pickle
 import matplotlib.pyplot as plt
 import numpy as np
-from sklearn.manifold import TSNE
 
 import setting
 
@@ -14,37 +13,33 @@ num_ttoken = embed_setting.num_terminal
 
 class NodeEmbedding(object):
     """加载已经训练好的Node2vec数据"""
-    def __init__(self, nt_or_tt):
-        self.nt_or_tt = nt_or_tt
-        self.session = tf.Session()
-        if self.nt_or_tt == 'tt':
+    def __init__(self):
+        with tf.Session() as sess:
             trained_model_path = 'trained_model/node2vec_tt/'
             saver = tf.train.import_meta_graph(trained_model_path + 'EPOCH4.ckpt.meta')
-        elif self.nt_or_tt == 'nt':
+            saver.restore(sess, tf.train.latest_checkpoint(trained_model_path))
+            self.tt_embedding_matrix = sess.run('embedding_matrix/Variable:0')
+            print('loading terminal matrix with shape:',self.tt_embedding_matrix.shape)
+        tf.reset_default_graph()
+        with tf.Session() as sess:
             trained_model_path = 'trained_model/node2vec_nt/'
             saver = tf.train.import_meta_graph(trained_model_path + 'EPOCH8.ckpt.meta')
-        else:
-            raise KeyError
-        checkpoints_path = tf.train.latest_checkpoint(trained_model_path)
-        print('model is loaded from', checkpoints_path)
-        saver.restore(self.session, checkpoints_path)
-        self.embedding_matrix = self.session.run('embedding_matrix/Variable:0')  # (30001, 300)
-        print('shape of embedding matrix:', self.embedding_matrix.shape)
+            saver.restore(sess, tf.train.latest_checkpoint(trained_model_path))
+            self.nt_embedding_matrix = sess.run('embedding_matrix/Variable:0')
+            print('loading non-terminal matrix with shape:', self.nt_embedding_matrix.shape)
 
     def save_embedding_matrix(self):
         """将已经训练好的embedding matrix保存到指定路径中"""
         import pickle
-        if self.nt_or_tt == 'tt':
-            file = open('temp_data/tt_embedding_matrix.pkl', 'wb')
-        elif self.nt_or_tt == 'nt':
-            file = open('temp_data/nt_embedding_matrix.pkl', 'wb')
-        else:
-            raise KeyError
-        pickle.dump(self.embedding_matrix, file)
-        print(self.nt_or_tt, 'embedding matrix has saved...')
+        with open('temp_data/tt_embedding_matrix.pkl', 'wb') as file:
+            pickle.dump(self.tt_embedding_matrix, file)
+            print('terminal embedding matrix has saved...')
+        with open('temp_data/nt_embedding_matrix.pkl', 'wb') as file:
+            pickle.dump(self.nt_embedding_matrix, file)
+            print('non-terminal embedding matrix has saved...')
 
 
-    def get_terminal_representation(self, type_string):
+    def get_embedding_representation(self, type_string, nt_or_tt):
         """输入terminal token的type，返回所有属于该type token的representation vector"""
         dict_parameter_saved_path = 'js_dataset/split_js_data/parameter.p'
         tt_token_to_int, tt_int_to_token, nt_token_to_int, nt_int_to_token = \
@@ -56,54 +51,46 @@ class NodeEmbedding(object):
             if node_type == type_string:
                 token_index_list.append(index)
 
+        if nt_or_tt == 'nt':
+            matrix = self.nt_embedding_matrix
+        elif nt_or_tt == 'tt':
+            matrix = self.tt_embedding_matrix
+        else:
+            raise KeyError
+
         embedding_vector_list = []
         for index in token_index_list:
-            represent_vector = self.embedding_matrix[index]  # 给定一个int型的token index，返回训练好的represent vector
+            represent_vector = matrix[index]  # 给定一个int型的token index，返回训练好的represent vector
             embedding_vector_list.append(represent_vector)
         embedding_vector_list = np.array(embedding_vector_list)
         return embedding_vector_list
 
-    def get_nonterminal_representation(self, type_string):
-        """输入non-terminal token的type，返回所有属于该type token的representation vector"""
-        dict_parameter_saved_path = 'js_dataset/split_js_data/parameter.p'
-        tt_token_to_int, tt_int_to_token, nt_token_to_int, nt_int_to_token = \
-            pickle.load(open(dict_parameter_saved_path, 'rb'))
 
-        token_index_list = []
-        for string_token, index in nt_token_to_int.items():
-            node_type = string_token.split('=$$=')[0]
-            if node_type == type_string:
-                token_index_list.append(index)
-
-        embedding_vector_list = []
-        for index in token_index_list:
-            represent_vector = self.embedding_matrix[index]  # 给定一个int型的token index，返回训练好的represent vector
-            embedding_vector_list.append(represent_vector)
-        embedding_vector_list = np.array(embedding_vector_list)
-        return embedding_vector_list
+    def get_most_similar(self, string, topk=3):
+        """计算给定string的最 similar的top k个node"""
+        pass
 
 
 
 
 def TSNE_fit(data):
-    """使用t-SNE对原始的embedding representation vector进行可视化"""
+    """使用t-SNE对原始的embedding representation vector进行降维到2-D"""
+    from sklearn.manifold import TSNE
     tsne = TSNE(n_components=2, init='pca', random_state=0)
     result = tsne.fit_transform(data)
     return result
 
 
 def plot_embedding(data, label):
-    """对经过降维的数据进行可视化"""
+    """对经过降维到2-D的数据进行可视化"""
     x_y_min, x_y_max = np.min(data, 0), np.max(data, 0)
-
     data = (data - x_y_min) / (x_y_max - x_y_min)
-
     fig = plt.figure(figsize=(12, 12))
     ax = plt.subplot(111)
     for i in range(data.shape[0]):
         plt.text(data[i, 0], data[i, 1], str(label[i]),
                  color=plt.cm.Set1(label[i]),
-                 fontdict={'weight': 'bold', 'size': 9})
+                 fontdict={'weight': 'bold', 'size': 12})  # 对于non-terminal，调大字体大小
     plt.xticks([]) # 设置坐标刻度
     plt.yticks([])
     plt.xlim((-0.05, 1.05)) # 设置坐标轴范围
@@ -112,7 +99,8 @@ def plot_embedding(data, label):
     plt.show(fig)
 
 
-def normalization(data, bias=5, num=100):
+def normalization_tt(data, bias=5, num=100):
+    """对被降维到2-D的terminal represent vector进行归一化"""
     average_x, average_y = np.average(data, axis=0)
     print(average_x, average_y)
     normal_data = []
@@ -124,12 +112,17 @@ def normalization(data, bias=5, num=100):
     return np.array(normal_data)
 
 def normalization_nt(data):
+    """对被降维到2-D的non-terminal represent vector进行归一化"""
     average_x, average_y = np.average(data, axis=0)
     print(average_x, average_y)
     return np.array((average_x, average_y)).reshape((1 ,2))
 
 
 def terminal_embedding_test(model):
+    """对terminal embedding representation vector进行可视化的整个流程
+    首先获取多个type的terminal embedding vector，
+    然后使用TSNE算法对所有vector进行降维，
+    然后进行可视化"""
     string_represent = model.get_terminal_representation('LiteralString')  # 4662
     property_represent = model.get_terminal_representation('Property')  # 9617
     identifier_represent = model.get_terminal_representation('Identifier')  # 13453
@@ -141,13 +134,13 @@ def terminal_embedding_test(model):
                             identifier_represent, literal_number_represent])
     total_result = TSNE_fit(total_data)
 
-    string_result = normalization(total_result[:len(string_represent)])
-    property_result = normalization(
+    string_result = normalization_tt(total_result[:len(string_represent)])
+    property_result = normalization_tt(
         total_result[len(string_represent):len(string_represent) + len(property_represent)])
-    identifier_result = normalization(
+    identifier_result = normalization_tt(
         total_result[len(string_represent) + len(property_represent):
                      len(string_represent) + len(property_represent) + len(identifier_represent)])
-    literal_number_result = normalization(
+    literal_number_result = normalization_tt(
         total_result[len(string_represent) + len(property_represent) + len(identifier_represent):
                      len(string_represent) + len(property_represent) + len(identifier_represent) + len(
                          literal_number_represent)])
@@ -166,6 +159,10 @@ def terminal_embedding_test(model):
 
 
 def non_terminal_embedding_test(model):
+    """对non-terminal embedding representation vector进行可视化的整个流程
+    首先获取多个type的terminal embedding vector，
+    然后使用TSNE算法对所有vector进行降维，
+    然后进行可视化"""
     member_exp_represent = model.get_nonterminal_representation('MemberExpression')
     call_exp_represent = model.get_nonterminal_representation('CallExpression')
     expression_stat_represent = model.get_nonterminal_representation('ExpressionStatement')
@@ -223,7 +220,7 @@ def non_terminal_embedding_test(model):
 
 
 if __name__ == '__main__':
-    model = NodeEmbedding('nt')
+    model = NodeEmbedding()
     model.save_embedding_matrix()
     #terminal_embedding_test(model)
     #non_terminal_embedding_test(model)

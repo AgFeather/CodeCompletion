@@ -128,7 +128,7 @@ class LSTM_Node_Embedding(object):
         t_loss = tf.reduce_mean(t_loss)
         return t_loss
 
-    def bulid_accuracy(self, n_output, n_target, t_output, t_target):
+    def build_accuracy(self, n_output, n_target, t_output, t_target):
         n_most_similar = self.get_most_similar(self.n_embed_matrix, n_output)
         t_most_similar = self.get_most_similar(self.t_embed_matrix, t_output)
         n_equal = tf.equal(n_most_similar, n_target)
@@ -139,13 +139,21 @@ class LSTM_Node_Embedding(object):
 
     def get_most_similar(self, represent_matrix, output):
         """计算给定embedding matrix中距离最近的vector对应的index，使用TensorFlow中距离计算函数"""
-        pass
+        size_x = tf.shape(output)[0]
+        size_y = tf.shape(represent_matrix)[0]
+        output_new = tf.expand_dims(output, -1)
+        output_new = tf.tile(output_new, tf.pack([1, 1, size_y]))
 
-    def build_topk_prediction(self, n_output, t_output, define_k=3):
-        """return the top k prediction by model"""
-        n_topk_possibility, n_topk_prediction = tf.nn.top_k(n_output, k=define_k)
-        t_topk_possibility, t_topk_prediction = tf.nn.top_k(t_output, k=define_k)
-        return n_topk_prediction, n_topk_possibility, t_topk_prediction, t_topk_possibility
+        matrix_new = tf.expand_dims(represent_matrix, -1)
+        matrix_new = tf.tile(matrix_new, tf.pack([1, 1, size_x]))
+        matrix_new = tf.transpose(matrix_new, perm=[2, 1, 0])
+
+        diff = tf.sub(output_new, matrix_new)
+        square_diff = tf.square(diff)
+
+        square_dist = tf.reduce_sum(square_diff, 1)
+
+        return square_dist
 
     def build_optimizer(self, loss):
         """build optimizer for model, using learning rate decay and gradient clip"""
@@ -203,17 +211,17 @@ class LSTM_Node_Embedding(object):
         self.optimizer, self.decay_learning_rate = self.build_optimizer(self.loss)
 
         # # top one accuracy
-        # self.n_accu, self.t_accu = self.build_accuracy(n_logits, n_target, t_logits, t_target, topk=1)
+        self.n_accu, self.t_accu = self.build_accuracy(n_logits, n_target, t_logits, t_target)
         #
         # # top k accuracy
         # self.n_topk_accu, self.t_topk_accu = self.build_accuracy(
         #     n_logits, n_target, t_logits, t_target, topk=3)
 
         # top k prediction with possibility
-        self.n_output = self.build_softmax(n_logits)
-        self.t_output = self.build_softmax(t_logits)
-        self.n_topk_pred, self.n_topk_poss, self.t_topk_pred, self.t_topk_poss = \
-            self.build_topk_prediction(self.n_output, self.t_output)
+        # self.n_output = self.build_softmax(n_logits)
+        # self.t_output = self.build_softmax(t_logits)
+        # self.n_topk_pred, self.n_topk_poss, self.t_topk_pred, self.t_topk_poss = \
+        #     self.build_topk_prediction(self.n_output, self.t_output)
 
         summary_dict = {'train loss': self.loss,
                         'non-terminal loss': self.t_loss, 'terminal loss': self.t_loss,
