@@ -66,9 +66,88 @@ class NodeEmbedding(object):
         return embedding_vector_list
 
 
-    def get_most_similar(self, string, topk=3):
-        """计算给定string的最 similar的top k个node"""
-        pass
+    def get_most_similar(self, string_node, nt_or_tt, topk=5):
+        """计算与给定node余弦相似度最大的top k个node"""
+        dict_parameter_saved_path = 'js_dataset/split_js_data/parameter.p'
+        tt_token_to_int, tt_int_to_token, nt_token_to_int, nt_int_to_token = \
+            pickle.load(open(dict_parameter_saved_path, 'rb'))
+        if nt_or_tt == 'nt':
+            embedding_matrix = self.nt_embedding_matrix
+            token_to_int = nt_token_to_int
+            int_to_token = nt_int_to_token
+        elif nt_or_tt == 'tt':
+            embedding_matrix = self.tt_embedding_matrix
+            token_to_int = tt_token_to_int
+            int_to_token = tt_int_to_token
+        else:
+            raise KeyError
+        index_node = token_to_int[string_node]
+        node_vector = embedding_matrix[index_node]
+        norm_vector = node_vector / np.sqrt(np.sum(np.square(node_vector)))
+        norm = np.sqrt(np.sum(np.square(embedding_matrix), 1, keepdims=True))
+        normalizad_embedding = embedding_matrix / norm
+
+        similarity = np.matmul(norm_vector, np.transpose(normalizad_embedding))
+        similar_index = np.argsort(-similarity)
+        similar_value = -np.sort(-similarity)
+        near_list = []
+        for i in range(topk):
+            near_index = similar_index[i]
+            near_value = similar_value[i]
+            near_node = int_to_token[near_index]
+            near_list.append((near_node, near_value))
+
+        return near_list
+
+    def calculate_distance(self, token1, token2, nt_or_tt):
+        """计算给定的两个向量的相L2距离"""
+        dict_parameter_saved_path = 'js_dataset/split_js_data/parameter.p'
+        tt_token_to_int, tt_int_to_token, nt_token_to_int, nt_int_to_token = \
+            pickle.load(open(dict_parameter_saved_path, 'rb'))
+        if nt_or_tt == 'nt':
+            embedding_matrix = self.nt_embedding_matrix
+            token_to_int = nt_token_to_int
+        elif nt_or_tt == 'tt':
+            embedding_matrix = self.tt_embedding_matrix
+            token_to_int = tt_token_to_int
+        else:
+            raise KeyError
+
+        repre_vector1 = embedding_matrix[token_to_int[token1]]
+        repre_vector2 = embedding_matrix[token_to_int[token2]]
+
+        distance = np.sqrt(np.sum(np.square(repre_vector1 - repre_vector2)))
+
+        return distance
+
+    def calculate_similarity(self, string_node1, string_node2, nt_or_tt):
+        """计算两个node的余弦相似度"""
+        dict_parameter_saved_path = 'js_dataset/split_js_data/parameter.p'
+        tt_token_to_int, tt_int_to_token, nt_token_to_int, nt_int_to_token = \
+            pickle.load(open(dict_parameter_saved_path, 'rb'))
+        if nt_or_tt == 'nt':
+            embedding_matrix = self.nt_embedding_matrix
+            token_to_int = nt_token_to_int
+            int_to_token = nt_int_to_token
+        elif nt_or_tt == 'tt':
+            embedding_matrix = self.tt_embedding_matrix
+            token_to_int = tt_token_to_int
+            int_to_token = tt_int_to_token
+        else:
+            raise KeyError
+
+        node_vector1 = embedding_matrix[token_to_int[string_node1]]
+        norm_vector1 = node_vector1 / np.sqrt(np.sum(np.square(node_vector1)))
+
+        node_vector2 = embedding_matrix[token_to_int[string_node2]]
+        norm_vector2 = node_vector2 / np.sqrt(np.sum(np.square(node_vector2)))
+
+        similarity = np.matmul(norm_vector1, np.transpose(norm_vector2))
+
+        return similarity
+
+
+
 
 
 
@@ -221,6 +300,15 @@ def non_terminal_embedding_test(model):
 
 if __name__ == '__main__':
     model = NodeEmbedding()
-    model.save_embedding_matrix()
+    similarity = model.calculate_similarity('LiteralString=$$=size', 'LiteralString=$$=length', 'tt')
+    print(similarity)
+    similarity = model.calculate_similarity('LiteralString=$$=size', 'LiteralNumber=$$=1', 'tt')
+    print(similarity)
+    distance = model.calculate_distance('LiteralString=$$=size', 'LiteralString=$$=length', 'tt')
+    near_list = model.get_most_similar('LiteralString=$$=size', 'tt')
+    print(near_list)
+
+
+    #model.save_embedding_matrix()
     #terminal_embedding_test(model)
     #non_terminal_embedding_test(model)
