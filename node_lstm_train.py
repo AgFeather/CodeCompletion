@@ -27,13 +27,14 @@ class TrainModel(object):
     """Train rnn model"""
     def __init__(self,
                  num_ntoken, num_ttoken,
-                 batch_size=50,
-                 num_epochs=10,
-                 time_steps=50,):
+                 batch_size=1,
+                 time_steps=1,
+                 num_epochs=10,):
         self.time_steps = time_steps
         self.batch_size = batch_size
         self.num_epochs = num_epochs
-        self.model = LSTM_Node_Embedding(num_ntoken, num_ttoken, is_training=True)
+        self.model = LSTM_Node_Embedding(num_ntoken, num_ttoken,
+                                         batch_size=batch_size, time_steps=time_steps, is_training=True)
 
     def train(self):
         model_info = 'lstm model with Word2Vec ' + \
@@ -74,14 +75,14 @@ class TrainModel(object):
 
                     #                    n_accu, t_accu, topk_n_accu, topk_t_accu, \
 
-                    loss, n_loss, t_loss, \
+                    loss, n_loss, t_loss, n_accu, t_accu, \
                     _, learning_rate, summary_str = \
                         session.run([
                             self.model.loss,
                             self.model.n_loss,
                             self.model.t_loss,
-                            # self.model.n_accu,
-                            # self.model.t_accu,
+                            self.model.n_accu,
+                            self.model.t_accu,
                             # self.model.n_topk_accu,
                             # self.model.t_topk_accu,
                             self.model.optimizer,
@@ -100,6 +101,8 @@ class TrainModel(object):
                         log_info = 'epoch:{}/{}  '.format(epoch, self.num_epochs) + \
                                    'global_step:{}  '.format(global_step) + \
                                    'loss:{:.2f}(n_loss:{:.2f} + t_loss:{:.2f})  '.format(loss, n_loss, t_loss) + \
+                                   'n_accu:{:.2f}% '.format(n_accu * 100) + \
+                                   't_accu:{:.2f}% '.format(t_accu * 100) + \
                                    'learning_rate:{:.4f}  '.format(learning_rate) + \
                                    'time cost per batch:{:.2f}/s'.format(batch_end_time - batch_start_time)
                         self.print_and_log(log_info)

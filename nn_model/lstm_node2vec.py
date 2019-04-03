@@ -20,7 +20,7 @@ valid_every_n = base_setting.valid_every_n
 
 
 class LSTM_Node_Embedding(object):
-    """A LSTM model for code completion with node2vec embedding"""
+    """Node2Vec + LSTM 模型，使用前者对vector进行初始化，后者实现预测"""
     def __init__(self,
                  num_ntoken, num_ttoken, is_training=True,
                  batch_size=50,
@@ -74,7 +74,7 @@ class LSTM_Node_Embedding(object):
     def build_lstm(self, keep_prob):
         """create lstm cell and init state"""
         def get_cell():
-            cell = tf.contrib.rnn.BasicLSTMCell(self.num_hidden_units)
+            cell = tf.nn.rnn_cell.LSTMCell(self.num_hidden_units)
             cell = tf.contrib.rnn.DropoutWrapper(cell, output_keep_prob=keep_prob)
             return cell
         lstm_cell = get_cell()
@@ -131,6 +131,12 @@ class LSTM_Node_Embedding(object):
     def build_accuracy(self, n_output, n_target, t_output, t_target):
         n_most_similar = self.get_most_similar(self.n_embed_matrix, n_output)
         t_most_similar = self.get_most_similar(self.t_embed_matrix, t_output)
+        n_most_similar = tf.cast(n_most_similar, tf.int32)
+        t_most_similar = tf.cast(t_most_similar, tf.int32)
+        # print(t_most_similar.get_shape())
+        # print(t_target.get_shape())
+        # print(n_most_similar.get_shape())
+        # print(n_target.get_shape())
         n_equal = tf.equal(n_most_similar, n_target)
         t_equal = tf.equal(t_most_similar, t_target)
         n_accuracy = tf.reduce_mean(tf.cast(n_equal, tf.float32))
@@ -139,21 +145,23 @@ class LSTM_Node_Embedding(object):
 
     def get_most_similar(self, represent_matrix, output):
         """计算给定embedding matrix中距离最近的vector对应的index，使用TensorFlow中距离计算函数"""
-        size_x = tf.shape(output)[0]
-        size_y = tf.shape(represent_matrix)[0]
+        num_batch = tf.shape(output)[0]
+        num_matrix = tf.shape(represent_matrix)[0]
         output_new = tf.expand_dims(output, -1)
-        output_new = tf.tile(output_new, tf.pack([1, 1, size_y]))
+        output_new = tf.tile(output_new, tf.stack([1, 1, num_matrix]))
 
         matrix_new = tf.expand_dims(represent_matrix, -1)
-        matrix_new = tf.tile(matrix_new, tf.pack([1, 1, size_x]))
+        matrix_new = tf.tile(matrix_new, tf.stack([1, 1, num_batch]))
         matrix_new = tf.transpose(matrix_new, perm=[2, 1, 0])
 
-        diff = tf.sub(output_new, matrix_new)
+        diff = tf.subtract(output_new, matrix_new)
         square_diff = tf.square(diff)
 
-        square_dist = tf.reduce_sum(square_diff, 1)
+        square_dist = tf.reduce_sum(square_diff, 1) # 距离矩阵
 
-        return square_dist
+        most_similar_index = tf.argmin(square_dist, axis=1) # todo 现在返回的是其本身，修改成计算最近的别的
+
+        return most_similar_index
 
     def build_optimizer(self, loss):
         """build optimizer for model, using learning rate decay and gradient clip"""
@@ -182,7 +190,7 @@ class LSTM_Node_Embedding(object):
         self.n_input, self.t_input, self.n_target, self.t_target, self.keep_prob = self.build_input()
         n_input_embedding, t_input_embedding = self.build_represent_embed(
             self.n_input, self.t_input)
-        n_output_embedding, t_output_embedding = self.build_represent_embed(
+        n_target_embedding, t_target_embedding = self.build_represent_embed(
             self.n_target, self.t_target)
         lstm_input = tf.add(n_input_embedding, t_input_embedding)
 
@@ -196,22 +204,24 @@ class LSTM_Node_Embedding(object):
         # loss calculate
         # n_target = tf.reshape(self.n_target, [self.batch_size*self.time_steps])
         # t_target = tf.reshape(self.t_target, [self.batch_size*self.time_steps])
-        n_target = tf.reshape(n_output_embedding, [-1, self.word2vec_dim])
-        t_target = tf.reshape(t_output_embedding, [-1, self.word2vec_dim])
+        n_target_embedding = tf.reshape(n_target_embedding, [-1, self.word2vec_dim])
+        t_target_embedding = tf.reshape(t_target_embedding, [-1, self.word2vec_dim])
 
         # print(n_logits.get_shape())
         # print(t_logits.get_shape())
         # print(t_output_embedding.get_shape())
         # print(n_output_embedding.get_shape())
 
-        self.n_loss = self.build_nt_loss(n_logits, n_target)
-        self.t_loss = self.build_tt_loss(t_logits, t_target)
+        self.n_loss = self.build_nt_loss(n_logits, n_target_embedding)
+        self.t_loss = self.build_tt_loss(t_logits, t_target_embedding)
         self.loss = self.build_loss(self.n_loss, self.t_loss)
         # optimizer
         self.optimizer, self.decay_learning_rate = self.build_optimizer(self.loss)
 
         # # top one accuracy
-        self.n_accu, self.t_accu = self.build_accuracy(n_logits, n_target, t_logits, t_target)
+        temp_n_target = tf.reshape(self.n_target, [-1]) # should be equal to self.batch_size*self.time_steps
+        temp_t_target = tf.reshape(self.t_target, [-1])
+        self.n_accu, self.t_accu = self.build_accuracy(n_logits, temp_n_target, t_logits, temp_t_target)
         #
         # # top k accuracy
         # self.n_topk_accu, self.t_topk_accu = self.build_accuracy(

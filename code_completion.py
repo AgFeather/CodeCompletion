@@ -23,7 +23,7 @@ class CodeCompletion(object):
 
     def __init__(self,
                  num_ntoken,
-                 num_ttoken, is_runtime=False):
+                 num_ttoken,):
         self.model = RnnModel(num_ntoken, num_ttoken, is_training=False)
         self.log_file = open(completion_log_dir, 'w')
         self.tt_token_to_int, self.tt_int_to_token, self.nt_token_to_int, self.nt_int_to_token = \
@@ -35,9 +35,19 @@ class CodeCompletion(object):
         saver.restore(self.session, checkpoints_path)
         self.test_log(checkpoints_path + ' is using...')
 
+        self.get_identifer_set()
+
+    def get_identifer_set(self):
+        """统计所有Identifier terminal tokens对应的index"""
+        self.identifier_set = set()
+        for index, token in self.tt_int_to_token.items():
+            type_info = token.split('=$$=')[0]
+            if type_info == 'Identifier':
+                self.identifier_set.add(index)
+        print('There are {} kinds of identifier in vocabulary'.format(len(self.identifier_set)))
+
     def predict(self, int_nt_seq, topk=3, next_n=1):
         """对外接口，先将所有pre-context转换为int，然后使用trained model进行evaluate"""
-
         if topk == define_topk:
             eval_func = self.eval
         else:
@@ -52,7 +62,6 @@ class CodeCompletion(object):
                                 for n_int, t_int in zip(n_topk_pred, t_topk_pred)])
             topk_pairs_poss.append([(n_poss, t_poss)
                                for n_poss, t_poss in zip(n_topk_poss, t_topk_poss)])
-
             int_nt_seq = [(n_topk_poss[0], t_topk_pred[0])]
 
         return topk_token_pairs, topk_pairs_poss
@@ -78,28 +87,6 @@ class CodeCompletion(object):
             n_topk_poss = n_poss[-1, :]
             t_topk_pred = t_pred[-1, :]
             t_topk_poss = t_poss[-1, :]
-
-            # n_topk_pred.append(n_pred)
-            # n_topk_poss.append(n_poss)
-            # t_topk_pred.append(t_pred)
-            # t_topk_poss.append(t_poss)
-            #
-            # for _ in range(next_n-1):
-            #     feed = {self.model.n_input: n_pred[0],
-            #             self.model.t_input: t_pred[0],
-            #             self.model.keep_prob: 1.,
-            #             self.model.lstm_state: lstm_state}
-            #     n_pred, n_poss, t_pred, t_poss, lstm_state = self.session.run([
-            #         self.model.n_topk_pred, self.model.n_topk_poss, self.model.t_topk_pred,
-            #         self.model.t_topk_poss, self.model.final_state], feed_dict=feed)
-            #
-            # n_topk_pred.append(n_pred)
-            # n_topk_poss.append(n_poss)
-            # t_topk_pred.append(t_pred)
-            # t_topk_poss.append(t_poss)
-
-
-
 
         return n_topk_pred, n_topk_poss, t_topk_pred, t_topk_poss
 
@@ -139,30 +126,21 @@ class CodeCompletion(object):
 
         if self.top_one_equal(n_topk_pred, n_expectation):
             self.nt_correct_count += 1
-        else:
-            temp_error_dic = {}
-            temp_error_dic['ast_prefix'] = prefix
-            temp_error_dic['ast_expectation'] = expectation
-            temp_error_dic['ast_suffix'] = suffix
-            temp_error_dic['expectation'] = n_expectation
-            temp_error_dic['prediction'] = n_topk_pred
-            self.nt_error_log.append(temp_error_dic)
 
         if self.top_one_equal(t_topk_pred, t_expectation):
             self.tt_correct_count += 1
-        else:
-            temp_error_dic = {}
-            temp_error_dic['ast_prefix'] = prefix
-            temp_error_dic['ast_expectation'] = expectation
-            temp_error_dic['ast_suffix'] = suffix
-            temp_error_dic['expectation'] = t_expectation
-            temp_error_dic['prediction'] = t_topk_pred
-            self.tt_error_log.append(temp_error_dic)
 
         if self.topk_equal(n_topk_pred, n_expectation):
             self.topk_nt_correct_count += 1
         if self.topk_equal(t_topk_pred, t_expectation):
             self.topk_tt_correct_count += 1
+
+        if t_expectation in self.identifier_set:
+            # 如果target terminal token是identifier，就进行统计
+            if self.top_one_equal(t_topk_pred, t_expectation):
+                self.identifier_correct_count += 1
+            else:
+                self.identifier_incorrect_count += 1
 
     def completion_test(self, topk=3):
         """Test model with the whole test dataset
@@ -172,13 +150,14 @@ class CodeCompletion(object):
         """
         self.test_log('test phase is beginning...')
         start_time = time.time()
-        self.nt_error_log = []
-        self.tt_error_log = []
         self.tt_correct_count = 0.0
         self.nt_correct_count = 0.0
         self.topk_nt_correct_count = 0.0
         self.topk_tt_correct_count = 0.0
-        test_times = 2000
+        self.identifier_correct_count = 0 # 用以计算对Identifier的预测准确率
+        self.identifier_incorrect_count = 0
+        self.identifier_accu_list = []
+        test_times = 10000
         test_step = 0
         self.generator = DataGenerator()
         sub_data_generator = self.generator.get_test_subset_data()
@@ -189,10 +168,12 @@ class CodeCompletion(object):
                 test_step += 1
                 # 对一个ast sequence进行test
                 self.query(token_sequence, topk=topk)
-                if test_step % show_every_n == 0:
+                if test_step % 100 == 0:
                     one_test_end_time = time.time()
                     duration = (one_test_end_time - one_test_start_time) / show_every_n
                     one_test_start_time = one_test_end_time
+                    identifier_accu = (self.identifier_correct_count+1) / (self.identifier_correct_count + self.identifier_incorrect_count+1)
+                    self.identifier_accu_list.append(identifier_accu)
                     nt_accu = self.nt_correct_count / test_step
                     tt_accu = self.tt_correct_count / test_step
                     topk_nt_accu = self.topk_nt_correct_count / test_step
@@ -202,6 +183,7 @@ class CodeCompletion(object):
                                'tt_accuracy:{:.2f}%  '.format(tt_accu * 100) + \
                                'nt_top{}_accuracy:{:.2f}%  '.format(define_topk, topk_nt_accu * 100) + \
                                'tt_top{}_accuracy:{:.2f}%  '.format(define_topk, topk_tt_accu * 100) + \
+                               'identifier accuracy:{:.2f}% '.format(identifier_accu * 100) + \
                                'average time cost:{:.2f}s  '.format(duration)
                     self.test_log(log_info)
 
@@ -223,10 +205,10 @@ class CodeCompletion(object):
                        'average time cost per case: {:.2f}s  '.format((end_time - start_time) / test_step)
             self.test_log(log_info)
 
-        error_prediction_dir = 'error_prediction_info.p'
-        file = open(error_prediction_dir, 'wb')
-        pickle.dump((self.nt_error_log, self.tt_error_log), file)
-        print(error_prediction_dir, 'has been saved...')
+            file = open('identifier_prediction_accu.pkl', 'wb')
+            pickle.dump(self.identifier_accu_list, file)
+
+
 
     def top_one_equal(self, prediction, expectation):
         if prediction[0] == expectation:
