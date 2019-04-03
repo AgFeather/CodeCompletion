@@ -92,6 +92,7 @@ def bulid_binary_tree(ast):
             break
 
         node['right'] = brother_map.get(node['id'], -1)
+        node['left'] = -1
 
         if 'children' in node.keys():  # 表示该node为non-terminal
             node['isTerminal'] = False  # 存在四种token，有children list但是list的长度为0，暂时将其归为terminal

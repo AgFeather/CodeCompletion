@@ -118,6 +118,7 @@ class CodeCompletion(object):
 
     def query(self, token_sequence, topk=3):
         prefix, expectation, suffix = self.create_hole(token_sequence)  # 随机在sequence中创建一个hole
+        print(expectation)
         n_expectation, t_expectation = expectation[0]
         if define_topk == topk:
             n_topk_pred, n_topk_poss, t_topk_pred, t_topk_poss = self.eval(prefix)
@@ -168,7 +169,7 @@ class CodeCompletion(object):
                 test_step += 1
                 # 对一个ast sequence进行test
                 self.query(token_sequence, topk=topk)
-                if test_step % 100 == 0:
+                if test_step % show_every_n == 0:
                     one_test_end_time = time.time()
                     duration = (one_test_end_time - one_test_start_time) / show_every_n
                     one_test_start_time = one_test_end_time
