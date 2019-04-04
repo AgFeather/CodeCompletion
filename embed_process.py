@@ -16,16 +16,22 @@ base_setting = Setting()
 
 js_train_data_dir = base_setting.origin_train_data_dir
 
-data_parameter_dir = base_setting.data_parameter_dir
+# 根据原始 AST 生成对node2vec模型的训练数据
+# data_parameter_dir = 'js_dataset/split_js_data/parameter.p'
+# nt_train_pair_dir = 'js_dataset/embed_data/nt_train_pair/'
+# tt_train_pair_dir = 'js_dataset/embed_data/tt_train_pair/'
 
-nt_train_pair_dir = 'js_dataset/train_pair_data/nt_train_pair/'
-tt_train_pair_dir = 'js_dataset/train_pair_data/tt_train_pair/'
+
+# 将原始AST急性rename后生成对node2vec模型的训练数据
+data_parameter_dir = 'js_dataset/rename_variable/rename_parameter.pkl'
+nt_train_pair_dir = 'js_dataset/rename_embed_data/nt_train_pair/'
+tt_train_pair_dir = 'js_dataset/rename_embed_data/tt_train_pair/'
+
 
 num_sub_valid_data = base_setting.num_sub_valid_data
 num_sub_train_data = base_setting.num_sub_train_data
 num_sub_test_data = base_setting.num_sub_test_data
 
-most_common_termial_num = 30000
 unknown_token = base_setting.unknown_token
 time_steps = base_setting.time_steps
 
@@ -33,9 +39,9 @@ time_steps = base_setting.time_steps
 parameter_file = open(data_parameter_dir, 'rb')
 tt_token_to_int, tt_int_to_token, nt_token_to_int, nt_int_to_token = pickle.load(parameter_file)
 
-nt_n_dim = 3 # 需要乘2
+nt_n_dim = 5 # 需要乘2
 nt_t_dim = 6 # non-terminal的前六个terminal child node
-tt_n_dim = 4 # 需要乘2 （似乎不应该乘2）
+tt_n_dim = 5 # 需要乘2 （似乎不应该乘2）
 tt_t_dim = 2 # 需要乘2 terminal node前后各两个terminal node作为context
 
 def dataset_training_pair(subset_size=5000):

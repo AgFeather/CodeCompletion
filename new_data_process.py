@@ -153,10 +153,11 @@ def ast_to_seq(binary_tree, run_or_process='process'):
         # 对给定的二叉树进行中序遍历，并在中序遍历的时候，生成nt_pair
         node = bin_tree[index]
         if 'left' in node.keys() and not node['isTerminal']:
-            left_child = bin_tree[node['left']]
-            right_child = bin_tree[node['right']]
+            next_node = bin_tree[node['left']]
+            left_child = bin_tree[next_node['left']]
+            right_child = bin_tree[next_node['right']]
 
-            if (node['left'] == -1 and node['right'] == -1) or (left_child['isTerminal'] and right_child['isTerminal']):
+            if (next_node['left'] == -1 and next_node['right'] == -1) or (left_child['isTerminal'] and right_child['isTerminal']):
                 in_order_traversal(bin_tree, node['left'], 'leaf', 'left')
             else:
                 in_order_traversal(bin_tree, node['left'], 'node', 'left')
@@ -168,11 +169,15 @@ def ast_to_seq(binary_tree, run_or_process='process'):
             # 如果该node是non-terminal，并且包含一个terminal 子节点，则和该子节点组成nt_pair保存在output中
             # 否则将nt_pair的T设为字符串EMPTY
             n_pair = node_to_string(node)
+            has_terminal_child = False
             for child_index in node['children']:  # 遍历该non-terminal的所有child，分别用所有terminal child构建NT-pair
                 if bin_tree[child_index]['isTerminal']:
                     t_pair = node_to_string(bin_tree[child_index])
-                else:
-                    t_pair = node_to_string('EMPTY')
+                    has_terminal_child = True
+                    nt_pair = (n_pair, t_pair, node_or_leaf, left_or_right)
+                    output.append(nt_pair)
+            if not has_terminal_child: # 该nt node不包含任何terminal child
+                t_pair = node_to_string('EMPTY')
                 nt_pair = (n_pair, t_pair, node_or_leaf, left_or_right)
                 output.append(nt_pair)
 
@@ -196,6 +201,35 @@ def ast_to_seq(binary_tree, run_or_process='process'):
 
 def seq_to_binary_tree(token_seq):
     """将seq转换回binary tree"""
+
+    def reduce(stack):
+        while stack[-1]['side'] == 'right':
+            right_child = stack.pop()
+            parent_node = stack.pop()
+            left_child = stack.pop()
+            parent_node['right'] = right_child
+            parent_node['left'] = left_child
+            stack.append(parent_node)
+
+    stack = []
+    for index, (nt_node, tt_node, node_or_leaf, left_or_right) in enumerate(token_seq):
+        if node_or_leaf == 'node':
+            node = {'id':index, 'node_info':nt_node, 'side':left_or_right}
+            stack.append(node)
+        if node_or_leaf == 'leaf':
+            if left_or_right == 'left':
+                node = {'node_info': nt_node, 'side': left_or_right}
+                stack.append(node)
+            elif left_or_right == 'right':
+                node = {'node_info': nt_node, 'side': left_or_right}
+                stack.append(node)
+                reduce(stack)
+
+
+
+
+
+
 
 
 

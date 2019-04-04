@@ -29,7 +29,7 @@ num_sub_valid_data = base_setting.num_sub_valid_data
 num_sub_train_data = base_setting.num_sub_train_data
 num_sub_test_data = base_setting.num_sub_test_data
 
-most_common_termial_num = 30000
+most_common_termial_num = 20000
 unknown_token = base_setting.unknown_token
 time_steps = base_setting.time_steps
 
@@ -174,6 +174,20 @@ def ast_to_seq(binary_tree, run_or_process='process'):
                 nt_pair = (n_pair, t_pair)
                 output.append(nt_pair)
 
+            # #原处理方式会产生多余的 nt，empty。所以应该改成下面的代码
+            # n_pair = node_to_string(node)
+            # has_terminal_child = False
+            # for child_index in node['children']:  # 遍历该non-terminal的所有child，分别用所有terminal child构建NT-pair
+            #     if bin_tree[child_index]['isTerminal']:
+            #         t_pair = node_to_string(bin_tree[child_index])
+            #         has_terminal_child = True
+            #         nt_pair = (n_pair, t_pair)
+            #         output.append(nt_pair)
+            # if not has_terminal_child: # 该nt node不包含任何terminal child
+            #     t_pair = node_to_string('EMPTY')
+            #     nt_pair = (n_pair, t_pair)
+            #     output.append(nt_pair)
+
         if node['right'] != -1:  # 遍历right side
             in_order_traversal(bin_tree, node['right'])
 
@@ -302,7 +316,7 @@ if __name__ == '__main__':
     data_process = operation_list[2]
 
     if data_process == 'TRAIN':
-        #dataset_split(is_training=True)
+        dataset_split(is_training=True)
         nt_seq_to_int(status='TRAIN')
     elif data_process == 'TEST':
         #dataset_split(is_training=False)
