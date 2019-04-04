@@ -14,10 +14,19 @@ save_every_n = embed_setting.save_every_n
 num_nt_token = embed_setting.num_non_terminal
 num_tt_token = embed_setting.num_terminal
 
-model_save_dir = '../trained_model/node2vec/'
-tensorboard_log_dir = '../log_info/tensorboard_log/node2vec/'
+# model_save_dir = '../trained_model/node2vec/'
+# tensorboard_log_dir = '../log_info/tensorboard_log/node2vec/'
+
+model_save_dir = '../trained_model/rename_nt_node2vec/'
+tensorboard_log_dir = '../log_info/tensorboard_log/rename_nt_node2vec/'
 
 training_log_dir = embed_setting.node2vec_train_log_dir
+
+
+nt_n_dim = 5 # 需要乘2
+nt_t_dim = 6 # non-terminal的前六个terminal child node
+tt_n_dim = 5 # 需要乘2 （似乎不应该乘2）
+tt_t_dim = 2 # 需要乘2 terminal node前后各两个terminal node作为context
 
 
 class NodeToVec_NT(object):
@@ -30,10 +39,10 @@ class NodeToVec_NT(object):
                  time_steps=80,
                  batch_size = 80,
                  alpha = 0.7,
-                 nt_n_dim = 3,
-                 nt_t_dim = 6,
-                 tt_n_dim = 4,
-                 tt_t_dim = 2,):
+                 nt_n_dim = nt_n_dim,
+                 nt_t_dim = nt_t_dim,
+                 tt_n_dim = tt_n_dim,
+                 tt_t_dim = tt_t_dim,):
         self.num_ntoken = num_ntoken
         self.num_ttoken = num_ttoken
         self.embed_dim = embed_dim
@@ -136,7 +145,7 @@ class NodeToVec_NT(object):
         tb_writer = tf.summary.FileWriter(tensorboard_log_dir, session.graph)
         generator = DataGenerator()
         for epoch in range(1, self.num_epochs+1):
-            data_gen = generator.get_embedding_sub_data(cate='nt')
+            data_gen = generator.get_embedding_sub_data(cate='nt', is_rename=True)
             for index, sub_data in data_gen:
                 batch_generator = generator.get_embedding_batch(sub_data)
                 for batch_nt_x, batch_nt_y, batch_tt_y in batch_generator:

@@ -100,10 +100,15 @@ class DataGenerator():
 
 
     # embedding model node2vec的batch generator
-    def get_embedding_sub_data(self, cate):
-        nt_train_pair_dir = '../js_dataset/train_pair_data/nt_train_pair/'
-        tt_train_pair_dir = '../js_dataset/train_pair_data/tt_train_pair/'
-
+    def get_embedding_sub_data(self, cate, is_rename):
+        if is_rename:
+            nt_train_pair_dir = '../js_dataset/rename_embed_data/nt_train_pair/'
+            tt_train_pair_dir = '../js_dataset/rename_embed_data/tt_train_pair/'
+        elif not is_rename:
+            nt_train_pair_dir = '../js_dataset/train_pair_data/nt_train_pair/'
+            tt_train_pair_dir = '../js_dataset/train_pair_data/tt_train_pair/'
+        else:
+            raise KeyError
         if cate == 'nt':
             path = nt_train_pair_dir
         elif cate == 'tt':
