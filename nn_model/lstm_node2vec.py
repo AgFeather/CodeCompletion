@@ -64,9 +64,9 @@ class LSTM_Node_Embedding(object):
 
     def build_represent_embed(self, n_token, t_token):
         self.n_embed_matrix = tf.Variable(
-            initial_value=self.nt_init_matrix, trainable=False, name='n_embed_matrix')
+            initial_value=self.nt_init_matrix, trainable=True, name='n_embed_matrix') # trainable 问题
         self.t_embed_matrix = tf.Variable(
-            initial_value=self.tt_init_matrix, trainable=False, name='t_embed_matrix')
+            initial_value=self.tt_init_matrix, trainable=True, name='t_embed_matrix')
         n_input_embedding = tf.nn.embedding_lookup(self.n_embed_matrix, n_token)
         t_input_embedding = tf.nn.embedding_lookup(self.t_embed_matrix, t_token)
         return n_input_embedding, t_input_embedding

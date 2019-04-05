@@ -30,7 +30,7 @@ tt_t_dim = 2 # 需要乘2 terminal node前后各两个terminal node作为context
 class NodeToVec_TT(object):
 
     def __init__(self, num_ntoken, num_ttoken,
-                 embed_dim=300,
+                 embed_dim=800,
                  learning_rate=0.001,
                  n_sampled=100,
                  num_epochs=4,

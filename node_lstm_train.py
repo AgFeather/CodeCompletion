@@ -52,8 +52,6 @@ class TrainModel(object):
             epoch_start_time = time.time()
             batch_step = 0
             loss_per_epoch = 0.0
-            n_accu_per_epoch = 0.0
-            t_accu_per_epoch = 0.0
             subset_generator = self.generator.get_train_subset_data(train_type='origin')
 
             for data in subset_generator:
@@ -93,8 +91,6 @@ class TrainModel(object):
                     tb_writer.flush()
 
                     loss_per_epoch += loss
-                    # n_accu_per_epoch += n_accu
-                    # t_accu_per_epoch += t_accu
                     batch_end_time = time.time()
 
                     if global_step % show_every_n == 0:

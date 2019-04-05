@@ -88,7 +88,7 @@ def bulid_binary_tree(ast):
     for index, node in enumerate(ast):  # 顺序遍历每个AST中的node
 
         if not isinstance(node, dict) and node == 0:  # AST中最后添加一个'EOF’标识
-            ast[index] = 'EOF'
+            del ast[index]
             break
 
         node['right'] = brother_map.get(node['id'], -1)
@@ -143,7 +143,7 @@ def ast_to_seq(binary_tree, run_or_process='process'):
 
         else:  # 如果是non-terminal
 
-            string_node = str(node['type']) + '=$$=' + \
+            string_node = str(node['id']) + str(node['type']) + '=$$=' + \
                 str(node['hasSibling']) + '=$$=' + \
                 str(node['hasNonTerminalChild'])  # 有些non-terminal包含value，探索该value的意义？（value种类非常多）
             temp_non_terminal_set.add(string_node)
@@ -153,7 +153,7 @@ def ast_to_seq(binary_tree, run_or_process='process'):
     def in_order_traversal(bin_tree, index):
         # 对给定的二叉树进行中序遍历，并在中序遍历的时候，生成nt_pair
         node = bin_tree[index]
-        if 'left' in node.keys():
+        if 'left' in node.keys() and node['left'] != -1:
             in_order_traversal(bin_tree, node['left'])
 
         if node == 'EMPTY' or node['isTerminal'] is True:  # 该token是terminal，只将其记录到counter中
@@ -162,28 +162,28 @@ def ast_to_seq(binary_tree, run_or_process='process'):
             assert 'isTerminal' in node.keys() and node['isTerminal'] is False
             # 如果该node是non-terminal，并且包含一个terminal 子节点，则和该子节点组成nt_pair保存在output中
             # 否则将nt_pair的T设为字符串EMPTY
-            n_pair = node_to_string(node)
-            for child_index in node['children']:  # 遍历该non-terminal的所有child，分别用所有child构建NT-pair
-                if bin_tree[child_index]['isTerminal']:
-                    t_pair = node_to_string(bin_tree[child_index])
-                else:
-                    t_pair = node_to_string('EMPTY')
-                nt_pair = (n_pair, t_pair)
-                output.append(nt_pair)
-
-            # #原处理方式会产生多余的 nt，empty。所以应该改成下面的代码
             # n_pair = node_to_string(node)
-            # has_terminal_child = False
-            # for child_index in node['children']:  # 遍历该non-terminal的所有child，分别用所有terminal child构建NT-pair
+            # for child_index in node['children']:  # 遍历该non-terminal的所有child，分别用所有child构建NT-pair
             #     if bin_tree[child_index]['isTerminal']:
             #         t_pair = node_to_string(bin_tree[child_index])
-            #         has_terminal_child = True
-            #         nt_pair = (n_pair, t_pair)
-            #         output.append(nt_pair)
-            # if not has_terminal_child: # 该nt node不包含任何terminal child
-            #     t_pair = node_to_string('EMPTY')
+            #     else:
+            #         t_pair = node_to_string('EMPTY')
             #     nt_pair = (n_pair, t_pair)
             #     output.append(nt_pair)
+
+            #原处理方式会产生多余的 nt，empty。所以应该改成下面的代码
+            n_pair = node_to_string(node)
+            has_terminal_child = False
+            for child_index in node['children']:  # 遍历该non-terminal的所有child，分别用所有terminal child构建NT-pair
+                if bin_tree[child_index]['isTerminal']:
+                    t_pair = node_to_string(bin_tree[child_index])
+                    has_terminal_child = True
+                    nt_pair = (n_pair, t_pair)
+                    output.append(nt_pair)
+            if not has_terminal_child: # 该nt node不包含任何terminal child
+                t_pair = node_to_string('EMPTY')
+                nt_pair = (n_pair, t_pair)
+                output.append(nt_pair)
 
 
 
@@ -287,7 +287,11 @@ def nt_seq_to_int(time_steps=50, status='TRAIN'):
 
 
 if __name__ == '__main__':
-
+    # import examples
+    # ast = examples.ast_example
+    # binary = bulid_binary_tree(ast)
+    # seq = ast_to_seq(binary, 'run')
+    # print(seq)
     operation_list = ['TRAIN', 'TEST', 'VALID']
     data_process = operation_list[0]
 

@@ -152,17 +152,30 @@ def ast_to_seq(binary_tree, run_or_process='process'):
     def in_order_traversal(bin_tree, index, node_or_leaf, left_or_right):
         # 对给定的二叉树进行中序遍历，并在中序遍历的时候，生成nt_pair
         node = bin_tree[index]
+
+        # 向左边递归
         if 'left' in node.keys() and not node['isTerminal']:
             next_node = bin_tree[node['left']]
             left_child = bin_tree[next_node['left']]
             right_child = bin_tree[next_node['right']]
 
-            if (next_node['left'] == -1 and next_node['right'] == -1) or (left_child['isTerminal'] and right_child['isTerminal']):
+            # 说明该节点只有right child，添加一个EMPTY的 left child到sequence中
+            if (next_node['left'] == -1 or left_child['isTerminal']) and \
+                    next_node['right'] != -1 and not right_child['isTerminal']:
+                n_pair = 'EMPTY'
+                t_pair = 'EMPTY'
+                output.append((n_pair, t_pair, 'leaf', 'left'))
+
+            # 根据当前node是node还是leaf分别进行递归
+            if (next_node['left'] == -1 and next_node['right'] == -1) or \
+                    (left_child['isTerminal'] and right_child['isTerminal']):
                 in_order_traversal(bin_tree, node['left'], 'leaf', 'left')
             else:
                 in_order_traversal(bin_tree, node['left'], 'node', 'left')
 
-        if node == 'EMPTY' or node['isTerminal'] is True:  # 该token是terminal，只将其记录到counter中
+        # 中序遍历中访问该节点
+        if node == 'EMPTY' or node['isTerminal'] is True:
+        # 该token是terminal，只将其记录到counter中
             node_to_string(node)
         else:
             assert 'isTerminal' in node.keys() and node['isTerminal'] is False
@@ -181,9 +194,26 @@ def ast_to_seq(binary_tree, run_or_process='process'):
                 nt_pair = (n_pair, t_pair, node_or_leaf, left_or_right)
                 output.append(nt_pair)
 
+        # 向右递归
+        if node['right'] != -1:
+            next_node = bin_tree[node['right']]
+            left_child = bin_tree[next_node['left']]
+            right_child = bin_tree[next_node['right']]
 
-        if node['right'] != -1:  # 遍历right side
-            in_order_traversal(bin_tree, node['right'], 'node', 'right')
+            # 说明该节点只有right child，添加一个EMPTY的 left child到sequence中
+            if (next_node['left'] == -1 or left_child['isTerminal']) and \
+                    next_node['right'] != -1 and not right_child['isTerminal'] and \
+                    not node['isTerminal']:
+                n_pair = 'EMPTY'
+                t_pair = 'EMPTY'
+                output.append((n_pair, t_pair, 'leaf', 'left'))
+
+            # 根据当前节点是node还是leaf分别进行递归
+            if (next_node['left'] == -1 and next_node['right'] == -1) or \
+                    (left_child['isTerminal'] and right_child['isTerminal']):
+                in_order_traversal(bin_tree, node['right'], 'leaf', 'right')
+            else:
+                in_order_traversal(bin_tree, node['right'], 'node', 'right')
 
     output = []
     in_order_traversal(binary_tree, 0, 'node', 'left')
@@ -201,9 +231,10 @@ def ast_to_seq(binary_tree, run_or_process='process'):
 
 def seq_to_binary_tree(token_seq):
     """将seq转换回binary tree"""
-
+    # need to report: 必须在左节点添加empty（如果node它的left child是null，但right child存在的话）
     def reduce(stack):
         while stack[-1]['side'] == 'right':
+            print(stack)
             right_child = stack.pop()
             parent_node = stack.pop()
             left_child = stack.pop()
@@ -212,18 +243,26 @@ def seq_to_binary_tree(token_seq):
             stack.append(parent_node)
 
     stack = []
-    for index, (nt_node, tt_node, node_or_leaf, left_or_right) in enumerate(token_seq):
+    for token in token_seq:
+        nt_node, tt_node, node_or_leaf, left_or_right = token
+        index = nt_node.split('=$$=')[0]
+
         if node_or_leaf == 'node':
             node = {'id':index, 'node_info':nt_node, 'side':left_or_right}
+
             stack.append(node)
-        if node_or_leaf == 'leaf':
+        elif node_or_leaf == 'leaf':
             if left_or_right == 'left':
-                node = {'node_info': nt_node, 'side': left_or_right}
+                node = {'id':index, 'node_info': nt_node, 'side': left_or_right}
                 stack.append(node)
             elif left_or_right == 'right':
-                node = {'node_info': nt_node, 'side': left_or_right}
+
+                node = {'id':index, 'node_info': nt_node, 'side': left_or_right}
                 stack.append(node)
                 reduce(stack)
+        else:
+            print('token {} error'.format(token))
+    return stack[0]
 
 
 
@@ -240,7 +279,8 @@ if __name__ == '__main__':
     binary_tree = bulid_binary_tree(ast_example)
     token_seq = ast_to_seq(binary_tree)
 
-    for a in token_seq:
-        print(a)
-    # rebuild_binary = seq_to_binary_tree(token_seq)
+    # for a in token_seq:
+    #     print(a)
+    rebuild_binary = seq_to_binary_tree(token_seq)
+    #print(rebuild_binary)
 
