@@ -36,46 +36,7 @@ unknown_token = base_setting.unknown_token
 time_steps = base_setting.time_steps
 
 
-def dataset_split(is_training=True, subset_size=5000):
-    """读取原始AST数据集，并将其分割成多个subset data
-    对每个AST，将其转换成二叉树的形式，然后进行中序遍历生成一个nt-sequence"""
-    sys.setrecursionlimit(10000)  # 设置递归最大深度
-    print('setrecursionlimit == 10000')
 
-    if is_training:  # 对training数据集进行分割
-        data_path = js_train_data_dir
-        total_size = 100000
-        saved_to_path = sub_train_data_dir
-    else:  # 对test数据集进行分割
-        data_path = js_test_data_dir
-        total_size = 50000
-        saved_to_path = sub_test_data_dir
-
-    file = open(data_path, 'r')
-    subset_list = []
-    nt_seq = []
-    for i in range(1, total_size + 1):
-        try:
-            line = file.readline()  # read a lind from file(one ast)
-            ast = json.loads(line)  # transform it to json format
-            binary_tree = bulid_binary_tree(ast)  # AST to binary tree
-            nt_seq = ast_to_seq(binary_tree)  # binary to nt_sequence
-        except UnicodeDecodeError as error:  # arise by readline
-            print(error)
-        except JSONDecodeError as error:  # arise by json_load
-            print(error)
-        except RecursionError as error:
-            print(error)
-        except BaseException:
-            print('other unknown error, plesae check the code')
-        else:
-            subset_list.append(nt_seq)  # 将生成的nt sequence加入到list中
-
-        if i % subset_size == 0:  # 当读入的ast已经等于给定的subset的大小时
-            sub_path = saved_to_path + \
-                'part{}'.format(i // subset_size) + '.json'
-            utils.pickle_save(sub_path, subset_list)  # 将subset dataset保存
-            subset_list = []
 
 
 
@@ -83,27 +44,64 @@ def dataset_split(is_training=True, subset_size=5000):
 def bulid_binary_tree(ast):
     """transform the AST(one node may have several childNodes) to
     Left-Child-Right-Sibling(LCRS) binary tree."""
+    def is_terminal(node):
+        if 'children' in node.keys() and len(node['children']) > 0:
+            return False
+        return True
+
     brother_map = {0: -1}
     for index, node in enumerate(ast):  # 顺序遍历每个AST中的node
-
-        if not isinstance(node, dict) and node == 0:  # AST中最后添加一个'EOF’标识
+        if not isinstance(node, dict) and node == 0:  # 删除AST中最后的0标识
             del ast[index]
             break
 
-        node['right'] = brother_map.get(node['id'], -1)
-        node['left'] = -1
-
-        if 'children' in node.keys():  # 表示该node为non-terminal
-            node['isTerminal'] = False  # 存在四种token，有children list但是list的长度为0，暂时将其归为terminal
-            add_two_bits_info(ast, node, brother_map)  # 向每个节点添加两bit的额外信息
-            child_list = node['children']
-            node['left'] = child_list[0]  # 构建该node的left node
-            for i, bro in enumerate(child_list):  # 为该node的所有children构建right sibling
-                if i == len(child_list) - 1:
-                    break
-                brother_map[bro] = child_list[i + 1]
-        else:
+        if is_terminal(node):
+            # 表示该node为terminal
             node['isTerminal'] = True
+            continue
+        else:
+            # 注： 存在四种token，有children list但是list的长度为0，暂时将其归为terminal
+            node['left'] = -1
+            node['right'] = brother_map.get(node['id'], -1) # 只为non-terminal node构建左右child
+            node['isTerminal'] = False
+            # todo 暂时注释掉
+            #add_two_bits_info(ast, node, brother_map)  # 向每个节点添加两bit的额外信息
+            child_list = node['children']
+
+            first_nt_i = None
+            temp_nt_node_id = None
+            for i, child_index in enumerate(child_list):
+                # 找到该节点第一个non-terminal child node作为该node的left node
+                if not is_terminal(ast[child_index]):
+                    node['left'] = child_index
+                    first_nt_i = i
+                    temp_nt_node_id = child_list[first_nt_i]
+                    break
+
+            if first_nt_i != None:
+                # 说明该node有non-terminal left child，所以为这个nt left child构建brother map
+                assert isinstance(first_nt_i, int) \
+                       and first_nt_i < len(child_list) \
+                       and isinstance(temp_nt_node_id, int)
+
+                #print(node['id'])
+                for index in range(first_nt_i+1, len(child_list)):
+                    next_node_id = child_list[index]
+                    # 为该node的所有non-terminal children构建non-terminal right sibling
+                    if not is_terminal(ast[next_node_id]):
+                        #print('nt',next_node_id)
+                        brother_map[temp_nt_node_id] = next_node_id
+                        temp_nt_node_id = next_node_id
+                        #print(brother_map)
+
+            # 将转化生成的binary tree添加节点，组成完全二叉树
+            if (node['left'] == -1) and (node['right'] != -1):
+                node['left'] = 'PAD_EMPTY'
+            if (node['left'] != -1) and(node['right'] == -1):
+                node['right'] = 'PAD_EMPTY'
+
+        print(node)
+
     return ast
 
 
@@ -160,8 +158,8 @@ def ast_to_seq(binary_tree, run_or_process='process'):
             right_child = bin_tree[next_node['right']]
 
             # 说明该节点只有right child，添加一个EMPTY的 left child到sequence中
-            if (next_node['left'] == -1 or left_child['isTerminal']) and \
-                    next_node['right'] != -1 and not right_child['isTerminal']:
+            if (node['left'] == -1 or bin_tree[node['left']]['isTerminal']) and \
+                    node['right'] != -1 and not bin_tree[node['right']]['isTerminal']:
                 n_pair = 'EMPTY'
                 t_pair = 'EMPTY'
                 output.append((n_pair, t_pair, 'leaf', 'left'))
@@ -231,15 +229,16 @@ def ast_to_seq(binary_tree, run_or_process='process'):
 
 def seq_to_binary_tree(token_seq):
     """将seq转换回binary tree"""
-    # need to report: 必须在左节点添加empty（如果node它的left child是null，但right child存在的话）
+    #todo need to report: 必须添加empty（如果node它的left child是null，但right child存在的话）进而构成完全二叉树
     def reduce(stack):
+        print('reduce')
         while stack[-1]['side'] == 'right':
             print(stack)
             right_child = stack.pop()
             parent_node = stack.pop()
             left_child = stack.pop()
-            parent_node['right'] = right_child
-            parent_node['left'] = left_child
+            parent_node['r_child'] = right_child
+            parent_node['l_child'] = left_child
             stack.append(parent_node)
 
     stack = []
@@ -248,16 +247,19 @@ def seq_to_binary_tree(token_seq):
         index = nt_node.split('=$$=')[0]
 
         if node_or_leaf == 'node':
-            node = {'id':index, 'node_info':nt_node, 'side':left_or_right}
+            #node = {'id':index, 'node_info':nt_node, 'side':left_or_right}
+            node = {'id': index, 'side': left_or_right}
 
             stack.append(node)
         elif node_or_leaf == 'leaf':
             if left_or_right == 'left':
-                node = {'id':index, 'node_info': nt_node, 'side': left_or_right}
+                #node = {'id':index, 'node_info': nt_node, 'side': left_or_right}
+                node = {'id': index, 'side': left_or_right}
                 stack.append(node)
             elif left_or_right == 'right':
 
-                node = {'id':index, 'node_info': nt_node, 'side': left_or_right}
+                #node = {'id':index, 'node_info': nt_node, 'side': left_or_right}
+                node = {'id': index, 'side': left_or_right}
                 stack.append(node)
                 reduce(stack)
         else:
@@ -277,10 +279,12 @@ if __name__ == '__main__':
     import examples
     ast_example = examples.ast_example
     binary_tree = bulid_binary_tree(ast_example)
-    token_seq = ast_to_seq(binary_tree)
-
+    # for i in binary_tree:
+    #     print(i)
+    # token_seq = ast_to_seq(binary_tree)
+    #
     # for a in token_seq:
     #     print(a)
-    rebuild_binary = seq_to_binary_tree(token_seq)
+ #   rebuild_binary = seq_to_binary_tree(token_seq)
     #print(rebuild_binary)
 
