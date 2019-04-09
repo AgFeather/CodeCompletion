@@ -43,7 +43,7 @@ class Setting(object):
         # 数据集特性相关
         self.num_sub_train_data = 20  # change to 28 for more data to train
         self.num_sub_valid_data = 1
-        self.num_sub_test_data = 1
+        self.num_sub_test_data = 9
         self.unknown_token = 'UNK'
         self.split_token = '=$$='
         self.num_non_terminal = 123

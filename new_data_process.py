@@ -1,7 +1,7 @@
 """提出的一个新的数据处理方法，该处理方法的优点是可以将生成的token sequence 转换回AST，
 这样就实现了真正的code completion"""
 
-
+import pickle
 import json
 import sys
 from collections import Counter
@@ -34,21 +34,23 @@ time_steps = base_setting.time_steps
 
 
 
-def data_process(is_training=True, subset_size=5000):
+def data_process(train_or_test, subset_size=5000):
     """读取原始AST数据集，并将其分割成多个subset data
     对每个AST，将其转换成二叉树的形式，然后进行中序遍历生成一个nt-sequence"""
     sys.setrecursionlimit(10000)  # 设置递归最大深度
     print('setrecursionlimit == 10000')
     saved_to_path = sub_data_dir
 
-    if is_training:  # 对training数据集进行分割
+    if train_or_test == 'train':  # 对training数据集进行分割
         data_path = js_train_data_dir
         total_size = 100000
         base_num = 0
-    else:  # 对test数据集进行分割
+    elif train_or_test == 'test':  # 对test数据集进行分割
         data_path = js_test_data_dir
         total_size = 50000
-        base_num = 100000 // subset_size
+        base_num = num_sub_train_data
+    else:
+        raise KeyError
 
     file = open(data_path, 'r')
     subset_list = []
@@ -72,11 +74,11 @@ def data_process(is_training=True, subset_size=5000):
 
         if i % subset_size == 0:  # 当读入的ast已经等于给定的subset的大小时
             sub_path = saved_to_path + \
-                'sub_part{}'.format(base_num + i // subset_size) + '.json'
+                'sub_part{}'.format(base_num + (i // subset_size)) + '.json'
             utils.pickle_save(sub_path, subset_list)  # 将subset dataset保存
             subset_list = []
 
-    if is_training:  # 当处理训练数据集时，需要保存映射map，测试数据集则不需要
+    if train_or_test == 'train':  # 当处理训练数据集时，需要保存映射map，测试数据集则不需要
         save_string_int_dict()
         print('training data seperating finished...')
         print('encoding information has been saved in {}'.format(data_parameter_dir))
@@ -159,7 +161,9 @@ def add_two_bits_info(ast, node, brother_map):
 
 
 terminal_count = Counter()  # 统计每个terminal token的出现次数
+terminal_count[unknown_token] += 1
 non_terminal_set = set()  # 统计non_termial token 种类
+non_terminal_set.add('EMPTY')
 
 def ast_to_seq(binary_tree, run_or_process):
     # 将一个ast首先转换成二叉树，然后对该二叉树进行中序遍历，得到nt_sequence
@@ -170,7 +174,6 @@ def ast_to_seq(binary_tree, run_or_process):
         # 将一个node转换为string，并用map统计各个node的数量信息
         if node == 'EMPTY':
             string_node = 'EMPTY'
-            temp_terminal_count[string_node] += 1
         elif node['isTerminal']:  # 如果node为terminal
             # string_node = str(node['id'])  test用
             string_node = str(node['type'])
@@ -180,7 +183,6 @@ def ast_to_seq(binary_tree, run_or_process):
             temp_terminal_count[string_node] += 1
 
         else:  # 如果是non-terminal
-
             #string_node = str(node['id']) test用
             string_node = str(node['type']) + '=$$=' + \
                 str(node['hasSibling']) + '=$$=' + \
@@ -259,6 +261,30 @@ def ast_to_seq(binary_tree, run_or_process):
         raise KeyError
 
 
+def save_string_int_dict():
+    # 将nonterminal和terminal对应的映射字典保存并返回
+    # 其中，对于terminal只选用most frequent的30000个token
+    tt_token_to_int = {}
+    tt_int_to_token = {}
+    nt_token_to_int = {}
+    nt_int_to_token = {}
+
+    most_common_tuple = terminal_count.most_common(most_common_termial_num)
+    for index, (token, times) in enumerate(most_common_tuple):
+        tt_token_to_int[token] = index
+        tt_int_to_token[index] = token
+    for index, token in enumerate(list(non_terminal_set)):
+        nt_token_to_int[token] = index
+        nt_int_to_token[index] = token
+
+    tt_int_to_token[len(tt_int_to_token)] = unknown_token  # terminal中添加UNK
+    tt_token_to_int[unknown_token] = len(tt_token_to_int)
+
+    utils.pickle_save(data_parameter_dir,
+                [tt_token_to_int, tt_int_to_token, nt_token_to_int, nt_int_to_token])  # 将映射字典保存到本地
+    return tt_token_to_int, tt_int_to_token, nt_token_to_int, nt_int_to_token
+
+
 def seq_to_binary_tree(token_seq):
     """将seq转换回binary tree"""
     stack = []
@@ -301,55 +327,34 @@ def seq_to_binary_tree(token_seq):
 
 
 
-def save_string_int_dict():
-    # 将nonterminal和terminal对应的映射字典保存并返回
-    # 其中，对于terminal只选用most frequent的30000个token
-    tt_token_to_int = {}
-    tt_int_to_token = {}
-    nt_token_to_int = {}
-    nt_int_to_token = {}
 
-    most_common_tuple = terminal_count.most_common(most_common_termial_num)
-    for index, (token, times) in enumerate(most_common_tuple):
-        tt_token_to_int[token] = index
-        tt_int_to_token[index] = token
-    for index, token in enumerate(list(non_terminal_set)):
-        nt_token_to_int[token] = index
-        nt_int_to_token[index] = token
-
-    tt_int_to_token[len(tt_int_to_token)] = unknown_token  # terminal中添加UNK
-    tt_token_to_int[unknown_token] = len(tt_token_to_int)
-
-    utils.pickle_save(data_parameter_dir,
-                [tt_token_to_int, tt_int_to_token, nt_token_to_int, nt_int_to_token])  # 将映射字典保存到本地
-    return tt_token_to_int, tt_int_to_token, nt_token_to_int, nt_int_to_token
-
-
-def nt_seq_to_int(time_steps=50, status='TRAIN'):
+def nt_seq_to_int(time_steps=50, status='train'):
     # 对NT seq进行进一步的处理，首先将每个token转换为number，
     # 然后对于train data和valid data将所有ast-seq extend成一个list 便于训练时的格式转换
     # 对于test data，将所有ast-seq append，保留各个ast的独立seq
-    tt_token_to_int, tt_int_to_token, nt_token_to_int, nt_int_to_token = utils.load_dict_parameter(is_lower=False)
+
+    tt_token_to_int, tt_int_to_token, nt_token_to_int, nt_int_to_token = \
+        pickle.load(open(data_parameter_dir, 'rb'))
     total_num_nt_pair = 0
-    if status == 'TRAIN':
-        sub_data_dir = sub_train_data_dir
+    if status == 'train':
         num_sub_data = num_sub_train_data
-        sub_int_data_dir = sub_int_train_dir
-    elif status == 'VALID':
-        sub_data_dir = sub_valid_data_dir
+        sub_int_data_dir = sub_int_train_data_dir
+        base_num = 0
+    elif status == 'valid':
         num_sub_data = num_sub_valid_data
-        sub_int_data_dir = sub_int_valid_dir
-    elif status == 'TEST':
-        sub_data_dir = sub_test_data_dir
+        sub_int_data_dir = sub_int_valid_data_dir
+        base_num = num_sub_train_data
+    elif status == 'test':
         num_sub_data = num_sub_test_data
-        sub_int_data_dir = sub_int_test_dir
+        sub_int_data_dir = sub_int_test_data_dir
+        base_num = num_sub_train_data + num_sub_valid_data
     else:
         print('ERROR! Unknown commend!!')
-        sys.exit(1)
+        raise KeyError
 
     def get_subset_data():  # 对每个part的nt_sequence读取并返回，等待进行处理
-        for i in range(1, num_sub_data + 1):
-            data_path = sub_data_dir + 'part{}.json'.format(i)
+        for i in range(base_num + 1, base_num + num_sub_data + 1):
+            data_path = sub_data_dir + 'sub_part{}.json'.format(i)
             data = utils.pickle_load(data_path)
             yield (i, data)
 
@@ -360,13 +365,25 @@ def nt_seq_to_int(time_steps=50, status='TRAIN'):
             if len(one_ast) < time_steps:  # 该ast大小不足time step 舍去
                 continue
             try:
-                nt_int_seq = [(nt_token_to_int[n], tt_token_to_int.get(
-                    t, tt_token_to_int[unknown_token])) for n, t in one_ast]
-            except KeyError:
-                print('key error')
+                nt_int_seq = []
+                for n, t, node_or_leaf, left_or_right in one_ast:
+                    int_n = nt_token_to_int.get(n, nt_token_to_int['EMPTY'])
+                    int_t = tt_token_to_int.get(t, tt_token_to_int[unknown_token])
+                    if node_or_leaf == 'node':
+                        int_node_or_leaf = 0
+                    else:
+                        int_node_or_leaf = 1
+                    if left_or_right == 'left':
+                        int_left_or_right = 0
+                    else:
+                        int_left_or_right = 1
+                    one_pair = (int_n, int_t, int_node_or_leaf, int_left_or_right)
+                    nt_int_seq.append(one_pair)
+            except KeyError as error:
+                print(error)
                 continue
             # 在train和valid中，是直接将所有ast-seq extend到一起，在test中，保留各个ast-seq的独立
-            if status == 'TEST':
+            if status == 'test':
                 data_seq.append(nt_int_seq)
                 total_num_nt_pair += len(nt_int_seq)
             else:
@@ -375,8 +392,8 @@ def nt_seq_to_int(time_steps=50, status='TRAIN'):
 
         one_sub_int_data_dir = sub_int_data_dir + 'int_part{}.json'.format(index)
         utils.pickle_save(one_sub_int_data_dir, data_seq)
-    # old:14,976,250  new:157,237,460  size of training dataset comparison
-    # old: 1,557,285  new: 81,078,099  测试数据集数据量对比
+    # There are 168377411 nt_pair in train dataset...
+    # There are 7962311 nt_pair in valid dataset...
     print('There are {} nt_pair in {} dataset...'.format(total_num_nt_pair, status))
 
 
@@ -392,5 +409,9 @@ if __name__ == '__main__':
     # rebuild_binary = seq_to_binary_tree(token_seq)
     # print(rebuild_binary)
 
-    data_process(is_training=True)
+    # data_process(train_or_test='train')
+    # data_process(train_or_test='test')
+    nt_seq_to_int(status='test')
+
+    # todo 生成int数据集
 
