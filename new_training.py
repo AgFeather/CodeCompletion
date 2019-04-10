@@ -1,10 +1,11 @@
 import tensorflow as tf
+import numpy as np
+import pickle
 import time
 import os
 
 from nn_model.new_lstm import RnnModel_V2
 from setting import Setting
-from data_generator import DataGenerator
 
 base_setting = Setting()
 
@@ -49,7 +50,6 @@ class TrainModel(object):
         self.print_and_log(model_info)
         saver = tf.train.Saver(max_to_keep=self.num_epochs + 1)
         session = tf.Session()
-        self.generator = DataGenerator(self.batch_size, self.time_steps)
         tb_writer = tf.summary.FileWriter(tensorboard_log_dir, session.graph)
         global_step = 0
         session.run(tf.global_variables_initializer())
@@ -60,21 +60,25 @@ class TrainModel(object):
             loss_per_epoch = 0.0
             n_accu_per_epoch = 0.0
             t_accu_per_epoch = 0.0
-            subset_generator = self.generator.get_train_subset_data(train_type=training_type)
+            subset_generator = self.get_train_subset_data(train_type=training_type)
 
             for data in subset_generator:
-                batch_generator = self.generator.get_batch(data_seq=data)
+                batch_generator = self.get_batch(data_seq=data)
                 lstm_state = session.run(self.model.init_state)
 
-                for b_nt_x, b_nt_y, b_t_x, b_t_y in batch_generator:
+                for b_nt_x, b_tt_x, b_type_x, b_side_x, b_nt_y, b_tt_y, b_type_y, b_side_y in batch_generator:
                     batch_step += 1
                     global_step += 1
                     batch_start_time = time.time()
 
-                    feed = {self.model.t_input: b_t_x,
-                            self.model.n_input: b_nt_x,
+                    feed = {self.model.n_input: b_nt_x,
+                            self.model.t_input: b_tt_x,
+                            self.model.type_input: b_type_x,
+                            self.model.side_input: b_side_x,
                             self.model.n_target: b_nt_y,
-                            self.model.t_target: b_t_y,
+                            self.model.t_target: b_tt_y,
+                            self.model.type_target: b_type_y,
+                            self.model.side_target: b_side_y,
                             self.model.keep_prob: 0.5,
                             self.model.lstm_state: lstm_state,
                             self.model.decay_epoch: (epoch-1)}
@@ -146,8 +150,8 @@ class TrainModel(object):
 
     def valid(self, session, epoch, global_step):
         """valid model when it is trained"""
-        valid_data = self.generator.get_valid_subset_data(train_type=training_type)
-        batch_generator = self.generator.get_batch(valid_data)
+        valid_data = self.get_valid_subset_data(train_type=training_type)
+        batch_generator = self.get_batch(valid_data)
         valid_step = 0
         valid_n_accuracy = 0.0
         valid_t_accuracy = 0.0
@@ -190,6 +194,53 @@ class TrainModel(object):
         self.log_file.write(info)
         self.log_file.write('\n')
         print(info)
+
+    def get_batch(self, data_seq):
+        # todo 修改
+        """Generator for training and valid phase,
+        each time it will return (non-terminal x, non-terminal y, terminal x, terminal y)
+        shape of both x and y is [batch_size, time_step]"""
+        data_seq = np.array(data_seq)
+        total_length = self.time_steps * self.batch_size
+        n_batches = len(data_seq) // total_length
+        data_seq = data_seq[:total_length * n_batches]
+        nt_x = data_seq[:, 0]
+        tt_x = data_seq[:, 1]
+        nt_y = np.zeros_like(nt_x)
+        tt_y = np.zeros_like(tt_x)
+        nt_y[:-1], nt_y[-1] = nt_x[1:], nt_x[0]
+        tt_y[:-1], tt_y[-1] = tt_x[1:], tt_x[0]
+
+        nt_x = nt_x.reshape((self.batch_size, -1))
+        tt_x = tt_x.reshape((self.batch_size, -1))
+        nt_y = nt_y.reshape((self.batch_size, -1))
+        tt_y = tt_y.reshape((self.batch_size, -1))
+        data_seq = data_seq.reshape((self.batch_size, -1))
+        for n in range(0, data_seq.shape[1], self.time_steps):
+            batch_nt_x = nt_x[:, n:n + self.time_steps]
+            batch_tt_x = tt_x[:, n:n + self.time_steps]
+            batch_nt_y = nt_y[:, n:n + self.time_steps]
+            batch_tt_y = tt_y[:, n:n + self.time_steps]
+            if batch_nt_x.shape[1] == 0:
+                break
+            yield batch_nt_x, batch_nt_y, batch_tt_x, batch_tt_y
+
+    def get_train_subset_data(self, train_type):
+        """yield sub training dataset"""
+        num_sub_train_data = 20
+        dataset_path = 'js_dataset/new_data_process/int_format/train_data/'
+        for i in range(1, num_sub_train_data + 1):
+            data_path = dataset_path + 'int_part{}.json'.format(i)
+            with open(data_path, 'rb') as file:
+                data = pickle.load(file)
+                yield data
+
+    def get_valid_subset_data(self, train_type):
+        dataset_path = 'js_dataset/new_data_process/int_format/valid_data/int_part21.json'
+        with open(dataset_path, 'rb') as f:
+            valid_data = pickle.load(f)
+        return valid_data
+
 
 
 if __name__ == '__main__':
