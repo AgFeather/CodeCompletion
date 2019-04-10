@@ -160,8 +160,11 @@ class RnnModel_V2(object):
         return side_loss
 
     def build_info_accuracy(self, type_output, type_target, side_output, side_target):
-        # todo implement
-        pass
+        type_equal = tf.cast(tf.equal(type_output, type_target), tf.int32)
+        side_equal = tf.cast(tf.equal(side_output, side_target), tf.int32)
+        type_accu = tf.reduce_mean(type_equal)
+        side_accu = tf.reduce_mean(side_equal)
+        return type_accu, side_accu
 
     def build_token_accuracy(self, n_output, n_target, t_output, t_target, topk=3):
         """calculate the accuracy of non-terminal terminal top k prediction"""
@@ -247,7 +250,7 @@ class RnnModel_V2(object):
             type_logits, self.type_target, side_logits, self.side_target)
 
         # top k accuracy
-        self.n_topk_accu, self.t_topk_accu = self.build_accuracy(
+        self.n_topk_accu, self.t_topk_accu = self.build_token_accuracy(
             n_logits, n_reshape_target, t_logits, t_reshape_target, topk=3)
 
         # top k prediction with possibility
@@ -259,8 +262,10 @@ class RnnModel_V2(object):
             self.build_topk_prediction(self.n_output, self.t_output)
 
         summary_dict = {'train loss': self.loss,
-                        'non-terminal loss': self.t_loss, 'terminal loss': self.t_loss,
+                        'non_terminal loss': self.t_loss, 'terminal loss': self.t_loss,
+                        'type_loss': self.type_loss, 'side_loss':self.side_loss,
                         'n_accuracy': self.n_accu, 't_accuracy': self.t_accu,
+                        'type_accuracy': self.type_accu, 'side_accuracy':self.side_accu,
                         'top3_nt_accu':self.n_topk_accu, 'top3_tt_accu':self.t_topk_accu,
                         'learning_rate': self.decay_learning_rate}
         self.merged_op = self.build_summary(summary_dict)

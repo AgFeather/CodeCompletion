@@ -402,19 +402,19 @@ def nt_seq_to_int(time_steps=50, status='train'):
 
 if __name__ == '__main__':
     # 测试用
-    import examples
-    ast_example = examples.ast_example
-    binary_tree = bulid_binary_tree(ast_example)
-    token_seq = ast_to_seq(binary_tree, run_or_process='run')
-    for i in token_seq:
-        print(i)
+    # import examples
+    # ast_example = examples.ast_example
+    # binary_tree = bulid_binary_tree(ast_example)
+    # token_seq = ast_to_seq(binary_tree, run_or_process='run')
+    # for i in token_seq:
+    #     print(i)
+    #
+    # rebuild_binary = seq_to_binary_tree(token_seq)
+    # print('\n result')
+    # print(rebuild_binary)
 
-    rebuild_binary = seq_to_binary_tree(token_seq)
-    print(rebuild_binary)
+    data_process(train_or_test='train')
+    data_process(train_or_test='test')
+    nt_seq_to_int(status='test')
 
-    # data_process(train_or_test='train')
-    # data_process(train_or_test='test')
-    # nt_seq_to_int(status='test')
-
-    # todo 生成int数据集
 
