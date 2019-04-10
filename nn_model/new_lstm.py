@@ -6,7 +6,7 @@ base_setting = Setting()
 
 """针对新的数据处理方法，创建的新lstm模型"""
 
-class RnnModel(object):
+class RnnModel_V2(object):
     """A basic LSTM model for code completion"""
     def __init__(self,
                  num_ntoken, num_ttoken, is_training=True, kernel='LSTM',
@@ -59,10 +59,17 @@ class RnnModel(object):
         return n_input_embedding, t_input_embedding
 
     def build_info_embed(self, type_input, side_input):
-        pass
+        type_embed_matrix = tf.Variable(tf.random_uniform([2, 10]), name='type_embed_matrix')
+        side_embed_matrix = tf.Variable(tf.random_uniform([2, 10]), name='side_embed_matrix')
+        type_input_embedding = tf.nn.embedding_lookup(type_embed_matrix, type_input)
+        side_input_embedding = tf.nn.embedding_lookup(side_embed_matrix, side_input)
+        return type_input_embedding, side_input_embedding
 
     def build_lstm_input(self, n_input, t_input, type_input, side_input):
-        pass
+        token_input = tf.add(n_input, t_input)
+        info_input = tf.stack((type_input, side_input), axis=0)
+        lstm_input = tf.stack((token_input, info_input), axis=0)
+        return lstm_input
 
     def build_lstm(self, keep_prob):
         """create lstm cell and init state"""
@@ -91,47 +98,72 @@ class RnnModel(object):
 
     def build_n_output(self, lstm_output):
         """using a trainable matrix to transform the output of lstm to non-terminal token prediction"""
-        with tf.variable_scope('non_terminal_softmax'):
+        with tf.variable_scope('non_terminal_output_matrix'):
             nt_weight = tf.Variable(tf.random_uniform(
-                [self.num_hidden_units, self.num_ntoken], minval=-0.05, maxval=0.05))
-            nt_bias = tf.Variable(tf.zeros(self.num_ntoken))
+                [self.num_hidden_units, self.num_ntoken], minval=-0.05, maxval=0.05),name='weight')
+            nt_bias = tf.Variable(tf.zeros(self.num_ntoken), name='bias')
         nt_logits = tf.matmul(lstm_output, nt_weight) + nt_bias
         return nt_logits
 
     def build_t_output(self, lstm_output):
         """using a trainable matrix to transform the otuput of lstm to terminal token prediction"""
-        with tf.variable_scope('terminal_softmax'):
+        with tf.variable_scope('terminal_output_matrix'):
             t_weight = tf.Variable(tf.random_uniform(
-                [self.num_hidden_units, self.num_ttoken], minval=-0.05, maxval=0.05))
-            t_bias = tf.Variable(tf.zeros(self.num_ttoken))
+                [self.num_hidden_units, self.num_ttoken], minval=-0.05, maxval=0.05), name='weight')
+            t_bias = tf.Variable(tf.zeros(self.num_ttoken), name='bias')
         tt_logits = tf.matmul(lstm_output, t_weight) + t_bias
         return tt_logits
 
     def build_type_output(self, lstm_output):
-        pass
+        with tf.variable_scope('type_output_matrix'):
+            type_weight = tf.Variable(tf.random_uniform(
+                [self.num_hidden_units, 2], minval=-0.05, maxval=0.05), name='weight')
+            type_bias = tf.Variable(tf.zeros(2), name='bias')
+        type_logits = tf.matmul(lstm_output, type_weight) + type_bias
+        return type_logits
+
+    def build_side_output(self, lstm_output):
+        with tf.variable_scope('side_output_matrix'):
+            side_weight = tf.Variable(tf.random_uniform(
+                [self.num_hidden_units, 2], minval=-0.05, maxval=0.05), name='weight')
+            side_bias = tf.Variable(tf.zeros(2), name='bias')
+        side_logits = tf.matmul(lstm_output, side_weight) + side_bias
+        return side_logits
 
     def build_softmax(self, logits):
         softmax_output = tf.nn.softmax(logits=logits)
         return softmax_output
 
-    def build_loss(self, n_loss, t_loss):
+    def build_loss(self, n_loss, t_loss, type_loss, side_loss):
         """add n_loss, t_loss together"""
-        loss = tf.add(n_loss, t_loss)
+        loss = tf.add(tf.add(tf.add(n_loss, t_loss), type_loss), side_loss)
         return loss
 
-    def build_nt_loss(self, n_logits, n_target):
+    def build_n_loss(self, n_logits, n_target):
         """calculate the loss function of non-terminal prediction"""
         n_loss = tf.nn.sparse_softmax_cross_entropy_with_logits(logits=n_logits, labels=n_target)
         n_loss = tf.reduce_mean(n_loss)
         return n_loss
 
-    def build_tt_loss(self, t_logits, t_target):
+    def build_t_loss(self, t_logits, t_target):
         """calculate the loss function of terminal prediction"""
         t_loss = tf.nn.sparse_softmax_cross_entropy_with_logits(logits=t_logits, labels=t_target)
         t_loss = tf.reduce_mean(t_loss)
         return t_loss
 
-    def build_accuracy(self, n_output, n_target, t_output, t_target, topk=3):
+    def build_type_loss(self, type_logits, type_target):
+        type_loss = - (type_target * tf.log(type_logits) + (1-type_target) * tf.log((1-type_logits)))
+        return type_loss
+
+    def build_side_loss(self, side_logits, side_target):
+        side_loss = - (side_target * tf.log(side_logits) + (1-side_target) * tf.log(1-side_logits))
+        return side_loss
+
+    def build_info_accuracy(self, type_output, type_target, side_output, side_target):
+        # todo implement
+        pass
+
+    def build_token_accuracy(self, n_output, n_target, t_output, t_target, topk=3):
         """calculate the accuracy of non-terminal terminal top k prediction"""
         n_equal = tf.nn.in_top_k(n_output, n_target, k=topk)
         t_equal = tf.nn.in_top_k(t_output, t_target, k=topk)
@@ -182,11 +214,9 @@ class RnnModel(object):
         self.n_target, self.t_target, self.type_target, self.side_target, \
         self.keep_prob = self.build_input()
 
-        type_input_embed, side_input_embed = self.
-
-        n_input_embedding, t_input_embedding = self.build_input_embed(
-            self.n_input, self.t_input)
-        lstm_input = tf.add(n_input_embedding, t_input_embedding)
+        type_input_embed, side_input_embed = self.build_info_embed(self.type_input, self.side_input)
+        n_input_embed, t_input_embed = self.build_input_embed(self.n_input, self.t_input)
+        lstm_input = self.build_lstm_input(n_input_embed, t_input_embed, type_input_embed, side_input_embed)
 
         cells, self.init_state = self.build_lstm(self.keep_prob)
         self.lstm_state = self.init_state
@@ -194,28 +224,37 @@ class RnnModel(object):
 
         n_logits = self.build_n_output(lstm_output)
         t_logits = self.build_t_output(lstm_output)
+        type_logits = self.build_type_output(lstm_output)
+        side_logits = self.build_side_output(lstm_output)
 
         # loss calculate
         # n_target = tf.reshape(self.n_target, [self.batch_size*self.time_steps])
         # t_target = tf.reshape(self.t_target, [self.batch_size*self.time_steps])
-        n_target = tf.reshape(self.n_target, [-1])
-        t_target = tf.reshape(self.t_target, [-1])
-        self.n_loss = self.build_nt_loss(n_logits, n_target)
-        self.t_loss = self.build_tt_loss(t_logits, t_target)
-        self.loss = self.build_loss(self.n_loss, self.t_loss)
+        n_reshape_target = tf.reshape(self.n_target, [-1])
+        t_reshape_target = tf.reshape(self.t_target, [-1])
+        self.n_loss = self.build_n_loss(n_logits, n_reshape_target)
+        self.t_loss = self.build_t_loss(t_logits, t_reshape_target)
+        self.type_loss = self.build_type_loss(type_logits, self.type_target)
+        self.side_loss = self.build_side_loss(side_logits, self.side_target)
+        self.loss = self.build_loss(self.n_loss, self.t_loss, self.type_loss, self.side_loss)
         # optimizer
         self.optimizer, self.decay_learning_rate = self.build_optimizer(self.loss)
 
         # top one accuracy
-        self.n_accu, self.t_accu = self.build_accuracy(n_logits, n_target, t_logits, t_target, topk=1)
+        self.n_accu, self.t_accu = self.build_token_accuracy(
+            n_logits, n_reshape_target, t_logits, t_reshape_target, topk=1)
+        self.type_accu, self.side_accu = self.build_info_accuracy(
+            type_logits, self.type_target, side_logits, self.side_target)
 
         # top k accuracy
         self.n_topk_accu, self.t_topk_accu = self.build_accuracy(
-            n_logits, n_target, t_logits, t_target, topk=3)
+            n_logits, n_reshape_target, t_logits, t_reshape_target, topk=3)
 
         # top k prediction with possibility
         self.n_output = self.build_softmax(n_logits)
         self.t_output = self.build_softmax(t_logits)
+        self.type_output = self.build_softmax(type_logits)
+        self.side_output = self.build_softmax(side_logits)
         self.n_topk_pred, self.n_topk_poss, self.t_topk_pred, self.t_topk_poss = \
             self.build_topk_prediction(self.n_output, self.t_output)
 
@@ -234,4 +273,4 @@ class RnnModel(object):
 if __name__ == '__main__':
     num_terminal = base_setting.num_terminal
     num_non_terminal = base_setting.num_non_terminal
-    model = RnnModel(num_non_terminal, num_terminal, is_training=True, kernel='GRU')
+    model = RnnModel_V2(num_non_terminal, num_terminal, is_training=True, kernel='GRU')

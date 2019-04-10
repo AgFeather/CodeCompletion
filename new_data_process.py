@@ -302,7 +302,7 @@ def seq_to_binary_tree(token_seq):
     # 将第一个node单独拿出来，因为需要判断具有下一个token和上一个token是否具有相同的n_node，如果nt相同，则属于同一个nt_node
     node = {'nt_node': nt_node,
             'tt_node': [tt_node], 'type': node_or_leaf, 'side': left_or_right}
-    # index = nt_node.split('=$$=')[0] test用
+    # index = nt_node.split('=$$=')[0] # test用
     # node['id'] = index
     for i in range(1, len(token_seq)):
         nt_node, tt_node, node_or_leaf, left_or_right = token_seq[i]
@@ -312,7 +312,7 @@ def seq_to_binary_tree(token_seq):
             stack.append(node)
             node = {'nt_node': nt_node,
                     'tt_node': [tt_node],'type':node_or_leaf, 'side': left_or_right}
-            # index = nt_node.split('=$$=')[0] test用
+            # index = nt_node.split('=$$=')[0] # test用
             # node['id'] = index
 
             if stack[-1]['type'] == 'leaf' and stack[-1]['side'] == 'right':
@@ -402,16 +402,19 @@ def nt_seq_to_int(time_steps=50, status='train'):
 
 if __name__ == '__main__':
     # 测试用
-    # import examples
-    # ast_example = examples.ast_example
-    # binary_tree = bulid_binary_tree(ast_example)
-    # token_seq = ast_to_seq(binary_tree, run_or_process='run')
-    # rebuild_binary = seq_to_binary_tree(token_seq)
-    # print(rebuild_binary)
+    import examples
+    ast_example = examples.ast_example
+    binary_tree = bulid_binary_tree(ast_example)
+    token_seq = ast_to_seq(binary_tree, run_or_process='run')
+    for i in token_seq:
+        print(i)
+
+    rebuild_binary = seq_to_binary_tree(token_seq)
+    print(rebuild_binary)
 
     # data_process(train_or_test='train')
     # data_process(train_or_test='test')
-    nt_seq_to_int(status='test')
+    # nt_seq_to_int(status='test')
 
     # todo 生成int数据集
 
