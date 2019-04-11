@@ -103,6 +103,7 @@ class TrainModel(object):
 
                     tb_writer.add_summary(summary_str, global_step)
                     tb_writer.flush()
+                    self.log_accuracy(global_step, [n_accu, t_accu, type_accu, side_accu])
 
                     loss_per_epoch += loss
                     n_accu_per_epoch += n_accu
@@ -210,7 +211,18 @@ class TrainModel(object):
             self.log_file = open(training_log_dir, 'w')
         self.log_file.write(info)
         self.log_file.write('\n')
+        self.log_file.flush()
         print(info)
+
+    def log_accuracy(self, step, accu_list):
+        accu_log_path = 'log_info/new_lstm/train_accuracy.txt'
+        if not os.path.exists(accu_log_path):
+            self.accu_log_file = open(accu_log_path, 'w')
+        self.accu_log_file.write(str(step)+';')
+        for accu in accu_list:
+            self.accu_log_file.write(str(accu)+';')
+        self.accu_log_file.write('\n')
+        self.accu_log_file.flush()
 
     def get_batch(self, data_seq):
         """Generator for training and valid phase,
