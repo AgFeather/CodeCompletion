@@ -10,7 +10,7 @@ from setting import Setting
 base_setting = Setting()
 
 
-training_type = 'rename'
+training_type = 'origin'
 if training_type == 'rename':
     model_save_dir = 'trained_model/lstm_for_rename/'
     tensorboard_log_dir = 'log_info/tensorboard_log/rename_tb_log/'
@@ -112,9 +112,12 @@ class TrainModel(object):
                     if global_step % show_every_n == 0:
                         log_info = 'epoch:{}/{}  '.format(epoch, self.num_epochs) + \
                                    'global_step:{}  '.format(global_step) + \
-                                   'loss:{:.2f}(n_loss:{:.2f} + t_loss:{:.2f})  '.format(loss, n_loss, t_loss) + \
+                                   'loss:{:.2f}(n_loss:{:.2f} + t_loss:{:.2f} + type_loss:{:.2f} + side_loss:{:.2f})  '\
+                                       .format(loss, n_loss, t_loss, type_loss, side_loss) + \
                                    'nt_accu:{:.2f}%  '.format(n_accu * 100) + \
                                    'tt_accu:{:.2f}%  '.format(t_accu * 100) + \
+                                   'type_accu:{:.2f}%  '.format(type_accu * 100) + \
+                                   'side_accu:{:.2f}%  '.format(side_accu * 100) + \
                                    'top3_nt_accu:{:.2f}%  '.format(topk_n_accu * 100) + \
                                    'top3_tt_accu:{:.2f}%  '.format(topk_t_accu * 100) + \
                                    'learning_rate:{:.4f}  '.format(learning_rate) + \
@@ -155,31 +158,45 @@ class TrainModel(object):
         valid_step = 0
         valid_n_accuracy = 0.0
         valid_t_accuracy = 0.0
+        valid_type_accuracy = 0.0
+        valid_side_accuracy = 0.0
         valid_times = 400
         valid_start_time = time.time()
         lstm_state = session.run(self.model.init_state)
-        for b_nt_x, b_nt_y, b_t_x, b_t_y in batch_generator:
+        for b_nt_x, b_tt_x, b_type_x, b_side_x, b_nt_y, b_tt_y, b_type_y, b_side_y in batch_generator:
             valid_step += 1
-            feed = {self.model.t_input: b_t_x,
-                    self.model.n_input: b_nt_x,
+            feed = {self.model.n_input: b_nt_x,
+                    self.model.t_input: b_tt_x,
+                    self.model.type_input: b_type_x,
+                    self.model.side_input: b_side_x,
                     self.model.n_target: b_nt_y,
-                    self.model.t_target: b_t_y,
-                    self.model.keep_prob: 1.0,
-                    self.model.lstm_state: lstm_state}
-            n_accuracy, t_accuracy, lstm_state = session.run(
-                [self.model.n_accu, self.model.t_accu, self.model.final_state], feed)
-            valid_n_accuracy += n_accuracy
-            valid_t_accuracy += t_accuracy
+                    self.model.t_target: b_tt_y,
+                    self.model.type_target: b_type_y,
+                    self.model.side_target: b_side_y,
+                    self.model.keep_prob: 0.5,
+                    self.model.lstm_state: lstm_state,
+                    self.model.decay_epoch: (epoch - 1)}
+            n_accu, t_accu, type_accu, side_accu, lstm_state = session.run(
+                [self.model.n_accu, self.model.t_accu,
+                 self.model.type_accu, self.model.side_accu, self.model.final_state], feed)
+            valid_n_accuracy += n_accu
+            valid_t_accuracy += t_accu
+            valid_type_accuracy += type_accu
+            valid_side_accuracy += side_accu
             if valid_step >= valid_times:
                 break
 
         valid_n_accuracy = (valid_n_accuracy*100) / valid_step
         valid_t_accuracy = (valid_t_accuracy*100) / valid_step
+        valid_type_accuracy = (valid_type_accuracy * 100) / valid_step
+        valid_side_accuracy = (valid_side_accuracy * 100) / valid_step
         valid_end_time = time.time()
         valid_log = "VALID epoch:{}/{}  ".format(epoch, self.num_epochs) + \
                     "global step:{}  ".format(global_step) + \
-                    "valid_nt_accu:{:.2f}%  ".format(valid_n_accuracy) + \
-                    "valid_tt_accu:{:.2f}%  ".format(valid_t_accuracy) + \
+                    "valid_nt_accuracy:{:.2f}%  ".format(valid_n_accuracy) + \
+                    "valid_tt_accuracy:{:.2f}%  ".format(valid_t_accuracy) + \
+                    "valid_type_accuracy:{:.2f}%  ".format(valid_type_accuracy) + \
+                    "valid_side_accuracy:{:.2f}%  ".format(valid_side_accuracy) + \
                     "valid time cost:{:.2f}s".format(valid_end_time - valid_start_time)
         if not os.path.exists(valid_log_dir):
             self.valid_file = open(valid_log_dir, 'w')
@@ -196,7 +213,6 @@ class TrainModel(object):
         print(info)
 
     def get_batch(self, data_seq):
-        # todo 修改
         """Generator for training and valid phase,
         each time it will return (non-terminal x, non-terminal y, terminal x, terminal y)
         shape of both x and y is [batch_size, time_step]"""
@@ -206,24 +222,40 @@ class TrainModel(object):
         data_seq = data_seq[:total_length * n_batches]
         nt_x = data_seq[:, 0]
         tt_x = data_seq[:, 1]
+        type_x = data_seq[:, 2]
+        side_x = data_seq[:, 3]
         nt_y = np.zeros_like(nt_x)
         tt_y = np.zeros_like(tt_x)
+        type_y = np.zeros_like(type_x)
+        side_y = np.zeros_like(side_x)
         nt_y[:-1], nt_y[-1] = nt_x[1:], nt_x[0]
         tt_y[:-1], tt_y[-1] = tt_x[1:], tt_x[0]
+        type_y[:-1], type_y[-1] = type_x[1:], type_x[0]
+        side_y[:-1], side_y[-1] = side_x[1:], side_x[0]
 
         nt_x = nt_x.reshape((self.batch_size, -1))
         tt_x = tt_x.reshape((self.batch_size, -1))
+        type_x = type_x.reshape((self.batch_size, -1))
+        side_x = side_x.reshape((self.batch_size, -1))
         nt_y = nt_y.reshape((self.batch_size, -1))
         tt_y = tt_y.reshape((self.batch_size, -1))
+        type_y = type_y.reshape((self.batch_size, -1))
+        side_y = side_y.reshape((self.batch_size, -1))
         data_seq = data_seq.reshape((self.batch_size, -1))
+
         for n in range(0, data_seq.shape[1], self.time_steps):
-            batch_nt_x = nt_x[:, n:n + self.time_steps]
-            batch_tt_x = tt_x[:, n:n + self.time_steps]
-            batch_nt_y = nt_y[:, n:n + self.time_steps]
-            batch_tt_y = tt_y[:, n:n + self.time_steps]
+            batch_nt_x = nt_x[:, n:n+self.time_steps]
+            batch_tt_x = tt_x[:, n:n+self.time_steps]
+            batch_type_x = type_x[:, n:n+self.time_steps]
+            batch_side_x = side_x[:, n:n+self.time_steps]
+            batch_nt_y = nt_y[:, n:n+self.time_steps]
+            batch_tt_y = tt_y[:, n:n+self.time_steps]
+            batch_type_y = type_y[:, n:n+self.time_steps]
+            batch_side_y = side_y[:, n:n+self.time_steps]
             if batch_nt_x.shape[1] == 0:
                 break
-            yield batch_nt_x, batch_nt_y, batch_tt_x, batch_tt_y
+            yield batch_nt_x, batch_tt_x, batch_type_x, batch_side_x, \
+                  batch_nt_y, batch_tt_y, batch_type_y, batch_side_y
 
     def get_train_subset_data(self, train_type):
         """yield sub training dataset"""
@@ -244,7 +276,7 @@ class TrainModel(object):
 
 
 if __name__ == '__main__':
-    num_terminal = base_setting.num_terminal
-    num_non_terminal = base_setting.num_non_terminal
+    num_terminal = 30001
+    num_non_terminal = 125
     model = TrainModel(num_non_terminal, num_terminal, kernel='LSTM')
     model.train()

@@ -55,7 +55,7 @@ class RnnModel(object):
         """create lstm cell and init state"""
         def get_cell():
             if self.kernel == 'LSTM':
-                cell = tf.contrib.rnn.BasicLSTMCell(self.num_hidden_units)
+                cell = tf.nn.rnn_cell.LSTMCell(self.num_hidden_units)
                 print('LSTM is using...')
             elif self.kernel == 'GRU':  # GRU RNN
                 cell = tf.contrib.rnn.GRUCell(self.num_hidden_units)

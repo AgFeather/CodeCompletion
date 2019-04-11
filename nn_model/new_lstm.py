@@ -48,7 +48,7 @@ class RnnModel_V2(object):
         return n_input, t_input, type_input, side_input, \
                n_target, t_target, type_target, side_target, keep_prob
 
-    def build_input_embed(self, n_input, t_input):
+    def build_token_embed(self, n_input, t_input):
         """create input embedding matrix and return embedding vector"""
         n_embed_matrix = tf.Variable(tf.random_uniform(
             [self.num_ntoken, self.n_embed_dim], minval=-0.05, maxval=0.05),  name='n_embed_matrix')
@@ -66,16 +66,16 @@ class RnnModel_V2(object):
         return type_input_embedding, side_input_embedding
 
     def build_lstm_input(self, n_input, t_input, type_input, side_input):
-        token_input = tf.add(n_input, t_input)
-        info_input = tf.stack((type_input, side_input), axis=0)
-        lstm_input = tf.stack((token_input, info_input), axis=0)
+        token_input = tf.add(n_input, t_input) # (?, ?, 1500)
+        info_input = tf.concat((type_input, side_input), axis=2) # (?, ?, 20)
+        lstm_input = tf.concat((token_input, info_input), axis=2) # (?, ?, 1520)
         return lstm_input
 
     def build_lstm(self, keep_prob):
         """create lstm cell and init state"""
         def get_cell():
             if self.kernel == 'LSTM':
-                cell = tf.contrib.rnn.BasicLSTMCell(self.num_hidden_units)
+                cell = tf.nn.rnn_cell.LSTMCell(self.num_hidden_units)
                 print('LSTM is using...')
             elif self.kernel == 'GRU':  # GRU RNN
                 cell = tf.contrib.rnn.GRUCell(self.num_hidden_units)
@@ -152,16 +152,20 @@ class RnnModel_V2(object):
         return t_loss
 
     def build_type_loss(self, type_logits, type_target):
-        type_loss = - (type_target * tf.log(type_logits) + (1-type_target) * tf.log((1-type_logits)))
+        type_loss = tf.nn.sparse_softmax_cross_entropy_with_logits(logits=type_logits, labels=type_target)
+        type_loss = tf.reduce_mean(type_loss)
         return type_loss
 
     def build_side_loss(self, side_logits, side_target):
-        side_loss = - (side_target * tf.log(side_logits) + (1-side_target) * tf.log(1-side_logits))
+        side_loss = tf.nn.sparse_softmax_cross_entropy_with_logits(logits=side_logits, labels=side_target)
+        side_loss = tf.reduce_mean(side_loss)
         return side_loss
 
     def build_info_accuracy(self, type_output, type_target, side_output, side_target):
-        type_equal = tf.cast(tf.equal(type_output, type_target), tf.int32)
-        side_equal = tf.cast(tf.equal(side_output, side_target), tf.int32)
+        type_max = tf.cast(tf.argmax(type_output, axis=1), tf.int32)
+        side_max = tf.cast(tf.argmax(side_output, axis=1), tf.int32)
+        type_equal = tf.cast(tf.equal(type_max, type_target), tf.float32)
+        side_equal = tf.cast(tf.equal(side_max, side_target), tf.float32)
         type_accu = tf.reduce_mean(type_equal)
         side_accu = tf.reduce_mean(side_equal)
         return type_accu, side_accu
@@ -211,14 +215,15 @@ class RnnModel_V2(object):
         return merged_op
 
     def build_model(self):
-        """create model"""
+        """build model structure"""
         tf.reset_default_graph()
         self.n_input, self.t_input, self.type_input, self.side_input, \
         self.n_target, self.t_target, self.type_target, self.side_target, \
         self.keep_prob = self.build_input()
 
+        n_input_embed, t_input_embed = self.build_token_embed(self.n_input, self.t_input)
         type_input_embed, side_input_embed = self.build_info_embed(self.type_input, self.side_input)
-        n_input_embed, t_input_embed = self.build_input_embed(self.n_input, self.t_input)
+
         lstm_input = self.build_lstm_input(n_input_embed, t_input_embed, type_input_embed, side_input_embed)
 
         cells, self.init_state = self.build_lstm(self.keep_prob)
@@ -231,14 +236,14 @@ class RnnModel_V2(object):
         side_logits = self.build_side_output(lstm_output)
 
         # loss calculate
-        # n_target = tf.reshape(self.n_target, [self.batch_size*self.time_steps])
-        # t_target = tf.reshape(self.t_target, [self.batch_size*self.time_steps])
         n_reshape_target = tf.reshape(self.n_target, [-1])
         t_reshape_target = tf.reshape(self.t_target, [-1])
+        type_reshape_target = tf.reshape(self.type_target, [-1])
+        side_reshape_target = tf.reshape(self.side_target, [-1])
         self.n_loss = self.build_n_loss(n_logits, n_reshape_target)
         self.t_loss = self.build_t_loss(t_logits, t_reshape_target)
-        self.type_loss = self.build_type_loss(type_logits, self.type_target)
-        self.side_loss = self.build_side_loss(side_logits, self.side_target)
+        self.type_loss = self.build_type_loss(type_logits, type_reshape_target)
+        self.side_loss = self.build_side_loss(side_logits, side_reshape_target)
         self.loss = self.build_loss(self.n_loss, self.t_loss, self.type_loss, self.side_loss)
         # optimizer
         self.optimizer, self.decay_learning_rate = self.build_optimizer(self.loss)
@@ -247,7 +252,7 @@ class RnnModel_V2(object):
         self.n_accu, self.t_accu = self.build_token_accuracy(
             n_logits, n_reshape_target, t_logits, t_reshape_target, topk=1)
         self.type_accu, self.side_accu = self.build_info_accuracy(
-            type_logits, self.type_target, side_logits, self.side_target)
+            type_logits, type_reshape_target, side_logits, side_reshape_target)
 
         # top k accuracy
         self.n_topk_accu, self.t_topk_accu = self.build_token_accuracy(
@@ -276,6 +281,6 @@ class RnnModel_V2(object):
 
 
 if __name__ == '__main__':
-    num_terminal = base_setting.num_terminal
-    num_non_terminal = base_setting.num_non_terminal
-    model = RnnModel_V2(num_non_terminal, num_terminal, is_training=True, kernel='GRU')
+    num_terminal = 30001
+    num_non_terminal = 125
+    model = RnnModel_V2(num_non_terminal, num_terminal, is_training=True, kernel='LSTM')
