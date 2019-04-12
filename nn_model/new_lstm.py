@@ -93,7 +93,6 @@ class RnnModel_V2(object):
         lstm_output, final_state = tf.nn.dynamic_rnn(cells, lstm_input, initial_state=lstm_state)
         # reshape lstm_output from [batch_size, time_steps, n_units] to [batch_size*time_steps, n_units]
         lstm_output = tf.reshape(lstm_output, [-1, self.num_hidden_units])
-
         return lstm_output, final_state
 
     def build_n_output(self, lstm_output):

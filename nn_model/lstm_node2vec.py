@@ -47,9 +47,9 @@ class LSTM_Node_Embedding(object):
         self.build_model()
 
     def get_represent_matrix(self):
-        file = open('temp_data/tt_embedding_matrix.pkl', 'rb')
+        file = open('../temp_data/tt_embedding_matrix.pkl', 'rb')
         tt_matrix = pickle.load(file)
-        file = open('temp_data/nt_embedding_matrix.pkl', 'rb')
+        file = open('../temp_data/nt_embedding_matrix.pkl', 'rb')
         nt_matrix = pickle.load(file)
         return nt_matrix, tt_matrix
 
@@ -93,8 +93,8 @@ class LSTM_Node_Embedding(object):
         """using a trainable matrix to transform the output of lstm to non-terminal token prediction"""
         with tf.variable_scope('non_terminal_softmax'):
             nt_weight = tf.Variable(tf.random_uniform(
-                [self.num_hidden_units, self.word2vec_dim], minval=-0.05, maxval=0.05))
-            nt_bias = tf.Variable(tf.zeros(self.word2vec_dim))
+                [self.num_hidden_units, self.num_ntoken], minval=-0.05, maxval=0.05))
+            nt_bias = tf.Variable(tf.zeros(self.num_ntoken))
         nt_logits = tf.matmul(lstm_output, nt_weight) + nt_bias
         return nt_logits
 
@@ -102,8 +102,8 @@ class LSTM_Node_Embedding(object):
         """using a trainable matrix to transform the otuput of lstm to terminal token prediction"""
         with tf.variable_scope('terminal_softmax'):
             t_weight = tf.Variable(tf.random_uniform(
-                [self.num_hidden_units, self.word2vec_dim], minval=-0.05, maxval=0.05))
-            t_bias = tf.Variable(tf.zeros(self.word2vec_dim))
+                [self.num_hidden_units, self.num_ttoken], minval=-0.05, maxval=0.05))
+            t_bias = tf.Variable(tf.zeros(self.num_ttoken))
         tt_logits = tf.matmul(lstm_output, t_weight) + t_bias
         return tt_logits
 
@@ -118,50 +118,63 @@ class LSTM_Node_Embedding(object):
 
     def build_nt_loss(self, n_logits, n_targets):
         """calculate the loss function of non-terminal prediction"""
-        n_loss = tf.sqrt(tf.square(n_logits - n_targets))
+        # n_loss = tf.sqrt(tf.square(n_logits - n_targets))
+        # n_loss = tf.reduce_mean(n_loss)
+        # return n_loss
+        n_loss = tf.nn.sparse_softmax_cross_entropy_with_logits(logits=n_logits, labels=n_targets)
         n_loss = tf.reduce_mean(n_loss)
         return n_loss
 
     def build_tt_loss(self, t_logits, t_targets):
         """calculate the loss function of terminal prediction"""
-        t_loss = tf.sqrt(tf.square(t_logits - t_targets))
+        # t_loss = tf.sqrt(tf.square(t_logits - t_targets))
+        # t_loss = tf.reduce_mean(t_loss)
+        # return t_loss
+        t_loss = tf.nn.sparse_softmax_cross_entropy_with_logits(logits=t_logits, labels=t_targets)
         t_loss = tf.reduce_mean(t_loss)
         return t_loss
 
     def build_accuracy(self, n_output, n_target, t_output, t_target):
-        n_most_similar = self.get_most_similar(self.n_embed_matrix, n_output)
-        t_most_similar = self.get_most_similar(self.t_embed_matrix, t_output)
-        n_most_similar = tf.cast(n_most_similar, tf.int32)
-        t_most_similar = tf.cast(t_most_similar, tf.int32)
-        # print(t_most_similar.get_shape())
-        # print(t_target.get_shape())
-        # print(n_most_similar.get_shape())
-        # print(n_target.get_shape())
-        n_equal = tf.equal(n_most_similar, n_target)
-        t_equal = tf.equal(t_most_similar, t_target)
-        n_accuracy = tf.reduce_mean(tf.cast(n_equal, tf.float32))
-        t_accuracy = tf.reduce_mean(tf.cast(t_equal, tf.float32))
+        n_max_index = tf.cast(tf.argmax(n_output, axis=1), tf.int32)
+        t_max_index = tf.cast(tf.argmax(t_output, axis=1), tf.int32)
+        n_equal = tf.equal(n_max_index, n_target)
+        t_equal = tf.equal(t_max_index, t_target)
+        n_accuracy = tf.cast(n_equal, tf.int32)
+        n_accuracy = tf.reduce_mean(n_accuracy)
+        t_accuracy = tf.cast(t_equal, tf.int32)
+        t_accuracy = tf.reduce_mean(t_accuracy)
         return n_accuracy, t_accuracy
 
-    def get_most_similar(self, represent_matrix, output):
-        """计算给定embedding matrix中距离最近的vector对应的index，使用TensorFlow中距离计算函数"""
-        num_batch = tf.shape(output)[0]
-        num_matrix = tf.shape(represent_matrix)[0]
-        output_new = tf.expand_dims(output, -1)
-        output_new = tf.tile(output_new, tf.stack([1, 1, num_matrix]))
-
-        matrix_new = tf.expand_dims(represent_matrix, -1)
-        matrix_new = tf.tile(matrix_new, tf.stack([1, 1, num_batch]))
-        matrix_new = tf.transpose(matrix_new, perm=[2, 1, 0])
-
-        diff = tf.subtract(output_new, matrix_new)
-        square_diff = tf.square(diff)
-
-        square_dist = tf.reduce_sum(square_diff, 1) # 距离矩阵
-
-        most_similar_index = tf.argmin(square_dist, axis=1) # todo 现在返回的是其本身，修改成计算最近的别的
-
-        return most_similar_index
+    # def build_accuracy(self, n_output, n_target, t_output, t_target):
+    #     # 使用embedding矩阵计算最近的vector。通过以计算向量距离的方式
+    #     n_most_similar = self.get_most_similar(self.n_embed_matrix, n_output)
+    #     t_most_similar = self.get_most_similar(self.t_embed_matrix, t_output)
+    #     n_most_similar = tf.cast(n_most_similar, tf.int32)
+    #     t_most_similar = tf.cast(t_most_similar, tf.int32)
+    #     # print(t_most_similar.get_shape())
+    #     # print(t_target.get_shape())
+    #     # print(n_most_similar.get_shape())
+    #     # print(n_target.get_shape())
+    #     n_equal = tf.equal(n_most_similar, n_target)
+    #     t_equal = tf.equal(t_most_similar, t_target)
+    #     n_accuracy = tf.reduce_mean(tf.cast(n_equal, tf.float32))
+    #     t_accuracy = tf.reduce_mean(tf.cast(t_equal, tf.float32))
+    #     return n_accuracy, t_accuracy
+    #
+    # def get_most_similar(self, represent_matrix, output):
+    #     """计算给定embedding matrix中距离最近的vector对应的index，使用TensorFlow中距离计算函数"""
+    #     num_batch = tf.shape(output)[0]
+    #     num_matrix = tf.shape(represent_matrix)[0]
+    #     output_new = tf.expand_dims(output, -1)
+    #     output_new = tf.tile(output_new, tf.stack([1, 1, num_matrix]))
+    #     matrix_new = tf.expand_dims(represent_matrix, -1)
+    #     matrix_new = tf.tile(matrix_new, tf.stack([1, 1, num_batch]))
+    #     matrix_new = tf.transpose(matrix_new, perm=[2, 1, 0])
+    #     diff = tf.subtract(output_new, matrix_new)
+    #     square_diff = tf.square(diff)
+    #     square_dist = tf.reduce_sum(square_diff, 1) # 距离矩阵
+    #     most_similar_index = tf.argmin(square_dist, axis=1) # todo 现在返回的是其本身，修改成计算最近的别的
+    #     return most_similar_index
 
     def build_optimizer(self, loss):
         """build optimizer for model, using learning rate decay and gradient clip"""
@@ -186,12 +199,11 @@ class LSTM_Node_Embedding(object):
     def build_model(self):
         """create model"""
         tf.reset_default_graph()
-
         self.n_input, self.t_input, self.n_target, self.t_target, self.keep_prob = self.build_input()
         n_input_embedding, t_input_embedding = self.build_represent_embed(
             self.n_input, self.t_input)
-        n_target_embedding, t_target_embedding = self.build_represent_embed(
-            self.n_target, self.t_target)
+        # n_target_embedding, t_target_embedding = self.build_represent_embed(
+        #     self.n_target, self.t_target)
         lstm_input = tf.add(n_input_embedding, t_input_embedding)
 
         cells, self.init_state = self.build_lstm(self.keep_prob)
@@ -202,18 +214,14 @@ class LSTM_Node_Embedding(object):
         t_logits = self.build_t_output(lstm_output)
 
         # loss calculate
-        # n_target = tf.reshape(self.n_target, [self.batch_size*self.time_steps])
-        # t_target = tf.reshape(self.t_target, [self.batch_size*self.time_steps])
-        n_target_embedding = tf.reshape(n_target_embedding, [-1, self.word2vec_dim])
-        t_target_embedding = tf.reshape(t_target_embedding, [-1, self.word2vec_dim])
-
-        # print(n_logits.get_shape())
-        # print(t_logits.get_shape())
-        # print(t_output_embedding.get_shape())
-        # print(n_output_embedding.get_shape())
-
-        self.n_loss = self.build_nt_loss(n_logits, n_target_embedding)
-        self.t_loss = self.build_tt_loss(t_logits, t_target_embedding)
+        n_target = tf.reshape(self.n_target, [self.batch_size*self.time_steps])
+        t_target = tf.reshape(self.t_target, [self.batch_size*self.time_steps])
+        self.n_loss = self.build_nt_loss(n_logits, n_target)
+        self.t_loss = self.build_tt_loss(t_logits, t_target)
+        # n_target_embedding = tf.reshape(n_target_embedding, [-1, self.word2vec_dim])
+        # t_target_embedding = tf.reshape(t_target_embedding, [-1, self.word2vec_dim])
+        # self.n_loss = self.build_nt_loss(n_logits, n_target_embedding)
+        # self.t_loss = self.build_tt_loss(t_logits, t_target_embedding)
         self.loss = self.build_loss(self.n_loss, self.t_loss)
         # optimizer
         self.optimizer, self.decay_learning_rate = self.build_optimizer(self.loss)
