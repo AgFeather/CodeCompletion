@@ -2,28 +2,29 @@ import tensorflow as tf
 import os
 import sys
 sys.path.append('..')
-
 from data_generator import DataGenerator
 from setting import Setting
+
+
+"""Node2Vec for terminal node模型的定义和训练"""
+
+RENAME_FLAG = False
+tt_n_dim = 5 # 在模型中会对该值乘2 （似乎不应该乘2）
+tt_t_dim = 1 # 在模型中会对该值乘2，表示terminal node前后各两个terminal node作为context
 
 embed_setting = Setting()
 show_every_n = embed_setting.show_every_n
 num_nt_token = embed_setting.num_non_terminal
 num_tt_token = embed_setting.num_terminal
 
-# model_save_dir = '../trained_model/node2vec_tt/'
-# tensorboard_log_dir = '../log_info/tensorboard_log/node2vec_tt/'
-
-model_save_dir = '../trained_model/rename_node2vec_tt/'
-tensorboard_log_dir = '../log_info/tensorboard_log/rename_node2vec_tt/'
+if RENAME_FLAG:
+    model_save_dir = '../trained_model/rename_node2vec_tt/'
+    tensorboard_log_dir = '../log_info/tensorboard_log/rename_node2vec_tt/'
+else:
+    model_save_dir = '../trained_model/node2vec_tt/'
+    tensorboard_log_dir = '../log_info/tensorboard_log/node2vec_tt/'
 
 training_log_dir = embed_setting.node2vec_tt_train_log_dir
-
-
-nt_n_dim = 5 # 需要乘2
-nt_t_dim = 6 # non-terminal的前六个terminal child node
-tt_n_dim = 5 # 需要乘2 （似乎不应该乘2）
-tt_t_dim = 2 # 需要乘2 terminal node前后各两个terminal node作为context
 
 
 
@@ -37,8 +38,6 @@ class NodeToVec_TT(object):
                  time_steps=80,
                  batch_size = 80,
                  alpha = 0.7,
-                 nt_n_dim = nt_n_dim,
-                 nt_t_dim = nt_t_dim,
                  tt_n_dim = tt_n_dim,
                  tt_t_dim = tt_t_dim,):
         self.num_ntoken = num_ntoken
@@ -51,8 +50,6 @@ class NodeToVec_TT(object):
         self.batch_size = batch_size
         self.alpha = alpha
 
-        self.nt_n_dim = nt_n_dim
-        self.nt_t_dim = nt_t_dim
         self.tt_n_dim = tt_n_dim
         self.tt_t_dim = tt_t_dim
 
@@ -95,7 +92,7 @@ class NodeToVec_TT(object):
         nt_bias = tf.get_variable('nt_bias', [self.num_ntoken], dtype=tf.float32,
                                   initializer=tf.truncated_normal_initializer)
         loss = tf.nn.sampled_softmax_loss(nt_weight, nt_bias, targets, embed_input, self.num_ntoken,
-                                          self.num_ntoken, num_true=self.tt_n_dim*2)
+                                          self.num_ntoken, num_true=self.tt_n_dim)
         loss = tf.reduce_mean(loss)
         return loss
 
@@ -137,6 +134,8 @@ class NodeToVec_TT(object):
 
 
     def train(self):
+        model_name = "Node2Vec for terminal node has been initialized (renaming identifier: {})".format(RENAME_FLAG)
+        self.print_and_log(model_name)
         global_step = 0
         saver = tf.train.Saver(max_to_keep=self.num_epochs + 1)
         session = tf.Session()
@@ -144,7 +143,7 @@ class NodeToVec_TT(object):
         tb_writer = tf.summary.FileWriter(tensorboard_log_dir, session.graph)
         generator = DataGenerator()
         for epoch in range(1, self.num_epochs+1):
-            data_gen = generator.get_embedding_sub_data(cate='tt', is_rename=True)
+            data_gen = generator.get_embedding_sub_data(cate='tt', is_rename=RENAME_FLAG)
             for index, sub_data in data_gen:
                 batch_generator = generator.get_embedding_batch(sub_data)
                 for batch_tt_x, batch_nt_y, batch_tt_y in batch_generator:
@@ -184,4 +183,4 @@ class NodeToVec_TT(object):
 
 if __name__ == '__main__':
     model = NodeToVec_TT(num_nt_token, num_tt_token)
-   # model.train()
+    model.train()

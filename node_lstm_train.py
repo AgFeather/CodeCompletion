@@ -1,10 +1,9 @@
 import tensorflow as tf
 import time
 import os
-import sys
+
 from nn_model.lstm_node2vec import LSTM_Node_Embedding
 
-sys.path.append('..')
 
 from setting import Setting
 from data_generator import DataGenerator
@@ -21,10 +20,9 @@ save_every_n = base_setting.save_every_n
 valid_every_n = base_setting.valid_every_n
 
 
-
+"""对 Node2Vec + LSTM 模型进行训练"""
 
 class TrainModel(object):
-    """Train rnn model"""
     def __init__(self,
                  num_ntoken, num_ttoken,
                  batch_size=1,

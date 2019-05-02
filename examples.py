@@ -1,9 +1,4 @@
-"""
-An AST example in the training dataset,
-and its left-child right-sibling binary tree,
-its sequence of (non-terminal, terminal) pair
-"""
-
+"""保存了一个数据集中的AST，用以进行测试"""
 
 ast_example = [{'id': 0, 'type': 'Program', 'children': [1]},
                    {'id': 1, 'type': 'ExpressionStatement', 'children': [2]},

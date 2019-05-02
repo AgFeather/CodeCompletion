@@ -6,7 +6,7 @@ from json.decoder import JSONDecodeError
 from setting import Setting
 import utils
 
-
+"""最原始的数据处理方法，将每个AST都转换成为一个sequence，sequence中的元素是一个(non-terminal, terminal) pair"""
 
 base_setting = Setting()
 

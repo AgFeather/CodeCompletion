@@ -5,6 +5,9 @@ import numpy as np
 
 import setting
 
+"""对经由Node2Vec训练产生的representation embedding matrix进行提取，并通过各种方法检测re-vector的效果
+方法包括对re-vector进行降维并可视化，以及计算给定两个表示向量之间的相似度"""
+
 embed_setting = setting.Setting()
 num_ntoken = embed_setting.num_non_terminal
 num_ttoken = embed_setting.num_terminal

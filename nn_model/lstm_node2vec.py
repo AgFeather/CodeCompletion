@@ -1,11 +1,11 @@
 import tensorflow as tf
 import pickle
 import sys
-
-sys.path.append('..')
-
 from setting import Setting
 
+"""Node2Vec + LSTM 模型的定义，使用前者对vector进行初始化，后者实现预测"""
+
+sys.path.append('..')
 base_setting = Setting()
 
 model_save_dir = base_setting.lstm_model_save_dir
@@ -18,9 +18,7 @@ save_every_n = base_setting.save_every_n
 valid_every_n = base_setting.valid_every_n
 
 
-
 class LSTM_Node_Embedding(object):
-    """Node2Vec + LSTM 模型，使用前者对vector进行初始化，后者实现预测"""
     def __init__(self,
                  num_ntoken, num_ttoken, is_training=True,
                  batch_size=50,
@@ -47,9 +45,11 @@ class LSTM_Node_Embedding(object):
         self.build_model()
 
     def get_represent_matrix(self):
-        file = open('../temp_data/tt_embedding_matrix.pkl', 'rb')
+        #file = open('../temp_data/tt_embedding_matrix.pkl', 'rb')
+        file = open('temp_data/tt_embedding_matrix.pkl', 'rb')
         tt_matrix = pickle.load(file)
-        file = open('../temp_data/nt_embedding_matrix.pkl', 'rb')
+        #file = open('../temp_data/nt_embedding_matrix.pkl', 'rb')
+        file = open('temp_data/nt_embedding_matrix.pkl', 'rb')
         nt_matrix = pickle.load(file)
         return nt_matrix, tt_matrix
 
@@ -173,7 +173,7 @@ class LSTM_Node_Embedding(object):
     #     diff = tf.subtract(output_new, matrix_new)
     #     square_diff = tf.square(diff)
     #     square_dist = tf.reduce_sum(square_diff, 1) # 距离矩阵
-    #     most_similar_index = tf.argmin(square_dist, axis=1) # todo 现在返回的是其本身，修改成计算最近的别的
+    #     most_similar_index = tf.argmin(square_dist, axis=1) # 现在返回的是其本身，修改成计算最近的别的
     #     return most_similar_index
 
     def build_optimizer(self, loss):

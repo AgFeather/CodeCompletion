@@ -6,6 +6,9 @@ from nn_model.lstm_model import RnnModel
 from data_generator import DataGenerator
 from setting import Setting
 
+"""Performance test for LSTM model, different with creating a random hole in an ast,
+this test method is to evaluate each token in an ast and calculate accuracy for all token prediction"""
+
 test_setting = Setting()
 model_save_dir = test_setting.lstm_model_save_dir
 test_log_dir = test_setting.lstm_test_log_dir
@@ -17,8 +20,6 @@ define_topk =  test_setting.define_topk
 
 
 class RnnModelTest(object):
-    """Performance test for LSTM model, different with creating a random hole in an ast,
-    this test method is to evaluate each token in an ast and calculate accuracy for all token prediction"""
     def __init__(self,
                  num_ntoken,
                  num_ttoken,):

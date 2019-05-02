@@ -31,6 +31,7 @@ save_every_n = base_setting.save_every_n
 valid_every_n = base_setting.valid_every_n
 
 
+
 class TrainModel(object):
     """Train rnn model"""
     def __init__(self,

@@ -1,6 +1,3 @@
-"""提出的一个新的数据处理方法，该处理方法的优点是可以将生成的token sequence 转换回AST，
-这样就实现了真正的code completion"""
-
 import pickle
 import json
 import sys
@@ -10,7 +7,8 @@ from json.decoder import JSONDecodeError
 from setting import Setting
 import utils
 
-
+"""提出的一个新的数据处理方法，该处理方法的优点是可以将生成的token sequence 转换回AST，
+这样就实现了真正的code completion"""
 
 base_setting = Setting()
 

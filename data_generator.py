@@ -2,7 +2,7 @@ import numpy as np
 import pickle
 from setting import Setting
 
-
+"""DataGenerator类，对在各个模型训练过程中数据集的使用和train batch进行处理"""
 
 class DataGenerator():
     """a generator class for data generation"""
@@ -105,8 +105,8 @@ class DataGenerator():
             nt_train_pair_dir = '../js_dataset/rename_embed_data/nt_train_pair/'
             tt_train_pair_dir = '../js_dataset/rename_embed_data/tt_train_pair/'
         elif not is_rename:
-            nt_train_pair_dir = '../js_dataset/train_pair_data/nt_train_pair/'
-            tt_train_pair_dir = '../js_dataset/train_pair_data/tt_train_pair/'
+            nt_train_pair_dir = '../js_dataset/embed_data/nt_train_pair/'
+            tt_train_pair_dir = '../js_dataset/embed_data/tt_train_pair/'
         else:
             raise KeyError
         if cate == 'nt':

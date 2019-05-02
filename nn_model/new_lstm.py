@@ -7,7 +7,7 @@ base_setting = Setting()
 """针对新的数据处理方法，创建的新lstm模型"""
 
 class RnnModel_V2(object):
-    """A basic LSTM model for code completion"""
+    """A new LSTM model for the new data processing"""
     def __init__(self,
                  num_ntoken, num_ttoken, is_training=True, kernel='LSTM',
                  batch_size=50,

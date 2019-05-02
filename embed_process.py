@@ -5,29 +5,28 @@ from json.decoder import JSONDecodeError
 from setting import Setting
 from utils import pickle_save
 
-base_setting = Setting()
-
-
-"""Process original dataset, and generate two kinds of trianing pairs and save
+"""Node2Vec预训练模型的数据处理部分，根据原始AST生成两种training tuples，并保存。
 (non-terminal node, non-terminal context, terminal context)
-(terminal node, non-terminal context, terminal context)
-"""
+(terminal node, non-terminal context, terminal context)"""
 
+
+RENAME_FLAG = False
+base_setting = Setting()
+nt_n_dim = 5 # 需要乘2
+nt_t_dim = 10 # non-terminal的前六个terminal child node
+tt_n_dim = 5 #
+tt_t_dim = 1 # 需要乘2 terminal node前后terminal node作为context
+
+if RENAME_FLAG: # 将原始AST进行rename后生成对node2vec模型的训练数据
+    data_parameter_dir = 'js_dataset/rename_variable/rename_parameter.pkl'
+    nt_train_pair_dir = 'js_dataset/rename_embed_data/nt_train_pair/'
+    tt_train_pair_dir = 'js_dataset/rename_embed_data/tt_train_pair/'
+else: # 根据原始 AST 生成对node2vec模型的训练数据
+    data_parameter_dir = 'js_dataset/split_js_data/parameter.p'
+    nt_train_pair_dir = 'js_dataset/embed_data/nt_train_pair/'
+    tt_train_pair_dir = 'js_dataset/embed_data/tt_train_pair/'
 
 js_train_data_dir = base_setting.origin_train_data_dir
-
-# 根据原始 AST 生成对node2vec模型的训练数据
-# data_parameter_dir = 'js_dataset/split_js_data/parameter.p'
-# nt_train_pair_dir = 'js_dataset/embed_data/nt_train_pair/'
-# tt_train_pair_dir = 'js_dataset/embed_data/tt_train_pair/'
-
-
-# 将原始AST急性rename后生成对node2vec模型的训练数据
-data_parameter_dir = 'js_dataset/rename_variable/rename_parameter.pkl'
-nt_train_pair_dir = 'js_dataset/rename_embed_data/nt_train_pair/'
-tt_train_pair_dir = 'js_dataset/rename_embed_data/tt_train_pair/'
-
-
 num_sub_valid_data = base_setting.num_sub_valid_data
 num_sub_train_data = base_setting.num_sub_train_data
 num_sub_test_data = base_setting.num_sub_test_data
@@ -35,14 +34,8 @@ num_sub_test_data = base_setting.num_sub_test_data
 unknown_token = base_setting.unknown_token
 time_steps = base_setting.time_steps
 
-
 parameter_file = open(data_parameter_dir, 'rb')
 tt_token_to_int, tt_int_to_token, nt_token_to_int, nt_int_to_token = pickle.load(parameter_file)
-
-nt_n_dim = 5 # 需要乘2
-nt_t_dim = 6 # non-terminal的前六个terminal child node
-tt_n_dim = 5 # 需要乘2 （似乎不应该乘2）
-tt_t_dim = 2 # 需要乘2 terminal node前后各两个terminal node作为context
 
 def dataset_training_pair(subset_size=5000):
     """读取原始AST数据集，并将其分割成多个subset data
@@ -254,7 +247,7 @@ def get_tt_train_pair(ast, node, tt_n_dim, tt_t_dim):
                 train_x = string_to_int(string_train_x, 'tt')
             except:
                 print('tt string to int error')
-            train_ny_index = child['father'][-tt_n_dim:] # 构建指定的non-terminal father context
+            train_ny_index = child['father'][-tt_n_dim:] # 构建指定的non-terminal parent nt context
             train_ny_index = set(train_ny_index)
             train_ty_index = set()
             for i in range(index - tt_t_dim, index + tt_t_dim + 1):
@@ -279,9 +272,9 @@ def get_tt_train_pair(ast, node, tt_n_dim, tt_t_dim):
                 train_ty.append(string_to_int('EMPTY', 'tt'))
 
             # 将两个context都剪裁到指定尺度
-            if len(train_ny) < tt_n_dim * 2:
-                train_ny = train_ny * tt_n_dim * 2
-            train_ny = train_ny[:tt_n_dim * 2]
+            if len(train_ny) < tt_n_dim:
+                train_ny = train_ny * tt_n_dim
+            train_ny = train_ny[:tt_n_dim]
             if len(train_ty) < tt_t_dim * 2:
                 train_ty = train_ty * tt_t_dim * 2
             train_ty = train_ty[:tt_t_dim * 2]
@@ -336,8 +329,8 @@ def generate_train_pair(ast, nt_n_dim=nt_n_dim, nt_t_dim=nt_t_dim,
         if not isinstance(pair[0], int):
             print('ERROR: {} pair[0] is not int'.format('tt'))
             del tt_train_pair_list[i]
-        elif len(pair[1]) != tt_n_dim * 2:
-            print('ERROR: {} pair[1] is not equal to n_dim * 2'.format('tt'))
+        elif len(pair[1]) != tt_n_dim:
+            print('ERROR: {} pair[1] is not equal to n_dim'.format('tt'))
             del tt_train_pair_list[i]
         elif len(pair[2]) != tt_t_dim * 2:
             print('ERROR: {} pair[2] is not equal to t_dim * 2'.format('tt'))
