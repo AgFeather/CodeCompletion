@@ -6,8 +6,8 @@ from nn_model.lstm_model import RnnModel
 from data_generator import DataGenerator
 from setting import Setting
 
-"""Performance test for LSTM model, different with creating a random hole in an ast,
-this test method is to evaluate each token in an ast and calculate accuracy for all token prediction"""
+"""测试LSTM for code completion的性能，不同于code_completion.py，
+该测试方法是模拟在训练时valid的过程，也就是对sequence中的每个element进行预测，并计算准确率"""
 
 test_setting = Setting()
 model_save_dir = test_setting.lstm_model_save_dir

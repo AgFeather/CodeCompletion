@@ -2,6 +2,7 @@ import tensorflow as tf
 import pickle
 import matplotlib.pyplot as plt
 import numpy as np
+import os
 
 import setting
 
@@ -17,6 +18,19 @@ num_ttoken = embed_setting.num_terminal
 class NodeEmbedding(object):
     """加载已经训练好的Node2vec数据"""
     def __init__(self):
+        if os.path.exists('temp_data/nt_embedding_matrix_300.pkl'):
+            self.load_matrix_from_file()
+        else:
+            self.load_matrix_from_model()
+
+    def load_matrix_from_file(self):
+        with open('temp_data/tt_embedding_matrix_300.pkl', 'rb') as file:
+            self.tt_embedding_matrix = pickle.load(file)
+        with open('temp_data/nt_embedding_matrix_300.pkl', 'rb') as file:
+            self.nt_embedding_matrix = pickle.load(file)
+        print("load nt/tt embedding matrix from file....")
+
+    def load_matrix_from_model(self):
         with tf.Session() as sess:
             trained_model_path = 'trained_model/node2vec_tt/'
             saver = tf.train.import_meta_graph(trained_model_path + 'EPOCH4.ckpt.meta')
@@ -33,7 +47,6 @@ class NodeEmbedding(object):
 
     def save_embedding_matrix(self):
         """将已经训练好的embedding matrix保存到指定路径中"""
-        import pickle
         with open('temp_data/tt_embedding_matrix.pkl', 'wb') as file:
             pickle.dump(self.tt_embedding_matrix, file)
             print('terminal embedding matrix has saved...')
@@ -67,7 +80,6 @@ class NodeEmbedding(object):
             embedding_vector_list.append(represent_vector)
         embedding_vector_list = np.array(embedding_vector_list)
         return embedding_vector_list
-
 
     def get_most_similar(self, string_node, nt_or_tt, topk=5):
         """计算与给定node余弦相似度最大的top k个node"""
@@ -152,9 +164,6 @@ class NodeEmbedding(object):
 
 
 
-
-
-
 def TSNE_fit(data):
     """使用t-SNE对原始的embedding representation vector进行降维到2-D"""
     from sklearn.manifold import TSNE
@@ -192,6 +201,7 @@ def normalization_tt(data, bias=5, num=100):
         if len(normal_data) == num:
             break
     return np.array(normal_data)
+
 
 def normalization_nt(data):
     """对被降维到2-D的non-terminal represent vector进行归一化"""

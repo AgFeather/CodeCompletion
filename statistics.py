@@ -1,7 +1,3 @@
-"""通过遍历dataset，对dataset进行统计，并保存统计信息"""
-
-
-
 import json
 import sys
 from collections import Counter
@@ -11,7 +7,7 @@ import pickle
 from setting import Setting
 import utils
 
-
+"""通过遍历dataset，对dataset进行统计，并保存统计信息"""
 
 base_setting = Setting()
 

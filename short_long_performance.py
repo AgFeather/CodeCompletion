@@ -7,6 +7,7 @@ import utils
 from nn_model.lstm_model import RnnModel
 from setting import Setting
 
+"""用以测试训练好的LSTM模型对不同长度时每个token的预测准确率"""
 
 test_setting = Setting()
 test_subset_data_dir = test_setting.sub_int_test_dir

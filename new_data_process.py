@@ -3,7 +3,6 @@ import json
 import sys
 from collections import Counter
 from json.decoder import JSONDecodeError
-
 from setting import Setting
 import utils
 

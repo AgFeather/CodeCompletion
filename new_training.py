@@ -3,21 +3,21 @@ import numpy as np
 import pickle
 import time
 import os
-
 from nn_model.new_lstm import RnnModel_V2
 from setting import Setting
 
+"""针对新数据处理方法构建的新LSTM进行训练，模型保存在nn_model/new_lstm/RnnModel_V2中"""
+
+training_type = 'ORIGIN'
 base_setting = Setting()
 
-
-training_type = 'origin'
-if training_type == 'rename':
+if training_type == 'RENAME':
     model_save_dir = 'trained_model/lstm_for_rename/'
     tensorboard_log_dir = 'log_info/tensorboard_log/rename_tb_log/'
     curr_time = time.strftime('_%Y_%m_%d_%H_%M', time.localtime())  # 年月日时分
     training_log_dir = 'log_info/training_log/rename_lstm_train_log' + str(curr_time) + '.txt'
     valid_log_dir = 'log_info/valid_log/lstm_valid_log' + str(curr_time) + '.txt'
-elif training_type == 'origin':
+elif training_type == 'ORIGIN':
     model_save_dir = 'trained_model/lstm_v2/'
     tensorboard_log_dir = 'log_info/tensorboard_log/lstm_v2_tb_log/'
     curr_time = time.strftime('_%Y_%m_%d_%H_%M', time.localtime())  # 年月日时分
@@ -29,7 +29,6 @@ else:
 show_every_n = base_setting.show_every_n
 save_every_n = base_setting.save_every_n
 valid_every_n = base_setting.valid_every_n
-
 
 
 class TrainModel(object):

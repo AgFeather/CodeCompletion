@@ -2,12 +2,14 @@ import tensorflow as tf
 import random
 import time
 import pickle
-
 from nn_model.lstm_model import RnnModel
 from data_generator import DataGenerator
 import utils
 from setting import Setting
 
+"""模拟真实环境中的code completion，
+在一个给定的AST中，随机创建一个hole，然后输入该hole的所有pre-context，
+最后使用训练好的LSTM模型进行测试，并计算准确率"""
 
 test_setting = Setting()
 model_save_dir = test_setting.lstm_model_save_dir

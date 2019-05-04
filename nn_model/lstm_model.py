@@ -1,8 +1,9 @@
 import tensorflow as tf
-
 from setting import Setting
-base_setting = Setting()
 
+"""所有lstm模型的基类，即使用最原始的LSTM模型进行训练和预测"""
+
+base_setting = Setting()
 
 class RnnModel(object):
     """A basic LSTM model for code completion"""

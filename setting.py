@@ -1,5 +1,7 @@
 import time
 
+"""保存整个项目的一些设定参数"""
+
 class Setting(object):
     '''保存各种路径，以及其它的一些参数'''
 

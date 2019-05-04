@@ -46,10 +46,10 @@ class LSTM_Node_Embedding(object):
 
     def get_represent_matrix(self):
         #file = open('../temp_data/tt_embedding_matrix.pkl', 'rb')
-        file = open('temp_data/tt_embedding_matrix.pkl', 'rb')
+        file = open('temp_data/tt_embedding_matrix_300.pkl', 'rb')
         tt_matrix = pickle.load(file)
         #file = open('../temp_data/nt_embedding_matrix.pkl', 'rb')
-        file = open('temp_data/nt_embedding_matrix.pkl', 'rb')
+        file = open('temp_data/nt_embedding_matrix_300.pkl', 'rb')
         nt_matrix = pickle.load(file)
         return nt_matrix, tt_matrix
 

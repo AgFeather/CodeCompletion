@@ -7,7 +7,7 @@ import pickle
 from setting import Setting
 import utils
 
-"""rename all variables as arg1, arg2..."""
+"""将整个数据集中所有AST中的Identifier都rename成arg1, arg2。。。并保存"""
 
 
 base_setting = Setting()

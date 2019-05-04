@@ -5,7 +5,7 @@ from json.decoder import JSONDecodeError
 from setting import Setting
 from utils import pickle_save
 
-"""Node2Vec预训练模型的数据处理部分，根据原始AST生成两种training tuples，并保存。
+"""Node2Vec预训练模型的数据处理部分，根据原始AST生成两种training tuples，两种tuple分别为：
 (non-terminal node, non-terminal context, terminal context)
 (terminal node, non-terminal context, terminal context)"""
 

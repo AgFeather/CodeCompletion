@@ -5,7 +5,6 @@ sys.path.append('..')
 from data_generator import DataGenerator
 from setting import Setting
 
-
 """Node2Vec for terminal node模型的定义和训练"""
 
 RENAME_FLAG = False

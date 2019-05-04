@@ -1,10 +1,10 @@
 import tensorflow as tf
 import os
 import time
-
 from setting import Setting
 from data_generator import DataGenerator
 
+"""构建两个LSTM模型，这两个LSTM分别对nt-node和tt-node进行预测"""
 
 base_setting = Setting()
 sub_int_train_dir = base_setting.sub_int_train_dir

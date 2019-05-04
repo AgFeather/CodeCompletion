@@ -1,28 +1,29 @@
 import tensorflow as tf
 import time
 import os
-
 from nn_model.lstm_model import RnnModel
+from nn_model.lstm_node2vec import LSTM_Node_Embedding
 from setting import Setting
 from data_generator import DataGenerator
 
+training_type = 'origin'
+#model_type = 'with_embedding'
+model_type = 'lstm'
 base_setting = Setting()
 
 
-training_type = 'rename'
-if training_type == 'rename':
-    model_save_dir = 'trained_model/lstm_for_rename/'
-    tensorboard_log_dir = 'log_info/tensorboard_log/rename_tb_log/'
-    curr_time = time.strftime('_%Y_%m_%d_%H_%M', time.localtime())  # 年月日时分
-    training_log_dir = 'log_info/training_log/rename_lstm_train_log' + str(curr_time) + '.txt'
-    valid_log_dir = 'log_info/valid_log/lstm_valid_log' + str(curr_time) + '.txt'
-elif training_type == 'origin':
-    model_save_dir = base_setting.lstm_model_save_dir
-    tensorboard_log_dir = base_setting.lstm_tb_log_dir
-    training_log_dir = base_setting.lstm_train_log_dir
-    valid_log_dir = base_setting.lstm_valid_log_dir
-else:
-    print('Error')
+model_save_dir = 'trained_model/' + training_type + '_' + model_type + '/'
+tensorboard_log_dir = 'log_info/tensorboard_log/' + training_type + model_type + '/'
+curr_time = time.strftime('_%Y_%m_%d_%H_%M', time.localtime())  # 年月日时分
+training_log_dir = 'log_info/training_log/' + training_type + '_' + model_type + str(curr_time) + '.txt'
+valid_log_dir = 'log_info/valid_log/lstm_valid_log/' + training_type + '_' + model_type + str(curr_time) + '.txt'
+
+training_accu_log = 'log_info/accu_log/' + training_type + '_' + model_type + str(curr_time) + '.txt'
+
+if not os.path.exists(model_save_dir):
+    os.makedirs(model_save_dir)
+if not os.path.exists(tensorboard_log_dir):
+    os.makedirs(tensorboard_log_dir)
 
 show_every_n = base_setting.show_every_n
 save_every_n = base_setting.save_every_n
@@ -30,16 +31,21 @@ valid_every_n = base_setting.valid_every_n
 
 
 class TrainModel(object):
-    """Train rnn model"""
     def __init__(self,
                  num_ntoken, num_ttoken, kernel='LSTM',
                  batch_size=50,
-                 num_epochs=10,
+                 num_epochs=5,
                  time_steps=50,):
         self.time_steps = time_steps
         self.batch_size = batch_size
         self.num_epochs = num_epochs
-        self.model = RnnModel(num_ntoken, num_ttoken, is_training=True, kernel=kernel)
+        if model_type == 'with_embedding':
+            print("Using LSTM model with Node2Vec embedding")
+            self.model = LSTM_Node_Embedding(num_ntoken, num_ttoken, is_training=True)
+        else:
+            print("Using original LSTM model")
+            self.model = RnnModel(num_ntoken, num_ttoken, is_training=True)
+
 
     def train(self):
         model_info = 'basic lstm model  ' + \
@@ -56,9 +62,6 @@ class TrainModel(object):
         for epoch in range(1, self.num_epochs + 1):
             epoch_start_time = time.time()
             batch_step = 0
-            loss_per_epoch = 0.0
-            n_accu_per_epoch = 0.0
-            t_accu_per_epoch = 0.0
             subset_generator = self.generator.get_train_subset_data(train_type=training_type)
 
             for data in subset_generator:
@@ -68,7 +71,6 @@ class TrainModel(object):
                 for b_nt_x, b_nt_y, b_t_x, b_t_y in batch_generator:
                     batch_step += 1
                     global_step += 1
-                    batch_start_time = time.time()
 
                     feed = {self.model.t_input: b_t_x,
                             self.model.n_input: b_nt_x,
@@ -78,7 +80,7 @@ class TrainModel(object):
                             self.model.lstm_state: lstm_state,
                             self.model.decay_epoch: (epoch-1)}
                     loss, n_loss, t_loss, \
-                    n_accu, t_accu, topk_n_accu, topk_t_accu, \
+                    n_accu, t_accu, \
                     _, learning_rate, summary_str = \
                         session.run([
                             self.model.loss,
@@ -86,19 +88,14 @@ class TrainModel(object):
                             self.model.t_loss,
                             self.model.n_accu,
                             self.model.t_accu,
-                            self.model.n_topk_accu,
-                            self.model.t_topk_accu,
                             self.model.optimizer,
                             self.model.decay_learning_rate,
                             self.model.merged_op], feed_dict=feed)
 
+                    self.save_accu_log(global_step, n_accu, t_accu)
+
                     tb_writer.add_summary(summary_str, global_step)
                     tb_writer.flush()
-
-                    loss_per_epoch += loss
-                    n_accu_per_epoch += n_accu
-                    t_accu_per_epoch += t_accu
-                    batch_end_time = time.time()
 
                     if global_step % show_every_n == 0:
                         log_info = 'epoch:{}/{}  '.format(epoch, self.num_epochs) + \
@@ -106,27 +103,17 @@ class TrainModel(object):
                                    'loss:{:.2f}(n_loss:{:.2f} + t_loss:{:.2f})  '.format(loss, n_loss, t_loss) + \
                                    'nt_accu:{:.2f}%  '.format(n_accu * 100) + \
                                    'tt_accu:{:.2f}%  '.format(t_accu * 100) + \
-                                   'top3_nt_accu:{:.2f}%  '.format(topk_n_accu * 100) + \
-                                   'top3_tt_accu:{:.2f}%  '.format(topk_t_accu * 100) + \
-                                   'learning_rate:{:.4f}  '.format(learning_rate) + \
-                                   'time cost per batch:{:.2f}/s'.format(batch_end_time - batch_start_time)
+                                   'learning_rate:{:.4f}  '.format(learning_rate)
                         self.print_and_log(log_info)
 
                     if global_step % valid_every_n == 0:
                         self.valid(session, epoch, global_step)
-
-                    # if global_step % save_every_n == 0:
-                    #     saver.save(session, model_save_dir + 'e{}_b{}.ckpt'.format(epoch, batch_step))
-                    #     print('model saved: epoch:{} global_step:{}'.format(epoch, global_step))
 
             valid_n_accu, valid_t_accu = self.valid(session, epoch, global_step)
             epoch_end_time = time.time()
             epoch_cost_time = epoch_end_time - epoch_start_time
 
             epoch_log = 'EPOCH:{}/{}  '.format(epoch, self.num_epochs) + \
-                        'epoch average loss:{:.2f}  '.format(loss_per_epoch / batch_step) + \
-                        'epoch average nt_accu:{:.2f}%  '.format(100 * n_accu_per_epoch / batch_step) + \
-                        'epoch average tt_accu:{:.2f}%  '.format(100 * t_accu_per_epoch / batch_step) + \
                         'epoch valid nt_accu:{:.2f}%  '.format(valid_n_accu) + \
                         'epoch valid tt_accu:{:.2f}%  '.format(valid_t_accu) + \
                         'time cost this epoch:{:.2f}/s  '.format(epoch_cost_time) + '\n'
@@ -185,6 +172,15 @@ class TrainModel(object):
         self.log_file.write(info)
         self.log_file.write('\n')
         print(info)
+
+    def save_accu_log(self, global_step, n_accu, t_accu):
+        if not os.path.exists(training_accu_log):
+            self.accu_file = open(training_accu_log, 'w')
+        accu_info = str(global_step) + ';' + str(n_accu) + ';' + str(t_accu) + '\n'
+        self.accu_file.write(accu_info)
+        if global_step % 1000 == 0:
+            self.accu_file.flush()
+
 
 
 if __name__ == '__main__':

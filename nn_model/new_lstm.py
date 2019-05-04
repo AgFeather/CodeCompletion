@@ -4,7 +4,7 @@ from setting import Setting
 base_setting = Setting()
 
 
-"""针对新的数据处理方法，创建的新lstm模型"""
+"""针对新的数据处理方法（在原有的nt，tt token基础上，增加side info和type_info），创建的新lstm模型"""
 
 class RnnModel_V2(object):
     """A new LSTM model for the new data processing"""

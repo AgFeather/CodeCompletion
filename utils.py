@@ -1,13 +1,10 @@
 import pickle
-
 from setting import Setting
 
+"""在项目中用到的工具函数"""
+
 base_setting = Setting()
-
 data_parameter_dir = base_setting.data_parameter_dir
-
-
-
 
 def pickle_save(path, data):
     """使用pickle将给定数据保存到给定路径中"""

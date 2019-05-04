@@ -69,6 +69,7 @@ class DataGenerator():
 
     def get_train_subset_data(self, train_type):
         """yield sub training dataset"""
+        print("Using",train_type,"dataset to train LSTM model...")
         if train_type == 'origin':
             dataset_path = self.sub_int_train_dir
         elif train_type == 'rename':
@@ -83,7 +84,7 @@ class DataGenerator():
 
     def get_valid_subset_data(self, train_type):
         if train_type == 'origin':
-            dataset_path = self.sub_int_valid_dir
+            dataset_path = self.sub_int_valid_dir + 'int_part1.json'
         elif train_type == 'rename':
             dataset_path = 'js_dataset/rename_variable/valid_data/int_format/int_part1.json'
         else:
