@@ -261,9 +261,6 @@ class LSTM_Node_Embedding(object):
 
 
 
-
-
-
 if __name__ == '__main__':
     num_terminal = base_setting.num_terminal
     num_non_terminal = base_setting.num_non_terminal

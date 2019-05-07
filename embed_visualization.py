@@ -258,6 +258,23 @@ def tt_single_plot(string_node_list):
     plot_embedding(d2_data, label_list)
 
 
+def visualize_accuracy():
+    """将准确率曲线进行可视化"""
+    index = []
+    n_accu = []
+    t_accu = []
+    file = open('log_info/accu_log/origin_lstm_2019_05_04_13_06.txt', 'r')
+    one_line = file.readline()
+    while one_line:
+        split_data = one_line.split(';')
+        index.append(float(split_data[0]))
+        n_accu.append(float(split_data[1]))
+        t_accu.append(float(split_data[2]))
+        one_line = file.readline()
+    assert len(n_accu) == len(t_accu) == len(index)
+
+
+
 if __name__ == '__main__':
     node_list1 = ['Identifier=$$=size', 'Identifier=$$=length', 'Identifier=$$=len', 'Identifier=$$=_len']
     node_list2 = ['Identifier=$$=userName', 'Identifier=$$=name', 'Identifier=$$=id', 'Identifier=$$=user_id', 'Identifier=$$=player']

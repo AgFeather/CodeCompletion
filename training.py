@@ -6,20 +6,23 @@ from nn_model.lstm_node2vec import LSTM_Node_Embedding
 from setting import Setting
 from data_generator import DataGenerator
 
-#training_type = 'rename'
-training_type = 'origin'
+"""训练LSTM模型，根据指定data_type选择是对原始数据集训练还是对rename数据集训练。
+根据指定model_type选择使用LSTM模型还是LSTM_with_Node2Vec模型"""
+
+#data_type = 'rename'
+data_type = 'origin'
 model_type = 'with_embedding'
 # model_type = 'lstm'
 base_setting = Setting()
 
 
-model_save_dir = 'trained_model/' + training_type + '_' + model_type + '/'
-tensorboard_log_dir = 'log_info/tensorboard_log/' + training_type + model_type + '/'
+model_save_dir = 'trained_model/' + data_type + '_' + model_type + '/'
+tensorboard_log_dir = 'log_info/tensorboard_log/' + data_type + model_type + '/'
 curr_time = time.strftime('_%Y_%m_%d_%H_%M', time.localtime())  # 年月日时分
-training_log_dir = 'log_info/training_log/' + training_type + '_' + model_type + str(curr_time) + '.txt'
-valid_log_dir = 'log_info/valid_log/lstm_valid_log/' + training_type + '_' + model_type + str(curr_time) + '.txt'
+training_log_dir = 'log_info/training_log/' + data_type + '_' + model_type + str(curr_time) + '.txt'
+valid_log_dir = 'log_info/valid_log/lstm_valid_log/' + data_type + '_' + model_type + str(curr_time) + '.txt'
 
-training_accu_log = 'log_info/accu_log/' + training_type + '_' + model_type + str(curr_time) + '.txt'
+training_accu_log = 'log_info/accu_log/' + data_type + '_' + model_type + str(curr_time) + '.txt'
 
 if not os.path.exists(model_save_dir):
     os.makedirs(model_save_dir)
@@ -41,15 +44,17 @@ class TrainModel(object):
         self.batch_size = batch_size
         self.num_epochs = num_epochs
         if model_type == 'with_embedding':
-            print("Using LSTM model with Node2Vec embedding")
+            self.model_name = "LSTM with Node2Vec"
+
             self.model = LSTM_Node_Embedding(num_ntoken, num_ttoken, is_training=True)
         else:
-            print("Using original LSTM model")
+            self.model_name = "original LSTM"
             self.model = RnnModel(num_ntoken, num_ttoken, is_training=True)
+        print("Using", self.model_name)
 
 
     def train(self):
-        model_info = 'basic lstm model  ' + \
+        model_info = self.model_name + \
                      'time_step:{},  batch_size:{} is training...'.format(
                          self.time_steps, self.batch_size)
         self.print_and_log(model_info)
@@ -63,7 +68,7 @@ class TrainModel(object):
         for epoch in range(1, self.num_epochs + 1):
             epoch_start_time = time.time()
             batch_step = 0
-            subset_generator = self.generator.get_train_subset_data(train_type=training_type)
+            subset_generator = self.generator.get_train_subset_data(train_type=data_type)
 
             for data in subset_generator:
                 batch_generator = self.generator.get_batch(data_seq=data)
@@ -129,7 +134,7 @@ class TrainModel(object):
 
     def valid(self, session, epoch, global_step):
         """valid model when it is trained"""
-        valid_data = self.generator.get_valid_subset_data(train_type=training_type)
+        valid_data = self.generator.get_valid_subset_data(train_type=data_type)
         batch_generator = self.generator.get_batch(valid_data)
         valid_step = 0
         valid_n_accuracy = 0.0
