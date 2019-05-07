@@ -30,7 +30,7 @@ training_log_dir = embed_setting.node2vec_tt_train_log_dir
 class NodeToVec_TT(object):
 
     def __init__(self, num_ntoken, num_ttoken,
-                 embed_dim=800,
+                 embed_dim=400,
                  learning_rate=0.001,
                  n_sampled=100,
                  num_epochs=4,
@@ -82,7 +82,7 @@ class NodeToVec_TT(object):
         onehot_n_target = tf.reshape(onehot_n_target, n_shape)
         #onehot_t_target = tf.one_hot(t_target, self.num_ttoken)
         #onehot_t_target = tf.reshape(onehot_t_target, t_shape)
-        return onehot_n_target #, onehot_t_target
+        return onehot_n_target # onehot_t_target
 
 
     def build_nt_loss(self, embed_input, targets):

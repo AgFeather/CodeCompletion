@@ -6,9 +6,10 @@ from nn_model.lstm_node2vec import LSTM_Node_Embedding
 from setting import Setting
 from data_generator import DataGenerator
 
+#training_type = 'rename'
 training_type = 'origin'
-#model_type = 'with_embedding'
-model_type = 'lstm'
+model_type = 'with_embedding'
+# model_type = 'lstm'
 base_setting = Setting()
 
 
@@ -32,7 +33,7 @@ valid_every_n = base_setting.valid_every_n
 
 class TrainModel(object):
     def __init__(self,
-                 num_ntoken, num_ttoken, kernel='LSTM',
+                 num_ntoken, num_ttoken,
                  batch_size=50,
                  num_epochs=5,
                  time_steps=50,):
@@ -106,17 +107,17 @@ class TrainModel(object):
                                    'learning_rate:{:.4f}  '.format(learning_rate)
                         self.print_and_log(log_info)
 
-                    if global_step % valid_every_n == 0:
-                        self.valid(session, epoch, global_step)
+                    # if global_step % valid_every_n == 0:
+                    #     self.valid(session, epoch, global_step)
 
-            valid_n_accu, valid_t_accu = self.valid(session, epoch, global_step)
+            # valid_n_accu, valid_t_accu = self.valid(session, epoch, global_step)
             epoch_end_time = time.time()
             epoch_cost_time = epoch_end_time - epoch_start_time
 
             epoch_log = 'EPOCH:{}/{}  '.format(epoch, self.num_epochs) + \
-                        'epoch valid nt_accu:{:.2f}%  '.format(valid_n_accu) + \
-                        'epoch valid tt_accu:{:.2f}%  '.format(valid_t_accu) + \
                         'time cost this epoch:{:.2f}/s  '.format(epoch_cost_time) + '\n'
+            # 'epoch valid nt_accu:{:.2f}%  '.format(valid_n_accu) + \
+            # 'epoch valid tt_accu:{:.2f}%  '.format(valid_t_accu) + \
             saver.save(session, model_save_dir + 'EPOCH{}.ckpt'.format(epoch))
             self.print_and_log(epoch_log)
             self.print_and_log('EPOCH{} model saved'.format(epoch))
@@ -186,5 +187,5 @@ class TrainModel(object):
 if __name__ == '__main__':
     num_terminal = base_setting.num_terminal
     num_non_terminal = base_setting.num_non_terminal
-    model = TrainModel(num_non_terminal, num_terminal, kernel='LSTM')
+    model = TrainModel(num_non_terminal, num_terminal)
     model.train()

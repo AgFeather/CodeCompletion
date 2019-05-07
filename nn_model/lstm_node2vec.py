@@ -134,14 +134,19 @@ class LSTM_Node_Embedding(object):
         t_loss = tf.reduce_mean(t_loss)
         return t_loss
 
-    def build_accuracy(self, n_output, n_target, t_output, t_target):
+    def build_accuracy(self, n_output, n_target, t_output, t_target, topk=1):
+        # n_equal = tf.nn.in_top_k(n_output, n_target, k=topk)
+        # t_equal = tf.nn.in_top_k(t_output, t_target, k=topk)
+        # n_accu = tf.reduce_mean(tf.cast(n_equal, tf.float32))
+        # t_accu = tf.reduce_mean(tf.cast(t_equal, tf.float32))
+        # return n_accu, t_accu
         n_max_index = tf.cast(tf.argmax(n_output, axis=1), tf.int32)
         t_max_index = tf.cast(tf.argmax(t_output, axis=1), tf.int32)
         n_equal = tf.equal(n_max_index, n_target)
         t_equal = tf.equal(t_max_index, t_target)
-        n_accuracy = tf.cast(n_equal, tf.int32)
+        n_accuracy = tf.cast(n_equal, tf.float32)
         n_accuracy = tf.reduce_mean(n_accuracy)
-        t_accuracy = tf.cast(t_equal, tf.int32)
+        t_accuracy = tf.cast(t_equal, tf.float32)
         t_accuracy = tf.reduce_mean(t_accuracy)
         return n_accuracy, t_accuracy
 

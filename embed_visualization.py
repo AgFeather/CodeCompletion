@@ -6,7 +6,8 @@ import pickle
 def TSNE_fit(data):
     """使用t-SNE对原始的embedding representation vector进行降维到2-D"""
     from sklearn.manifold import TSNE
-    tsne = TSNE(n_components=2, init='pca', random_state=0)
+    tsne = TSNE(n_components=2, init='pca', perplexity=3, early_exaggeration=20, random_state=0, method='exact')
+    # n_components表示嵌入维度，perplexity表示考虑临近点多少，early_exaggeration表示簇间距大小，越大可视化后的簇间距越大。
     result = tsne.fit_transform(data)
     return result
 
@@ -164,6 +165,21 @@ def node_string_to_vector(node_string_list):
 
     return vector_list, string_list
 
+
+def save_matrix():
+    pickle.dump(tt_embedding_matrix, open('temp_data/tt_embedding_matrix_temp.pkl', 'wb'))
+    print("embeddig matrix has been saved...")
+
+
+def calculate_similarity(string_node1, string_node2):
+    """计算两个node的余弦相似度"""
+    node_vector1 = tt_embedding_matrix[tt_token_to_int[string_node1]]
+    node_vector2 = tt_embedding_matrix[tt_token_to_int[string_node2]]
+    sim = similarity(node_vector1, node_vector2)
+    print(sim)
+    return sim
+
+
 def fix_model(string_node1, string_node2):
     """修正给定的两个向量，让其更加接近对方，具体做法是将两个向量相加并除以2，并用这个向量代替其中一个向量"""
     node_vector1 = tt_embedding_matrix[tt_token_to_int[string_node1]]
@@ -174,27 +190,41 @@ def fix_model(string_node1, string_node2):
 
     tt_embedding_matrix[tt_token_to_int[string_node1]] = new_vector1
     tt_embedding_matrix[tt_token_to_int[string_node2]] = new_vector2
+    sim = similarity(new_vector1, new_vector1)
+    print(sim)
+    return sim
+
+
+def similarity(new_vector1, new_vector2):
     norm_vector1 = new_vector1 / np.sqrt(np.sum(np.square(new_vector1)))
     norm_vector2 = new_vector2 / np.sqrt(np.sum(np.square(new_vector2)))
     similarity = np.matmul(norm_vector1, np.transpose(norm_vector2))
-    print(similarity)
     return similarity
 
 
-def save_matrix():
-    pickle.dump(tt_embedding_matrix, open('temp_data/tt_embedding_matrix_temp.pkl', 'wb'))
-    print("embeddig matrix has been saved...")
+def fix_model_all(string_list):
+    # 分别在fix前后计算所有的相似度并打印，用以验证fix是否成功
+    vector_list = []
+    for string_node in string_list:
+        vector_list.append(tt_embedding_matrix[tt_token_to_int[string_node]])
 
+    simi_list = []
+    for i in range(len(vector_list)-1):
+        simi_list.append(similarity(vector_list[i], vector_list[i+1]))
+    print(simi_list)
 
-def calculate_similarity(string_node1, string_node2):
-    """计算两个node的余弦相似度"""
-    node_vector1 = tt_embedding_matrix[tt_token_to_int[string_node1]]
-    norm_vector1 = node_vector1 / np.sqrt(np.sum(np.square(node_vector1)))
-    node_vector2 = tt_embedding_matrix[tt_token_to_int[string_node2]]
-    norm_vector2 = node_vector2 / np.sqrt(np.sum(np.square(node_vector2)))
-    similarity = np.matmul(norm_vector1, np.transpose(norm_vector2))
-    print(similarity)
-    return similarity
+    vector_list = np.array(vector_list)
+    center_vector = np.mean(vector_list, axis=0)
+    vector_list = (vector_list + center_vector) / 2
+    for i, string_node in enumerate(string_list):
+        tt_embedding_matrix[tt_token_to_int[string_node]] = vector_list[i]
+
+    simi_list = []
+    for i in range(len(vector_list)-1):
+        simi_list.append(similarity(vector_list[i], vector_list[i+1]))
+    print(simi_list)
+
+    return vector_list
 
 
 def tt_single_plot(string_node_list):
@@ -209,12 +239,11 @@ def tt_single_plot(string_node_list):
         x_y_min, x_y_max = np.min(data, 0), np.max(data, 0)
         data = (data - x_y_min) / (x_y_max - x_y_min +0.00001)
         fig = plt.figure(figsize=(6, 6))
-        ax = plt.subplot(111)
         for i in range(data.shape[0]):
             # color = plt.cm.Set1(label[i]),
             plt.text(data[i, 0], data[i, 1], str(label[i]),
                      color = 'blue',
-                     fontdict={'weight': 'bold', 'size': 12})  # 调大字体大小
+                     fontdict={'weight': 'bold', 'size': 10})  # 调大字体大小
         plt.xticks([])  # 设置坐标刻度
         plt.yticks([])
         plt.xlim((-0.05, 1.05))  # 设置坐标轴范围
@@ -230,15 +259,21 @@ def tt_single_plot(string_node_list):
 
 
 if __name__ == '__main__':
-    node_list1 = ['Identifier=$$=size', 'Identifier=$$=length', 'Identifier=$$=len', 'Identifier=$$=width']
-    node_list2 = ['Identifier=$$=userName', 'Identifier=$$=name', 'Identifier=$$=id', 'Identifier=$$=user_id']
+    node_list1 = ['Identifier=$$=size', 'Identifier=$$=length', 'Identifier=$$=len', 'Identifier=$$=_len']
+    node_list2 = ['Identifier=$$=userName', 'Identifier=$$=name', 'Identifier=$$=id', 'Identifier=$$=user_id', 'Identifier=$$=player']
     node_list3 = ['Property=$$=push', 'Property=$$=get', 'Property=$$=set']
-    data_list = node_list1 + node_list2 + node_list3
+    node_list4 = ['Property=$$=extend', 'Property=$$=append', 'Property=$$=add']
+    #node_list5 = ['Property=$$=type', 'Property=$$=value', 'Property=$$=']
+    data_list = node_list1 + node_list2  + node_list3
     #calculate_similarity(node_list3[0], node_list3[1])
-
+    new_data1 = fix_model_all(node_list1)
+    new_data2 = fix_model_all(node_list2)
+    new_data3 = fix_model_all(node_list3)
     tt_single_plot(data_list)
 
+#    calculate_similarity(node_list1[0], node_list1[1])
+
     # 修改对应的node的表示向量
-    fix_model(node_list3[0], node_list3[1])
+    # fix_model(node_list3[0], node_list3[1])
     # save_matrix()
 
