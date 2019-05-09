@@ -1,6 +1,5 @@
 import tensorflow as tf
 import pickle
-import matplotlib.pyplot as plt
 import numpy as np
 import os
 
@@ -190,9 +189,8 @@ if __name__ == '__main__':
     #similarity = model.calculate_similarity('LiteralString=$$=size', 'LiteralString=$$=length', 'tt')
     similarity = model.calculate_similarity('Identifier=$$=size', 'Identifier=$$=length', 'tt')
     print(similarity)
-    model.fix_model('LiteralString=$$=size', 'LiteralString=$$=length')
-    # similarity = model.calculate_similarity('LiteralString=$$=size', 'LiteralNumber=$$=1', 'tt')
-    # print(similarity)
+    similarity = model.calculate_similarity('Identifier=$$=size', 'LiteralNumber=$$=1', 'tt')
+    print(similarity)
     # distance = model.calculate_distance('LiteralString=$$=size', 'LiteralString=$$=length', 'tt')
     # near_list = model.get_most_similar('LiteralString=$$=size', 'tt')
     # print(near_list)

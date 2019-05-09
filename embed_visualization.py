@@ -6,7 +6,7 @@ import pickle
 def TSNE_fit(data):
     """使用t-SNE对原始的embedding representation vector进行降维到2-D"""
     from sklearn.manifold import TSNE
-    tsne = TSNE(n_components=2, init='pca', perplexity=3, early_exaggeration=20, random_state=0, method='exact')
+    tsne = TSNE(n_components=2, init='pca', perplexity=4, early_exaggeration=20, random_state=0, method='exact')
     # n_components表示嵌入维度，perplexity表示考虑临近点多少，early_exaggeration表示簇间距大小，越大可视化后的簇间距越大。
     result = tsne.fit_transform(data)
     return result
@@ -160,7 +160,7 @@ def node_string_to_vector(node_string_list):
     for str_node in node_string_list:
         temp_vec = tt_embedding_matrix[tt_token_to_int[str_node]]
         vector_list.append(temp_vec)
-        temp_str = str_node.split("=$$=")[-1]
+        temp_str = str_node #.split("=$$=")[-1]
         string_list.append(temp_str)
 
     return vector_list, string_list
@@ -202,52 +202,64 @@ def similarity(new_vector1, new_vector2):
     return similarity
 
 
-def fix_model_all(string_list):
-    # 分别在fix前后计算所有的相似度并打印，用以验证fix是否成功
-    vector_list = []
-    for string_node in string_list:
-        vector_list.append(tt_embedding_matrix[tt_token_to_int[string_node]])
-
-    simi_list = []
-    for i in range(len(vector_list)-1):
-        simi_list.append(similarity(vector_list[i], vector_list[i+1]))
-    print(simi_list)
-
-    vector_list = np.array(vector_list)
-    center_vector = np.mean(vector_list, axis=0)
-    vector_list = (vector_list + center_vector) / 2
-    for i, string_node in enumerate(string_list):
-        tt_embedding_matrix[tt_token_to_int[string_node]] = vector_list[i]
-
-    simi_list = []
-    for i in range(len(vector_list)-1):
-        simi_list.append(similarity(vector_list[i], vector_list[i+1]))
-    print(simi_list)
-
-    return vector_list
+# def visual_model_all(string_list):
+#     # 分别在fix前后计算所有的相似度并打印，用以验证fix是否成功
+#     vector_list = []
+#     for string_node in string_list:
+#         vector_list.append(tt_embedding_matrix[tt_token_to_int[string_node]])
+#
+#     simi_list = []
+#     for i in range(len(vector_list)-1):
+#         simi_list.append(similarity(vector_list[i], vector_list[i+1]))
+#     print(simi_list)
+#
+#     vector_list = np.array(vector_list)
+#     center_vector = np.mean(vector_list, axis=0)
+#     vector_list = (vector_list + center_vector) / 2
+#     for i, string_node in enumerate(string_list):
+#         tt_embedding_matrix[tt_token_to_int[string_node]] = vector_list[i]
+#
+#     simi_list = []
+#     for i in range(len(vector_list)-1):
+#         simi_list.append(similarity(vector_list[i], vector_list[i+1]))
+#     print(simi_list)
+#
+#     return vector_list
 
 
 def tt_single_plot(string_node_list):
     def normalize(data):
-        average_value = np.average(data, axis=0)
         max_value = np.max(data, axis=0)
         min_value = np.min(data, axis=0)
-        normal_data = (data - average_value) / (max_value - min_value + 0.00001)
+        normal_data = 4 * (data - min_value) / (max_value - min_value + 0.00001) - 2
         return normal_data
     def plot_embedding(data, label):
         """对经过降维到2-D的数据进行可视化"""
-        x_y_min, x_y_max = np.min(data, 0), np.max(data, 0)
-        data = (data - x_y_min) / (x_y_max - x_y_min +0.00001)
-        fig = plt.figure(figsize=(6, 6))
+        def get_color(label):
+            if label.startswith('Property'):
+                return 'green'
+            elif label.startswith('Identifier'):
+                return 'blue'
+            else:
+                return 'red'
+        fig = plt.figure(figsize=(8, 8))
+        ax = plt.subplot((111))
+        ax.spines['right'].set_visible(False)
+        ax.spines['top'].set_color('none')
+        ax.xaxis.set_ticks_position('bottom')
+        ax.spines['bottom'].set_position(('data', 0))
+        ax.yaxis.set_ticks_position('left')
+        ax.spines['left'].set_position(('data', 0))
         for i in range(data.shape[0]):
             # color = plt.cm.Set1(label[i]),
-            plt.text(data[i, 0], data[i, 1], str(label[i]),
-                     color = 'blue',
+            color = get_color(label[i])
+            plt.text(data[i, 0], data[i, 1], str(label[i].split('=$$=')[-1]),
+                     color = color,
                      fontdict={'weight': 'bold', 'size': 10})  # 调大字体大小
-        plt.xticks([])  # 设置坐标刻度
-        plt.yticks([])
-        plt.xlim((-0.05, 1.05))  # 设置坐标轴范围
-        plt.ylim((-0.05, 1.05))
+        # plt.xticks([])  # 设置坐标刻度
+        # plt.yticks([])
+        plt.xlim((-2.05, 2.05))  # 设置坐标轴范围
+        plt.ylim((-2.05, 2.05))
         plt.show(fig)
 
     vector_list, label_list = node_string_to_vector(string_node_list)
@@ -265,13 +277,18 @@ def visualize_accuracy():
     t_accu = []
     file = open('log_info/accu_log/origin_lstm_2019_05_04_13_06.txt', 'r')
     one_line = file.readline()
+    fig = plt.figure(figsize=(8, 8))
     while one_line:
         split_data = one_line.split(';')
         index.append(float(split_data[0]))
         n_accu.append(float(split_data[1]))
         t_accu.append(float(split_data[2]))
+        if len(index) >= 10000:
+            break
         one_line = file.readline()
     assert len(n_accu) == len(t_accu) == len(index)
+    plt.plot(index, n_accu)
+    plt.show()
 
 
 
@@ -282,15 +299,25 @@ if __name__ == '__main__':
     node_list4 = ['Property=$$=extend', 'Property=$$=append', 'Property=$$=add']
     #node_list5 = ['Property=$$=type', 'Property=$$=value', 'Property=$$=']
     data_list = node_list1 + node_list2  + node_list3
-    #calculate_similarity(node_list3[0], node_list3[1])
-    new_data1 = fix_model_all(node_list1)
-    new_data2 = fix_model_all(node_list2)
-    new_data3 = fix_model_all(node_list3)
-    tt_single_plot(data_list)
+    sim = calculate_similarity(node_list1[0], node_list1[1])
+    print('similarity between {} and {} is {}'.format(node_list1[0], node_list1[1], sim))
+
+    sim = calculate_similarity(node_list1[0], node_list2[0])
+    print('similarity between {} and {} is {}'.format(node_list1[0], node_list2[0], sim))
+
+    sim = calculate_similarity(node_list2[0], node_list2[1])
+    print('similarity between {} and {} is {}'.format(node_list2[0], node_list2[1], sim))
+
+
+
+    #tt_single_plot(data_list)
+    #visualize_accuracy()
 
 #    calculate_similarity(node_list1[0], node_list1[1])
 
-    # 修改对应的node的表示向量
-    # fix_model(node_list3[0], node_list3[1])
+    # 对应的node的表示向量
+    # new_data1 = visual_model_all(node_list1)
+    # new_data2 = visual_model_all(node_list2)
+    # new_data3 = visual_model_all(node_list3)
     # save_matrix()
 

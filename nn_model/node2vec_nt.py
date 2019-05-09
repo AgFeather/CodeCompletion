@@ -1,20 +1,20 @@
 import tensorflow as tf
 import os
 import sys
-
+sys.path.append('..')
 from data_generator import DataGenerator
 from setting import Setting
 
 
 """Node2Vec for non-terminal node模型的定义和训练"""
 
-sys.path.append('..')
+
 RENAME_FLAG = False
 nt_n_dim = 5 # 在模型中会对该值乘2，表示parent nt context 和 child nt context
 nt_t_dim = 10 # non-terminal的前六个terminal child node
 
 embed_setting = Setting()
-show_every_n = embed_setting.show_every_n * 10
+show_every_n = embed_setting.show_every_n * 6
 save_every_n = embed_setting.save_every_n
 num_nt_token = embed_setting.num_non_terminal
 num_tt_token = embed_setting.num_terminal
@@ -32,10 +32,10 @@ training_log_dir = embed_setting.node2vec_train_log_dir
 class NodeToVec_NT(object):
 
     def __init__(self, num_ntoken, num_ttoken,
-                 embed_dim=300,
+                 embed_dim=1500,
                  learning_rate=0.001,
                  n_sampled=100,
-                 num_epochs=8,
+                 num_epochs=4,
                  time_steps=80,
                  batch_size = 80,
                  alpha = 0.7,
@@ -167,7 +167,6 @@ class NodeToVec_NT(object):
                                    'loss:{:.2f}(n_loss:{:.2f} + t_loss:{:.2f})  '.format(loss, n_loss, t_loss)
                         self.print_and_log(log_info)
 
-
             print('epoch{} model saved...'.format(epoch))
             saver.save(session, model_save_dir + 'EPOCH{}.ckpt'.format(epoch))
 
@@ -180,9 +179,6 @@ class NodeToVec_NT(object):
         self.log_file.write(info)
         self.log_file.write('\n')
         print(info)
-
-    def get_most_similar(self, input_token):
-        input_embedding = self.build_embedding(input_token)
 
     def get_represent_vector(self, input_token):
         repre_vector = self.build_embedding(input_token)

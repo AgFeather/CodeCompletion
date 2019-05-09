@@ -30,7 +30,7 @@ training_log_dir = embed_setting.node2vec_tt_train_log_dir
 class NodeToVec_TT(object):
 
     def __init__(self, num_ntoken, num_ttoken,
-                 embed_dim=400,
+                 embed_dim=1500,
                  learning_rate=0.001,
                  n_sampled=100,
                  num_epochs=4,
