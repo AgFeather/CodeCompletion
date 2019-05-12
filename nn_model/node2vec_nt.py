@@ -134,7 +134,8 @@ class NodeToVec_NT(object):
         self.merged_op = tf.summary.merge_all()
 
     def train(self):
-        model_name = "Node2Vec for non-terminal node has been initialized (renaming identifier: {})".format(RENAME_FLAG)
+        model_name = "Node2Vec for non-terminal node ({}dimentions) " \
+                     "has been initialized (renaming identifier: {})".format(self.embed_dim, RENAME_FLAG)
         self.print_and_log(model_name)
         
         global_step = 0

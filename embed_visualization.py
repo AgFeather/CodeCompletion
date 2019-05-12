@@ -240,8 +240,12 @@ def tt_single_plot(string_node_list):
                 return 'green'
             elif label.startswith('Identifier'):
                 return 'blue'
-            else:
+            elif label.startswith('LiteralString'):
                 return 'red'
+            elif label.startswith('LiteralNumber'):
+                return 'purple'
+            else:
+                return 'chocolate'
         fig = plt.figure(figsize=(8, 8))
         ax = plt.subplot((111))
         ax.spines['right'].set_visible(False)
@@ -297,20 +301,22 @@ if __name__ == '__main__':
     node_list2 = ['Identifier=$$=userName', 'Identifier=$$=name', 'Identifier=$$=id', 'Identifier=$$=user_id', 'Identifier=$$=player']
     node_list3 = ['Property=$$=push', 'Property=$$=get', 'Property=$$=set']
     node_list4 = ['Property=$$=extend', 'Property=$$=append', 'Property=$$=add']
-    #node_list5 = ['Property=$$=type', 'Property=$$=value', 'Property=$$=']
-    data_list = node_list1 + node_list2  + node_list3
-    sim = calculate_similarity(node_list1[0], node_list1[1])
-    print('similarity between {} and {} is {}'.format(node_list1[0], node_list1[1], sim))
+    node_list5 = ['Property=$$=type', 'Property=$$=value', 'Property=$$=key']
+    node_list6 = ['LiteralString=$$=string', 'LiteralString=$$=str']
+    node_list7 = ['LiteralNumber=$$=0', 'LiteralNumber=$$=1', 'LiteralNumber=$$=10']
+    data_list = node_list1 + node_list2  + node_list3 + node_list4 + node_list5 + node_list6 + node_list7
+    # sim = calculate_similarity(node_list1[0], node_list1[1])
+    # print('similarity between {} and {} is {}'.format(node_list1[0], node_list1[1], sim))
+    #
+    # sim = calculate_similarity(node_list1[0], node_list2[0])
+    # print('similarity between {} and {} is {}'.format(node_list1[0], node_list2[0], sim))
+    #
+    # sim = calculate_similarity(node_list2[0], node_list2[1])
+    # print('similarity between {} and {} is {}'.format(node_list2[0], node_list2[1], sim))
 
-    sim = calculate_similarity(node_list1[0], node_list2[0])
-    print('similarity between {} and {} is {}'.format(node_list1[0], node_list2[0], sim))
-
-    sim = calculate_similarity(node_list2[0], node_list2[1])
-    print('similarity between {} and {} is {}'.format(node_list2[0], node_list2[1], sim))
 
 
-
-    #tt_single_plot(data_list)
+    tt_single_plot(data_list)
     #visualize_accuracy()
 
 #    calculate_similarity(node_list1[0], node_list1[1])

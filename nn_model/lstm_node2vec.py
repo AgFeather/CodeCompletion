@@ -22,7 +22,7 @@ class LSTM_Node_Embedding(object):
     def __init__(self,
                  num_ntoken, num_ttoken, is_training=True,
                  batch_size=50,
-                 word2vec_dim=300,
+                 word2vec_dim=1500,
                  num_hidden_units=1500,
                  learning_rate=0.001,
                  time_steps=50,
@@ -46,10 +46,10 @@ class LSTM_Node_Embedding(object):
 
     def get_represent_matrix(self):
         #file = open('../temp_data/tt_embedding_matrix.pkl', 'rb')
-        file = open('temp_data/tt_embedding_matrix_300.pkl', 'rb')
+        file = open('temp_data/tt_embedding_matrix_{}.pkl'.format(self.word2vec_dim), 'rb')
         tt_matrix = pickle.load(file)
         #file = open('../temp_data/nt_embedding_matrix.pkl', 'rb')
-        file = open('temp_data/nt_embedding_matrix_300.pkl', 'rb')
+        file = open('temp_data/nt_embedding_matrix_{}.pkl'.format(self.word2vec_dim), 'rb')
         nt_matrix = pickle.load(file)
         return nt_matrix, tt_matrix
 

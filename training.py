@@ -55,7 +55,7 @@ class TrainModel(object):
 
     def train(self):
         model_info = self.model_name + \
-                     'time_step:{},  batch_size:{} is training...'.format(
+                     ' time_step:{},  batch_size:{} is training...'.format(
                          self.time_steps, self.batch_size)
         self.print_and_log(model_info)
         saver = tf.train.Saver(max_to_keep=self.num_epochs + 1)

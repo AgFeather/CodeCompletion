@@ -16,45 +16,46 @@ num_ttoken = embed_setting.num_terminal
 
 class NodeEmbedding(object):
     """加载已经训练好的Node2vec数据"""
-    def __init__(self):
-        if os.path.exists('temp_data/nt_embedding_matrix_300.pkl') and \
-                os.path.exists('temp_data/tt_embedding_matrix_300.pkl'):
+    def __init__(self, num_dims=300):
+        self.num_dims = num_dims
+        if os.path.exists('temp_data/nt_embedding_matrix_{}.pkl'.format(self.num_dims)) and \
+                os.path.exists('temp_data/tt_embedding_matrix_{}.pkl'.format(self.num_dims)):
             self.load_matrix_from_file()
         else:
             self.load_matrix_from_model()
 
     def load_matrix_from_file(self):
         """从本地文件中加载每个node的表示向量"""
-        with open('temp_data/tt_embedding_matrix_300.pkl', 'rb') as file:
+        with open('temp_data/tt_embedding_matrix_{}.pkl'.format(self.num_dims), 'rb') as file:
             self.tt_embedding_matrix = pickle.load(file)
-        with open('temp_data/nt_embedding_matrix_300.pkl', 'rb') as file:
+        with open('temp_data/nt_embedding_matrix_{}.pkl'.format(self.num_dims), 'rb') as file:
             self.nt_embedding_matrix = pickle.load(file)
         print("load nt/tt embedding matrix from file....")
 
     def load_matrix_from_model(self):
         """从训练好的模型中加载每个node的表示向量"""
         with tf.Session() as sess:
-            trained_model_path = 'trained_model/node2vec_tt/'
-            saver = tf.train.import_meta_graph(trained_model_path + 'EPOCH4.ckpt.meta')
+            trained_model_path = 'trained_model/node2vec_tt_{}/'.format(self.num_dims)
+            saver = tf.train.import_meta_graph(trained_model_path + 'EPOCH3.ckpt.meta')
             saver.restore(sess, tf.train.latest_checkpoint(trained_model_path))
             self.tt_embedding_matrix = sess.run('embedding_matrix/Variable:0')
             print('loading terminal matrix with shape:',self.tt_embedding_matrix.shape)
         tf.reset_default_graph()
         with tf.Session() as sess:
-            trained_model_path = 'trained_model/node2vec_nt/'
-            saver = tf.train.import_meta_graph(trained_model_path + 'EPOCH8.ckpt.meta')
+            trained_model_path = 'trained_model/node2vec_nt_{}/'.format(self.num_dims)
+            saver = tf.train.import_meta_graph(trained_model_path + 'EPOCH3.ckpt.meta')
             saver.restore(sess, tf.train.latest_checkpoint(trained_model_path))
             self.nt_embedding_matrix = sess.run('embedding_matrix/Variable:0')
             print('loading non-terminal matrix with shape:', self.nt_embedding_matrix.shape)
 
     def save_embedding_matrix(self):
         """将已经训练好的embedding matrix保存到指定路径中"""
-        with open('temp_data/tt_embedding_matrix.pkl', 'wb') as file:
+        with open('temp_data/tt_embedding_matrix_{}.pkl'.format(self.num_dims), 'wb') as file:
             pickle.dump(self.tt_embedding_matrix, file)
-            print('terminal embedding matrix has saved...')
-        with open('temp_data/nt_embedding_matrix.pkl', 'wb') as file:
+            print('terminal embedding matrix {} dimentions has saved...'.format(self.num_dims))
+        with open('temp_data/nt_embedding_matrix_{}.pkl'.format(self.num_dims), 'wb') as file:
             pickle.dump(self.nt_embedding_matrix, file)
-            print('non-terminal embedding matrix has saved...')
+            print('non-terminal embedding matrix {} dimentions has saved...'.format(self.num_dims))
 
     def get_embedding_representation(self, type_string, nt_or_tt):
         """输入terminal token的type，返回所有属于该type token的representation vector"""
@@ -185,12 +186,13 @@ class NodeEmbedding(object):
 
 
 if __name__ == '__main__':
-    model = NodeEmbedding()
+    model = NodeEmbedding(num_dims=1500)
+    model.save_embedding_matrix()
     #similarity = model.calculate_similarity('LiteralString=$$=size', 'LiteralString=$$=length', 'tt')
-    similarity = model.calculate_similarity('Identifier=$$=size', 'Identifier=$$=length', 'tt')
-    print(similarity)
-    similarity = model.calculate_similarity('Identifier=$$=size', 'LiteralNumber=$$=1', 'tt')
-    print(similarity)
+    # similarity = model.calculate_similarity('Identifier=$$=size', 'Identifier=$$=length', 'tt')
+    # print(similarity)
+    # similarity = model.calculate_similarity('Identifier=$$=size', 'LiteralNumber=$$=1', 'tt')
+    # print(similarity)
     # distance = model.calculate_distance('LiteralString=$$=size', 'LiteralString=$$=length', 'tt')
     # near_list = model.get_most_similar('LiteralString=$$=size', 'tt')
     # print(near_list)

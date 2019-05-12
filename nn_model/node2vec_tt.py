@@ -133,7 +133,8 @@ class NodeToVec_TT(object):
 
 
     def train(self):
-        model_name = "Node2Vec for terminal node has been initialized (renaming identifier: {})".format(RENAME_FLAG)
+        model_name = "Node2Vec for terminal node ({}dimentions) " \
+                     "has been initialized (renaming identifier: {})".format(self.embed_dim, RENAME_FLAG)
         self.print_and_log(model_name)
         global_step = 0
         saver = tf.train.Saver(max_to_keep=self.num_epochs + 1)
