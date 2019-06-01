@@ -10,6 +10,7 @@ from setting import Setting
 
 
 test_setting = Setting()
+current_time = test_setting.current_time
 origin_trained_model_dir = 'trained_model/origin_lstm/'
 embedding_trained_model_dir = 'trained_model/lstm_with_node2vec/'
 
@@ -37,7 +38,10 @@ class CompletionCompare(object):
         self.tt_token_to_int, self.tt_int_to_token, self.nt_token_to_int, self.nt_int_to_token = \
             utils.load_dict_parameter(is_lower=False)
 
-    def eval_origin_model(self, prefix, topk=1):
+        self.n_incorrect = open('temp_data/predict_compare/nt_compare'+str(current_time)+'.txt', 'w')
+        self.t_incorrect = open('temp_data/predict_compare/tt_compare'+str(current_time)+'.txt', 'w')
+
+    def eval_origin_model(self, prefix):
         """ evaluate one source code file, return the top k prediction and it's possibilities,
         Input: all tokens before the hole token(prefix) and all tokens after the hole token,
         ML model will predict the most probable token in the hole
@@ -57,13 +61,13 @@ class CompletionCompare(object):
         assert n_prediction is not None and t_prediction is not None
         n_prediction = n_prediction[-1, :]
         t_prediction = t_prediction[-1, :]
-        n_topk_pred = (-n_prediction).argsort()[:topk]
-        t_topk_pred = (-t_prediction).argsort()[:topk]
+        n_topk_pred = (-n_prediction).argsort()[0]
+        t_topk_pred = (-t_prediction).argsort()[0]
 
         return n_topk_pred, t_topk_pred
 
 
-    def eval_embedding_model(self, prefix, topk=1):
+    def eval_embedding_model(self, prefix):
         lstm_state = self.embedding_session.run(self.embedding_model.init_state)
         test_batch = self.generator.get_test_batch(prefix)
         n_prediction, t_prediction = None, None
@@ -79,27 +83,62 @@ class CompletionCompare(object):
         assert n_prediction is not None and t_prediction is not None
         n_prediction = n_prediction[-1, :]
         t_prediction = t_prediction[-1, :]
-        n_topk_pred = (-n_prediction).argsort()[:topk]
-        t_topk_pred = (-t_prediction).argsort()[:topk]
+        n_topk_pred = (-n_prediction).argsort()[0]
+        t_topk_pred = (-t_prediction).argsort()[0]
 
         return n_topk_pred, t_topk_pred
 
-    def query(self, token_sequence):
+    def query(self,ast_index, token_sequence):
         prefix, expectation, suffix = self.create_hole(token_sequence)  # 随机在sequence中创建一个hole
         n_expectation, t_expectation = expectation[0]
         origin_n_pred, origin_t_pred = self.eval_origin_model(prefix)
-        print(origin_n_pred)
-        print(origin_t_pred)
         embedding_n_pred, embedding_t_pred = self.eval_embedding_model(prefix)
-        print(embedding_n_pred)
-        print(embedding_t_pred)
+        if origin_n_pred != embedding_n_pred:
+            # 两个模型对nt token的预测不相同，记录
+            self.record_incorrect('n', ast_index, token_sequence,
+                                  len(prefix), origin_n_pred, embedding_n_pred, n_expectation)
+            print('There is a n-token predict wrong, ast index:{}'.format(ast_index))
+        if origin_t_pred != embedding_t_pred:
+            self.record_incorrect('t', ast_index, token_sequence,
+                                  len(prefix), origin_t_pred, embedding_t_pred, t_expectation)
+            print('There is a t-token predict wrong, ast index:{}'.format(ast_index))
 
-    def completion_test(self, topk=3):
+    def record_incorrect(self,n_or_t, ast_index, nt_sequence, token_index,
+                         origin_pred, embed_pred, expectation):
+        # 记录预测失误的信息到本地
+        # 整个文件的保存格式为：（ast_index,nt_sequence, node_index, origin_pred, embed_pred, true_label）
+        nt_sequence = [(self.nt_int_to_token[n], self.tt_int_to_token[t]) for n, t in nt_sequence]
+        if n_or_t == 'n':
+            origin_pred = self.nt_int_to_token[origin_pred]
+            embed_pred = self.nt_int_to_token[embed_pred]
+            expectation = self.nt_int_to_token[expectation]
+            info = 'ast_index;' + str(ast_index) + '\n' + \
+                   'nt_sequence;' + str(nt_sequence) + '\n' + \
+                   'token_index;' + str(token_index) + '\n' + \
+                   'ori_pred;' + str(origin_pred) + '\n' + \
+                   'embed_pred;' + str(embed_pred) + '\n' + \
+                   'expectation;' + str(expectation) + '\n'
+            self.n_incorrect.write(info)
+            self.n_incorrect.flush()
+        elif n_or_t == 't':
+            origin_pred = self.tt_int_to_token[origin_pred]
+            embed_pred = self.tt_int_to_token[embed_pred]
+            expectation = self.tt_int_to_token[expectation]
+            info = 'ast_index;' + str(ast_index) + '\n' + \
+                   'nt_sequence;' + str(nt_sequence) + '\n' + \
+                   'token_index;' + str(token_index) + '\n' + \
+                   'ori_pred;' + str(origin_pred) + '\n' + \
+                   'embed_pred;' + str(embed_pred) + '\n' + \
+                   'expectation;' + str(expectation) + '\n'
+            self.t_incorrect.write(info)
+            self.t_incorrect.flush()
+        else:
+            raise KeyError
+
+    def completion_test(self):
         """Test model with the whole test dataset
         first, it will create a hole in the test ast_nt_sequence randomly,
-        then, it will call self.query() for each test case,
-        finally, the statistical accuracy will be update
-        """
+        then, it will call self.query() for each test case"""
         test_times = 10000
         test_step = 0
         self.generator = DataGenerator()
@@ -107,19 +146,9 @@ class CompletionCompare(object):
 
         for index, subset_test_data in sub_data_generator:  # 遍历每个sub test dataset
             for token_sequence in subset_test_data:  # 遍历该subset中每个nt token sequence
-                test_step += 1
                 # 对一个ast sequence进行test
-                self.query(token_sequence)
-
-    def top_one_equal(self, prediction, expectation):
-        if prediction[0] == expectation:
-            return True
-        return False
-
-    def topk_equal(self, prediction, expectation):
-        if expectation in prediction:
-            return True
-        return False
+                self.query(test_step, token_sequence)
+                test_step += 1
 
     def create_hole(self, nt_token_seq, hole_size=1):
         hole_start_index = random.randint(

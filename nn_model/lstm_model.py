@@ -206,7 +206,7 @@ class RnnModel(object):
                         'learning_rate': self.decay_learning_rate}
         self.merged_op = self.build_summary(summary_dict)
 
-        print('basic lstm model has been created...')
+        print('basic LSTM model has been created...')
 
 
 

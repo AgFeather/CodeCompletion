@@ -251,9 +251,7 @@ class LSTM_Node_Embedding(object):
                         'learning_rate': self.decay_learning_rate}
         self.merged_op = self.build_summary(summary_dict)
 
-        print('lstm model with Node2Vec has been created...')
-
-
+        print('LSTM model with Node2Vec has been created...')
 
 
 
