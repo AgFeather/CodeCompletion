@@ -2,7 +2,7 @@ import tensorflow as tf
 import random
 import time
 import pickle
-from nn_model.lstm_model import RnnModel
+from temp_lstm_model import RnnModel
 from data_generator import DataGenerator
 import utils
 from setting import Setting
@@ -20,7 +20,7 @@ define_topk = test_setting.define_topk
 
 
 class CodeCompletion(object):
-    """test the performance of code completion, Creating a random hole in the given nt-sequence,
+    """code completion, Creating a random hole in the given nt-sequence,
     and the model will return it's prediction, then calculate the accuracy"""
 
     def __init__(self,

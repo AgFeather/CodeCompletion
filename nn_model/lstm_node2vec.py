@@ -203,7 +203,7 @@ class LSTM_Node_Embedding(object):
 
     def build_model(self):
         """create model"""
-        tf.reset_default_graph()
+#        tf.reset_default_graph()
         self.n_input, self.t_input, self.n_target, self.t_target, self.keep_prob = self.build_input()
         n_input_embedding, t_input_embedding = self.build_represent_embed(
             self.n_input, self.t_input)
@@ -241,8 +241,8 @@ class LSTM_Node_Embedding(object):
         #     n_logits, n_target, t_logits, t_target, topk=3)
 
         # top k prediction with possibility
-        # self.n_output = self.build_softmax(n_logits)
-        # self.t_output = self.build_softmax(t_logits)
+        self.n_output = self.build_softmax(n_logits)
+        self.t_output = self.build_softmax(t_logits)
         # self.n_topk_pred, self.n_topk_poss, self.t_topk_pred, self.t_topk_poss = \
         #     self.build_topk_prediction(self.n_output, self.t_output)
 
@@ -251,7 +251,7 @@ class LSTM_Node_Embedding(object):
                         'learning_rate': self.decay_learning_rate}
         self.merged_op = self.build_summary(summary_dict)
 
-        print('lstm model with Word2Vec has been created...')
+        print('lstm model with Node2Vec has been created...')
 
 
 

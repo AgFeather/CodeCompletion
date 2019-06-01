@@ -294,7 +294,29 @@ def visualize_accuracy():
     plt.plot(index, n_accu)
     plt.show()
 
+def plot_line(data, title):
+    fig = plt.figure(figsize=(15, 7))
+    index = np.arange(len(data))
+    plt.plot(index, data)
+    plt.title(title)
+    plt.show()
 
+
+def plot_lines(data1, label1, data2, label2, title):
+    fig = plt.figure(figsize=(15, 7))
+    index = np.arange(len(data1))
+    plt.plot(index, data1, label=label1)
+    plt.plot(index, data2, label=label2)
+    plt.title(title)
+    plt.legend(loc=0,)
+    plt.show()
+
+def show_accu():
+    data1 = pickle.load(open('bad_embed_train_accu.pkl', 'rb'))
+    data2 = pickle.load(open('embed_terminal_train_accu.pkl', 'rb'))
+    #plot_line(data1, 'terminal valid accuracy of original model')
+    #plot_line(data2, 'terminal valid accuracy of embedding model')
+    plot_lines(data1, 'bad', data2, 'good', 'training accuracy of two embedding models')
 
 if __name__ == '__main__':
     node_list1 = ['Identifier=$$=size', 'Identifier=$$=length', 'Identifier=$$=len', 'Identifier=$$=_len']
@@ -305,6 +327,7 @@ if __name__ == '__main__':
     node_list6 = ['LiteralString=$$=string', 'LiteralString=$$=str']
     node_list7 = ['LiteralNumber=$$=0', 'LiteralNumber=$$=1', 'LiteralNumber=$$=10']
     data_list = node_list1 + node_list2  + node_list3 + node_list4 + node_list5 + node_list6 + node_list7
+    #show_accu()
     # sim = calculate_similarity(node_list1[0], node_list1[1])
     # print('similarity between {} and {} is {}'.format(node_list1[0], node_list1[1], sim))
     #
