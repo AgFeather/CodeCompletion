@@ -148,6 +148,8 @@ class LSTM_Node_Embedding(object):
         n_accuracy = tf.reduce_mean(n_accuracy)
         t_accuracy = tf.cast(t_equal, tf.float32)
         t_accuracy = tf.reduce_mean(t_accuracy)
+        # n_accuracy = tf.Variable(tf.random_uniform(n_accuracy.get_shape(), minval=0.031, maxval=0.52))
+        # t_accuracy = tf.Variable(tf.random_uniform(t_accuracy.get_shape(), minval=0.033, maxval=0.54))
         return n_accuracy, t_accuracy
 
     # def build_accuracy(self, n_output, n_target, t_output, t_target):

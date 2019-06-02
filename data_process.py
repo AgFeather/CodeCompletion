@@ -141,10 +141,9 @@ def ast_to_seq(binary_tree, run_or_process='process'):
                 # Note:There are some tokens(like:break .etc）do not contains 'value'
                 string_node += '=$$=' + str(node['value'])
             temp_terminal_count[string_node] += 1
-
         else:  # 如果是non-terminal
-
-            string_node = str(node['id']) + str(node['type']) + '=$$=' + \
+            # str(node['id']) + 添加上对应的index用以测试
+            string_node =  str(node['type']) + '=$$=' + \
                 str(node['hasSibling']) + '=$$=' + \
                 str(node['hasNonTerminalChild'])  # 有些non-terminal包含value，探索该value的意义？（value种类非常多）
             temp_non_terminal_set.add(string_node)

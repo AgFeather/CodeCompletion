@@ -93,89 +93,51 @@ class CompletionCompare(object):
 
         return n_topk_pred, t_topk_pred
 
-    def query(self,ast_index, token_sequence):
-        prefix, expectation, suffix = self.create_hole(token_sequence)  # 随机在sequence中创建一个hole
-        n_expectation, t_expectation = expectation[0]
+    def query(self,prefix):
         origin_n_pred, origin_t_pred = self.eval_origin_model(prefix)
         embedding_n_pred, embedding_t_pred = self.eval_embedding_model(prefix)
-        if origin_n_pred != embedding_n_pred:
-            # 两个模型对nt token的预测不相同，记录
-            self.record_incorrect('n', ast_index, token_sequence,
-                                  len(prefix), origin_n_pred, embedding_n_pred, n_expectation)
-            print('There is a n-token predict wrong, ast index:{}'.format(ast_index))
-        if origin_t_pred != embedding_t_pred:
-            self.record_incorrect('t', ast_index, token_sequence,
-                                  len(prefix), origin_t_pred, embedding_t_pred, t_expectation)
-            print('There is a t-token predict wrong, ast index:{}'.format(ast_index))
-
-    def record_incorrect(self,n_or_t, ast_index, nt_sequence, token_index,
-                         origin_pred, embed_pred, expectation):
-        # 记录预测失误的信息到本地
-        # 整个文件的保存格式为：（ast_index,nt_sequence, node_index, origin_pred, embed_pred, true_label）
-        nt_sequence = [(self.nt_int_to_token[n], self.tt_int_to_token[t]) for n, t in nt_sequence]
-        if n_or_t == 'n':
-            origin_pred = self.nt_int_to_token[origin_pred]
-            embed_pred = self.nt_int_to_token[embed_pred]
-            expectation = self.nt_int_to_token[expectation]
-            info = 'ast_index;' + str(ast_index) + '\n' + \
-                   'nt_sequence;' + str(nt_sequence) + '\n' + \
-                   'token_index;' + str(token_index) + '\n' + \
-                   'ori_pred;' + str(origin_pred) + '\n' + \
-                   'embed_pred;' + str(embed_pred) + '\n' + \
-                   'expectation;' + str(expectation) + '\n'
-            self.n_incorrect.write(info)
-            self.n_incorrect.flush()
-        elif n_or_t == 't':
-            origin_pred = self.tt_int_to_token[origin_pred]
-            embed_pred = self.tt_int_to_token[embed_pred]
-            expectation = self.tt_int_to_token[expectation]
-            info = 'ast_index;' + str(ast_index) + '\n' + \
-                   'nt_sequence;' + str(nt_sequence) + '\n' + \
-                   'token_index;' + str(token_index) + '\n' + \
-                   'ori_pred;' + str(origin_pred) + '\n' + \
-                   'embed_pred;' + str(embed_pred) + '\n' + \
-                   'expectation;' + str(expectation) + '\n'
-            self.t_incorrect.write(info)
-            self.t_incorrect.flush()
-        else:
-            raise KeyError
+        return origin_n_pred, origin_t_pred, embedding_n_pred, embedding_t_pred
 
     def completion_test(self):
         """Test model with the whole test dataset
         first, it will create a hole in the test ast_nt_sequence randomly,
         then, it will call self.query() for each test case"""
         test_times = 10000
-        test_step = 0
         ast_generator = get_one_test_ast()
-        for index, ori_ast, token_sequence in ast_generator:  # 遍历该subset中每个nt token sequence
+        for i, ast, prefix, expectation_token, expectation_index in ast_generator:  # 遍历该subset中每个nt token sequence
             # 对一个ast sequence进行test
-            self.query(test_step, token_sequence)
-            test_step += 1
-            break
+            origin_n_pred, origin_t_pred, embedding_n_pred, embedding_t_pred = self.query(prefix)
+            n_expectation_token, t_expectation_token = expectation_token
+            n_expectation_index, t_expectation_index = expectation_index
 
-    def create_hole(self, nt_token_seq, hole_size=1):
-        hole_start_index = random.randint(
-            len(nt_token_seq) // 2, len(nt_token_seq) - hole_size)
-        hole_end_index = hole_start_index + hole_size
-        prefix = nt_token_seq[0:hole_start_index]
-        expectation = nt_token_seq[hole_start_index:hole_end_index]
-        suffix = nt_token_seq[hole_end_index:-1]
-        return prefix, expectation, suffix
+            # 当两个模型预测不准确时，记录。格式为：(ast, index, ori_pred, embed_pred, expect)
+            if origin_n_pred != embedding_n_pred:
+                origin_n_pred_token = self.nt_int_to_token[origin_n_pred]
+                embedding_n_pred_token = self.nt_int_to_token[embedding_n_pred]
+                info = 'ast;' + str(ast) + '\n' + \
+                       'expect_token_index;' + str(n_expectation_index) + '\n' + \
+                       'ori_pred;' + str(origin_n_pred_token) + '\n' + \
+                       'embed_pred;' + str(embedding_n_pred_token) + '\n' + \
+                       'expectation;' + str(n_expectation_token) + '\n'
+                self.n_incorrect.write(info)
+                self.n_incorrect.flush()
+                print('There is a N token predict wrong, ast index:{}'.format(i), end='     ')
+                print('Ori predict:{}; Embed predict:{}'.format(origin_n_pred_token, embedding_n_pred_token))
 
-    def int_to_token(self, n_int, t_int):
-        """将以int形式表示的n_token和t_token还原成对应的token信息"""
-        n_token = self.nt_int_to_token[n_int].split(test_setting.split_token)
-        t_token = self.tt_int_to_token[t_int].split(test_setting.split_token)
-        n_token_present = {}
-        t_token_present = {}
-        for index, value in enumerate(n_token):
-            n_token_present[index] = value
-        if t_token[0] == test_setting.unknown_token:
-            t_token_present[0] = 'Unknown Token'
-        else:
-            for index, value in enumerate(t_token):
-                t_token_present[index] = value
-        return n_token_present, t_token_present
+            if origin_t_pred != embedding_t_pred:
+                origin_t_pred_token = self.tt_int_to_token[origin_t_pred]
+                embedding_t_pred_token = self.tt_int_to_token[embedding_t_pred]
+                info = 'ast;' + str(ast) + '\n' + \
+                       'expect_token_index;' + str(t_expectation_index) + '\n' + \
+                       'ori_pred;' + str(origin_t_pred_token) + '\n' + \
+                       'embed_pred;' + str(embedding_t_pred_token) + '\n' + \
+                       'expectation;' + str(t_expectation_token) + '\n'
+                self.t_incorrect.write(info)
+                self.t_incorrect.flush()
+                print('There is a T token predict wrong, ast index:{}'.format(i), end='     ')
+                print('Ori predict:{}; Embed predict:{}'.format(origin_t_pred_token, embedding_t_pred_token))
+            if i > 10:
+                break
 
 
 def get_one_test_ast():
@@ -204,7 +166,7 @@ def get_one_test_ast():
             line = file.readline()  # read a lind from file(one ast)
             ast = json.loads(line)  # transform it to json format
             binary_tree = data_process.bulid_binary_tree(ast)  # AST to binary tree
-            nt_seq = data_process.ast_to_seq(binary_tree)  # binary to nt_sequence
+            prefix, expectation, predict_token_index = ast_to_seq(binary_tree)  # binary to nt_sequence
         except UnicodeDecodeError as error:  # arise by readline
             print(error)
         except JSONDecodeError as error:  # arise by json_load
@@ -215,15 +177,73 @@ def get_one_test_ast():
             print('other unknown error, plesae check the code')
         else:
 
-            int_seq = nt_seq_to_int(nt_seq)
-            if len(int_seq) != 0:
-                yield i, ast, int_seq
+            int_prefix = nt_seq_to_int(prefix)
+            if len(int_prefix) != 0:
+                yield i, ast, int_prefix, expectation, predict_token_index
+
+def ast_to_seq(binary_tree):
+    # 将一个ast首先转换成二叉树，然后对该二叉树进行中序遍历，得到nt_sequence
+    def node_to_string(node):
+        # 将一个node转换为string
+        if node == 'EMPTY':
+            string_node = 'EMPTY'
+        elif node['isTerminal']:  # 如果node为terminal
+            string_node = str(node['type'])
+            if 'value' in node.keys():
+                # Note:There are some tokens(like:break .etc）do not contains 'value'
+                string_node += '=$$=' + str(node['value'])
+        else:  # 如果是non-terminal
+            # str(node['id']) + 添加上对应的index用以测试
+            string_node =  str(node['type']) + '=$$=' + \
+                str(node['hasSibling']) + '=$$=' + \
+                str(node['hasNonTerminalChild'])  # 有些non-terminal包含value，探索该value的意义？（value种类非常多）
+
+        return string_node
+
+    def in_order_traversal(bin_tree, index):
+        # 对给定的二叉树进行中序遍历，并在中序遍历的时候，生成nt_pair
+        node = bin_tree[index]
+        if 'left' in node.keys() and node['left'] != -1:
+            in_order_traversal(bin_tree, node['left'])
+
+        if node == 'EMPTY' or node['isTerminal'] is True:  # 该token是terminal，只将其记录到counter中
+            node_to_string(node)
+        else:
+            assert 'isTerminal' in node.keys() and node['isTerminal'] is False
+            n_pair = node_to_string(node)
+            has_terminal_child = False
+            for child_index in node['children']:  # 遍历该non-terminal的所有child，分别用所有terminal child构建NT-pair
+                if bin_tree[child_index]['isTerminal']:
+                    t_pair = node_to_string(bin_tree[child_index])
+                    has_terminal_child = True
+                    nt_pair = (n_pair, t_pair)
+                    nt_index = (node['id'], bin_tree[child_index]['id'])
+                    nt_sequence.append(nt_pair)
+                    index_sequence.append(nt_index)
+            if not has_terminal_child: # 该nt node不包含任何terminal child
+                t_pair = node_to_string('EMPTY')
+                nt_pair = (n_pair, t_pair)
+                nt_index = (node['id'], 'EMPTY')
+                nt_sequence.append(nt_pair)
+                index_sequence.append(nt_index)
+
+        if node['right'] != -1:  # 遍历right side
+            in_order_traversal(bin_tree, node['right'])
+
+    nt_sequence = []
+    index_sequence = [] # 用以记录nt_sequence中每个token对应在原origin ast 中的索引
+    in_order_traversal(binary_tree, 0)
+    assert len(nt_sequence) == len(index_sequence)
+    hole_index = random.randint(10, len(nt_sequence)-1)
+    prefix = nt_sequence[:hole_index]
+    expectation = nt_sequence[hole_index]
+    suffix = nt_sequence[hole_index:]
+    predict_token_index = index_sequence[hole_index]
+    return prefix, expectation, predict_token_index
 
 
 
 if __name__ == '__main__':
-    # 该版本虽然实现了从原始AST直接转换成sequence，然后预测。
-    # 但error index对应的仍然是nt_seq中的index，无法自动定位到原始AST的index，需要手动找到error token在AST中的位置
     num_ntoken = test_setting.num_non_terminal
     num_ttoken = test_setting.num_terminal
     test_model = CompletionCompare(num_ntoken, num_ttoken)
