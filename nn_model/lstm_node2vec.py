@@ -19,6 +19,7 @@ valid_every_n = base_setting.valid_every_n
 
 
 class LSTM_Node_Embedding(object):
+    name='LSTM_Node_Embedding'
     def __init__(self,
                  num_ntoken, num_ttoken, is_training=True,
                  batch_size=50,

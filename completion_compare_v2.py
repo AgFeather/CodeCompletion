@@ -12,6 +12,11 @@ import utils
 from setting import Setting
 
 """在一个ast中随机创建一个hole，然后分别交给两个lstm进行预测，找到两者不同的地方"""
+"""Implement a pipeline: 
+choose an AST from the original test dataset,
+create a hole (non-terminal hole and its child terminal hole) in this AST, and record its index. 
+convert it to a nt-sequence with a hole
+and ask two models to predict, record their prediction """
 
 
 test_setting = Setting()
@@ -121,7 +126,8 @@ class CompletionCompare(object):
                        'expectation;' + str(n_expectation_token) + '\n'
                 self.n_incorrect.write(info)
                 self.n_incorrect.flush()
-                print('There is a N token predict wrong, ast index:{}'.format(i), end='     ')
+                #print('There is a N token predict wrong, ast index:{}'.format(i), end='   ')
+                print('There is a N token predict wrong', end='   ')
                 print('Ori predict:{}; Embed predict:{}'.format(origin_n_pred_token, embedding_n_pred_token))
 
             if origin_t_pred != embedding_t_pred:
@@ -134,7 +140,7 @@ class CompletionCompare(object):
                        'expectation;' + str(t_expectation_token) + '\n'
                 self.t_incorrect.write(info)
                 self.t_incorrect.flush()
-                print('There is a T token predict wrong, ast index:{}'.format(i), end='     ')
+                print('There is a T token predict wrong', end='   ')
                 print('Ori predict:{}; Embed predict:{}'.format(origin_t_pred_token, embedding_t_pred_token))
             if i > 10:
                 break
@@ -174,7 +180,8 @@ def get_one_test_ast():
         except RecursionError as error:
             print(error)
         except BaseException:
-            print('other unknown error, plesae check the code')
+            pass
+            #print('other unknown error, plesae check the code')
         else:
 
             int_prefix = nt_seq_to_int(prefix)
