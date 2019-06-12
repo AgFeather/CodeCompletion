@@ -34,7 +34,11 @@ def get_string(ast):
                 raise KeyError('There is no non-terminal token: {}'.format(token))
 
             elif type_info == 'ObjectExpression':
-                raise KeyError('There is no non-terminal token: {}'.format(token))
+                return_string += '{'
+                for child in child_list:
+                    return_string += ast2code(ast[child]) + ','
+                return_string += '}'
+
 
             elif type_info == 'UnaryExpression':
                 raise KeyError('There is no non-terminal token: {}'.format(token))
@@ -82,10 +86,15 @@ def get_string(ast):
                 raise KeyError('There is no non-terminal token: {}'.format(token))
 
             elif type_info == 'ArrayExpression':
-                raise KeyError('There is no non-terminal token: {}'.format(token))
+                return_string += '['
+                for child in child_list:
+                    return_string += ast2code(ast[child]) + ', '
+                return_string += ']'
 
             elif type_info == 'Property':
-                raise KeyError('There is no non-terminal token: {}'.format(token))
+                assert len(child_list) == 1
+                return_string += token['value'] + ':'
+                return_string += ast2code(ast[child_list[0]])
 
             elif type_info == 'WhileStatement':
                 raise KeyError('There is no non-terminal token: {}'.format(token))
@@ -94,10 +103,22 @@ def get_string(ast):
                 raise KeyError('There is no non-terminal token: {}'.format(token))
 
             elif type_info == 'FunctionDeclaration':
-                raise KeyError('There is no non-terminal token: {}'.format(token))
+                return_string += 'function '
+                for i, child in enumerate(child_list):
+                    if i == 0:
+                        return_string += ast2code(ast[child]) + '('  # function name
+                    elif i != len(child_list)-1:
+                        return_string += ast2code(ast[child]) + ', '
+                    else:
+                        return_string += ') {\n' + ast2code(ast[child])
+                return_string += '\n}'
+
+
 
             elif type_info == 'ReturnStatement':
-                raise KeyError('There is no non-terminal token: {}'.format(token))
+                assert len(child_list) == 1
+                return_string += 'return '
+                return_string += ast2code(ast[child_list[0]])
 
             elif type_info == 'ConditionalExpression':
                 raise KeyError('There is no non-terminal token: {}'.format(token))
@@ -185,6 +206,7 @@ def get_string(ast):
 
         return return_string
 
+    print('\n')
     token = ast[0]
     return ast2code(token)
 
@@ -203,7 +225,6 @@ def terminal_type(token):
     else:
         print('error', token)
         raise KeyError('terminal error')
-        return 'error'
 
 
 
