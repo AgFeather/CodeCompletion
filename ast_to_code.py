@@ -57,11 +57,19 @@ def get_string(ast):
             elif type_info == 'SequenceExpression':
                 raise KeyError('There is no non-terminal token: {}'.format(token))
             elif type_info == 'ThrowStatement':
-                raise KeyError('There is no non-terminal token: {}'.format(token))
+                assert len(child_list) == 1
+                return_string += 'throw ' + ast2code(ast[child_list[0]])
             elif type_info == 'CatchClause':
-                raise KeyError('There is no non-terminal token: {}'.format(token))
+                assert len(child_list) == 2
+                return_string += 'catch(' + ast2code(ast[child_list[0]]) + ')'
+                return_string += ast2code(ast[child_list[1]])
             elif type_info == 'TryStatement':
-                raise KeyError('There is no non-terminal token: {}'.format(token))
+                assert len(child_list) == 3
+                return_string += 'try '
+                for child in child_list:
+                    return_string += ast2code(ast[child])
+
+
 
             elif type_info == 'AssignmentExpression':
                 assert len(child_list) == 2
@@ -81,13 +89,13 @@ def get_string(ast):
             elif type_info == 'NewExpression':
                 for i, child in enumerate(child_list):
                     if i == 0:
-                        return_string += 'new ' + ast2code(ast[child])
+                        return_string += 'new ' + ast2code(ast[child]) + '('
                     elif i == 1:
                         return_string += '(' + ast2code(ast[child]) + ', '
                     else:
                         return_string += ast2code(ast[child]) + ', '
-                if len(child_list) > 1: # 说明该new的对象存在初始化参数
-                    return_string +=  ')'
+                #if len(child_list) > 1: # 说明该new的对象存在初始化参数
+                return_string +=  ')'
 
 
             elif type_info == 'ForInStatement':
@@ -125,8 +133,7 @@ def get_string(ast):
                     elif i != len(child_list)-1:
                         return_string += ast2code(ast[child]) + ', '
                     else:
-                        return_string += ') {\n' + ast2code(ast[child])
-                return_string += '\n}'
+                        return_string += ') ' + ast2code(ast[child])
 
             elif type_info == 'ReturnStatement':
                 assert len(child_list) == 1
@@ -222,7 +229,10 @@ def get_string(ast):
             return_string +=''
         elif type_info == 'ContinueStatement':
             return_string += 'continue'
-
+        elif type_info == 'VariableDeclarator':
+            return_string += token['value'] + ', '
+        elif type_info == 'BlockStatement':
+            return_string += "{}"
         else:
             return_string += terminal_type(token)
 
