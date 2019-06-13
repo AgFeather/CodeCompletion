@@ -12,6 +12,18 @@ def get_json():
     ast = json.loads(string_ast)
     return ast
 
+
+def get_test_ast():
+    """读取lstm的预测结果中的AST，并将AST转换成源码，在转换的同时标注出hole的位置"""
+    file = open('temp_data/predict_compare/tt_compare.txt')
+    for ast, hole_index, ori_pred, embed_pred in file:
+        ast = json.loads(ast.split(';')[1])
+        hole_index = int(hole_index.split(';')[1])
+        ori_pred = ori_pred.split(';')[1]
+        embed_pred = embed_pred.split(';')[1]
+        yield ast, hole_index, ori_pred, embed_pred
+
+
 hole_index = -1
 
 def get_string(ast):
@@ -20,11 +32,13 @@ def get_string(ast):
     def ast2code(token):
         if type(token) == int:
             return
-        if token['id'] == hole_index:
-            print('The location of the hole')
-
-        type_info = token['type']
         return_string = ''
+        type_info = token['type']
+        if token['id'] == hole_index:
+            return_string += ' _______ '
+            if 'children' not in token.keys():
+                # 如果该节点是terminal，直接返回
+                return return_string
 
         if 'children' in token:
             child_list = token['children']
@@ -49,27 +63,29 @@ def get_string(ast):
                 return_string += 'do' + ast2code(ast[child_list[1]])
                 return_string += 'while (' + ast2code(ast[child_list[0]]) + ')'
 
-
             elif type_info == 'FunctionExpression':
-                raise KeyError('There is no non-terminal token: {}'.format(token))
+                assert len(child_list) == 1
+                return_string += 'function () ' + ast2code(ast[child_list[0]])
+
             elif type_info == 'AssignmentPattern':
                 raise KeyError('There is no non-terminal token: {}'.format(token))
             elif type_info == 'SequenceExpression':
                 raise KeyError('There is no non-terminal token: {}'.format(token))
+
             elif type_info == 'ThrowStatement':
                 assert len(child_list) == 1
                 return_string += 'throw ' + ast2code(ast[child_list[0]])
+
             elif type_info == 'CatchClause':
                 assert len(child_list) == 2
                 return_string += 'catch(' + ast2code(ast[child_list[0]]) + ')'
                 return_string += ast2code(ast[child_list[1]])
+
             elif type_info == 'TryStatement':
                 assert len(child_list) == 3
                 return_string += 'try '
                 for child in child_list:
                     return_string += ast2code(ast[child])
-
-
 
             elif type_info == 'AssignmentExpression':
                 assert len(child_list) == 2
@@ -94,9 +110,7 @@ def get_string(ast):
                         return_string += '(' + ast2code(ast[child]) + ', '
                     else:
                         return_string += ast2code(ast[child]) + ', '
-                #if len(child_list) > 1: # 说明该new的对象存在初始化参数
                 return_string +=  ')'
-
 
             elif type_info == 'ForInStatement':
                 assert len(child_list) == 3
@@ -184,27 +198,33 @@ def get_string(ast):
                 return_string += 'var '
                 for child in child_list:
                     return_string += ast2code(ast[child])
+
             elif type_info == 'VariableDeclarator':
                 return_string += token['value'] + ' = '
                 for child in child_list:
                     return_string += ast2code(ast[child])
+
             elif type_info == 'BinaryExpression':
                 assert len(child_list) == 2
                 return_string += ast2code(ast[child_list[0]])
                 return_string += ' ' + token['value'] + ' '
                 return_string += ast2code(ast[child_list[1]])
+
             elif type_info == 'UpdateExpression':
                 assert len(child_list) == 1
                 return_string += ast2code(ast[child_list[0]])
                 return_string += token['value']
+
             elif type_info == 'BlockStatement':
                 return_string += '{\n'
                 for child in child_list:
                     return_string += ast2code(ast[child]) + '\n'
                 return_string += '}'
+
             elif type_info == 'ExpressionStatement':
                 for child in child_list:
                     return_string += ast2code(ast[child])
+
             elif type_info == 'CallExpression':
                 for i, child in enumerate(child_list):
                     if i == 0:
@@ -213,11 +233,13 @@ def get_string(ast):
                     else:
                         return_string += ast2code(ast[child])
                 return_string += ')'
+
             elif type_info == 'MemberExpression':
                 assert len(child_list) == 2
                 return_string += ast2code(ast[child_list[0]])
                 return_string += '.'
                 return_string += ast2code(ast[child_list[1]])
+
             else:
                 raise KeyError('There is no non-terminal token: {}'.format(token))
 
