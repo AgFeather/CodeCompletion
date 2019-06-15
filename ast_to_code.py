@@ -1,6 +1,6 @@
 import json
 from json.decoder import JSONDecodeError
-from examples import ast_example
+
 
 
 """convert an AST back to source code"""
@@ -16,17 +16,26 @@ def get_json():
 def get_test_ast():
     """读取lstm的预测结果中的AST，并将AST转换成源码，在转换的同时标注出hole的位置"""
     file = open('temp_data/predict_compare/tt_compare.txt')
-    for ast, hole_index, ori_pred, embed_pred in file:
-        ast = json.loads(ast.split(';')[1])
+    ast = file.readline()
+    while ast:
+        hole_index = file.readline()
+        ori_pred = file.readline()
+        embed_pred = file.readline()
+        ast = ast.split(';')[1].replace("\'","\"")
+        ast = ast.replace("False", "false")
+        ast = ast.replace("True", "true")
+        ast = json.loads(ast)
         hole_index = int(hole_index.split(';')[1])
         ori_pred = ori_pred.split(';')[1]
         embed_pred = embed_pred.split(';')[1]
         yield ast, hole_index, ori_pred, embed_pred
+        ast = file.readline()
+        #return ast, hole_index, ori_pred, embed_pred
 
 
-hole_index = -1
 
-def get_string(ast):
+
+def get_string(ast, hole_index, is_terminal):
     """给定一个AST，使用递归方式将其转换成一个string file"""
 
     def ast2code(token):
@@ -34,7 +43,7 @@ def get_string(ast):
             return
         return_string = ''
         type_info = token['type']
-        if token['id'] == hole_index:
+        if token['id'] == hole_index and is_terminal:
             return_string += ' _______ '
             if 'children' not in token.keys():
                 # 如果该节点是terminal，直接返回
@@ -255,6 +264,8 @@ def get_string(ast):
             return_string += token['value'] + ', '
         elif type_info == 'BlockStatement':
             return_string += "{}"
+        elif type_info == 'ObjectExpression':
+            return_string += ''
         else:
             return_string += terminal_type(token)
 
@@ -288,9 +299,15 @@ def terminal_type(token):
 
 
 if __name__ == '__main__':
-    # for i in ast_example:
-    #     print(i)
-    ast = get_json()
-    for i in ast: print(i)
-    string = get_string(ast)
-    print(string)
+    # ast = get_json()
+    # for i in ast: print(i)
+    # string = get_string(ast, is_terminal=False)
+    # print(string)
+    # file = open('temp_string_js_code.text', 'w')
+    # file.write(string)
+    # file.close()
+
+    ast, hole_index, ori_pred, embed_pred = get_test_ast()
+    string = get_string(ast, hole_index, is_terminal=True)
+
+

@@ -3,6 +3,7 @@ import random
 import sys
 import json
 from json.decoder import JSONDecodeError
+import copy
 
 import data_process
 from nn_model.lstm_model import RnnModel as orgin_model
@@ -171,6 +172,7 @@ def get_one_test_ast():
         try:
             line = file.readline()  # read a lind from file(one ast)
             ast = json.loads(line)  # transform it to json format
+            ori_ast = copy.deepcopy(ast)
             binary_tree = data_process.bulid_binary_tree(ast)  # AST to binary tree
             prefix, expectation, predict_token_index = ast_to_seq(binary_tree)  # binary to nt_sequence
         except UnicodeDecodeError as error:  # arise by readline
@@ -183,10 +185,9 @@ def get_one_test_ast():
             pass
             #print('other unknown error, plesae check the code')
         else:
-
             int_prefix = nt_seq_to_int(prefix)
             if len(int_prefix) != 0:
-                yield i, ast, int_prefix, expectation, predict_token_index
+                yield i, ori_ast, int_prefix, expectation, predict_token_index
 
 def ast_to_seq(binary_tree):
     # 将一个ast首先转换成二叉树，然后对该二叉树进行中序遍历，得到nt_sequence
