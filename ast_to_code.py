@@ -1,7 +1,7 @@
 import json
 from json.decoder import JSONDecodeError
-
-
+import demjson
+import pickle
 
 """convert an AST back to source code"""
 
@@ -12,6 +12,14 @@ def get_json():
     ast = json.loads(string_ast)
     return ast
 
+def get_test_ast_with_pickle():
+    info_list = pickle.load(open('temp_data/predict_compare/n_incorrect2.pkl', 'rb'))
+    ast = info_list[0]['ast']
+    t_expectation_index = info_list[0]['expect_index']
+    origin_t_pred_token = info_list[0]['ori_pred']
+    embedding_t_pred_token = info_list[0]['embed_pred']
+    t_expectation_token = info_list[0]['expectation']
+    return ast, t_expectation_index, origin_t_pred_token, embedding_t_pred_token, t_expectation_token
 
 def get_test_ast():
     """读取lstm的预测结果中的AST，并将AST转换成源码，在转换的同时标注出hole的位置"""
@@ -24,6 +32,7 @@ def get_test_ast():
         ast = ast.split(';')[1].replace("\'","\"")
         ast = ast.replace("False", "false")
         ast = ast.replace("True", "true")
+        #ast = demjson.decode(ast)
         ast = json.loads(ast)
         hole_index = int(hole_index.split(';')[1])
         ori_pred = ori_pred.split(';')[1]
@@ -266,6 +275,8 @@ def get_string(ast, hole_index, is_terminal):
             return_string += "{}"
         elif type_info == 'ObjectExpression':
             return_string += ''
+        elif type_info == 'ThisExpression':
+            return_string += 'this'
         else:
             return_string += terminal_type(token)
 
@@ -307,7 +318,12 @@ if __name__ == '__main__':
     # file.write(string)
     # file.close()
 
-    ast, hole_index, ori_pred, embed_pred = get_test_ast()
-    string = get_string(ast, hole_index, is_terminal=True)
+    # ast, hole_index, ori_pred, embed_pred = get_test_ast()
+    # string = get_string(ast, hole_index, is_terminal=True)
+
+    ast, t_expectation_index, origin_t_pred_token, embedding_t_pred_token, t_expectation_token = get_test_ast_with_pickle()
+    string = get_string(ast, t_expectation_index, is_terminal=True)
+    print(string)
+    print(ast)
 
 

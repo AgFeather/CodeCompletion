@@ -4,6 +4,7 @@ import sys
 import json
 from json.decoder import JSONDecodeError
 import copy
+import pickle
 
 import data_process
 from nn_model.lstm_model import RnnModel as orgin_model
@@ -25,6 +26,10 @@ current_time = test_setting.current_time
 origin_trained_model_dir = 'trained_model/origin_lstm/'
 embedding_trained_model_dir = 'trained_model/lstm_with_node2vec/'
 
+n_incorrect_count = 0
+t_incorrect_count = 0
+n_pickle_save_index = 1
+t_pickle_save_index = 1
 
 class CompletionCompare(object):
     def __init__(self,
@@ -51,6 +56,9 @@ class CompletionCompare(object):
 
         self.n_incorrect = open('temp_data/predict_compare/nt_compare'+str(current_time)+'.txt', 'w')
         self.t_incorrect = open('temp_data/predict_compare/tt_compare'+str(current_time)+'.txt', 'w')
+
+        self.n_incorrect_pickle_list = []
+        self.t_incorrect_pickle_list = []
 
     def eval_origin_model(self, prefix):
         """ evaluate one source code file, return the top k prediction and it's possibilities,
@@ -120,6 +128,22 @@ class CompletionCompare(object):
             if origin_n_pred != embedding_n_pred:
                 origin_n_pred_token = self.nt_int_to_token[origin_n_pred]
                 embedding_n_pred_token = self.nt_int_to_token[embedding_n_pred]
+
+                temp_n_incorrect = {'ast':ast,
+                                    'expect_index':n_expectation_index,
+                                    'ori_pred':origin_n_pred_token,
+                                    'embed_pred':embedding_n_pred_token,
+                                    'expectation':n_expectation_token}
+                self.n_incorrect_pickle_list.append(temp_n_incorrect)
+                global n_incorrect_count
+                n_incorrect_count+=1
+                if n_incorrect_count % 50 == 0:
+                    global n_pickle_save_index
+                    with open('temp_data/predict_compare/n_incorrect{}.pkl'.format(n_pickle_save_index), 'wb') as file:
+                        pickle.dump(self.n_incorrect_pickle_list, file)
+                        n_pickle_save_index += 1
+                        self.n_incorrect_pickle_list = []
+
                 info = 'ast;' + str(ast) + '\n' + \
                        'expect_token_index;' + str(n_expectation_index) + '\n' + \
                        'ori_pred;' + str(origin_n_pred_token) + '\n' + \
@@ -134,6 +158,22 @@ class CompletionCompare(object):
             if origin_t_pred != embedding_t_pred:
                 origin_t_pred_token = self.tt_int_to_token[origin_t_pred]
                 embedding_t_pred_token = self.tt_int_to_token[embedding_t_pred]
+
+                temp_t_correct = {'ast':ast,
+                                  'expect_index':t_expectation_index,
+                                  'ori_pred':origin_t_pred_token,
+                                  'embed_pred':embedding_t_pred_token,
+                                  'expectation':t_expectation_token}
+                self.t_incorrect_pickle_list.append(temp_t_correct)
+                global t_incorrect_count
+                t_incorrect_count += 1
+                if t_incorrect_count % 50 == 0:
+                    global t_pickle_save_index
+                    with open('temp_data/predict_compare/t_incorrect{}.pkl'.format(t_pickle_save_index), 'wb') as file:
+                        pickle.dump(self.t_incorrect_pickle_list, file)
+                        t_pickle_save_index += 1
+                        self.t_incorrect_pickle_list = []
+
                 info = 'ast;' + str(ast) + '\n' + \
                        'expect_token_index;' + str(t_expectation_index) + '\n' + \
                        'ori_pred;' + str(origin_t_pred_token) + '\n' + \
@@ -143,8 +183,8 @@ class CompletionCompare(object):
                 self.t_incorrect.flush()
                 print('There is a T token predict wrong', end='   ')
                 print('Ori predict:{}; Embed predict:{}'.format(origin_t_pred_token, embedding_t_pred_token))
-            if i > 10:
-                break
+            # if i > 10:
+            #     break
 
 
 def get_one_test_ast():
