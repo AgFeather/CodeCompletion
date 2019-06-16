@@ -31,8 +31,7 @@ def get_test_ast_with_pickle(is_terminal):
             expect_token = one_ast['expectation']
             if not isinstance(expect_index, int): # 跳过对EMTPY的预测
                 continue
-            #print(expect_index)
-            return ast, expect_index, ori_pred, embed_pred, expect_token
+            yield ast, expect_index, ori_pred, embed_pred, expect_token
 
 def get_test_ast():
     """读取lstm的预测结果中的AST，并将AST转换成源码，在转换的同时标注出hole的位置"""
@@ -65,7 +64,7 @@ def get_string(ast, hole_index, is_terminal):
         return_string = ''
         type_info = token['type']
         if token['id'] == hole_index and is_terminal:
-            return_string += ' _______ '
+            return_string += ' ___________ '
             return return_string
 
         if 'children' in token:
@@ -105,7 +104,8 @@ def get_string(ast, hole_index, is_terminal):
             elif type_info == 'AssignmentPattern':
                 raise KeyError('There is no non-terminal token: {}'.format(token))
             elif type_info == 'SequenceExpression':
-                raise KeyError('There is no non-terminal token: {}'.format(token))
+                for child in child_list:
+                    return_string += ast2code(ast[child]) + ', '
 
             elif type_info == 'ThrowStatement':
                 assert len(child_list) == 1
@@ -161,7 +161,8 @@ def get_string(ast, hole_index, is_terminal):
 
             elif type_info == 'Property':
                 assert len(child_list) == 1
-                return_string += token['value'] + ':'
+                if 'value' in token:
+                    return_string += str(token['value']) + ':'
                 return_string += ast2code(ast[child_list[0]])
 
             elif type_info == 'WhileStatement':
@@ -294,6 +295,11 @@ def get_string(ast, hole_index, is_terminal):
             return_string += ''
         elif type_info == 'ThisExpression':
             return_string += 'this'
+        elif type_info == 'ArrayExpression':
+            return_string += ""
+        elif type_info == 'ReturnStatement':
+            return_string +='return'
+
         else:
             return_string += terminal_type(token)
 
@@ -321,8 +327,7 @@ def terminal_type(token):
         return token['value']
     elif type_info == 'LiteralRegExp':
         return token['value']
-    elif type_info == 'ArrayExpression':
-        return ""
+
     else:
         print('error', token)
         raise KeyError('terminal error', str(token))
@@ -342,8 +347,24 @@ if __name__ == '__main__':
     # file.close()
 
 
-    ast, expect_index, ori_pred, embed_pred, expect_token = get_test_ast_with_pickle(is_terminal=True)
-    string = get_string(ast, expect_index, is_terminal=True)
-    print(string)
+    # ast, expect_index, ori_pred, embed_pred, expect_token = get_test_ast_with_pickle(is_terminal=True)
+    # string = get_string(ast, expect_index, is_terminal=True)
+    # print(string)
 
+    file_index = 1
+    for ast, expect_index, ori_pred, embed_pred, expect_token in get_test_ast_with_pickle(is_terminal=True):
+        string_code = get_string(ast, expect_index, is_terminal=True)
+        with open('temp_data/predict_compare/compare_source_code/code%d.txt' % (file_index), 'w') as file:
+            file.write(string_code)
+            file.write('\n')
+            file.write('ori_predict: ')
+            file.write(ori_pred)
+            file.write('\n')
+            file.write('embed_predict: ')
+            file.write(embed_pred)
+            file.write('\n')
+            file.write('expect_token: ')
+            file.write(expect_token)
+            file.write('\n')
+            file_index += 1
 
