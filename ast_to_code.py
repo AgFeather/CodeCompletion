@@ -2,6 +2,7 @@ import json
 from json.decoder import JSONDecodeError
 import demjson
 import pickle
+import os
 
 """convert an AST back to source code"""
 
@@ -12,14 +13,26 @@ def get_json():
     ast = json.loads(string_ast)
     return ast
 
-def get_test_ast_with_pickle():
-    info_list = pickle.load(open('temp_data/predict_compare/n_incorrect2.pkl', 'rb'))
-    ast = info_list[0]['ast']
-    t_expectation_index = info_list[0]['expect_index']
-    origin_t_pred_token = info_list[0]['ori_pred']
-    embedding_t_pred_token = info_list[0]['embed_pred']
-    t_expectation_token = info_list[0]['expectation']
-    return ast, t_expectation_index, origin_t_pred_token, embedding_t_pred_token, t_expectation_token
+def get_test_ast_with_pickle(is_terminal):
+    if is_terminal:
+        files_path = 'temp_data/predict_compare/terminal/'
+    else:
+        files_path = 'temp_data/predict_compare/non_terminal/'
+    file_list = os.listdir(files_path)
+    for file in file_list:
+        if file.startswith('.'):
+            continue
+        info_list = pickle.load(open(files_path + file, 'rb'))
+        for one_ast in info_list:
+            ast = one_ast['ast']
+            expect_index = one_ast['expect_index']
+            ori_pred = one_ast['ori_pred']
+            embed_pred = one_ast['embed_pred']
+            expect_token = one_ast['expectation']
+            if not isinstance(expect_index, int): # 跳过对EMTPY的预测
+                continue
+            #print(expect_index)
+            return ast, expect_index, ori_pred, embed_pred, expect_token
 
 def get_test_ast():
     """读取lstm的预测结果中的AST，并将AST转换成源码，在转换的同时标注出hole的位置"""
@@ -46,7 +59,6 @@ def get_test_ast():
 
 def get_string(ast, hole_index, is_terminal):
     """给定一个AST，使用递归方式将其转换成一个string file"""
-
     def ast2code(token):
         if type(token) == int:
             return
@@ -54,9 +66,7 @@ def get_string(ast, hole_index, is_terminal):
         type_info = token['type']
         if token['id'] == hole_index and is_terminal:
             return_string += ' _______ '
-            if 'children' not in token.keys():
-                # 如果该节点是terminal，直接返回
-                return return_string
+            return return_string
 
         if 'children' in token:
             child_list = token['children']
@@ -82,8 +92,15 @@ def get_string(ast, hole_index, is_terminal):
                 return_string += 'while (' + ast2code(ast[child_list[0]]) + ')'
 
             elif type_info == 'FunctionExpression':
-                assert len(child_list) == 1
-                return_string += 'function () ' + ast2code(ast[child_list[0]])
+                 #+ str(ast[token['children'][0]]) + str(ast[token['children'][1]])
+                if len(child_list) == 1:
+                    return_string += 'function () ' + ast2code(ast[child_list[0]])
+                else:
+                    for i, child in enumerate(child_list):
+                        if i == 0:
+                            return_string += 'function (' + ast2code(ast[child_list[0]]) + ')'
+                        else:
+                            return_string += ast2code(ast[child_list[i]])
 
             elif type_info == 'AssignmentPattern':
                 raise KeyError('There is no non-terminal token: {}'.format(token))
@@ -302,6 +319,10 @@ def terminal_type(token):
         return token['value']
     elif type_info == 'LiteralBoolean':
         return token['value']
+    elif type_info == 'LiteralRegExp':
+        return token['value']
+    elif type_info == 'ArrayExpression':
+        return ""
     else:
         print('error', token)
         raise KeyError('terminal error', str(token))
@@ -311,19 +332,18 @@ def terminal_type(token):
 
 if __name__ == '__main__':
     # ast = get_json()
-    # for i in ast: print(i)
-    # string = get_string(ast, is_terminal=False)
+    # for i in ast:
+    #     print(i)
+    # string = get_string(ast, -1, is_terminal=False)
     # print(string)
+
     # file = open('temp_string_js_code.text', 'w')
     # file.write(string)
     # file.close()
 
-    # ast, hole_index, ori_pred, embed_pred = get_test_ast()
-    # string = get_string(ast, hole_index, is_terminal=True)
 
-    ast, t_expectation_index, origin_t_pred_token, embedding_t_pred_token, t_expectation_token = get_test_ast_with_pickle()
-    string = get_string(ast, t_expectation_index, is_terminal=True)
+    ast, expect_index, ori_pred, embed_pred, expect_token = get_test_ast_with_pickle(is_terminal=True)
+    string = get_string(ast, expect_index, is_terminal=True)
     print(string)
-    print(ast)
 
 
