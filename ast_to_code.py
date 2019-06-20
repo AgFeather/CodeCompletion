@@ -8,6 +8,7 @@ import os
 
 def get_json():
     """运行parser将一个js文件转换为ast并保存成.json格式，然后读入"""
+    os.system('node js_parser/js_parser.js js_parser/helloworld.js')
     file = open('js_parser/test.json', 'r')
     string_ast = file.readlines()[0]
     ast = json.loads(string_ast)
@@ -336,11 +337,16 @@ def terminal_type(token):
         raise KeyError('terminal error', str(token))
 
 
-def pretty_print():
+def pretty_print(cate):
     """Using indent commend to pretty the source code"""
-    import subprocess
-    import os
-    dir_path = 'temp_data/predict_compare/compare_source_code/'
+    if cate == 'ori':
+        dir_path = 'temp_data/predict_compare/compare_source_code/ori_correct/'
+    elif cate == 'embed':
+        dir_path = 'temp_data/predict_compare/compare_source_code/embed_correct/'
+    elif cate == 'both':
+        dir_path = 'temp_data/predict_compare/compare_source_code/both_wrong/'
+    else:
+        raise KeyError('No this category')
     file_list = os.listdir(dir_path)
     for i, file in enumerate(file_list):
         if file.startswith('.'):
@@ -357,7 +363,7 @@ def all_ast_to_string():
     embed_corr_file_index = 1
     both_wrong_file_index = 1
     for ast, expect_index, ori_pred, embed_pred, expect_token in get_test_ast_with_pickle(is_terminal=True):
-        if len(ast) > 3000:
+        if len(ast) > 3000 or len(ast) < 1:
             continue
         string_code = get_string(ast, expect_index, is_terminal=True)
         if ori_pred != expect_token and embed_pred != expect_token:
@@ -373,7 +379,7 @@ def all_ast_to_string():
             raise KeyError('all predict correct')
         with open(path, 'w') as file:
             file.write(string_code)
-            file.write('\n')
+            file.write('\n\n\n\n')
             file.write('ori_predict: ')
             file.write(ori_pred)
             file.write('\n')
@@ -386,6 +392,8 @@ def all_ast_to_string():
 
 
 if __name__ == '__main__':
+
+    # 测试用，使用js parser将helloworld.js文件处理成AST，并再将其转换成string code
     # ast = get_json()
     # for i in ast:
     #     print(i)
@@ -396,12 +404,9 @@ if __name__ == '__main__':
     # file.write(string)
     # file.close()
 
-    #pretty_print()
-
-    # ast, expect_index, ori_pred, embed_pred, expect_token = get_test_ast_with_pickle(is_terminal=True)
-    # string = get_string(ast, expect_index, is_terminal=True)
-    # print(string)
-
     # 读取所有compare的ast并转换成source code
-    all_ast_to_string()
+    #all_ast_to_string()
+
+    # 使用indent对指定路径文件进行beautify
+    pretty_print(cate='both')
 
