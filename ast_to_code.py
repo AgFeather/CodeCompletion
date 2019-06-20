@@ -288,7 +288,10 @@ def get_string(ast, hole_index, is_terminal):
         elif type_info == 'ContinueStatement':
             return_string += 'continue'
         elif type_info == 'VariableDeclarator':
-            return_string += token['value'] + ', '
+            if 'value' in token:
+                return_string += token['value'] + ', '
+            else:
+                return_string += ' '
         elif type_info == 'BlockStatement':
             return_string += "{}"
         elif type_info == 'ObjectExpression':
@@ -333,28 +336,42 @@ def terminal_type(token):
         raise KeyError('terminal error', str(token))
 
 
+def pretty_print():
+    """Using indent commend to pretty the source code"""
+    import subprocess
+    import os
+    dir_path = 'temp_data/predict_compare/compare_source_code/'
+    file_list = os.listdir(dir_path)
+    for i, file in enumerate(file_list):
+        if file.startswith('.'):
+            continue
+        #subprocess.check_output()
+        commend = 'indent ' + dir_path + file
+        os.system(commend)
+        print('beautify', file)
 
 
-if __name__ == '__main__':
-    # ast = get_json()
-    # for i in ast:
-    #     print(i)
-    # string = get_string(ast, -1, is_terminal=False)
-    # print(string)
-
-    # file = open('temp_string_js_code.text', 'w')
-    # file.write(string)
-    # file.close()
-
-
-    # ast, expect_index, ori_pred, embed_pred, expect_token = get_test_ast_with_pickle(is_terminal=True)
-    # string = get_string(ast, expect_index, is_terminal=True)
-    # print(string)
-
-    file_index = 1
+def all_ast_to_string():
+    # 读取所有compare的ast并转换成source code
+    ori_corr_file_index = 1
+    embed_corr_file_index = 1
+    both_wrong_file_index = 1
     for ast, expect_index, ori_pred, embed_pred, expect_token in get_test_ast_with_pickle(is_terminal=True):
+        if len(ast) > 3000:
+            continue
         string_code = get_string(ast, expect_index, is_terminal=True)
-        with open('temp_data/predict_compare/compare_source_code/code%d.txt' % (file_index), 'w') as file:
+        if ori_pred != expect_token and embed_pred != expect_token:
+            path = 'temp_data/predict_compare/compare_source_code/both_wrong/code%d.txt' % (both_wrong_file_index)
+            both_wrong_file_index += 1
+        elif ori_pred != expect_token:
+            path = 'temp_data/predict_compare/compare_source_code/embed_correct/code%d.txt' % (embed_corr_file_index)
+            embed_corr_file_index += 1
+        elif embed_pred != expect_token:
+            path = 'temp_data/predict_compare/compare_source_code/ori_correct/code%d.txt' % (ori_corr_file_index)
+            ori_corr_file_index += 1
+        else:
+            raise KeyError('all predict correct')
+        with open(path, 'w') as file:
             file.write(string_code)
             file.write('\n')
             file.write('ori_predict: ')
@@ -366,5 +383,25 @@ if __name__ == '__main__':
             file.write('expect_token: ')
             file.write(expect_token)
             file.write('\n')
-            file_index += 1
+
+
+if __name__ == '__main__':
+    # ast = get_json()
+    # for i in ast:
+    #     print(i)
+    # string = get_string(ast, -1, is_terminal=False)
+    # print(string)
+    #
+    # file = open('temp_string_js_code.text', 'w')
+    # file.write(string)
+    # file.close()
+
+    #pretty_print()
+
+    # ast, expect_index, ori_pred, embed_pred, expect_token = get_test_ast_with_pickle(is_terminal=True)
+    # string = get_string(ast, expect_index, is_terminal=True)
+    # print(string)
+
+    # 读取所有compare的ast并转换成source code
+    all_ast_to_string()
 

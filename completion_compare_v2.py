@@ -271,7 +271,7 @@ def ast_to_seq(binary_tree):
             if not has_terminal_child: # 该nt node不包含任何terminal child
                 t_pair = node_to_string('EMPTY')
                 nt_pair = (n_pair, t_pair)
-                nt_index = (node['id'], -1) # -1 用来表示EMPTY
+                nt_index = (node['id'], 'EMPTY')
                 nt_sequence.append(nt_pair)
                 index_sequence.append(nt_index)
 
@@ -287,7 +287,6 @@ def ast_to_seq(binary_tree):
     expectation = nt_sequence[hole_index]
     suffix = nt_sequence[hole_index:]
     predict_token_index = index_sequence[hole_index]
-    print(index_sequence)
     return prefix, expectation, predict_token_index
 
 
