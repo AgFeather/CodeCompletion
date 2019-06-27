@@ -1,6 +1,5 @@
 import json
 from json.decoder import JSONDecodeError
-import demjson
 import pickle
 import os
 
