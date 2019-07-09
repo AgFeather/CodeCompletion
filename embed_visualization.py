@@ -325,8 +325,8 @@ if __name__ == '__main__':
     node_list4 = ['Property=$$=extend', 'Property=$$=append', 'Property=$$=add']
     node_list5 = ['Property=$$=type', 'Property=$$=value', 'Property=$$=key']
     node_list6 = ['LiteralString=$$=mousedown', 'LiteralString=$$=mouseup', 'LiteralString=$$=keyup', 'LiteralString=$$=keydown']
-   # node_list6 = ['LiteralString=$$=str', 'LiteralString=$$=string']
-    node_list7 = ['LiteralNumber=$$=0', 'LiteralNumber=$$=1', 'LiteralNumber=$$=8']
+    node_list8 = ['LiteralString=$$=str', 'LiteralString=$$=string', 'LiteralString=$$=String']
+    node_list7 = ['LiteralNumber=$$=0', 'LiteralNumber=$$=1', 'LiteralNumber=$$=8', 'LiteralNumber=$$=2', 'LiteralNumber=$$=5', 'LiteralNumber=$$=6', 'LiteralNumber=$$=3']
     data_list = node_list1 + node_list2  + node_list3 + node_list4 + node_list5 + node_list6 + node_list7
     #show_accu()
     # sim = calculate_similarity(node_list1[0], node_list1[1])
@@ -339,10 +339,10 @@ if __name__ == '__main__':
     # print('similarity between {} and {} is {}'.format(node_list2[0], node_list2[1], sim))
 
 
-    tt_single_plot(data_list)
-    #tt_single_plot(node_list6 + node_list5)
+    #tt_single_plot(data_list)
+    tt_single_plot(node_list6 + node_list5)
 
-
+    #calculate_similarity()
 
     #visualize_accuracy()
 

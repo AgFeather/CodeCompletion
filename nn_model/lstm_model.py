@@ -13,7 +13,7 @@ class RnnModel(object):
                  n_embed_dim=1500,
                  t_embed_dim=1500,
                  num_hidden_units=1500,
-                 learning_rate=0.001,
+                 learning_rate=0.0025,
                  time_steps=50,
                  grad_clip=5,):
         self.n_embed_dim = n_embed_dim

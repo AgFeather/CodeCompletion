@@ -87,7 +87,7 @@ def dataset_training_pair(subset_size=5000):
             tt_train_pairs_list = []
 
     print("Number of non-terminal training pairs: {}".format(num_nt_train_pair))  # 89512876 - 3
-    print("Number of terminal trianing pairs: {}".format(num_tt_train_pair))  # 82839660
+    print("Number of terminal training pairs: {}".format(num_tt_train_pair))  # 82839660
 
 
 
